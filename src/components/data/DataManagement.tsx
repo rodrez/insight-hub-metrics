@@ -3,6 +3,7 @@ import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
 import { useEffect, useState } from "react";
 import { DEPARTMENTS } from "@/lib/constants";
+import { Agreement } from "@/lib/types/collaboration";
 
 export default function DataManagement() {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -54,7 +55,7 @@ export default function DataManagement() {
             type: "Both" as const,
             signedDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
             expiryDate: new Date(Date.now() + 275 * 24 * 60 * 60 * 1000).toISOString(),
-            status: "signed"
+            status: "signed" as const
           }
         },
         { 
@@ -71,7 +72,7 @@ export default function DataManagement() {
             type: "NDA" as const,
             signedDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
             expiryDate: new Date(Date.now() + 305 * 24 * 60 * 60 * 1000).toISOString(),
-            status: "signed"
+            status: "signed" as const
           }
         },
         { 
@@ -88,7 +89,7 @@ export default function DataManagement() {
             type: "JTDA" as const,
             signedDate: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
             expiryDate: new Date(Date.now() + 245 * 24 * 60 * 60 * 1000).toISOString(),
-            status: "signed"
+            status: "signed" as const
           }
         }
       ];

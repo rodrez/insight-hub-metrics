@@ -77,53 +77,30 @@ export default function CollaboratorDetails() {
                 >
                   {project}
                 </Link>
-                <div className="space-x-2">
-                  {collaborator.agreements?.nda && (
-                    <Badge className={`${
-                      collaborator.agreements.nda.status === 'signed' ? 'bg-green-500' :
-                      collaborator.agreements.nda.status === 'pending' ? 'bg-yellow-500' :
-                      'bg-red-500'
-                    } text-white`}>
-                      NDA {collaborator.agreements.nda.status}
-                    </Badge>
-                  )}
-                  {collaborator.agreements?.jtda && (
-                    <Badge className={`${
-                      collaborator.agreements.jtda.status === 'signed' ? 'bg-green-500' :
-                      collaborator.agreements.jtda.status === 'pending' ? 'bg-yellow-500' :
-                      'bg-red-500'
-                    } text-white`}>
-                      JTDA {collaborator.agreements.jtda.status}
-                    </Badge>
-                  )}
+                {collaborator.agreements && (
+                  <Badge className={`${
+                    collaborator.agreements.status === 'signed' ? 'bg-green-500' :
+                    collaborator.agreements.status === 'pending' ? 'bg-yellow-500' :
+                    'bg-red-500'
+                  } text-white`}>
+                    {collaborator.agreements.type} {collaborator.agreements.status}
+                  </Badge>
+                )}
+              </div>
+              {collaborator.agreements && (
+                <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      <span>Agreement Dates</span>
+                    </div>
+                    <div className="pl-6 space-y-1">
+                      <p>Signed: {format(new Date(collaborator.agreements.signedDate), 'MMM d, yyyy')}</p>
+                      <p>Expires: {format(new Date(collaborator.agreements.expiryDate), 'MMM d, yyyy')}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
-                {collaborator.agreements?.nda && (
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      <span>NDA Dates</span>
-                    </div>
-                    <div className="pl-6 space-y-1">
-                      <p>Signed: {format(new Date(collaborator.agreements.nda.signedDate || ''), 'MMM d, yyyy')}</p>
-                      <p>Expires: {format(new Date(collaborator.agreements.nda.expiryDate || ''), 'MMM d, yyyy')}</p>
-                    </div>
-                  </div>
-                )}
-                {collaborator.agreements?.jtda && (
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      <span>JTDA Dates</span>
-                    </div>
-                    <div className="pl-6 space-y-1">
-                      <p>Signed: {format(new Date(collaborator.agreements.jtda.signedDate || ''), 'MMM d, yyyy')}</p>
-                      <p>Expires: {format(new Date(collaborator.agreements.jtda.expiryDate || ''), 'MMM d, yyyy')}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
           ))}
         </CardContent>
@@ -134,35 +111,27 @@ export default function CollaboratorDetails() {
           <CardTitle>Activity Summary</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div className="p-4 text-center border rounded-lg">
               <p className="text-2xl font-bold">{collaborator.projects.length}</p>
               <p className="text-sm text-muted-foreground">Total Projects</p>
             </div>
-            <div className="p-4 text-center border rounded-lg">
-              <p className="text-2xl font-bold">
-                {collaborator.agreements?.nda?.status === 'signed' ? 1 : 0}
-              </p>
-              <p className="text-sm text-muted-foreground">Active NDAs</p>
-            </div>
-            <div className="p-4 text-center border rounded-lg">
-              <p className="text-2xl font-bold">
-                {collaborator.agreements?.nda?.status === 'expired' ? 1 : 0}
-              </p>
-              <p className="text-sm text-muted-foreground">Expired NDAs</p>
-            </div>
-            <div className="p-4 text-center border rounded-lg">
-              <p className="text-2xl font-bold">
-                {collaborator.agreements?.jtda?.status === 'signed' ? 1 : 0}
-              </p>
-              <p className="text-sm text-muted-foreground">Active JTDAs</p>
-            </div>
-            <div className="p-4 text-center border rounded-lg">
-              <p className="text-2xl font-bold">
-                {collaborator.agreements?.jtda?.status === 'expired' ? 1 : 0}
-              </p>
-              <p className="text-sm text-muted-foreground">Expired JTDAs</p>
-            </div>
+            {collaborator.agreements && (
+              <>
+                <div className="p-4 text-center border rounded-lg">
+                  <p className="text-2xl font-bold">
+                    {collaborator.agreements.status === 'signed' ? 1 : 0}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Active Agreements</p>
+                </div>
+                <div className="p-4 text-center border rounded-lg">
+                  <p className="text-2xl font-bold">
+                    {collaborator.agreements.status === 'expired' ? 1 : 0}
+                  </p>
+                  <p className="text-sm text-muted-foreground">Expired Agreements</p>
+                </div>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>
