@@ -53,7 +53,8 @@ export default function DataManagement() {
           agreements: {
             type: "Both" as const,
             signedDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
-            expiryDate: new Date(Date.now() + 275 * 24 * 60 * 60 * 1000).toISOString()
+            expiryDate: new Date(Date.now() + 275 * 24 * 60 * 60 * 1000).toISOString(),
+            status: "signed"
           }
         },
         { 
@@ -69,7 +70,8 @@ export default function DataManagement() {
           agreements: {
             type: "NDA" as const,
             signedDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-            expiryDate: new Date(Date.now() + 305 * 24 * 60 * 60 * 1000).toISOString()
+            expiryDate: new Date(Date.now() + 305 * 24 * 60 * 60 * 1000).toISOString(),
+            status: "signed"
           }
         },
         { 
@@ -85,7 +87,8 @@ export default function DataManagement() {
           agreements: {
             type: "JTDA" as const,
             signedDate: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
-            expiryDate: new Date(Date.now() + 245 * 24 * 60 * 60 * 1000).toISOString()
+            expiryDate: new Date(Date.now() + 245 * 24 * 60 * 60 * 1000).toISOString(),
+            status: "signed"
           }
         }
       ];

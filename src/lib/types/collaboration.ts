@@ -1,9 +1,10 @@
 export type CollaborationType = 'NDA' | 'JTDA' | 'Both' | 'None';
 
 export type Agreement = {
-  status: 'signed' | 'pending' | 'expired';
-  signedDate?: string;
-  expiryDate?: string;
+  type: CollaborationType;
+  signedDate: string;
+  expiryDate: string;
+  status?: 'signed' | 'pending' | 'expired';
 };
 
 export type Collaborator = {
@@ -21,18 +22,5 @@ export type Collaborator = {
     email: string;
     phone: string;
   };
-  agreements?: {
-    nda?: Agreement;
-    jtda?: Agreement;
-  };
-};
-
-export type CollaborationDetails = {
-  projectId: string;
-  projectName: string;
-  status: string;
-  agreementType: CollaborationType;
-  signedDate?: string;
-  expiryDate?: string;
-  details: string;
+  agreements?: Agreement;
 };

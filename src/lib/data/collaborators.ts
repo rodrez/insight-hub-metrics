@@ -17,18 +17,10 @@ export const collaborators: Collaborator[] = [
       phone: '+1 (555) 123-4567'
     },
     agreements: {
-      nda: {
-        type: 'NDA',
-        signedDate: '2023-12-01',
-        expiryDate: '2024-12-01',
-        status: 'signed'
-      },
-      jtda: {
-        type: 'JTDA',
-        signedDate: '2023-12-15',
-        expiryDate: '2024-12-15',
-        status: 'signed'
-      }
+      type: 'Both',
+      signedDate: '2023-12-01',
+      expiryDate: '2024-12-01',
+      status: 'signed'
     }
   },
   {
@@ -41,12 +33,10 @@ export const collaborators: Collaborator[] = [
     lastActive: '2024-02-19',
     type: 'other',
     agreements: {
-      nda: {
-        type: 'NDA',
-        signedDate: '2023-06-01',
-        expiryDate: '2024-06-01',
-        status: 'pending'
-      }
+      type: 'NDA',
+      signedDate: '2023-06-01',
+      expiryDate: '2024-06-01',
+      status: 'pending'
     }
   },
   {
@@ -60,12 +50,10 @@ export const collaborators: Collaborator[] = [
     type: 'fortune30',
     color: '#FF9900',
     agreements: {
-      jtda: {
-        type: 'JTDA',
-        signedDate: '2023-09-01',
-        expiryDate: '2024-09-01',
-        status: 'expired'
-      }
+      type: 'JTDA',
+      signedDate: '2023-09-01',
+      expiryDate: '2024-09-01',
+      status: 'expired'
     }
   }
 ];
