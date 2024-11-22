@@ -92,7 +92,7 @@ export default function ProjectList() {
                         key={collab.id}
                         variant={collab.type === 'fortune30' ? 'default' : 'secondary'}
                         style={{ backgroundColor: collab.type === 'fortune30' ? collab.color : undefined }}
-                        className="text-xs cursor-pointer"
+                        className="text-xs"
                         onClick={(e) => handleCollaboratorClick(e, collab.id)}
                       >
                         {collab.name}
