@@ -3,7 +3,7 @@ import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
 import { useEffect, useState } from "react";
 import { DEPARTMENTS } from "@/lib/constants";
-import { Agreement } from "@/lib/types/collaboration";
+import { sampleFortune30, sampleInternalPartners } from "./SampleData";
 
 export default function DataManagement() {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -40,70 +40,8 @@ export default function DataManagement() {
     }
 
     try {
-      const fortune30Companies = [
-        { 
-          id: "walmart",
-          name: "Walmart", 
-          color: "#0071CE",
-          email: "contact@walmart.com",
-          role: "Strategic Partner",
-          department: "Retail",
-          projects: ["Supply Chain Optimization", "Digital Transformation"],
-          lastActive: new Date().toISOString(),
-          type: "fortune30" as const,
-          agreements: {
-            nda: {
-              signedDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
-              expiryDate: new Date(Date.now() + 275 * 24 * 60 * 60 * 1000).toISOString(),
-              status: "signed" as const
-            },
-            jtda: {
-              signedDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-              expiryDate: new Date(Date.now() + 305 * 24 * 60 * 60 * 1000).toISOString(),
-              status: "signed" as const
-            }
-          }
-        },
-        { 
-          id: "amazon",
-          name: "Amazon", 
-          color: "#FF9900",
-          email: "partner@amazon.com",
-          role: "Technology Partner",
-          department: "Cloud Services",
-          projects: ["Cloud Migration", "AI Integration"],
-          lastActive: new Date().toISOString(),
-          type: "fortune30" as const,
-          agreements: {
-            nda: {
-              signedDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-              expiryDate: new Date(Date.now() + 305 * 24 * 60 * 60 * 1000).toISOString(),
-              status: "signed" as const
-            }
-          }
-        },
-        { 
-          id: "apple",
-          name: "Apple", 
-          color: "#555555",
-          email: "enterprise@apple.com",
-          role: "Innovation Partner",
-          department: "Product Development",
-          projects: ["Mobile Solutions", "Enterprise Integration"],
-          lastActive: new Date().toISOString(),
-          type: "fortune30" as const,
-          agreements: {
-            jtda: {
-              signedDate: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
-              expiryDate: new Date(Date.now() + 245 * 24 * 60 * 60 * 1000).toISOString(),
-              status: "signed" as const
-            }
-          }
-        }
-      ];
-
       // Add collaborators to the database
-      for (const collaborator of fortune30Companies) {
+      for (const collaborator of [...sampleFortune30, ...sampleInternalPartners]) {
         await db.addCollaborator(collaborator);
       }
 
@@ -124,7 +62,7 @@ export default function DataManagement() {
             spent,
             status: "active" as const,
             collaborators: [
-              fortune30Companies[i % fortune30Companies.length]
+              sampleFortune30[i % sampleFortune30.length]
             ],
             nabc: {
               needs: `Sample needs for ${dept.name}`,
