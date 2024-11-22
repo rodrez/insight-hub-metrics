@@ -75,7 +75,7 @@ function ProjectDetailsComponent({ project: initialProject }: ProjectDetailsProp
   const [project, setProject] = useState(initialProject);
 
   const handleCollaboratorClick = (collaboratorId: string) => {
-    navigate(`/collaborations?company=${collaboratorId}`);
+    navigate(`/collaborations/${collaboratorId}`);
   };
 
   const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
@@ -187,7 +187,6 @@ function ProjectDetailsComponent({ project: initialProject }: ProjectDetailsProp
               <div
                 key={collaborator.id}
                 className="flex items-center justify-between p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
-                style={{ borderLeft: `4px solid ${collaborator.color}` }}
                 onClick={() => handleCollaboratorClick(collaborator.id)}
               >
                 <div>
