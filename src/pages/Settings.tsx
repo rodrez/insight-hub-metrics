@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
+import { db } from "@/lib/db";
 
 type ColorSetting = {
   id: string;
@@ -30,6 +31,22 @@ export default function Settings() {
       title: "Colors saved",
       description: "Your color settings have been saved successfully.",
     });
+  };
+
+  const handleDeleteDatabase = async () => {
+    try {
+      await db.deleteDatabase();
+      toast({
+        title: "Database deleted",
+        description: "The database has been cleared successfully. You can now repopulate it with sample data.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete database",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -65,7 +82,21 @@ export default function Settings() {
           </CardContent>
         </Card>
 
-        <DataManagement />
+        <Card>
+          <CardHeader>
+            <CardTitle>Database Management</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteDatabase}
+              className="w-full"
+            >
+              Delete Database
+            </Button>
+            <DataManagement />
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

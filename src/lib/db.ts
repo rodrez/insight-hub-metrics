@@ -31,6 +31,18 @@ export class ProjectDB {
     });
   }
 
+  async deleteDatabase() {
+    return new Promise<void>((resolve, reject) => {
+      const request = indexedDB.deleteDatabase(DB_NAME);
+      
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        this.db = null;
+        resolve();
+      };
+    });
+  }
+
   async addProject(project: Project) {
     return this.performTransaction('projects', 'readwrite', store => {
       store.add(project);
