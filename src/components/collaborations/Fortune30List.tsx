@@ -18,8 +18,10 @@ export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30List
           <CardHeader>
             <div className="flex justify-between items-start">
               <div>
-                <CardTitle>{collaborator.name}</CardTitle>
-                <CardDescription>{collaborator.role}</CardDescription>
+                <h1 className="text-4xl font-bold mb-2" style={{ color: collaborator.color || '#333' }}>
+                  {collaborator.name}
+                </h1>
+                <CardDescription className="text-lg">{collaborator.role}</CardDescription>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="icon" onClick={() => onEdit(collaborator.id)}>
