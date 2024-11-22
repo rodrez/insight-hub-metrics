@@ -12,8 +12,11 @@ export type Project = {
   name: string;
   departmentId: string;
   poc: string;
+  techLead: string;
   budget: number;
+  spent: number;
   status: 'active' | 'completed' | 'on-hold';
+  collaborators: Collaborator[];
   nabc?: NABC;
   milestones?: Milestone[];
   metrics?: ProjectMetric[];
@@ -32,6 +35,7 @@ export type Milestone = {
   description: string;
   dueDate: string;
   status: 'pending' | 'in-progress' | 'completed';
+  progress: number;
 };
 
 export type ProjectMetric = {
@@ -41,4 +45,13 @@ export type ProjectMetric = {
   target: number;
   unit: string;
   trend: 'up' | 'down' | 'stable';
+  description: string;
+};
+
+export type Collaborator = {
+  id: string;
+  name: string;
+  type: 'fortune30' | 'other';
+  color: string;
+  role: string;
 };
