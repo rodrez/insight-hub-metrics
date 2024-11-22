@@ -37,20 +37,36 @@ export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30List
                 <div>
                   <h4 className="font-medium mb-2">Agreement Details</h4>
                   <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Type:</span>
-                      <Badge>{collaborator.agreements?.type || 'None'}</Badge>
-                    </div>
-                    {collaborator.agreements?.signedDate && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Signed:</span>
-                        <span>{new Date(collaborator.agreements.signedDate).toLocaleDateString()}</span>
+                    {collaborator.agreements?.nda && (
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">NDA Status:</span>
+                          <Badge>{collaborator.agreements.nda.status}</Badge>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">NDA Signed:</span>
+                          <span>{new Date(collaborator.agreements.nda.signedDate).toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">NDA Expires:</span>
+                          <span>{new Date(collaborator.agreements.nda.expiryDate).toLocaleDateString()}</span>
+                        </div>
                       </div>
                     )}
-                    {collaborator.agreements?.expiryDate && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Expires:</span>
-                        <span>{new Date(collaborator.agreements.expiryDate).toLocaleDateString()}</span>
+                    {collaborator.agreements?.jtda && (
+                      <div className="space-y-2 mt-4">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">JTDA Status:</span>
+                          <Badge>{collaborator.agreements.jtda.status}</Badge>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">JTDA Signed:</span>
+                          <span>{new Date(collaborator.agreements.jtda.signedDate).toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">JTDA Expires:</span>
+                          <span>{new Date(collaborator.agreements.jtda.expiryDate).toLocaleDateString()}</span>
+                        </div>
                       </div>
                     )}
                   </div>

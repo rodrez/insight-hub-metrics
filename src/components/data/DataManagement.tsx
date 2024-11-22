@@ -52,10 +52,16 @@ export default function DataManagement() {
           lastActive: new Date().toISOString(),
           type: "fortune30" as const,
           agreements: {
-            type: "Both" as const,
-            signedDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
-            expiryDate: new Date(Date.now() + 275 * 24 * 60 * 60 * 1000).toISOString(),
-            status: "signed" as const
+            nda: {
+              signedDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+              expiryDate: new Date(Date.now() + 275 * 24 * 60 * 60 * 1000).toISOString(),
+              status: "signed" as const
+            },
+            jtda: {
+              signedDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+              expiryDate: new Date(Date.now() + 305 * 24 * 60 * 60 * 1000).toISOString(),
+              status: "signed" as const
+            }
           }
         },
         { 
@@ -69,10 +75,11 @@ export default function DataManagement() {
           lastActive: new Date().toISOString(),
           type: "fortune30" as const,
           agreements: {
-            type: "NDA" as const,
-            signedDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-            expiryDate: new Date(Date.now() + 305 * 24 * 60 * 60 * 1000).toISOString(),
-            status: "signed" as const
+            nda: {
+              signedDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+              expiryDate: new Date(Date.now() + 305 * 24 * 60 * 60 * 1000).toISOString(),
+              status: "signed" as const
+            }
           }
         },
         { 
@@ -86,10 +93,11 @@ export default function DataManagement() {
           lastActive: new Date().toISOString(),
           type: "fortune30" as const,
           agreements: {
-            type: "JTDA" as const,
-            signedDate: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
-            expiryDate: new Date(Date.now() + 245 * 24 * 60 * 60 * 1000).toISOString(),
-            status: "signed" as const
+            jtda: {
+              signedDate: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
+              expiryDate: new Date(Date.now() + 245 * 24 * 60 * 60 * 1000).toISOString(),
+              status: "signed" as const
+            }
           }
         }
       ];
