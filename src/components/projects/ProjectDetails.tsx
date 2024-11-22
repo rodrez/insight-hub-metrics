@@ -24,6 +24,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { db } from "@/lib/db";
 import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
+import { NABCSection } from "./NABCSection";
 
 interface ProjectDetailsProps {
   project: Project;
@@ -68,8 +69,9 @@ function ProjectDetailsWrapper() {
   return <ProjectDetailsComponent project={project} />;
 }
 
-function ProjectDetailsComponent({ project }: ProjectDetailsProps) {
+function ProjectDetailsComponent({ project: initialProject }: ProjectDetailsProps) {
   const navigate = useNavigate();
+  const [project, setProject] = useState(initialProject);
 
   const handleCollaboratorClick = (collaboratorId: string) => {
     navigate(`/collaborations?company=${collaboratorId}`);
@@ -88,6 +90,13 @@ function ProjectDetailsComponent({ project }: ProjectDetailsProps) {
 
   const remaining = project.budget - (project.spent || 0);
   const remainingPercentage = (remaining / project.budget) * 100;
+
+  const handleNabcUpdate = (newNabc: typeof project.nabc) => {
+    setProject(prev => ({
+      ...prev,
+      nabc: newNabc
+    }));
+  };
 
   return (
     <div className="container mx-auto px-4 space-y-6 py-8 animate-fade-in">
@@ -191,74 +200,11 @@ function ProjectDetailsComponent({ project }: ProjectDetailsProps) {
 
       {/* NABC Framework */}
       {project.nabc && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <TooltipProvider>
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  <Tooltip>
-                    <TooltipTrigger className="flex items-center gap-2">
-                      Needs
-                      <Info className="h-4 w-4" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>What customer and market needs are being addressed?</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>{project.nabc.needs}</CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  <Tooltip>
-                    <TooltipTrigger className="flex items-center gap-2">
-                      Approach
-                      <Info className="h-4 w-4" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>How will these needs be met?</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>{project.nabc.approach}</CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  <Tooltip>
-                    <TooltipTrigger className="flex items-center gap-2">
-                      Benefits
-                      <Info className="h-4 w-4" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>What are the quantifiable benefits?</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>{project.nabc.benefits}</CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  <Tooltip>
-                    <TooltipTrigger className="flex items-center gap-2">
-                      Competition
-                      <Info className="h-4 w-4" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>How does this compare to competitive approaches?</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>{project.nabc.competition}</CardContent>
-            </Card>
-          </TooltipProvider>
-        </div>
+        <NABCSection 
+          projectId={project.id} 
+          nabc={project.nabc} 
+          onUpdate={handleNabcUpdate}
+        />
       )}
 
       {/* Milestones Section */}
