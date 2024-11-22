@@ -1,5 +1,12 @@
 export type CollaborationType = 'NDA' | 'JTDA' | 'Both' | 'None';
 
+export type Agreement = {
+  type: CollaborationType;
+  signedDate?: string;
+  expiryDate?: string;
+  status: 'signed' | 'pending' | 'expired';
+};
+
 export type Collaborator = {
   id: string;
   name: string;
@@ -10,11 +17,14 @@ export type Collaborator = {
   lastActive: string;
   type?: 'fortune30' | 'other';
   color?: string;
+  primaryContact?: {
+    name: string;
+    email: string;
+    phone: string;
+  };
   agreements?: {
-    type: CollaborationType;
-    signedDate?: string;
-    expiryDate?: string;
-    details?: string;
+    nda?: Agreement;
+    jtda?: Agreement;
   };
 };
 
