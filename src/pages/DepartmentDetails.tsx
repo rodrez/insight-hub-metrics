@@ -1,14 +1,16 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { DEPARTMENTS } from "@/lib/constants";
+import { Button } from "@/components/ui/button";
+import { Users } from "lucide-react";
 
 export default function DepartmentDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const department = DEPARTMENTS.find(d => d.id === id);
 
   const { data: projects } = useQuery({
@@ -24,6 +26,10 @@ export default function DepartmentDetails() {
     return <div className="container mx-auto px-4 py-8">Department not found</div>;
   }
 
+  const handleViewCollaborators = () => {
+    navigate(`/collaborations/department/${id}`);
+  };
+
   return (
     <div className="container mx-auto px-4 pt-24 pb-12">
       <div className="mb-8">
@@ -38,6 +44,16 @@ export default function DepartmentDetails() {
           <Card className="p-4 flex-1">
             <div className="text-sm text-muted-foreground">Projects</div>
             <div className="text-2xl font-bold">{department.projectCount}</div>
+          </Card>
+          <Card className="p-4 flex-1">
+            <Button 
+              variant="outline" 
+              className="w-full" 
+              onClick={handleViewCollaborators}
+            >
+              <Users className="h-4 w-4 mr-2" />
+              View Internal Partners
+            </Button>
           </Card>
         </div>
       </div>
