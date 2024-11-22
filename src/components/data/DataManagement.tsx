@@ -29,6 +29,15 @@ export default function DataManagement() {
   };
 
   const populateSampleData = async () => {
+    if (!isInitialized) {
+      toast({
+        title: "Error",
+        description: "Please wait for database initialization to complete.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const fortune30Companies = [
         { name: "Walmart", color: "#0071CE" },
@@ -42,7 +51,7 @@ export default function DataManagement() {
         const projectCount = dept.projectCount;
         for (let i = 0; i < projectCount; i++) {
           const budget = Math.round(dept.budget / projectCount);
-          const spent = Math.round(budget * (Math.random() * 0.8)); // Random spent amount up to 80% of budget
+          const spent = Math.round(budget * (Math.random() * 0.8));
 
           const project = {
             id: `${dept.id}-project-${i + 1}`,
@@ -80,9 +89,7 @@ export default function DataManagement() {
                 id: `${dept.id}-milestone-1`,
                 title: "Initial Phase",
                 description: "Project initialization and planning",
-                dueDate: new Date(
-                  Date.now() + 30 * 24 * 60 * 60 * 1000
-                ).toISOString(),
+                dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
                 status: "in-progress" as const,
                 progress: 65
               },
@@ -90,9 +97,7 @@ export default function DataManagement() {
                 id: `${dept.id}-milestone-2`,
                 title: "Development Phase",
                 description: "Core development and testing",
-                dueDate: new Date(
-                  Date.now() + 60 * 24 * 60 * 60 * 1000
-                ).toISOString(),
+                dueDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
                 status: "pending" as const,
                 progress: 0
               }
@@ -126,6 +131,7 @@ export default function DataManagement() {
         description: "Sample projects have been added to the database.",
       });
     } catch (error) {
+      console.error('Error populating data:', error);
       toast({
         title: "Error populating data",
         description: "There was an error adding sample data.",
