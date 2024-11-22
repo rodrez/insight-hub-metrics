@@ -40,13 +40,62 @@ export default function DataManagement() {
 
     try {
       const fortune30Companies = [
-        { name: "Walmart", color: "#0071CE" },
-        { name: "Amazon", color: "#FF9900" },
-        { name: "Apple", color: "#555555" },
-        { name: "CVS Health", color: "#CC0000" },
-        { name: "UnitedHealth Group", color: "#002677" }
+        { 
+          id: "walmart",
+          name: "Walmart", 
+          color: "#0071CE",
+          email: "contact@walmart.com",
+          role: "Strategic Partner",
+          department: "Retail",
+          projects: ["Supply Chain Optimization", "Digital Transformation"],
+          lastActive: new Date().toISOString(),
+          type: "fortune30" as const,
+          agreements: {
+            type: "Both" as const,
+            signedDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+            expiryDate: new Date(Date.now() + 275 * 24 * 60 * 60 * 1000).toISOString()
+          }
+        },
+        { 
+          id: "amazon",
+          name: "Amazon", 
+          color: "#FF9900",
+          email: "partner@amazon.com",
+          role: "Technology Partner",
+          department: "Cloud Services",
+          projects: ["Cloud Migration", "AI Integration"],
+          lastActive: new Date().toISOString(),
+          type: "fortune30" as const,
+          agreements: {
+            type: "NDA" as const,
+            signedDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+            expiryDate: new Date(Date.now() + 305 * 24 * 60 * 60 * 1000).toISOString()
+          }
+        },
+        { 
+          id: "apple",
+          name: "Apple", 
+          color: "#555555",
+          email: "enterprise@apple.com",
+          role: "Innovation Partner",
+          department: "Product Development",
+          projects: ["Mobile Solutions", "Enterprise Integration"],
+          lastActive: new Date().toISOString(),
+          type: "fortune30" as const,
+          agreements: {
+            type: "JTDA" as const,
+            signedDate: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
+            expiryDate: new Date(Date.now() + 245 * 24 * 60 * 60 * 1000).toISOString()
+          }
+        }
       ];
 
+      // Add collaborators to the database
+      for (const collaborator of fortune30Companies) {
+        await db.addCollaborator(collaborator);
+      }
+
+      // Continue with existing project population
       for (const dept of DEPARTMENTS) {
         const projectCount = dept.projectCount;
         for (let i = 0; i < projectCount; i++) {
@@ -63,20 +112,7 @@ export default function DataManagement() {
             spent,
             status: "active" as const,
             collaborators: [
-              {
-                id: `collab-fortune-${i}`,
-                name: fortune30Companies[i % fortune30Companies.length].name,
-                type: "fortune30" as const,
-                color: fortune30Companies[i % fortune30Companies.length].color,
-                role: "Strategic Partner"
-              },
-              {
-                id: `collab-other-${i}`,
-                name: `Tech Partner ${i + 1}`,
-                type: "other" as const,
-                color: "#6E59A5",
-                role: "Technology Provider"
-              }
+              fortune30Companies[i % fortune30Companies.length]
             ],
             nabc: {
               needs: `Sample needs for ${dept.name}`,
@@ -128,7 +164,7 @@ export default function DataManagement() {
       }
       toast({
         title: "Sample data populated",
-        description: "Sample projects have been added to the database.",
+        description: "Sample projects and collaborators have been added to the database.",
       });
     } catch (error) {
       console.error('Error populating data:', error);
