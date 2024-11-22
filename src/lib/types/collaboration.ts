@@ -7,6 +7,8 @@ export type Agreement = {
   status: AgreementStatus;
 };
 
+export type CollaborationType = 'fortune30' | 'other';
+
 export type Collaborator = {
   id: string;
   name: string;
@@ -15,14 +17,10 @@ export type Collaborator = {
   department: string;
   projects: string[];
   lastActive: string;
-  type?: 'fortune30' | 'other';
+  type: CollaborationType;
   color?: string;
   agreements?: {
     nda?: Agreement;
     jtda?: Agreement;
-    type?: AgreementType;
-    status?: AgreementStatus;
-    signedDate?: string;
-    expiryDate?: string;
   };
 };

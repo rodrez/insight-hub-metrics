@@ -1,6 +1,7 @@
-import { Project } from "@/lib/types";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { 
   ArrowDown, 
   ArrowRight, 
@@ -18,13 +19,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useParams, Link, useNavigate } from "react-router-dom";
 import { db } from "@/lib/db";
 import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { NABCSection } from "./NABCSection";
 import { MilestonesSection } from "./MilestonesSection";
 import { CollaboratorCard } from "@/components/projects/CollaboratorCard";
+import { Project } from "@/lib/types";
 
 interface ProjectDetailsProps {
   project: Project;

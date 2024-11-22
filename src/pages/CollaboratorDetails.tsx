@@ -49,9 +49,7 @@ export default function CollaboratorDetails() {
       </div>
 
       <div className="space-y-4">
-        <h1 className={`inline-block text-2xl font-bold px-3 py-1 rounded ${
-          collaborator.type === 'fortune30' ? `bg-[${collaborator.color}]` : 'bg-gray-500'
-        } text-white`}>
+        <h1 className={`inline-block text-2xl font-bold px-3 py-1 rounded ${collaborator.type === 'fortune30' ? `bg-[${collaborator.color}]` : 'bg-gray-500'} text-white`}>
           {collaborator.name}
         </h1>
         <div className="space-y-2">
@@ -65,12 +63,6 @@ export default function CollaboratorDetails() {
               {collaborator.email}
             </a>
           </div>
-          {collaborator.primaryContact?.phone && (
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Phone className="h-4 w-4" />
-              <span>{collaborator.primaryContact.phone}</span>
-            </div>
-          )}
         </div>
       </div>
 
@@ -94,7 +86,7 @@ export default function CollaboratorDetails() {
                     getAgreementStatus() === 'pending' ? 'bg-yellow-500' :
                     'bg-red-500'
                   } text-white`}>
-                    {collaborator.agreements.type} {getAgreementStatus()}
+                    {collaborator.agreements.nda ? 'NDA' : 'JTDA'} {getAgreementStatus()}
                   </Badge>
                 )}
               </div>
@@ -131,13 +123,13 @@ export default function CollaboratorDetails() {
               <>
                 <div className="p-4 text-center border rounded-lg">
                   <p className="text-2xl font-bold">
-                    {collaborator.agreements.status === 'signed' ? 1 : 0}
+                    {collaborator.agreements.nda?.status === 'signed' ? 1 : 0}
                   </p>
                   <p className="text-sm text-muted-foreground">Active Agreements</p>
                 </div>
                 <div className="p-4 text-center border rounded-lg">
                   <p className="text-2xl font-bold">
-                    {collaborator.agreements.status === 'expired' ? 1 : 0}
+                    {collaborator.agreements.nda?.status === 'expired' ? 1 : 0}
                   </p>
                   <p className="text-sm text-muted-foreground">Expired Agreements</p>
                 </div>

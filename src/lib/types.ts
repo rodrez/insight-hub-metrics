@@ -48,10 +48,29 @@ export type ProjectMetric = {
   description: string;
 };
 
+export type CollaborationType = 'fortune30' | 'other';
+
 export type Collaborator = {
   id: string;
   name: string;
-  type: 'fortune30' | 'other';
-  color: string;
+  email: string;
   role: string;
+  department: string;
+  projects: string[];
+  lastActive: string;
+  type: CollaborationType;
+  color?: string;
+  agreements?: {
+    nda?: Agreement;
+    jtda?: Agreement;
+  };
+};
+
+export type AgreementStatus = 'signed' | 'pending' | 'expired';
+export type AgreementType = 'NDA' | 'JTDA' | 'Both' | 'None';
+
+export type Agreement = {
+  signedDate: string;
+  expiryDate: string;
+  status: AgreementStatus;
 };
