@@ -9,6 +9,7 @@ export type Collaborator = {
   projects: string[];
   lastActive: string;
   type?: 'fortune30' | 'other';
+  color?: string;
   agreements?: {
     type: CollaborationType;
     signedDate?: string;
