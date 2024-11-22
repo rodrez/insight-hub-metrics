@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Search, Mail, Calendar, Edit, Trash2, Plus } from 'lucide-react';
@@ -19,12 +19,26 @@ import { CollaborationDialog } from '@/components/collaborations/CollaborationDi
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
+import { useLocation } from 'react-router-dom';
 
 export default function Collaborations() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedCollaborator, setSelectedCollaborator] = useState<string | null>(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const companyId = params.get('company');
+    if (companyId) {
+      const collaborator = collaborators.find(c => c.id === companyId);
+      if (collaborator) {
+        setSelectedCollaborator(companyId);
+        setShowEditDialog(true);
+      }
+    }
+  }, [location]);
 
   const fortune30Collaborators = collaborators.filter(c => c.type === 'fortune30');
   const otherCollaborators = collaborators.filter(c => c.type !== 'fortune30');

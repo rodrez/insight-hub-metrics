@@ -20,7 +20,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { format } from "date-fns";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { db } from "@/lib/db";
 import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
@@ -69,6 +69,12 @@ export default function ProjectDetails() {
 }
 
 function ProjectDetailsComponent({ project }: ProjectDetailsProps) {
+  const navigate = useNavigate();
+
+  const handleCollaboratorClick = (collaboratorId: string) => {
+    navigate(`/collaborations?company=${collaboratorId}`);
+  };
+
   const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
       case 'up':
@@ -166,8 +172,9 @@ function ProjectDetailsComponent({ project }: ProjectDetailsProps) {
             {project.collaborators?.map((collaborator) => (
               <div
                 key={collaborator.id}
-                className="flex items-center justify-between p-3 rounded-lg border"
+                className="flex items-center justify-between p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
                 style={{ borderLeft: `4px solid ${collaborator.color}` }}
+                onClick={() => handleCollaboratorClick(collaborator.id)}
               >
                 <div>
                   <p className="font-medium">{collaborator.name}</p>
@@ -178,12 +185,6 @@ function ProjectDetailsComponent({ project }: ProjectDetailsProps) {
                 </Badge>
               </div>
             ))}
-            <Link
-              to="/collaborations"
-              className="text-sm text-primary hover:underline block mt-4"
-            >
-              View All Collaborations
-            </Link>
           </div>
         </CardContent>
       </Card>
@@ -352,3 +353,5 @@ function ProjectDetailsComponent({ project }: ProjectDetailsProps) {
     </div>
   );
 }
+
+export default ProjectDetails;
