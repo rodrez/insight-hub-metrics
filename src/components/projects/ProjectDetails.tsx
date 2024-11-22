@@ -25,6 +25,7 @@ import { db } from "@/lib/db";
 import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { NABCSection } from "./NABCSection";
+import { MilestonesSection } from "./MilestonesSection";
 
 interface ProjectDetailsProps {
   project: Project;
@@ -98,9 +99,15 @@ function ProjectDetailsComponent({ project: initialProject }: ProjectDetailsProp
     }));
   };
 
+  const handleMilestonesUpdate = (newMilestones: typeof project.milestones) => {
+    setProject(prev => ({
+      ...prev,
+      milestones: newMilestones
+    }));
+  };
+
   return (
     <div className="container mx-auto px-4 space-y-6 py-8 animate-fade-in">
-      {/* Summary Section */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">{project.name}</h1>
@@ -116,8 +123,7 @@ function ProjectDetailsComponent({ project: initialProject }: ProjectDetailsProp
           {project.status}
         </Badge>
       </div>
-
-      {/* Financial Overview */}
+      
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -167,8 +173,7 @@ function ProjectDetailsComponent({ project: initialProject }: ProjectDetailsProp
           </TooltipProvider>
         </CardContent>
       </Card>
-
-      {/* Collaborations Section */}
+      
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -197,7 +202,7 @@ function ProjectDetailsComponent({ project: initialProject }: ProjectDetailsProp
           </div>
         </CardContent>
       </Card>
-
+      
       {/* NABC Framework */}
       {project.nabc && (
         <NABCSection 
@@ -209,49 +214,13 @@ function ProjectDetailsComponent({ project: initialProject }: ProjectDetailsProp
 
       {/* Milestones Section */}
       {project.milestones && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Milestone className="h-5 w-5" />
-              Milestones
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {project.milestones.map((milestone) => (
-                <div key={milestone.id} className="border-b pb-4 last:border-0">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold">{milestone.title}</h3>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">
-                        {format(new Date(milestone.dueDate), 'MMM d, yyyy')}
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {milestone.description}
-                  </p>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <Badge variant={
-                        milestone.status === 'completed' ? 'default' :
-                        milestone.status === 'in-progress' ? 'secondary' : 'outline'
-                      }>
-                        {milestone.status}
-                      </Badge>
-                      <span>{milestone.progress}%</span>
-                    </div>
-                    <Progress value={milestone.progress} className="h-2" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <MilestonesSection
+          projectId={project.id}
+          milestones={project.milestones}
+          onUpdate={handleMilestonesUpdate}
+        />
       )}
 
-      {/* Key Metrics Section */}
       {project.metrics && (
         <Card>
           <CardHeader>
