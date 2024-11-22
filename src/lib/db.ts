@@ -39,7 +39,11 @@ export class ProjectDB {
 
   async getProject(id: string): Promise<Project | undefined> {
     return this.performTransaction('projects', 'readonly', store => {
-      return store.get(id);
+      return new Promise((resolve, reject) => {
+        const request = store.get(id);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
     });
   }
 
@@ -88,7 +92,11 @@ export class ProjectDB {
 
       try {
         const result = operation(store);
-        transaction.oncomplete = () => resolve(result);
+        if (result instanceof Promise) {
+          result.then(resolve).catch(reject);
+        } else {
+          transaction.oncomplete = () => resolve(result);
+        }
         transaction.onerror = () => reject(transaction.error);
       } catch (error) {
         reject(error);
