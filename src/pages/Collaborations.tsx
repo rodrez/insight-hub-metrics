@@ -73,7 +73,7 @@ export default function Collaborations() {
         <Tabs defaultValue="fortune30" className="w-full">
           <TabsList>
             <TabsTrigger value="fortune30">Fortune 30</TabsTrigger>
-            <TabsTrigger value="other">Other Partners</TabsTrigger>
+            <TabsTrigger value="other">Internal Partners</TabsTrigger>
           </TabsList>
 
           <TabsContent value="fortune30">
