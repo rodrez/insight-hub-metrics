@@ -1,10 +1,9 @@
 export type CollaborationType = 'NDA' | 'JTDA' | 'Both' | 'None';
 
 export type Agreement = {
-  type: CollaborationType;
+  status: 'signed' | 'pending' | 'expired';
   signedDate?: string;
   expiryDate?: string;
-  status: 'signed' | 'pending' | 'expired';
 };
 
 export type Collaborator = {

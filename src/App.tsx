@@ -21,15 +21,17 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Navbar />
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/collaborations" element={<Collaborations />} />
-          <Route path="/collaborations/:id" element={<CollaboratorDetails />} />
-          <Route path="/wiki" element={<Wiki />} />
-          <Route path="/glossary" element={<Glossary />} />
-          <Route path="/projects/:id" element={<ProjectDetails />} />
-        </Routes>
+        <div className="pt-14"> {/* Add padding-top to account for fixed navbar */}
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/collaborations" element={<Collaborations />} />
+            <Route path="/collaborations/:id" element={<CollaboratorDetails />} />
+            <Route path="/wiki" element={<Wiki />} />
+            <Route path="/glossary" element={<Glossary />} />
+            <Route path="/projects/:id" element={<ProjectDetails />} />
+          </Routes>
+        </div>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
