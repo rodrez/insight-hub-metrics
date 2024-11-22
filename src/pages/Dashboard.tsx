@@ -1,6 +1,7 @@
 import { DEPARTMENTS } from '@/lib/constants';
 import DepartmentCard from '@/components/dashboard/DepartmentCard';
 import ProjectSummary from '@/components/dashboard/ProjectSummary';
+import ProjectList from '@/components/projects/ProjectList';
 import { Link } from 'react-router-dom';
 
 export default function Dashboard() {
@@ -9,6 +10,11 @@ export default function Dashboard() {
       <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
       
       <ProjectSummary />
+
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">Project Overview</h2>
+        <ProjectList />
+      </div>
       
       <div className="space-y-8">
         <section>
