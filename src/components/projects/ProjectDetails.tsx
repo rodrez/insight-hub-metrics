@@ -26,6 +26,7 @@ import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { NABCSection } from "./NABCSection";
 import { MilestonesSection } from "./MilestonesSection";
+import { CollaboratorCard } from "@/components/projects/CollaboratorCard";
 
 interface ProjectDetailsProps {
   project: Project;
@@ -73,24 +74,6 @@ function ProjectDetailsWrapper() {
 function ProjectDetailsComponent({ project: initialProject }: ProjectDetailsProps) {
   const navigate = useNavigate();
   const [project, setProject] = useState(initialProject);
-
-  const handleCollaboratorClick = (collaboratorId: string) => {
-    navigate(`/collaborations/${collaboratorId}`);
-  };
-
-  const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
-    switch (trend) {
-      case 'up':
-        return <ArrowUp className="h-4 w-4 text-green-500" />;
-      case 'down':
-        return <ArrowDown className="h-4 w-4 text-red-500" />;
-      default:
-        return <ArrowRight className="h-4 w-4 text-yellow-500" />;
-    }
-  };
-
-  const remaining = project.budget - (project.spent || 0);
-  const remainingPercentage = (remaining / project.budget) * 100;
 
   const handleNabcUpdate = (newNabc: typeof project.nabc) => {
     setProject(prev => ({
@@ -167,8 +150,8 @@ function ProjectDetailsComponent({ project: initialProject }: ProjectDetailsProp
                   <p>Remaining budget</p>
                 </TooltipContent>
               </Tooltip>
-              <p className="text-2xl font-bold">${remaining.toLocaleString()}</p>
-              <Progress value={remainingPercentage} className="h-2" />
+              <p className="text-2xl font-bold">${project.budget - (project.spent || 0)}</p>
+              <Progress value={((project.budget - (project.spent || 0)) / project.budget) * 100} className="h-2" />
             </div>
           </TooltipProvider>
         </CardContent>
@@ -184,25 +167,15 @@ function ProjectDetailsComponent({ project: initialProject }: ProjectDetailsProp
         <CardContent>
           <div className="space-y-4">
             {project.collaborators?.map((collaborator) => (
-              <div
+              <CollaboratorCard
                 key={collaborator.id}
-                className="flex items-center justify-between p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
-                onClick={() => handleCollaboratorClick(collaborator.id)}
-              >
-                <div>
-                  <p className="font-medium">{collaborator.name}</p>
-                  <p className="text-sm text-muted-foreground">{collaborator.role}</p>
-                </div>
-                <Badge variant={collaborator.type === 'fortune30' ? 'default' : 'secondary'}>
-                  {collaborator.type === 'fortune30' ? 'Fortune 30' : 'Partner'}
-                </Badge>
-              </div>
+                collaborator={collaborator}
+              />
             ))}
           </div>
         </CardContent>
       </Card>
-      
-      {/* NABC Framework */}
+
       {project.nabc && (
         <NABCSection 
           projectId={project.id} 
@@ -211,7 +184,6 @@ function ProjectDetailsComponent({ project: initialProject }: ProjectDetailsProp
         />
       )}
 
-      {/* Milestones Section */}
       {project.milestones && (
         <MilestonesSection
           projectId={project.id}
