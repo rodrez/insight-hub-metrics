@@ -6,6 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/layout/Navbar";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
+import Collaborations from "./pages/Collaborations";
+import Wiki from "./pages/Wiki";
+import Glossary from "./pages/Glossary";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +22,9 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/collaborations" element={<Collaborations />} />
+          <Route path="/wiki" element={<Wiki />} />
+          <Route path="/glossary" element={<Glossary />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
