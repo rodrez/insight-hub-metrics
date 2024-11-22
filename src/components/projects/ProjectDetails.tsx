@@ -9,7 +9,45 @@ interface ProjectDetailsProps {
   project: Project;
 }
 
-export default function ProjectDetails({ project }: ProjectDetailsProps) {
+const mockProject = {
+  id: '1',
+  name: 'Sample Project',
+  departmentId: 'airplanes',
+  poc: 'John Doe',
+  budget: 500000,
+  status: 'active' as const,
+  nabc: {
+    needs: 'Market need for efficient air transport',
+    approach: 'Innovative design and manufacturing',
+    benefits: 'Reduced fuel consumption, lower costs',
+    competition: 'Traditional manufacturers'
+  },
+  milestones: [
+    {
+      id: '1',
+      title: 'Design Phase',
+      description: 'Complete initial design',
+      dueDate: '2024-06-30',
+      status: 'in-progress' as const
+    }
+  ],
+  metrics: [
+    {
+      id: '1',
+      name: 'Development Progress',
+      value: 45,
+      target: 100,
+      unit: '%',
+      trend: 'up' as const
+    }
+  ]
+};
+
+export default function ProjectDetails() {
+  return <ProjectDetailsComponent project={mockProject} />;
+}
+
+function ProjectDetailsComponent({ project }: ProjectDetailsProps) {
   const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
       case 'up':
