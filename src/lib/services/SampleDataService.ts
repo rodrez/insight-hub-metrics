@@ -36,8 +36,7 @@ export class SampleDataService implements DataService {
             signedDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
             expiryDate: new Date(Date.now() + 305 * 24 * 60 * 60 * 1000).toISOString(),
             status: "signed"
-          },
-          type: "Both"
+          }
         }
       },
       { 
@@ -49,11 +48,13 @@ export class SampleDataService implements DataService {
         department: "Cloud Services",
         projects: ["Cloud Migration", "AI Integration"],
         lastActive: new Date().toISOString(),
-        type: "fortune30" as const,
+        type: "fortune30",
         agreements: {
-          type: "NDA" as const,
-          signedDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-          expiryDate: new Date(Date.now() + 305 * 24 * 60 * 60 * 1000).toISOString()
+          nda: {
+            signedDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+            expiryDate: new Date(Date.now() + 305 * 24 * 60 * 60 * 1000).toISOString(),
+            status: "signed"
+          }
         }
       },
       { 
@@ -65,11 +66,13 @@ export class SampleDataService implements DataService {
         department: "Product Development",
         projects: ["Mobile Solutions", "Enterprise Integration"],
         lastActive: new Date().toISOString(),
-        type: "fortune30" as const,
+        type: "fortune30",
         agreements: {
-          type: "JTDA" as const,
-          signedDate: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
-          expiryDate: new Date(Date.now() + 245 * 24 * 60 * 60 * 1000).toISOString()
+          jtda: {
+            signedDate: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
+            expiryDate: new Date(Date.now() + 245 * 24 * 60 * 60 * 1000).toISOString(),
+            status: "signed"
+          }
         }
       }
     ];
