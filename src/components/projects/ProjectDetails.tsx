@@ -29,7 +29,7 @@ interface ProjectDetailsProps {
   project: Project;
 }
 
-export default function ProjectDetails() {
+function ProjectDetailsWrapper() {
   const { id } = useParams();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
@@ -354,4 +354,4 @@ function ProjectDetailsComponent({ project }: ProjectDetailsProps) {
   );
 }
 
-export default ProjectDetails;
+export default ProjectDetailsWrapper;
