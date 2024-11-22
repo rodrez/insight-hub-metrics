@@ -11,6 +11,7 @@ import Wiki from "./pages/Wiki";
 import Glossary from "./pages/Glossary";
 import ProjectDetails from "./components/projects/ProjectDetails";
 import CollaboratorDetails from "./pages/CollaboratorDetails";
+import DepartmentDetails from "./pages/DepartmentDetails";
 
 const queryClient = new QueryClient();
 
@@ -21,7 +22,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Navbar />
-        <div className="pt-14"> {/* Add padding-top to account for fixed navbar */}
+        <div className="pt-14">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/wiki" element={<Wiki />} />
             <Route path="/glossary" element={<Glossary />} />
             <Route path="/projects/:id" element={<ProjectDetails />} />
+            <Route path="/departments/:id" element={<DepartmentDetails />} />
           </Routes>
         </div>
       </BrowserRouter>
