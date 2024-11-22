@@ -4,10 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { db } from '@/lib/db';
 import { Project } from '@/lib/types';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function ProjectList() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadProjects = async () => {
@@ -30,6 +31,11 @@ export default function ProjectList() {
       default:
         return 'bg-gray-500';
     }
+  };
+
+  const handleCollaboratorClick = (e: React.MouseEvent, collaboratorId: string) => {
+    e.preventDefault(); // Prevent the project card click
+    navigate(`/collaborations/${collaboratorId}`);
   };
 
   return (
@@ -86,7 +92,8 @@ export default function ProjectList() {
                         key={collab.id}
                         variant={collab.type === 'fortune30' ? 'default' : 'secondary'}
                         style={{ backgroundColor: collab.type === 'fortune30' ? collab.color : undefined }}
-                        className="text-xs"
+                        className="text-xs cursor-pointer"
+                        onClick={(e) => handleCollaboratorClick(e, collab.id)}
                       >
                         {collab.name}
                       </Badge>

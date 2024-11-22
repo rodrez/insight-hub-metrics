@@ -10,6 +10,7 @@ import Collaborations from "./pages/Collaborations";
 import Wiki from "./pages/Wiki";
 import Glossary from "./pages/Glossary";
 import ProjectDetails from "./components/projects/ProjectDetails";
+import CollaboratorDetails from "./pages/CollaboratorDetails";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/" element={<Dashboard />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/collaborations" element={<Collaborations />} />
+          <Route path="/collaborations/:id" element={<CollaboratorDetails />} />
           <Route path="/wiki" element={<Wiki />} />
           <Route path="/glossary" element={<Glossary />} />
           <Route path="/projects/:id" element={<ProjectDetails />} />
