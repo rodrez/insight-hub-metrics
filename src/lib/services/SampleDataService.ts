@@ -1,5 +1,5 @@
 import { Project } from '../types';
-import { Collaborator } from '../types/collaboration';
+import { Collaborator, Agreement, AgreementStatus } from '../types/collaboration';
 import { DataService } from './DataService';
 import { DEPARTMENTS } from '../constants';
 
@@ -15,7 +15,7 @@ export class SampleDataService implements DataService {
   }
 
   async populateSampleData(): Promise<void> {
-    const fortune30Companies = [
+    const fortune30Companies: Collaborator[] = [
       { 
         id: "walmart",
         name: "Walmart", 
@@ -25,11 +25,19 @@ export class SampleDataService implements DataService {
         department: "Retail",
         projects: ["Supply Chain Optimization", "Digital Transformation"],
         lastActive: new Date().toISOString(),
-        type: "fortune30" as const,
+        type: "fortune30",
         agreements: {
-          type: "Both" as const,
-          signedDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
-          expiryDate: new Date(Date.now() + 275 * 24 * 60 * 60 * 1000).toISOString()
+          nda: {
+            signedDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+            expiryDate: new Date(Date.now() + 275 * 24 * 60 * 60 * 1000).toISOString(),
+            status: "signed"
+          },
+          jtda: {
+            signedDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+            expiryDate: new Date(Date.now() + 305 * 24 * 60 * 60 * 1000).toISOString(),
+            status: "signed"
+          },
+          type: "Both"
         }
       },
       { 

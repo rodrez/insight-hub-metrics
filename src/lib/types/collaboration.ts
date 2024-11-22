@@ -1,4 +1,5 @@
 export type AgreementStatus = 'signed' | 'pending' | 'expired';
+export type AgreementType = 'NDA' | 'JTDA' | 'Both' | 'None';
 
 export type Agreement = {
   signedDate: string;
@@ -19,5 +20,9 @@ export type Collaborator = {
   agreements?: {
     nda?: Agreement;
     jtda?: Agreement;
+    type?: AgreementType;
+    status?: AgreementStatus;
+    signedDate?: string;
+    expiryDate?: string;
   };
 };

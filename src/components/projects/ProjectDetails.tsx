@@ -1,7 +1,6 @@
 import { Project } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import { 
   ArrowDown, 
   ArrowRight, 
@@ -19,7 +18,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { format } from "date-fns";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { db } from "@/lib/db";
 import { useEffect, useState } from "react";
@@ -70,6 +68,17 @@ function ProjectDetailsWrapper() {
 
   return <ProjectDetailsComponent project={project} />;
 }
+
+const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
+  switch (trend) {
+    case 'up':
+      return <ArrowUp className="h-4 w-4 text-green-500" />;
+    case 'down':
+      return <ArrowDown className="h-4 w-4 text-red-500" />;
+    default:
+      return <ArrowRight className="h-4 w-4 text-yellow-500" />;
+  }
+};
 
 function ProjectDetailsComponent({ project: initialProject }: ProjectDetailsProps) {
   const navigate = useNavigate();

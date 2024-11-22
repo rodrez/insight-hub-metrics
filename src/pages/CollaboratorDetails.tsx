@@ -2,7 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Mail, Phone, Building, Calendar } from "lucide-react";
+import { ArrowLeft, Mail, Building, Calendar } from "lucide-react";
 import { collaborators } from "@/lib/data/collaborators";
 import { format } from "date-fns";
 
@@ -25,6 +25,17 @@ export default function CollaboratorDetails() {
       </div>
     );
   }
+
+  const getAgreementStatus = () => {
+    if (!collaborator.agreements) return null;
+    if (collaborator.agreements.nda?.status === 'signed' || collaborator.agreements.jtda?.status === 'signed') {
+      return 'signed';
+    }
+    if (collaborator.agreements.nda?.status === 'pending' || collaborator.agreements.jtda?.status === 'pending') {
+      return 'pending';
+    }
+    return 'expired';
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-6 animate-fade-in">
@@ -79,15 +90,15 @@ export default function CollaboratorDetails() {
                 </Link>
                 {collaborator.agreements && (
                   <Badge className={`${
-                    collaborator.agreements.status === 'signed' ? 'bg-green-500' :
-                    collaborator.agreements.status === 'pending' ? 'bg-yellow-500' :
+                    getAgreementStatus() === 'signed' ? 'bg-green-500' :
+                    getAgreementStatus() === 'pending' ? 'bg-yellow-500' :
                     'bg-red-500'
                   } text-white`}>
-                    {collaborator.agreements.type} {collaborator.agreements.status}
+                    {collaborator.agreements.type} {getAgreementStatus()}
                   </Badge>
                 )}
               </div>
-              {collaborator.agreements && (
+              {collaborator.agreements && collaborator.agreements.nda && (
                 <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
@@ -95,8 +106,8 @@ export default function CollaboratorDetails() {
                       <span>Agreement Dates</span>
                     </div>
                     <div className="pl-6 space-y-1">
-                      <p>Signed: {format(new Date(collaborator.agreements.signedDate), 'MMM d, yyyy')}</p>
-                      <p>Expires: {format(new Date(collaborator.agreements.expiryDate), 'MMM d, yyyy')}</p>
+                      <p>Signed: {format(new Date(collaborator.agreements.nda.signedDate), 'MMM d, yyyy')}</p>
+                      <p>Expires: {format(new Date(collaborator.agreements.nda.expiryDate), 'MMM d, yyyy')}</p>
                     </div>
                   </div>
                 </div>
