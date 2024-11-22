@@ -4,47 +4,52 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ArrowDown, ArrowRight, ArrowUp, Calendar } from "lucide-react";
 import { format } from "date-fns";
+import { useParams } from "react-router-dom";
+import { db } from "@/lib/db";
+import { useEffect, useState } from "react";
+import { toast } from "@/components/ui/use-toast";
 
 interface ProjectDetailsProps {
   project: Project;
 }
 
-const mockProject = {
-  id: '1',
-  name: 'Sample Project',
-  departmentId: 'airplanes',
-  poc: 'John Doe',
-  budget: 500000,
-  status: 'active' as const,
-  nabc: {
-    needs: 'Market need for efficient air transport',
-    approach: 'Innovative design and manufacturing',
-    benefits: 'Reduced fuel consumption, lower costs',
-    competition: 'Traditional manufacturers'
-  },
-  milestones: [
-    {
-      id: '1',
-      title: 'Design Phase',
-      description: 'Complete initial design',
-      dueDate: '2024-06-30',
-      status: 'in-progress' as const
-    }
-  ],
-  metrics: [
-    {
-      id: '1',
-      name: 'Development Progress',
-      value: 45,
-      target: 100,
-      unit: '%',
-      trend: 'up' as const
-    }
-  ]
-};
-
 export default function ProjectDetails() {
-  return <ProjectDetailsComponent project={mockProject} />;
+  const { id } = useParams();
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProject = async () => {
+      if (!id) return;
+      try {
+        await db.init();
+        const loadedProject = await db.getProject(id);
+        if (loadedProject) {
+          setProject(loadedProject);
+        }
+      } catch (error) {
+        toast({
+          title: "Error loading project",
+          description: "Could not load project details.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProject();
+  }, [id]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!project) {
+    return <div>Project not found</div>;
+  }
+
+  return <ProjectDetailsComponent project={project} />;
 }
 
 function ProjectDetailsComponent({ project }: ProjectDetailsProps) {
