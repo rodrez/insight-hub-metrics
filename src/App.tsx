@@ -9,6 +9,7 @@ import Settings from "./pages/Settings";
 import Collaborations from "./pages/Collaborations";
 import Wiki from "./pages/Wiki";
 import Glossary from "./pages/Glossary";
+import ProjectDetails from "./components/projects/ProjectDetails";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/collaborations" element={<Collaborations />} />
           <Route path="/wiki" element={<Wiki />} />
           <Route path="/glossary" element={<Glossary />} />
+          <Route path="/projects/:id" element={<ProjectDetails />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
