@@ -138,7 +138,6 @@ export class SampleDataService implements DataService {
     }
   }
 
-  // Delegate all other methods to the underlying database
   async getAllProjects(): Promise<Project[]> {
     return this.db.getAllProjects();
   }
@@ -149,6 +148,10 @@ export class SampleDataService implements DataService {
 
   async addProject(project: Project): Promise<void> {
     return this.db.addProject(project);
+  }
+
+  async updateProject(id: string, updates: Partial<Project>): Promise<void> {
+    return this.db.updateProject(id, updates);
   }
 
   async getAllCollaborators(): Promise<Collaborator[]> {

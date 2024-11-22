@@ -87,6 +87,23 @@ export class IndexedDBService implements DataService {
     });
   }
 
+  async updateProject(id: string, updates: Partial<Project>): Promise<void> {
+    return this.performTransaction('projects', 'readwrite', async (store) => {
+      const existingProject = await new Promise<Project | undefined>((resolve, reject) => {
+        const request = store.get(id);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+
+      if (!existingProject) {
+        throw new Error('Project not found');
+      }
+
+      const updatedProject = { ...existingProject, ...updates };
+      store.put(updatedProject);
+    });
+  }
+
   async getAllCollaborators(): Promise<Collaborator[]> {
     return this.performTransaction('collaborators', 'readonly', store => {
       return new Promise((resolve, reject) => {
