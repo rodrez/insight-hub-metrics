@@ -35,7 +35,7 @@ export default function Settings() {
 
   const handleDeleteDatabase = async () => {
     try {
-      await db.deleteDatabase();
+      await db.clear();
       toast({
         title: "Database deleted",
         description: "The database has been cleared successfully. You can now repopulate it with sample data.",
