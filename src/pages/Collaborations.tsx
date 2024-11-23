@@ -7,10 +7,10 @@ import { CollaborationDialog } from '@/components/collaborations/CollaborationDi
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/use-toast";
 import { useLocation, useParams } from 'react-router-dom';
-import { collaborators } from '@/lib/data/collaborators';
 import { Fortune30List } from '@/components/collaborations/Fortune30List';
 import { OtherPartnersList } from '@/components/collaborations/OtherPartnersList';
 import { DEPARTMENTS } from '@/lib/constants';
+import { sampleFortune30, sampleInternalPartners } from '@/components/data/SampleData';
 
 export default function Collaborations() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,10 +22,10 @@ export default function Collaborations() {
 
   const department = departmentId ? DEPARTMENTS.find(d => d.id === departmentId) : null;
 
-  const fortune30Collaborators = collaborators.filter(c => c.type === 'fortune30');
-  const otherCollaborators = collaborators.filter(c => {
-    const matchesDepartment = !departmentId || c.department === department?.name;
-    return c.type !== 'fortune30' && matchesDepartment;
+  const fortune30Collaborators = sampleFortune30;
+  const otherCollaborators = sampleInternalPartners.filter(c => {
+    const matchesDepartment = !departmentId || c.department === departmentId;
+    return matchesDepartment;
   });
 
   const handleDelete = (id: string) => {
