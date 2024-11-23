@@ -2,12 +2,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Mail } from "lucide-react";
 import { Collaborator } from "@/lib/types/collaboration";
+import { DEPARTMENTS } from "@/lib/constants";
 
 type OtherPartnersListProps = {
   collaborators: Collaborator[];
 };
 
 export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
+  const getDepartmentColor = (departmentId: string) => {
+    const department = DEPARTMENTS.find(d => d.id === departmentId);
+    return department?.color || '#333';
+  };
+
   return (
     <div className="rounded-lg border">
       <Table>
@@ -27,7 +33,16 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
               <TableCell className="font-medium">{collaborator.name}</TableCell>
               <TableCell>{collaborator.role}</TableCell>
               <TableCell>
-                <Badge variant="outline">{collaborator.department}</Badge>
+                <Badge 
+                  variant="outline" 
+                  style={{ 
+                    backgroundColor: getDepartmentColor(collaborator.department),
+                    color: 'white',
+                    borderColor: getDepartmentColor(collaborator.department)
+                  }}
+                >
+                  {DEPARTMENTS.find(d => d.id === collaborator.department)?.name || collaborator.department}
+                </Badge>
               </TableCell>
               <TableCell>
                 <div className="flex flex-wrap gap-1">
