@@ -42,7 +42,8 @@ export function ProjectHeader({ project, isEditing, onUpdate }: ProjectHeaderPro
         <Badge variant={
           project.status === 'active' ? 'default' :
           project.status === 'completed' ? 'secondary' :
-          project.status === 'delayed' ? 'warning' : 'destructive'
+          project.status === 'delayed' ? 'destructive' :
+          'destructive'
         }>
           {project.status}
         </Badge>
