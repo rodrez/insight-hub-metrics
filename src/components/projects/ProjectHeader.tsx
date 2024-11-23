@@ -41,7 +41,8 @@ export function ProjectHeader({ project, isEditing, onUpdate }: ProjectHeaderPro
         </div>
         <Badge variant={
           project.status === 'active' ? 'default' :
-          project.status === 'completed' ? 'secondary' : 'destructive'
+          project.status === 'completed' ? 'secondary' :
+          project.status === 'delayed' ? 'warning' : 'destructive'
         }>
           {project.status}
         </Badge>
@@ -106,7 +107,8 @@ export function ProjectHeader({ project, isEditing, onUpdate }: ProjectHeaderPro
       >
         <option value="active">Active</option>
         <option value="completed">Completed</option>
-        <option value="on-hold">On Hold</option>
+        <option value="delayed">Delayed</option>
+        <option value="action-needed">Action Needed</option>
       </select>
     </div>
   );

@@ -17,7 +17,7 @@ export type Project = {
   techLeadDepartment: string;
   budget: number;
   spent: number;
-  status: 'active' | 'completed' | 'on-hold';
+  status: 'active' | 'completed' | 'delayed' | 'action-needed';
   collaborators: Collaborator[];
   internalPartners?: Collaborator[];
   techDomainId?: string;
