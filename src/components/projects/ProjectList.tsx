@@ -6,6 +6,7 @@ import { db } from '@/lib/db';
 import { Project } from '@/lib/types';
 import { Link, useNavigate } from 'react-router-dom';
 import { defaultTechDomains } from "@/lib/types/techDomain";
+import { DEPARTMENTS } from "@/lib/constants";
 
 export default function ProjectList() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -32,6 +33,11 @@ export default function ProjectList() {
       default:
         return 'bg-gray-500';
     }
+  };
+
+  const getDepartmentColor = (departmentId: string) => {
+    const department = DEPARTMENTS.find(d => d.id === departmentId);
+    return department?.color || '#333';
   };
 
   const handleCollaboratorClick = (e: React.MouseEvent, collaboratorId: string) => {
@@ -80,12 +86,22 @@ export default function ProjectList() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Tech POC:</span>
-                    <span className="font-medium">{project.techLead}</span>
+                    <span className="text-muted-foreground">POC:</span>
+                    <Badge
+                      style={{ backgroundColor: getDepartmentColor(project.pocDepartment) }}
+                      className="text-white"
+                    >
+                      {project.poc}
+                    </Badge>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Program Manager:</span>
-                    <span className="font-medium">{project.poc}</span>
+                    <span className="text-muted-foreground">Tech Lead:</span>
+                    <Badge
+                      style={{ backgroundColor: getDepartmentColor(project.techLeadDepartment) }}
+                      className="text-white"
+                    >
+                      {project.techLead}
+                    </Badge>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Progress:</span>
@@ -99,21 +115,39 @@ export default function ProjectList() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <div className="text-sm text-muted-foreground mb-1">Collaborators:</div>
-                  <div className="flex flex-wrap gap-2">
-                    {project.collaborators
-                      .filter(collab => collab.type === 'fortune30' && collab.color)
-                      .map((collab) => (
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Fortune 30 Partners:</div>
+                    <div className="flex flex-wrap gap-2">
+                      {project.collaborators
+                        .filter(collab => collab.type === 'fortune30')
+                        .map((collab) => (
+                          <Badge
+                            key={collab.id}
+                            variant="default"
+                            style={{ backgroundColor: collab.color }}
+                            className="text-xs cursor-pointer"
+                            onClick={(e) => handleCollaboratorClick(e, collab.id)}
+                          >
+                            {collab.name}
+                          </Badge>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground mb-1">Internal Partners:</div>
+                    <div className="flex flex-wrap gap-2">
+                      {project.internalPartners?.map((partner) => (
                         <Badge
-                          key={collab.id}
+                          key={partner.id}
                           variant="default"
-                          style={{ backgroundColor: collab.color }}
-                          className="text-xs cursor-pointer"
-                          onClick={(e) => handleCollaboratorClick(e, collab.id)}
+                          style={{ backgroundColor: getDepartmentColor(partner.department) }}
+                          className="text-xs cursor-pointer text-white"
+                          onClick={(e) => handleCollaboratorClick(e, partner.id)}
                         >
-                          {collab.name}
+                          {partner.name}
                         </Badge>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
