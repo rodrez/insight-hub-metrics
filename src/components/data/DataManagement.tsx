@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { useEffect, useState } from "react";
 import { DatabaseActions } from "./DatabaseActions";
 import { sampleFortune30, sampleInternalPartners } from "./SampleData";
+import { executeWithRetry, LoadingStep } from "@/lib/utils/loadingRetry";
 
 export default function DataManagement() {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -14,42 +15,42 @@ export default function DataManagement() {
   }, []);
 
   const initializeDB = async () => {
-    try {
-      await db.init();
-      setIsInitialized(true);
-      toast({
-        title: "Database initialized",
-        description: "The database has been successfully initialized.",
-      });
-    } catch (error) {
-      console.error('Error initializing database:', error);
-      toast({
-        title: "Database initialization failed",
-        description: "There was an error initializing the database.",
-        variant: "destructive",
-      });
-    }
+    const initStep: LoadingStep = {
+      name: "Database Initialization",
+      action: async () => {
+        try {
+          await db.init();
+          setIsInitialized(true);
+          return true;
+        } catch (error) {
+          console.error('Database initialization error:', error);
+          return false;
+        }
+      }
+    };
+
+    await executeWithRetry(initStep);
   };
 
   const clearDatabase = async () => {
     setIsClearing(true);
-    try {
-      await db.clear();
-      await initializeDB();
-      toast({
-        title: "Database cleared",
-        description: "The database has been successfully cleared.",
-      });
-    } catch (error) {
-      console.error('Error clearing database:', error);
-      toast({
-        title: "Error clearing database",
-        description: "There was an error clearing the database.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsClearing(false);
-    }
+    
+    const clearStep: LoadingStep = {
+      name: "Database Clear",
+      action: async () => {
+        try {
+          await db.clear();
+          await initializeDB();
+          return true;
+        } catch (error) {
+          console.error('Database clear error:', error);
+          return false;
+        }
+      }
+    };
+
+    await executeWithRetry(clearStep);
+    setIsClearing(false);
   };
 
   const populateSampleData = async () => {
@@ -63,29 +64,34 @@ export default function DataManagement() {
     }
 
     setIsPopulating(true);
-    try {
-      // First, add all collaborators
-      for (const collaborator of [...sampleFortune30, ...sampleInternalPartners]) {
-        await db.addCollaborator(collaborator);
+    
+    const populateStep: LoadingStep = {
+      name: "Sample Data Population",
+      action: async () => {
+        try {
+          console.log('Starting sample data population...');
+          
+          // First, add all collaborators
+          console.log('Adding collaborators...');
+          for (const collaborator of [...sampleFortune30, ...sampleInternalPartners]) {
+            await db.addCollaborator(collaborator);
+          }
+
+          // Generate projects with the collaborators
+          console.log('Generating projects...');
+          const { projects } = await db.populateSampleData();
+          console.log(`Generated ${projects.length} projects`);
+
+          return true;
+        } catch (error) {
+          console.error('Sample data population error:', error);
+          return false;
+        }
       }
+    };
 
-      // Generate projects with the collaborators
-      const { projects } = await db.populateSampleData();
-
-      toast({
-        title: "Sample data populated",
-        description: "Sample projects and collaborators have been added to the database.",
-      });
-    } catch (error) {
-      console.error('Error populating data:', error);
-      toast({
-        title: "Error populating data",
-        description: "There was an error adding sample data.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsPopulating(false);
-    }
+    await executeWithRetry(populateStep);
+    setIsPopulating(false);
   };
 
   return (
