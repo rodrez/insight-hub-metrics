@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Edit, Trash2, Shield } from "lucide-react";
+import { Mail, Edit, Trash2, Shield, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collaborator } from "@/lib/types/collaboration";
 import {
@@ -17,6 +17,10 @@ type Fortune30ListProps = {
 };
 
 export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30ListProps) {
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString();
+  };
+
   return (
     <div className="grid gap-6">
       {collaborators.map((collaborator) => (
@@ -53,11 +57,11 @@ export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30List
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">NDA Signed:</span>
-                          <span>{new Date(collaborator.agreements.nda.signedDate).toLocaleDateString()}</span>
+                          <span>{formatDate(collaborator.agreements.nda.signedDate)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">NDA Expires:</span>
-                          <span>{new Date(collaborator.agreements.nda.expiryDate).toLocaleDateString()}</span>
+                          <span>{formatDate(collaborator.agreements.nda.expiryDate)}</span>
                         </div>
                       </div>
                     )}
@@ -69,11 +73,11 @@ export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30List
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">JTDA Signed:</span>
-                          <span>{new Date(collaborator.agreements.jtda.signedDate).toLocaleDateString()}</span>
+                          <span>{formatDate(collaborator.agreements.jtda.signedDate)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">JTDA Expires:</span>
-                          <span>{new Date(collaborator.agreements.jtda.expiryDate).toLocaleDateString()}</span>
+                          <span>{formatDate(collaborator.agreements.jtda.expiryDate)}</span>
                         </div>
                       </div>
                     )}
@@ -94,35 +98,55 @@ export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30List
                 <h4 className="font-medium mb-2">Associated Projects</h4>
                 <div className="space-y-2">
                   {collaborator.projects.map((project, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 rounded-lg border">
-                      <div className="flex items-center gap-2">
-                        <span>{project}</span>
-                        {(collaborator.agreements?.nda || collaborator.agreements?.jtda) && (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <Shield 
-                                  className={`h-4 w-4 ${
-                                    collaborator.agreements?.nda?.status === 'signed' || 
-                                    collaborator.agreements?.jtda?.status === 'signed' 
-                                      ? 'text-green-500' 
-                                      : 'text-yellow-500'
-                                  }`} 
-                                />
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>
-                                  {collaborator.agreements?.nda?.status === 'signed' || 
-                                   collaborator.agreements?.jtda?.status === 'signed'
-                                    ? "Protected by signed NDA/JTDA agreement"
-                                    : "Pending NDA/JTDA agreement"}
-                                </p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
+                    <div key={index} className="p-3 rounded-lg border space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">{project}</span>
+                        <Badge variant="outline">Active</Badge>
+                      </div>
+                      <div className="space-y-2 text-sm">
+                        {collaborator.agreements?.nda && (
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Shield className={`h-4 w-4 ${
+                              collaborator.agreements.nda.status === 'signed' 
+                                ? 'text-green-500' 
+                                : 'text-yellow-500'
+                            }`} />
+                            <span>NDA: {collaborator.agreements.nda.status}</span>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Calendar className="h-4 w-4" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Signed: {formatDate(collaborator.agreements.nda.signedDate)}</p>
+                                  <p>Expires: {formatDate(collaborator.agreements.nda.expiryDate)}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        )}
+                        {collaborator.agreements?.jtda && (
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Shield className={`h-4 w-4 ${
+                              collaborator.agreements.jtda.status === 'signed' 
+                                ? 'text-green-500' 
+                                : 'text-yellow-500'
+                            }`} />
+                            <span>JTDA: {collaborator.agreements.jtda.status}</span>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Calendar className="h-4 w-4" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Signed: {formatDate(collaborator.agreements.jtda.signedDate)}</p>
+                                  <p>Expires: {formatDate(collaborator.agreements.jtda.expiryDate)}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
                         )}
                       </div>
-                      <Badge variant="outline">Active</Badge>
                     </div>
                   ))}
                 </div>
