@@ -12,6 +12,8 @@ import { toast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { CollaborationFormFields, formSchema, CollaborationFormSchema } from "./CollaborationFormFields";
+import { useEffect } from "react";
+import { db } from "@/lib/db";
 
 type CollaborationDialogProps = {
   open: boolean;
@@ -38,6 +40,58 @@ export function CollaborationDialog({
       color: "#000000",
     },
   });
+
+  useEffect(() => {
+    const loadCollaborator = async () => {
+      if (collaboratorId) {
+        try {
+          const collaborator = await db.getCollaborator(collaboratorId);
+          if (collaborator) {
+            // Determine agreement type based on existing agreements
+            let agreementType: "None" | "NDA" | "JTDA" | "Both" = "None";
+            if (collaborator.agreements?.nda && collaborator.agreements?.jtda) {
+              agreementType = "Both";
+            } else if (collaborator.agreements?.nda) {
+              agreementType = "NDA";
+            } else if (collaborator.agreements?.jtda) {
+              agreementType = "JTDA";
+            }
+
+            form.reset({
+              name: collaborator.name,
+              email: collaborator.email,
+              role: collaborator.role,
+              department: collaborator.department,
+              agreementType,
+              signedDate: collaborator.agreements?.nda?.signedDate || collaborator.agreements?.jtda?.signedDate,
+              expiryDate: collaborator.agreements?.nda?.expiryDate || collaborator.agreements?.jtda?.expiryDate,
+              details: "",
+              color: collaborator.color || "#000000",
+            });
+          }
+        } catch (error) {
+          toast({
+            title: "Error",
+            description: "Failed to load collaborator data",
+            variant: "destructive",
+          });
+        }
+      } else {
+        // Reset form when creating new collaborator
+        form.reset({
+          name: "",
+          email: "",
+          role: "",
+          department: departmentId || "",
+          agreementType: "None",
+          details: "",
+          color: "#000000",
+        });
+      }
+    };
+
+    loadCollaborator();
+  }, [collaboratorId, departmentId, form]);
 
   const onSubmit = async (values: CollaborationFormSchema) => {
     try {
