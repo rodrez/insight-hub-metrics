@@ -10,7 +10,27 @@ import { Project } from "@/lib/types";
 import { TechDomainSelect } from "./TechDomainSelect";
 import { ProjectHeader } from "./ProjectHeader";
 import { FinancialDetails } from "./FinancialDetails";
-import { Edit, Save } from "lucide-react";
+import { Edit, Save, TrendingUp, Info } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+// Helper function for trend icons
+const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
+  switch (trend) {
+    case 'up':
+      return <TrendingUp className="h-4 w-4 text-green-500" />;
+    case 'down':
+      return <TrendingUp className="h-4 w-4 text-red-500 transform rotate-180" />;
+    default:
+      return <TrendingUp className="h-4 w-4 text-gray-500 transform rotate-90" />;
+  }
+};
 
 function ProjectDetailsWrapper() {
   const { id } = useParams();

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { Calendar, Milestone } from "lucide-react";
+import { Milestone as MilestoneIcon, Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -17,37 +17,38 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Milestone as MilestoneType } from "@/lib/types";
+import { Milestone } from "@/lib/types";
 import { db } from "@/lib/db";
 
 interface MilestonesSectionProps {
   projectId: string;
-  milestones: MilestoneType[];
-  onUpdate: (milestones: MilestoneType[]) => void;
+  milestones: Milestone[];
+  onUpdate: (milestones: Milestone[]) => void;
+  isEditing: boolean;  // Added this prop
 }
 
-export function MilestonesSection({ projectId, milestones, onUpdate }: MilestonesSectionProps) {
+export function MilestonesSection({ projectId, milestones, onUpdate, isEditing }: MilestonesSectionProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editData, setEditData] = useState<Partial<MilestoneType>>({});
+  const [editData, setEditData] = useState<Partial<Milestone>>({});
 
-  const handleEdit = (milestone: MilestoneType) => {
+  const handleEdit = (milestone: Milestone) => {
     setEditingId(milestone.id);
     setEditData(milestone);
   };
 
-  const handleSave = async (milestone: MilestoneType) => {
+  const handleSave = async (milestone: Milestone) => {
     try {
       const updatedMilestones = milestones.map((m) =>
         m.id === milestone.id ? { ...m, ...editData } : m
       );
-      
+
       await db.init();
       await db.updateProject(projectId, { milestones: updatedMilestones });
-      
+
       onUpdate(updatedMilestones);
       setEditingId(null);
       setEditData({});
-      
+
       toast({
         title: "Success",
         description: "Milestone updated successfully",
@@ -64,12 +65,12 @@ export function MilestonesSection({ projectId, milestones, onUpdate }: Milestone
   const handleDelete = async (milestoneId: string) => {
     try {
       const updatedMilestones = milestones.filter((m) => m.id !== milestoneId);
-      
+
       await db.init();
       await db.updateProject(projectId, { milestones: updatedMilestones });
-      
+
       onUpdate(updatedMilestones);
-      
+
       toast({
         title: "Success",
         description: "Milestone deleted successfully",
@@ -87,7 +88,7 @@ export function MilestonesSection({ projectId, milestones, onUpdate }: Milestone
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Milestone className="h-5 w-5" />
+          <MilestoneIcon className="h-5 w-5" />
           Milestones
         </CardTitle>
       </CardHeader>
