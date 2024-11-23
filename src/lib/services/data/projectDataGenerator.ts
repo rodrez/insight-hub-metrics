@@ -1,39 +1,32 @@
 import { Project, Department } from '@/lib/types';
 import { TechDomain } from '@/lib/types/techDomain';
-import { generateEmployeeData, InternalEmployee } from './employeeDataGenerator';
+import { Collaborator } from '@/lib/types/collaboration';
 
-export const generateProjectData = (departments: Department[], techDomains: TechDomain[]) => {
+export const generateProjectData = (
+  departments: Department[], 
+  techDomains: TechDomain[],
+  internalPartners: Collaborator[]
+) => {
   const projects: Project[] = [];
-  const internalEmployees = generateEmployeeData(departments);
-  const startDate = new Date();
-
+  
   departments.forEach((dept) => {
     const projectCount = dept.projectCount;
+    const deptPartners = internalPartners.filter(p => p.department === dept.id);
     
     for (let i = 0; i < projectCount; i++) {
-      const deptEmployees = internalEmployees.filter(emp => emp.department.id === dept.id);
-      const pocEmployee = deptEmployees[0] || internalEmployees[0];
-      const techLeadEmployee = deptEmployees[1] || internalEmployees[1];
+      // Assign POC and Tech Lead from the same department if possible
+      const pocPartner = deptPartners[i % deptPartners.length] || internalPartners[0];
+      const techLeadPartner = deptPartners[(i + 1) % deptPartners.length] || internalPartners[1];
 
-      const partnerCount = Math.floor(Math.random() * 4) + 2;
-      const availablePartners = internalEmployees.filter(emp => 
-        emp.id !== pocEmployee.id && emp.id !== techLeadEmployee.id
+      // Select random internal partners from other departments
+      const otherPartners = internalPartners.filter(p => 
+        p.id !== pocPartner.id && 
+        p.id !== techLeadPartner.id
       );
       
-      const selectedPartners = availablePartners
+      const selectedPartners = otherPartners
         .sort(() => Math.random() - 0.5)
-        .slice(0, partnerCount)
-        .map(partner => ({
-          id: partner.id,
-          name: partner.name,
-          email: partner.email,
-          role: partner.role,
-          department: partner.department.id,
-          color: partner.department.color,
-          projects: [],
-          lastActive: new Date().toISOString(),
-          type: 'other' as const
-        }));
+        .slice(0, 3);
 
       const budget = Math.round(dept.budget / projectCount);
       const spent = Math.round(budget * (Math.random() * 0.8));
@@ -45,19 +38,19 @@ export const generateProjectData = (departments: Department[], techDomains: Tech
         id: `${dept.id}-project-${i + 1}`,
         name: `${dept.name} Innovation Project ${i + 1}`,
         departmentId: dept.id,
-        poc: pocEmployee.name,
-        pocDepartment: pocEmployee.department.id,
-        techLead: techLeadEmployee.name,
-        techLeadDepartment: techLeadEmployee.department.id,
+        poc: pocPartner.name,
+        pocDepartment: pocPartner.department,
+        techLead: techLeadPartner.name,
+        techLeadDepartment: techLeadPartner.department,
         budget,
         spent,
         status: "active",
         collaborators: [],
-        internalPartners: selectedPartners,
+        internalPartners: [pocPartner, techLeadPartner, ...selectedPartners],
         techDomainId: randomTechDomain.id,
         nabc: generateNABC(dept.name),
-        milestones: generateMilestones(`${dept.id}-project-${i + 1}`, startDate),
-        metrics: generateMetrics(`${dept.id}-project-${i + 1}`),
+        milestones: generateMilestones(`${dept.id}-project-${i + 1}`),
+        metrics: generateMetrics(`${dept.id}-project-${i + 1}`, spent, budget),
         isSampleData: true
       };
 
@@ -65,7 +58,7 @@ export const generateProjectData = (departments: Department[], techDomains: Tech
     }
   });
 
-  return { projects, internalEmployees };
+  return { projects };
 };
 
 const generateNABC = (deptName: string) => ({
@@ -75,12 +68,12 @@ const generateNABC = (deptName: string) => ({
   competition: "Major competitors are investing in similar technologies, but our integrated approach provides a significant advantage in time-to-market."
 });
 
-const generateMilestones = (projectId: string, startDate: Date) => [
+const generateMilestones = (projectId: string) => [
   {
     id: `${projectId}-m1`,
     title: "Requirements & Planning",
     description: "Define technical specifications and project scope",
-    dueDate: new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     status: "completed" as const,
     progress: 100
   },
@@ -88,7 +81,7 @@ const generateMilestones = (projectId: string, startDate: Date) => [
     id: `${projectId}-m2`,
     title: "Design Phase",
     description: "Complete system architecture and detailed design",
-    dueDate: new Date(startDate.getTime() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+    dueDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
     status: "in-progress" as const,
     progress: 65
   },
@@ -96,13 +89,13 @@ const generateMilestones = (projectId: string, startDate: Date) => [
     id: `${projectId}-m3`,
     title: "Implementation",
     description: "Development and integration of core systems",
-    dueDate: new Date(startDate.getTime() + 180 * 24 * 60 * 60 * 1000).toISOString(),
+    dueDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
     status: "pending" as const,
     progress: 0
   }
 ];
 
-const generateMetrics = (projectId: string) => [
+const generateMetrics = (projectId: string, spent: number, budget: number) => [
   {
     id: `${projectId}-metric-1`,
     name: "Development Progress",
@@ -115,7 +108,7 @@ const generateMetrics = (projectId: string) => [
   {
     id: `${projectId}-metric-2`,
     name: "Budget Utilization",
-    value: Math.round(Math.random() * 95),
+    value: Math.round((spent / budget) * 100),
     target: 100,
     unit: "%",
     trend: "stable" as const,
