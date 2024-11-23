@@ -23,6 +23,7 @@ export default function DataManagement() {
         description: "The database has been successfully initialized.",
       });
     } catch (error) {
+      console.error('Error initializing database:', error);
       toast({
         title: "Database initialization failed",
         description: "There was an error initializing the database.",
@@ -41,6 +42,7 @@ export default function DataManagement() {
         description: "The database has been successfully cleared.",
       });
     } catch (error) {
+      console.error('Error clearing database:', error);
       toast({
         title: "Error clearing database",
         description: "There was an error clearing the database.",

@@ -1,5 +1,5 @@
-import { fortune30Partners } from './fortune30Partners';
-import { internalPartners } from './internalPartners';
+import { generateFortune30Partners } from '@/lib/services/data/fortune30Partners';
+import { generateInternalPartners } from '@/lib/services/data/internalPartners';
 
-export const sampleFortune30 = fortune30Partners;
-export const sampleInternalPartners = internalPartners;
+export const sampleFortune30 = generateFortune30Partners();
+export const sampleInternalPartners = generateInternalPartners();
