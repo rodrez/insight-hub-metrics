@@ -2,6 +2,12 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { db } from '@/lib/db';
 import { Project } from '@/lib/types';
 import { Link, useNavigate } from 'react-router-dom';
@@ -60,15 +66,24 @@ export default function ProjectList() {
                   <div className="flex items-center gap-2 mb-2">
                     <CardTitle className="text-xl">{project.name}</CardTitle>
                     {project.techDomainId && (
-                      <Badge
-                        variant="secondary"
-                        style={{
-                          backgroundColor: defaultTechDomains.find(d => d.id === project.techDomainId)?.color,
-                          color: 'white'
-                        }}
-                      >
-                        {defaultTechDomains.find(d => d.id === project.techDomainId)?.name}
-                      </Badge>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <Badge
+                              variant="secondary"
+                              style={{
+                                backgroundColor: defaultTechDomains.find(d => d.id === project.techDomainId)?.color,
+                                color: 'white'
+                              }}
+                            >
+                              {defaultTechDomains.find(d => d.id === project.techDomainId)?.name}
+                            </Badge>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{defaultTechDomains.find(d => d.id === project.techDomainId)?.description}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground line-clamp-2">
@@ -85,23 +100,43 @@ export default function ProjectList() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
+                  <div className="flex items-center gap-2 text-sm">
                     <span className="text-muted-foreground">POC:</span>
-                    <Badge
-                      style={{ backgroundColor: getDepartmentColor(project.pocDepartment) }}
-                      className="text-white"
-                    >
-                      {project.poc}
-                    </Badge>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Badge
+                            style={{ backgroundColor: getDepartmentColor(project.pocDepartment) }}
+                            className="text-white"
+                          >
+                            {project.poc}
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Point of Contact</p>
+                          <p>Department: {DEPARTMENTS.find(d => d.id === project.pocDepartment)?.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex items-center gap-2 text-sm">
                     <span className="text-muted-foreground">Tech Lead:</span>
-                    <Badge
-                      style={{ backgroundColor: getDepartmentColor(project.techLeadDepartment) }}
-                      className="text-white"
-                    >
-                      {project.techLead}
-                    </Badge>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Badge
+                            style={{ backgroundColor: getDepartmentColor(project.techLeadDepartment) }}
+                            className="text-white"
+                          >
+                            {project.techLead}
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Technical Lead</p>
+                          <p>Department: {DEPARTMENTS.find(d => d.id === project.techLeadDepartment)?.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Progress:</span>
@@ -121,15 +156,25 @@ export default function ProjectList() {
                       {project.collaborators
                         .filter(collab => collab.type === 'fortune30')
                         .map((collab) => (
-                          <Badge
-                            key={collab.id}
-                            variant="default"
-                            style={{ backgroundColor: collab.color }}
-                            className="text-xs cursor-pointer"
-                            onClick={(e) => handleCollaboratorClick(e, collab.id)}
-                          >
-                            {collab.name}
-                          </Badge>
+                          <TooltipProvider key={collab.id}>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <Badge
+                                  variant="default"
+                                  style={{ backgroundColor: collab.color }}
+                                  className="text-xs cursor-pointer"
+                                  onClick={(e) => handleCollaboratorClick(e, collab.id)}
+                                >
+                                  {collab.name}
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Fortune 30 Partner</p>
+                                <p>Role: {collab.role}</p>
+                                <p>Last Active: {new Date(collab.lastActive).toLocaleDateString()}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                       ))}
                     </div>
                   </div>
@@ -137,15 +182,25 @@ export default function ProjectList() {
                     <div className="text-sm text-muted-foreground mb-1">Internal Partners:</div>
                     <div className="flex flex-wrap gap-2">
                       {project.internalPartners?.map((partner) => (
-                        <Badge
-                          key={partner.id}
-                          variant="default"
-                          style={{ backgroundColor: getDepartmentColor(partner.department) }}
-                          className="text-xs cursor-pointer text-white"
-                          onClick={(e) => handleCollaboratorClick(e, partner.id)}
-                        >
-                          {partner.name}
-                        </Badge>
+                        <TooltipProvider key={partner.id}>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Badge
+                                variant="default"
+                                style={{ backgroundColor: getDepartmentColor(partner.department) }}
+                                className="text-xs cursor-pointer text-white"
+                                onClick={(e) => handleCollaboratorClick(e, partner.id)}
+                              >
+                                {partner.name}
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Internal Partner</p>
+                              <p>Department: {DEPARTMENTS.find(d => d.id === partner.department)?.name}</p>
+                              <p>Role: {partner.role}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       ))}
                     </div>
                   </div>
