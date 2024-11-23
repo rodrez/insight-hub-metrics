@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Edit, Trash2 } from "lucide-react";
+import { Mail, Edit, Trash2, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collaborator } from "@/lib/types/collaboration";
 
@@ -89,7 +89,19 @@ export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30List
                 <div className="space-y-2">
                   {collaborator.projects.map((project, index) => (
                     <div key={index} className="flex items-center justify-between p-2 rounded-lg border">
-                      <span>{project}</span>
+                      <div className="flex items-center gap-2">
+                        <span>{project}</span>
+                        {(collaborator.agreements?.nda || collaborator.agreements?.jtda) && (
+                          <Shield 
+                            className={`h-4 w-4 ${
+                              collaborator.agreements?.nda?.status === 'signed' || 
+                              collaborator.agreements?.jtda?.status === 'signed' 
+                                ? 'text-green-500' 
+                                : 'text-yellow-500'
+                            }`} 
+                          />
+                        )}
+                      </div>
                       <Badge variant="outline">Active</Badge>
                     </div>
                   ))}
