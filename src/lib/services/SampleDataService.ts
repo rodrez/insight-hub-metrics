@@ -23,7 +23,18 @@ export class SampleDataService implements DataService {
         email: "contact@walmart.com",
         role: "Strategic Partner",
         department: "Retail",
-        projects: ["Supply Chain Optimization", "Digital Transformation"],
+        projects: [
+          {
+            id: "supply-chain",
+            name: "Supply Chain Optimization",
+            description: "Optimizing global supply chain operations through advanced analytics."
+          },
+          {
+            id: "digital-transform",
+            name: "Digital Transformation",
+            description: "Implementing cutting-edge digital solutions."
+          }
+        ],
         lastActive: new Date().toISOString(),
         type: "fortune30",
         agreements: {
@@ -46,7 +57,18 @@ export class SampleDataService implements DataService {
         email: "partner@amazon.com",
         role: "Technology Partner",
         department: "Cloud Services",
-        projects: ["Cloud Migration", "AI Integration"],
+        projects: [
+          {
+            id: "cloud-migration",
+            name: "Cloud Migration",
+            description: "Enterprise-wide migration to cloud infrastructure."
+          },
+          {
+            id: "ai-integration",
+            name: "AI Integration",
+            description: "Integration of AI capabilities across business processes."
+          }
+        ],
         lastActive: new Date().toISOString(),
         type: "fortune30",
         agreements: {
@@ -64,7 +86,18 @@ export class SampleDataService implements DataService {
         email: "enterprise@apple.com",
         role: "Innovation Partner",
         department: "Product Development",
-        projects: ["Mobile Solutions", "Enterprise Integration"],
+        projects: [
+          {
+            id: "mobile-solutions",
+            name: "Mobile Solutions",
+            description: "Development of enterprise mobile solutions."
+          },
+          {
+            id: "enterprise-integration",
+            name: "Enterprise Integration",
+            description: "Integration of Apple products into enterprise environments."
+          }
+        ],
         lastActive: new Date().toISOString(),
         type: "fortune30",
         agreements: {
