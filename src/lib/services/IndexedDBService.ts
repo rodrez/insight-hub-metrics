@@ -1,6 +1,7 @@
 import { Project } from '../types';
 import { Collaborator } from '../types/collaboration';
 import { DataService } from './DataService';
+import { generateSampleData } from './data/sampleDataGenerator';
 
 const DB_NAME = 'projectManagementDB';
 const DB_VERSION = 1;
@@ -160,5 +161,21 @@ export class IndexedDBService implements DataService {
         resolve();
       };
     });
+  }
+
+  async populateSampleData(): Promise<{ projects: Project[] }> {
+    const { projects, internalPartners } = generateSampleData();
+    
+    // Add all collaborators first
+    for (const collaborator of internalPartners) {
+      await this.addCollaborator(collaborator);
+    }
+
+    // Then add all projects
+    for (const project of projects) {
+      await this.addProject(project);
+    }
+
+    return { projects };
   }
 }
