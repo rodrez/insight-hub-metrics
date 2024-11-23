@@ -26,6 +26,8 @@ import { NABCSection } from "./NABCSection";
 import { MilestonesSection } from "./MilestonesSection";
 import { CollaboratorCard } from "@/components/projects/CollaboratorCard";
 import { Project } from "@/lib/types";
+import { TechDomainSelect } from "./TechDomainSelect";
+import { defaultTechDomains } from "@/lib/types/techDomain";
 
 interface ProjectDetailsProps {
   project: Project;
@@ -117,6 +119,43 @@ function ProjectDetailsComponent({ project: initialProject }: ProjectDetailsProp
         </Badge>
       </div>
       
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            Project Details
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <div className="text-sm font-medium">Tech Domain</div>
+                <TechDomainSelect
+                  value={project.techDomainId}
+                  onValueChange={(value) => {
+                    setProject(prev => ({
+                      ...prev,
+                      techDomainId: value
+                    }));
+                    // Here you would typically update the project in the database
+                  }}
+                />
+              </div>
+              {project.techDomainId && (
+                <div
+                  className="w-20 h-20 rounded-full"
+                  style={{
+                    backgroundColor: defaultTechDomains.find(
+                      d => d.id === project.techDomainId
+                    )?.color
+                  }}
+                />
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
