@@ -75,7 +75,7 @@ export const runIntegrityChecks = async (): Promise<IntegrityCheckResult> => {
               toast({
                 title: "Agreement Expiry Warning",
                 description: `${partner.name}'s ${type} expires in ${daysUntilExpiry} days`,
-                variant: "warning",
+                variant: "destructive",
               });
             }
           }
