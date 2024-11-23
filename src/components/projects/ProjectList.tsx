@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { db } from '@/lib/db';
 import { Project } from '@/lib/types';
 import { Link, useNavigate } from 'react-router-dom';
+import { defaultTechDomains } from "@/lib/types/techDomain";
 
 export default function ProjectList() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -34,7 +35,7 @@ export default function ProjectList() {
   };
 
   const handleCollaboratorClick = (e: React.MouseEvent, collaboratorId: string) => {
-    e.preventDefault(); // Prevent the project card click
+    e.preventDefault();
     navigate(`/collaborations/${collaboratorId}`);
   };
 
@@ -50,7 +51,20 @@ export default function ProjectList() {
             <CardHeader className="pb-4">
               <div className="flex justify-between items-start">
                 <div>
-                  <CardTitle className="text-xl mb-2">{project.name}</CardTitle>
+                  <div className="flex items-center gap-2 mb-2">
+                    <CardTitle className="text-xl">{project.name}</CardTitle>
+                    {project.techDomainId && (
+                      <Badge
+                        variant="secondary"
+                        style={{
+                          backgroundColor: defaultTechDomains.find(d => d.id === project.techDomainId)?.color,
+                          color: 'white'
+                        }}
+                      >
+                        {defaultTechDomains.find(d => d.id === project.techDomainId)?.name}
+                      </Badge>
+                    )}
+                  </div>
                   <p className="text-sm text-muted-foreground line-clamp-2">
                     {project.nabc?.needs || "No description available"}
                   </p>
