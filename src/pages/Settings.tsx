@@ -2,6 +2,7 @@ import { useState } from "react";
 import DataManagement from "@/components/data/DataManagement";
 import { TechDomainSettings } from "@/components/settings/TechDomainSettings";
 import { DepartmentSettings } from "@/components/settings/DepartmentSettings";
+import { AgreementWarningSettings } from "@/components/settings/AgreementWarningSettings";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -45,9 +46,9 @@ export default function Settings() {
           <TabsContent value="colors">
             <Card>
               <CardHeader>
-                <CardTitle>Status Colors</CardTitle>
+                <CardTitle>Colors & Warnings</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-8">
                 <div className="space-y-4">
                   {statusColors.map((status) => (
                     <div key={status.id} className="flex items-center gap-4">
@@ -68,6 +69,8 @@ export default function Settings() {
                     Save Colors
                   </Button>
                 </div>
+
+                <AgreementWarningSettings />
               </CardContent>
             </Card>
           </TabsContent>
