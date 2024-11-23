@@ -35,6 +35,7 @@ export function CollaborationDialog({
       department: departmentId || "",
       agreementType: "None",
       details: "",
+      color: "#000000",
     },
   });
 

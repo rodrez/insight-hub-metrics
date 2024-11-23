@@ -26,6 +26,7 @@ const formSchema = z.object({
   signedDate: z.string().optional(),
   expiryDate: z.string().optional(),
   details: z.string().optional(),
+  color: z.string().optional(),
 });
 
 export type CollaborationFormSchema = z.infer<typeof formSchema>;
@@ -46,6 +47,30 @@ export const CollaborationFormFields = ({ form, departmentId }: CollaborationFor
             <FormLabel>Company Name</FormLabel>
             <FormControl>
               <Input placeholder="Enter company name" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="color"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Brand Color</FormLabel>
+            <FormControl>
+              <div className="flex gap-4 items-center">
+                <Input 
+                  type="color" 
+                  {...field} 
+                  value={field.value || "#000000"}
+                  className="w-20 h-10 p-1"
+                />
+                <div 
+                  className="w-10 h-10 rounded border"
+                  style={{ backgroundColor: field.value || "#000000" }}
+                />
+              </div>
             </FormControl>
             <FormMessage />
           </FormItem>
