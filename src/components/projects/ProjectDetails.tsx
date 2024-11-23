@@ -19,8 +19,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { InternalPartnersSection } from "./InternalPartnersSection";
 
-// Helper function for trend icons
 const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
   switch (trend) {
     case 'up':
@@ -141,17 +141,27 @@ function ProjectDetailsComponent({ project: initialProject }: { project: Project
         </div>
       </div>
 
-      <FinancialDetails 
-        project={currentProject}
-        isEditing={isEditing}
-        onUpdate={updateProject}
-      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FinancialDetails 
+          project={currentProject}
+          isEditing={isEditing}
+          onUpdate={updateProject}
+        />
 
-      <TechDomainSelect
-        value={currentProject.techDomainId}
-        onValueChange={(value) => updateProject({ techDomainId: value })}
-        disabled={!isEditing}
-      />
+        <div className="space-y-6">
+          <TechDomainSelect
+            value={currentProject.techDomainId}
+            onValueChange={(value) => updateProject({ techDomainId: value })}
+            disabled={!isEditing}
+          />
+
+          <InternalPartnersSection
+            partners={currentProject.internalPartners || []}
+            onUpdate={(partners) => updateProject({ internalPartners: partners })}
+            isEditing={isEditing}
+          />
+        </div>
+      </div>
 
       {currentProject.nabc && (
         <NABCSection 

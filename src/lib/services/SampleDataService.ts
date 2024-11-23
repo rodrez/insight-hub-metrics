@@ -1,7 +1,10 @@
 import { Project } from '../types';
-import { Collaborator, Agreement, AgreementStatus } from '../types/collaboration';
+import { Collaborator } from '../types/collaboration';
 import { DataService } from './DataService';
 import { DEPARTMENTS } from '../constants';
+import { defaultTechDomains } from '../types/techDomain';
+import { generateFortune30Partners } from './data/fortune30Partners';
+import { generateInternalPartners } from './data/internalPartners';
 
 export class SampleDataService implements DataService {
   private db: DataService;
@@ -15,123 +18,45 @@ export class SampleDataService implements DataService {
   }
 
   async populateSampleData(): Promise<void> {
-    const fortune30Companies: Collaborator[] = [
-      { 
-        id: "walmart",
-        name: "Walmart", 
-        color: "#0071CE",
-        email: "contact@walmart.com",
-        role: "Strategic Partner",
-        department: "Retail",
-        projects: [
-          {
-            id: "supply-chain",
-            name: "Supply Chain Optimization",
-            description: "Optimizing global supply chain operations through advanced analytics."
-          },
-          {
-            id: "digital-transform",
-            name: "Digital Transformation",
-            description: "Implementing cutting-edge digital solutions."
-          }
-        ],
-        lastActive: new Date().toISOString(),
-        type: "fortune30",
-        agreements: {
-          nda: {
-            signedDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
-            expiryDate: new Date(Date.now() + 275 * 24 * 60 * 60 * 1000).toISOString(),
-            status: "signed"
-          },
-          jtda: {
-            signedDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-            expiryDate: new Date(Date.now() + 305 * 24 * 60 * 60 * 1000).toISOString(),
-            status: "signed"
-          }
-        }
-      },
-      { 
-        id: "amazon",
-        name: "Amazon", 
-        color: "#FF9900",
-        email: "partner@amazon.com",
-        role: "Technology Partner",
-        department: "Cloud Services",
-        projects: [
-          {
-            id: "cloud-migration",
-            name: "Cloud Migration",
-            description: "Enterprise-wide migration to cloud infrastructure."
-          },
-          {
-            id: "ai-integration",
-            name: "AI Integration",
-            description: "Integration of AI capabilities across business processes."
-          }
-        ],
-        lastActive: new Date().toISOString(),
-        type: "fortune30",
-        agreements: {
-          nda: {
-            signedDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-            expiryDate: new Date(Date.now() + 305 * 24 * 60 * 60 * 1000).toISOString(),
-            status: "signed"
-          }
-        }
-      },
-      { 
-        id: "apple",
-        name: "Apple", 
-        color: "#555555",
-        email: "enterprise@apple.com",
-        role: "Innovation Partner",
-        department: "Product Development",
-        projects: [
-          {
-            id: "mobile-solutions",
-            name: "Mobile Solutions",
-            description: "Development of enterprise mobile solutions."
-          },
-          {
-            id: "enterprise-integration",
-            name: "Enterprise Integration",
-            description: "Integration of Apple products into enterprise environments."
-          }
-        ],
-        lastActive: new Date().toISOString(),
-        type: "fortune30",
-        agreements: {
-          jtda: {
-            signedDate: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
-            expiryDate: new Date(Date.now() + 245 * 24 * 60 * 60 * 1000).toISOString(),
-            status: "signed"
-          }
-        }
-      }
-    ];
+    const fortune30Companies = generateFortune30Partners();
+    const internalPartners = generateInternalPartners();
 
     // Add collaborators
-    for (const collaborator of fortune30Companies) {
+    for (const collaborator of [...fortune30Companies, ...internalPartners]) {
       await this.db.addCollaborator(collaborator);
     }
 
     // Add projects
     for (const dept of DEPARTMENTS) {
       const projectCount = dept.projectCount;
+      const availableInternalPartners = internalPartners.filter(
+        p => p.department === dept.id
+      );
+
       for (let i = 0; i < projectCount; i++) {
         const budget = Math.round(dept.budget / projectCount);
         const spent = Math.round(budget * (Math.random() * 0.8));
+        const techPOC = availableInternalPartners[i % availableInternalPartners.length];
+        const programManager = availableInternalPartners[(i + 1) % availableInternalPartners.length];
+
+        // Randomly select 2-5 internal partners
+        const partnerCount = Math.floor(Math.random() * 4) + 2;
+        const selectedPartners = [...availableInternalPartners]
+          .sort(() => Math.random() - 0.5)
+          .slice(0, partnerCount);
 
         const project = {
           id: `${dept.id}-project-${i + 1}`,
           name: `${dept.name} Project ${i + 1}`,
           departmentId: dept.id,
-          poc: "John Doe",
-          techLead: "Jane Smith",
+          poc: programManager.name,
+          techLead: techPOC.name,
           budget,
           spent,
           status: "active" as const,
           collaborators: [fortune30Companies[i % fortune30Companies.length]],
+          internalPartners: selectedPartners,
+          techDomainId: defaultTechDomains[Math.floor(Math.random() * defaultTechDomains.length)].id,
           nabc: {
             needs: `Sample needs for ${dept.name}`,
             approach: `Sample approach for ${dept.name}`,

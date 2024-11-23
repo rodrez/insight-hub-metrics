@@ -17,6 +17,7 @@ export type Project = {
   spent: number;
   status: 'active' | 'completed' | 'on-hold';
   collaborators: Collaborator[];
+  internalPartners?: Collaborator[];
   techDomainId?: string;
   nabc?: NABC;
   milestones?: Milestone[];
