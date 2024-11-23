@@ -2,22 +2,22 @@ import { Collaborator } from "@/lib/types/collaboration";
 
 export const fortune30Partners: Collaborator[] = [
   { 
-    id: "boeing",
-    name: "Boeing", 
-    color: "#0039A6",
-    email: "partnerships@boeing.com",
+    id: "walmart",
+    name: "Walmart", 
+    color: "#0071CE",
+    email: "partnerships@walmart.com",
     role: "Strategic Partner",
-    department: "Aerospace",
+    department: "Retail",
     projects: [
       {
-        id: "next-gen-aircraft",
-        name: "Next Generation Aircraft",
-        description: "Development of sustainable aviation technologies"
+        id: "supply-chain",
+        name: "Supply Chain Optimization",
+        description: "Optimizing global supply chain operations"
       },
       {
-        id: "defense-systems",
-        name: "Defense Systems Integration",
-        description: "Integration of advanced defense capabilities"
+        id: "digital-transform",
+        name: "Digital Transformation",
+        description: "Implementing digital solutions"
       }
     ],
     lastActive: new Date().toISOString(),
@@ -31,22 +31,17 @@ export const fortune30Partners: Collaborator[] = [
     }
   },
   { 
-    id: "lockheed",
-    name: "Lockheed Martin", 
-    color: "#112B4A",
-    email: "enterprise@lockheedmartin.com",
-    role: "Defense Partner",
-    department: "Defense Systems",
+    id: "amazon",
+    name: "Amazon", 
+    color: "#FF9900",
+    email: "enterprise@amazon.com",
+    role: "Technology Partner",
+    department: "Cloud Services",
     projects: [
       {
-        id: "space-systems",
-        name: "Space Systems",
-        description: "Advanced space exploration technologies"
-      },
-      {
-        id: "missile-defense",
-        name: "Missile Defense",
-        description: "Next-generation missile defense systems"
+        id: "cloud-migration",
+        name: "Cloud Migration",
+        description: "Enterprise cloud infrastructure"
       }
     ],
     lastActive: new Date().toISOString(),
@@ -60,22 +55,17 @@ export const fortune30Partners: Collaborator[] = [
     }
   },
   { 
-    id: "northrop",
-    name: "Northrop Grumman", 
-    color: "#0075C9",
-    email: "partnerships@northropgrumman.com",
-    role: "Technology Partner",
-    department: "Defense & Space",
+    id: "apple",
+    name: "Apple", 
+    color: "#555555",
+    email: "partnerships@apple.com",
+    role: "Innovation Partner",
+    department: "Technology",
     projects: [
       {
-        id: "autonomous-systems",
-        name: "Autonomous Systems",
-        description: "Development of autonomous defense systems"
-      },
-      {
-        id: "cyber-security",
-        name: "Cyber Security",
-        description: "Advanced cyber defense solutions"
+        id: "mobile-solutions",
+        name: "Mobile Solutions",
+        description: "Enterprise mobile solutions"
       }
     ],
     lastActive: new Date().toISOString(),
@@ -84,6 +74,54 @@ export const fortune30Partners: Collaborator[] = [
       jtda: {
         signedDate: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
         expiryDate: new Date(Date.now() + 245 * 24 * 60 * 60 * 1000).toISOString(),
+        status: "signed"
+      }
+    }
+  },
+  { 
+    id: "microsoft",
+    name: "Microsoft", 
+    color: "#00A4EF",
+    email: "enterprise@microsoft.com",
+    role: "Technology Partner",
+    department: "Software",
+    projects: [
+      {
+        id: "cloud-services",
+        name: "Cloud Services",
+        description: "Enterprise cloud solutions"
+      }
+    ],
+    lastActive: new Date().toISOString(),
+    type: "fortune30",
+    agreements: {
+      nda: {
+        signedDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+        expiryDate: new Date(Date.now() + 270 * 24 * 60 * 60 * 1000).toISOString(),
+        status: "signed"
+      }
+    }
+  },
+  { 
+    id: "google",
+    name: "Google", 
+    color: "#4285F4",
+    email: "partnerships@google.com",
+    role: "Technology Partner",
+    department: "Technology",
+    projects: [
+      {
+        id: "ai-ml",
+        name: "AI & Machine Learning",
+        description: "Advanced AI solutions"
+      }
+    ],
+    lastActive: new Date().toISOString(),
+    type: "fortune30",
+    agreements: {
+      jtda: {
+        signedDate: new Date(Date.now() - 100 * 24 * 60 * 60 * 1000).toISOString(),
+        expiryDate: new Date(Date.now() + 150 * 24 * 60 * 60 * 1000).toISOString(),
         status: "signed"
       }
     }

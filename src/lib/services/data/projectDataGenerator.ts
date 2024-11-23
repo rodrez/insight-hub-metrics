@@ -1,7 +1,7 @@
 import { Project, Department } from '@/lib/types';
 import { TechDomain } from '@/lib/types/techDomain';
 import { Collaborator } from '@/lib/types/collaboration';
-import { generateFortune30Partners } from './fortune30Partners';
+import { fortune30Partners } from '@/components/data/fortune30Partners';
 
 export const generateProjectData = (
   departments: Department[], 
@@ -9,7 +9,6 @@ export const generateProjectData = (
   internalPartners: Collaborator[]
 ) => {
   const projects: Project[] = [];
-  const fortune30Partners = generateFortune30Partners();
   
   departments.forEach((dept, deptIndex) => {
     const projectCount = dept.projectCount;
@@ -51,7 +50,7 @@ export const generateProjectData = (
         budget,
         spent,
         status: "active",
-        collaborators: [selectedFortune30], // Ensure at least one Fortune 30 partner
+        collaborators: [selectedFortune30],
         internalPartners: [pocPartner, techLeadPartner, ...selectedPartners],
         techDomainId: randomTechDomain.id,
         nabc: generateNABC(dept.name),
