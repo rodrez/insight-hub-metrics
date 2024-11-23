@@ -3,6 +3,12 @@ import { Badge } from "@/components/ui/badge";
 import { Mail, Edit, Trash2, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collaborator } from "@/lib/types/collaboration";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Fortune30ListProps = {
   collaborators: Collaborator[];
@@ -92,14 +98,28 @@ export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30List
                       <div className="flex items-center gap-2">
                         <span>{project}</span>
                         {(collaborator.agreements?.nda || collaborator.agreements?.jtda) && (
-                          <Shield 
-                            className={`h-4 w-4 ${
-                              collaborator.agreements?.nda?.status === 'signed' || 
-                              collaborator.agreements?.jtda?.status === 'signed' 
-                                ? 'text-green-500' 
-                                : 'text-yellow-500'
-                            }`} 
-                          />
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <Shield 
+                                  className={`h-4 w-4 ${
+                                    collaborator.agreements?.nda?.status === 'signed' || 
+                                    collaborator.agreements?.jtda?.status === 'signed' 
+                                      ? 'text-green-500' 
+                                      : 'text-yellow-500'
+                                  }`} 
+                                />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>
+                                  {collaborator.agreements?.nda?.status === 'signed' || 
+                                   collaborator.agreements?.jtda?.status === 'signed'
+                                    ? "Protected by signed NDA/JTDA agreement"
+                                    : "Pending NDA/JTDA agreement"}
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         )}
                       </div>
                       <Badge variant="outline">Active</Badge>
