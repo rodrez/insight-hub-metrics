@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Info } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 import {
   Tooltip,
   TooltipContent,
@@ -29,6 +30,10 @@ export function AgreementWarningSettings() {
 
   const handleSave = () => {
     localStorage.setItem('agreementWarningSettings', JSON.stringify(settings));
+    toast({
+      title: "Success",
+      description: "Agreement warning settings saved successfully",
+    });
   };
 
   return (
