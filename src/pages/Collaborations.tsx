@@ -47,27 +47,27 @@ export default function Collaborations() {
   };
 
   return (
-    <div className="container mx-auto px-4 pt-24 pb-12">
-      <div className="flex flex-col gap-6">
+    <div className="container mx-auto px-4 pt-16 pb-8">
+      <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">
+            <h1 className="text-2xl font-bold">
               {department ? `${department.name} Partners` : 'Collaborations'}
             </h1>
             {department && (
-              <p className="text-muted-foreground mt-2">
+              <p className="text-muted-foreground mt-1">
                 Viewing internal partners for {department.type === 'business' ? 'Business Unit' : 'Functional Area'}
               </p>
             )}
           </div>
-          <div className="flex gap-4">
-            <div className="relative w-72">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <div className="flex gap-2">
+            <div className="relative w-64">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search collaborators..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-8"
               />
             </div>
             <Button onClick={() => setShowEditDialog(true)}>
@@ -78,7 +78,7 @@ export default function Collaborations() {
         </div>
 
         <Tabs defaultValue={department ? "other" : "fortune30"} className="w-full">
-          <TabsList>
+          <TabsList className="mb-2">
             {!department && <TabsTrigger value="fortune30">Fortune 30</TabsTrigger>}
             <TabsTrigger value="other">
               {department ? `${department.name} Partners` : 'Internal Partners'}
@@ -86,7 +86,7 @@ export default function Collaborations() {
           </TabsList>
 
           {!department && (
-            <TabsContent value="fortune30">
+            <TabsContent value="fortune30" className="mt-0">
               <Fortune30List 
                 collaborators={fortune30Collaborators}
                 onEdit={handleEdit}
@@ -95,7 +95,7 @@ export default function Collaborations() {
             </TabsContent>
           )}
 
-          <TabsContent value="other">
+          <TabsContent value="other" className="mt-0">
             <OtherPartnersList collaborators={otherCollaborators} />
           </TabsContent>
         </Tabs>

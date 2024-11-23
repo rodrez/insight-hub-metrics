@@ -1,6 +1,7 @@
 import { Project, Department } from '@/lib/types';
 import { TechDomain } from '@/lib/types/techDomain';
 import { Collaborator } from '@/lib/types/collaboration';
+import { generateFortune30Partners } from './fortune30Partners';
 
 export const generateProjectData = (
   departments: Department[], 
@@ -8,6 +9,7 @@ export const generateProjectData = (
   internalPartners: Collaborator[]
 ) => {
   const projects: Project[] = [];
+  const fortune30Partners = generateFortune30Partners();
   
   departments.forEach((dept) => {
     const projectCount = dept.projectCount;
@@ -28,6 +30,9 @@ export const generateProjectData = (
         .sort(() => Math.random() - 0.5)
         .slice(0, 3);
 
+      // Assign at least one Fortune 30 partner
+      const selectedFortune30 = fortune30Partners[Math.floor(Math.random() * fortune30Partners.length)];
+
       const budget = Math.round(dept.budget / projectCount);
       const spent = Math.round(budget * (Math.random() * 0.8));
 
@@ -45,7 +50,7 @@ export const generateProjectData = (
         budget,
         spent,
         status: "active",
-        collaborators: [],
+        collaborators: [selectedFortune30], // Ensure at least one Fortune 30 partner
         internalPartners: [pocPartner, techLeadPartner, ...selectedPartners],
         techDomainId: randomTechDomain.id,
         nabc: generateNABC(dept.name),
