@@ -171,7 +171,10 @@ export const generateSampleData = () => {
           email: partner.email,
           role: partner.role,
           department: partner.department.id,
-          color: partner.department.color
+          color: partner.department.color,
+          projects: [], // Add empty projects array
+          lastActive: new Date().toISOString(), // Add current date as lastActive
+          type: 'other' as const // Add type as 'other' for internal partners
         }));
 
       const budget = Math.round(dept.budget / projectCount);
