@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -101,16 +100,18 @@ export default function ProjectList() {
                 <div className="space-y-2">
                   <div className="text-sm text-muted-foreground mb-1">Collaborators:</div>
                   <div className="flex flex-wrap gap-2">
-                    {project.collaborators.map((collab) => (
-                      <Badge
-                        key={collab.id}
-                        variant={collab.type === 'fortune30' ? 'default' : 'secondary'}
-                        style={{ backgroundColor: collab.type === 'fortune30' ? collab.color : undefined }}
-                        className="text-xs"
-                        onClick={(e) => handleCollaboratorClick(e, collab.id)}
-                      >
-                        {collab.name}
-                      </Badge>
+                    {project.collaborators
+                      .filter(collab => collab.type === 'fortune30' && collab.color)
+                      .map((collab) => (
+                        <Badge
+                          key={collab.id}
+                          variant="default"
+                          style={{ backgroundColor: collab.color }}
+                          className="text-xs cursor-pointer"
+                          onClick={(e) => handleCollaboratorClick(e, collab.id)}
+                        >
+                          {collab.name}
+                        </Badge>
                     ))}
                   </div>
                 </div>
