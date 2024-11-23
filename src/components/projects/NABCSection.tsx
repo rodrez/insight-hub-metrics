@@ -1,8 +1,6 @@
 import { NABC } from "@/lib/types";
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -10,44 +8,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
-import { toast } from "@/components/ui/use-toast";
-import { db } from "@/lib/db";
 
 interface NABCSectionProps {
   projectId: string;
   nabc: NABC;
   onUpdate: (newNabc: NABC) => void;
+  isEditing: boolean;
 }
 
-export function NABCSection({ projectId, nabc, onUpdate }: NABCSectionProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedNabc, setEditedNabc] = useState(nabc);
-
-  const handleSave = async () => {
-    try {
-      const project = await db.getProject(projectId);
-      if (project) {
-        const updatedProject = {
-          ...project,
-          nabc: editedNabc
-        };
-        await db.addProject(updatedProject);
-        onUpdate(editedNabc);
-        setIsEditing(false);
-        toast({
-          title: "Success",
-          description: "NABC framework updated successfully",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update NABC framework",
-        variant: "destructive",
-      });
-    }
-  };
-
+export function NABCSection({ projectId, nabc, onUpdate, isEditing }: NABCSectionProps) {
   if (!isEditing) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -117,9 +86,6 @@ export function NABCSection({ projectId, nabc, onUpdate }: NABCSectionProps) {
             <CardContent>{nabc.competition}</CardContent>
           </Card>
         </TooltipProvider>
-        <div className="col-span-full">
-          <Button onClick={() => setIsEditing(true)}>Edit NABC Framework</Button>
-        </div>
       </div>
     );
   }
@@ -130,42 +96,35 @@ export function NABCSection({ projectId, nabc, onUpdate }: NABCSectionProps) {
         <div className="space-y-2">
           <label className="font-medium">Needs</label>
           <Textarea
-            value={editedNabc.needs}
-            onChange={(e) => setEditedNabc({ ...editedNabc, needs: e.target.value })}
+            value={nabc.needs}
+            onChange={(e) => onUpdate({ ...nabc, needs: e.target.value })}
             placeholder="What customer and market needs are being addressed?"
           />
         </div>
         <div className="space-y-2">
           <label className="font-medium">Approach</label>
           <Textarea
-            value={editedNabc.approach}
-            onChange={(e) => setEditedNabc({ ...editedNabc, approach: e.target.value })}
+            value={nabc.approach}
+            onChange={(e) => onUpdate({ ...nabc, approach: e.target.value })}
             placeholder="How will these needs be met?"
           />
         </div>
         <div className="space-y-2">
           <label className="font-medium">Benefits</label>
           <Textarea
-            value={editedNabc.benefits}
-            onChange={(e) => setEditedNabc({ ...editedNabc, benefits: e.target.value })}
+            value={nabc.benefits}
+            onChange={(e) => onUpdate({ ...nabc, benefits: e.target.value })}
             placeholder="What are the quantifiable benefits?"
           />
         </div>
         <div className="space-y-2">
           <label className="font-medium">Competition</label>
           <Textarea
-            value={editedNabc.competition}
-            onChange={(e) => setEditedNabc({ ...editedNabc, competition: e.target.value })}
+            value={nabc.competition}
+            onChange={(e) => onUpdate({ ...nabc, competition: e.target.value })}
             placeholder="How does this compare to competitive approaches?"
           />
         </div>
-      </div>
-      <div className="flex gap-2">
-        <Button onClick={handleSave}>Save Changes</Button>
-        <Button variant="outline" onClick={() => {
-          setIsEditing(false);
-          setEditedNabc(nabc);
-        }}>Cancel</Button>
       </div>
     </div>
   );

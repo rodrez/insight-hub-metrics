@@ -17,12 +17,13 @@ import { defaultTechDomains } from "@/lib/types/techDomain";
 interface TechDomainSelectProps {
   value?: string;
   onValueChange: (value: string) => void;
+  disabled?: boolean;
 }
 
-export function TechDomainSelect({ value, onValueChange }: TechDomainSelectProps) {
+export function TechDomainSelect({ value, onValueChange, disabled }: TechDomainSelectProps) {
   return (
     <div className="flex items-center gap-2">
-      <Select value={value} onValueChange={onValueChange}>
+      <Select value={value} onValueChange={onValueChange} disabled={disabled}>
         <SelectTrigger className="w-[200px]">
           <SelectValue placeholder="Select tech domain" />
         </SelectTrigger>

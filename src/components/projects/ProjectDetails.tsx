@@ -1,24 +1,5 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { 
-  ArrowDown, 
-  ArrowRight, 
-  ArrowUp, 
-  Calendar, 
-  DollarSign, 
-  Users,
-  Info,
-  Milestone,
-  TrendingUp
-} from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { useParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { db } from "@/lib/db";
 import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
@@ -27,11 +8,9 @@ import { MilestonesSection } from "./MilestonesSection";
 import { CollaboratorCard } from "@/components/projects/CollaboratorCard";
 import { Project } from "@/lib/types";
 import { TechDomainSelect } from "./TechDomainSelect";
-import { defaultTechDomains } from "@/lib/types/techDomain";
-
-interface ProjectDetailsProps {
-  project: Project;
-}
+import { ProjectHeader } from "./ProjectHeader";
+import { FinancialDetails } from "./FinancialDetails";
+import { Edit, Save } from "lucide-react";
 
 function ProjectDetailsWrapper() {
   const { id } = useParams();
@@ -72,172 +51,103 @@ function ProjectDetailsWrapper() {
   return <ProjectDetailsComponent project={project} />;
 }
 
-const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
-  switch (trend) {
-    case 'up':
-      return <ArrowUp className="h-4 w-4 text-green-500" />;
-    case 'down':
-      return <ArrowDown className="h-4 w-4 text-red-500" />;
-    default:
-      return <ArrowRight className="h-4 w-4 text-yellow-500" />;
-  }
-};
-
-function ProjectDetailsComponent({ project: initialProject }: ProjectDetailsProps) {
-  const navigate = useNavigate();
+function ProjectDetailsComponent({ project: initialProject }: { project: Project }) {
   const [project, setProject] = useState(initialProject);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedProject, setEditedProject] = useState(project);
 
-  const handleNabcUpdate = (newNabc: typeof project.nabc) => {
-    setProject(prev => ({
+  const handleUpdate = async () => {
+    try {
+      await db.addProject(editedProject);
+      setProject(editedProject);
+      setIsEditing(false);
+      toast({
+        title: "Success",
+        description: "Project updated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update project",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEdit = () => {
+    setEditedProject(project);
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setEditedProject(project);
+    setIsEditing(false);
+  };
+
+  const updateProject = (updates: Partial<Project>) => {
+    setEditedProject(prev => ({
       ...prev,
-      nabc: newNabc
+      ...updates
     }));
   };
 
-  const handleMilestonesUpdate = (newMilestones: typeof project.milestones) => {
-    setProject(prev => ({
-      ...prev,
-      milestones: newMilestones
-    }));
-  };
+  const currentProject = isEditing ? editedProject : project;
 
   return (
     <div className="container mx-auto px-4 space-y-6 py-8 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{project.name}</h1>
-          <div className="mt-2 space-y-1 text-muted-foreground">
-            <p>POC: {project.poc}</p>
-            <p>Tech Lead: {project.techLead}</p>
-          </div>
+      <div className="flex justify-between items-center mb-6">
+        <ProjectHeader 
+          project={currentProject} 
+          isEditing={isEditing} 
+          onUpdate={updateProject}
+        />
+        <div className="flex gap-2">
+          {!isEditing ? (
+            <Button onClick={handleEdit}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Project
+            </Button>
+          ) : (
+            <>
+              <Button variant="outline" onClick={handleCancel}>
+                Cancel
+              </Button>
+              <Button onClick={handleUpdate}>
+                <Save className="h-4 w-4 mr-2" />
+                Save Changes
+              </Button>
+            </>
+          )}
         </div>
-        <Badge variant={
-          project.status === 'active' ? 'default' :
-          project.status === 'completed' ? 'secondary' : 'destructive'
-        }>
-          {project.status}
-        </Badge>
       </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            Project Details
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <div className="text-sm font-medium">Tech Domain</div>
-                <TechDomainSelect
-                  value={project.techDomainId}
-                  onValueChange={(value) => {
-                    setProject(prev => ({
-                      ...prev,
-                      techDomainId: value
-                    }));
-                    // Here you would typically update the project in the database
-                  }}
-                />
-              </div>
-              {project.techDomainId && (
-                <div
-                  className="w-20 h-20 rounded-full"
-                  style={{
-                    backgroundColor: defaultTechDomains.find(
-                      d => d.id === project.techDomainId
-                    )?.color
-                  }}
-                />
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <DollarSign className="h-5 w-5" />
-            Financial Overview
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <TooltipProvider>
-            <div className="space-y-2">
-              <Tooltip>
-                <TooltipTrigger className="flex items-center gap-2">
-                  Total Budget
-                  <Info className="h-4 w-4" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Total allocated budget for the project</p>
-                </TooltipContent>
-              </Tooltip>
-              <p className="text-2xl font-bold">${project.budget.toLocaleString()}</p>
-            </div>
-            <div className="space-y-2">
-              <Tooltip>
-                <TooltipTrigger className="flex items-center gap-2">
-                  Spent
-                  <Info className="h-4 w-4" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Amount spent to date</p>
-                </TooltipContent>
-              </Tooltip>
-              <p className="text-2xl font-bold">${project.spent?.toLocaleString() || 0}</p>
-            </div>
-            <div className="space-y-2">
-              <Tooltip>
-                <TooltipTrigger className="flex items-center gap-2">
-                  Remaining
-                  <Info className="h-4 w-4" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Remaining budget</p>
-                </TooltipContent>
-              </Tooltip>
-              <p className="text-2xl font-bold">${project.budget - (project.spent || 0)}</p>
-              <Progress value={((project.budget - (project.spent || 0)) / project.budget) * 100} className="h-2" />
-            </div>
-          </TooltipProvider>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Collaborations
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {project.collaborators?.map((collaborator) => (
-              <CollaboratorCard
-                key={collaborator.id}
-                collaborator={collaborator}
-              />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <FinancialDetails 
+        project={currentProject}
+        isEditing={isEditing}
+        onUpdate={updateProject}
+      />
 
-      {project.nabc && (
+      <TechDomainSelect
+        value={currentProject.techDomainId}
+        onValueChange={(value) => updateProject({ techDomainId: value })}
+        disabled={!isEditing}
+      />
+
+      {currentProject.nabc && (
         <NABCSection 
-          projectId={project.id} 
-          nabc={project.nabc} 
-          onUpdate={handleNabcUpdate}
+          projectId={currentProject.id} 
+          nabc={currentProject.nabc} 
+          onUpdate={(nabc) => updateProject({ nabc })}
+          isEditing={isEditing}
         />
       )}
 
-      {project.milestones && (
+      {currentProject.milestones && (
         <MilestonesSection
-          projectId={project.id}
-          milestones={project.milestones}
-          onUpdate={handleMilestonesUpdate}
+          projectId={currentProject.id}
+          milestones={currentProject.milestones}
+          onUpdate={(milestones) => updateProject({ milestones })}
+          isEditing={isEditing}
         />
       )}
 
