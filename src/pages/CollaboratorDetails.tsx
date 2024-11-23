@@ -75,10 +75,10 @@ export default function CollaboratorDetails() {
             <div key={index} className="p-4 border rounded-lg shadow-sm space-y-3">
               <div className="flex items-center justify-between">
                 <Link 
-                  to={`/projects/${index}`}
+                  to={`/projects/${project.id}`}
                   className="text-lg font-medium hover:text-blue-500 transition-colors"
                 >
-                  {project}
+                  {project.name}
                 </Link>
                 {collaborator.agreements && (
                   <Badge className={`${

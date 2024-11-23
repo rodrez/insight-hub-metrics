@@ -31,9 +31,9 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
               </TableCell>
               <TableCell>
                 <div className="flex flex-wrap gap-1">
-                  {collaborator.projects.map((project, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
-                      {project}
+                  {collaborator.projects.map((project) => (
+                    <Badge key={project.id} variant="secondary" className="text-xs">
+                      {project.name}
                     </Badge>
                   ))}
                 </div>

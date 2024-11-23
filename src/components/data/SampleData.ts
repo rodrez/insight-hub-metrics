@@ -95,14 +95,25 @@ export const sampleFortune30: Collaborator[] = [
   }
 ];
 
-export const sampleInternalPartners = [
+export const sampleInternalPartners: Collaborator[] = [
   {
     id: "aerospace-1",
     name: "John Smith",
     email: "john.smith@company.com",
     role: "Lead Engineer",
     department: "Airplanes",
-    projects: ["Wing Design Optimization", "Fuel Efficiency Project"],
+    projects: [
+      {
+        id: "wing-design",
+        name: "Wing Design Optimization",
+        description: "Optimizing wing designs for better aerodynamics"
+      },
+      {
+        id: "fuel-efficiency",
+        name: "Fuel Efficiency Project",
+        description: "Improving aircraft fuel consumption"
+      }
+    ],
     lastActive: new Date().toISOString(),
     type: "other" as const
   },
@@ -112,7 +123,18 @@ export const sampleInternalPartners = [
     email: "sarah.j@company.com",
     role: "Project Manager",
     department: "Helicopters",
-    projects: ["Rotor System Enhancement", "Noise Reduction Initiative"],
+    projects: [
+      {
+        id: "rotor-system",
+        name: "Rotor System Enhancement",
+        description: "Enhancing helicopter rotor systems"
+      },
+      {
+        id: "noise-reduction",
+        name: "Noise Reduction Initiative",
+        description: "Reducing helicopter noise levels"
+      }
+    ],
     lastActive: new Date().toISOString(),
     type: "other" as const
   },
@@ -122,7 +144,18 @@ export const sampleInternalPartners = [
     email: "m.chang@company.com",
     role: "Systems Architect",
     department: "Space",
-    projects: ["Satellite Communications", "Launch Systems"],
+    projects: [
+      {
+        id: "satellite-communications",
+        name: "Satellite Communications",
+        description: "Developing communication systems for satellites."
+      },
+      {
+        id: "launch-systems",
+        name: "Launch Systems",
+        description: "Designing support systems for satellite launches."
+      }
+    ],
     lastActive: new Date().toISOString(),
     type: "other" as const
   },
@@ -132,7 +165,18 @@ export const sampleInternalPartners = [
     email: "e.wilson@company.com",
     role: "Research Lead",
     department: "Energy",
-    projects: ["Solar Panel Efficiency", "Battery Storage Solutions"],
+    projects: [
+      {
+        id: "solar-panel",
+        name: "Solar Panel Efficiency",
+        description: "Improving the efficiency of solar panels."
+      },
+      {
+        id: "battery-storage",
+        name: "Battery Storage Solutions",
+        description: "Developing effective battery storage systems."
+      }
+    ],
     lastActive: new Date().toISOString(),
     type: "other" as const
   },
@@ -142,7 +186,18 @@ export const sampleInternalPartners = [
     email: "d.miller@company.com",
     role: "IT Director",
     department: "IT",
-    projects: ["Cloud Migration", "Security Enhancement"],
+    projects: [
+      {
+        id: "cloud-migration",
+        name: "Cloud Migration",
+        description: "Transitioning to cloud infrastructure."
+      },
+      {
+        id: "security-enhancement",
+        name: "Security Enhancement",
+        description: "Upgrading security systems and protocols."
+      }
+    ],
     lastActive: new Date().toISOString(),
     type: "other" as const
   },
@@ -152,7 +207,18 @@ export const sampleInternalPartners = [
     email: "l.chen@company.com",
     role: "Innovation Lead",
     department: "Tech Lab",
-    projects: ["AI Research", "Quantum Computing Initiative"],
+    projects: [
+      {
+        id: "ai-research",
+        name: "AI Research",
+        description: "Conducting research in artificial intelligence."
+      },
+      {
+        id: "quantum-computing",
+        name: "Quantum Computing Initiative",
+        description: "Exploring quantum computing for future applications."
+      }
+    ],
     lastActive: new Date().toISOString(),
     type: "other" as const
   }

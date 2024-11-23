@@ -7,7 +7,18 @@ export const collaborators: Collaborator[] = [
     email: 'contact@walmart.com',
     role: 'Strategic Partner',
     department: 'Retail',
-    projects: ['Supply Chain Optimization', 'Digital Transformation'],
+    projects: [
+      {
+        id: 'supply-chain',
+        name: 'Supply Chain Optimization',
+        description: 'Optimizing global supply chain operations'
+      },
+      {
+        id: 'digital-transform',
+        name: 'Digital Transformation',
+        description: 'Implementing digital solutions'
+      }
+    ],
     lastActive: '2024-02-20',
     type: 'fortune30',
     color: '#0071CE',
@@ -30,7 +41,18 @@ export const collaborators: Collaborator[] = [
     email: 'partner@amazon.com',
     role: 'Technology Partner',
     department: 'Cloud Services',
-    projects: ['Cloud Migration', 'AI Integration'],
+    projects: [
+      {
+        id: 'cloud-migration',
+        name: 'Cloud Migration',
+        description: 'Enterprise-wide migration to cloud infrastructure.'
+      },
+      {
+        id: 'ai-integration',
+        name: 'AI Integration',
+        description: 'Integration of AI capabilities across business processes.'
+      }
+    ],
     lastActive: '2024-02-19',
     type: 'fortune30',
     color: '#FF9900',
@@ -48,7 +70,18 @@ export const collaborators: Collaborator[] = [
     email: 'enterprise@apple.com',
     role: 'Innovation Partner',
     department: 'Product Development',
-    projects: ['Mobile Solutions', 'Enterprise Integration'],
+    projects: [
+      {
+        id: 'mobile-solutions',
+        name: 'Mobile Solutions',
+        description: 'Development of enterprise mobile solutions.'
+      },
+      {
+        id: 'enterprise-integration',
+        name: 'Enterprise Integration',
+        description: 'Integration of Apple products into enterprise environments.'
+      }
+    ],
     lastActive: '2024-02-18',
     type: 'fortune30',
     color: '#555555',
