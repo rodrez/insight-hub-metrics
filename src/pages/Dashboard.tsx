@@ -3,8 +3,28 @@ import DepartmentCard from '@/components/dashboard/DepartmentCard';
 import ProjectSummary from '@/components/dashboard/ProjectSummary';
 import ProjectList from '@/components/projects/ProjectList';
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { runIntegrityChecks } from '@/lib/utils/integrityChecks';
+import { toast } from '@/components/ui/use-toast';
 
 export default function Dashboard() {
+  useEffect(() => {
+    const checkIntegrity = async () => {
+      toast({
+        title: "Running Integrity Checks",
+        description: "Verifying data integrity...",
+      });
+      
+      try {
+        await runIntegrityChecks();
+      } catch (error) {
+        console.error('Integrity check failed:', error);
+      }
+    };
+
+    checkIntegrity();
+  }, []);
+
   return (
     <div className="container mx-auto px-4 pt-24 pb-12">
       <h1 className="text-3xl font-bold mb-8">Dashboard</h1>

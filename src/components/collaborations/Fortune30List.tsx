@@ -127,7 +127,9 @@ export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30List
                     return (
                       <div 
                         key={index} 
-                        className="p-3 rounded-lg border space-y-2 cursor-pointer hover:bg-muted/50 transition-colors"
+                        className={`p-3 rounded-lg border space-y-2 cursor-pointer hover:bg-muted/50 transition-colors ${
+                          project.status === 'active' ? 'border-green-500' : ''
+                        }`}
                         onClick={() => handleProjectClick(project.id)}
                         style={{ backgroundColor: warningColor }}
                       >
