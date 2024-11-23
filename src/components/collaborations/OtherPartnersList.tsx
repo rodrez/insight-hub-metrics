@@ -22,7 +22,7 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
             <TableHead>Name</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Department</TableHead>
-            <TableHead>Projects</TableHead>
+            <TableHead className="w-[300px]">Projects</TableHead>
             <TableHead>Last Active</TableHead>
             <TableHead>Contact</TableHead>
           </TableRow>
@@ -49,6 +49,9 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
                   {collaborator.projects.map((project) => (
                     <Badge key={project.id} variant="secondary" className="text-xs">
                       {project.name}
+                      <span className="ml-1 text-muted-foreground">
+                        ({project.description})
+                      </span>
                     </Badge>
                   ))}
                 </div>
