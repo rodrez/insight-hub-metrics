@@ -1,10 +1,7 @@
-import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
 import { useEffect, useState } from "react";
-import { DEPARTMENTS } from "@/lib/constants";
-import { sampleFortune30, sampleInternalPartners } from "./SampleData";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { DatabaseActions } from "./DatabaseActions";
 
 export default function DataManagement() {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -172,58 +169,16 @@ export default function DataManagement() {
     }
   };
 
-  const handleExport = async () => {
-    try {
-      await db.exportData();
-      toast({
-        title: "Data exported",
-        description: "Project data has been exported successfully.",
-      });
-    } catch (error) {
-      toast({
-        title: "Export failed",
-        description: "There was an error exporting the data.",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <div className="space-y-4 p-4">
       <h2 className="text-2xl font-bold mb-4">Data Management</h2>
-      <div className="flex flex-col gap-4">
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="destructive" disabled={!isInitialized || isClearing}>
-              Clear Database
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action will clear all data from the database. This action cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={clearDatabase}>Continue</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-        
-        <Button
-          onClick={populateSampleData}
-          disabled={!isInitialized || isPopulating}
-          variant="outline"
-        >
-          {isPopulating ? "Populating..." : "Populate Sample Data"}
-        </Button>
-        
-        <Button onClick={handleExport} disabled={!isInitialized}>
-          Export Data
-        </Button>
-      </div>
+      <DatabaseActions
+        isInitialized={isInitialized}
+        isClearing={isClearing}
+        isPopulating={isPopulating}
+        onClear={clearDatabase}
+        onPopulate={populateSampleData}
+      />
     </div>
   );
 }
