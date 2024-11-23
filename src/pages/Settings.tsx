@@ -1,6 +1,7 @@
 import { useState } from "react";
 import DataManagement from "@/components/data/DataManagement";
 import { TechDomainSettings } from "@/components/settings/TechDomainSettings";
+import { DepartmentSettings } from "@/components/settings/DepartmentSettings";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ export default function Settings() {
         <Tabs defaultValue="colors">
           <TabsList>
             <TabsTrigger value="colors">Status Colors</TabsTrigger>
+            <TabsTrigger value="departments">Departments</TabsTrigger>
             <TabsTrigger value="tech-domains">Tech Domains</TabsTrigger>
             <TabsTrigger value="data">Data Management</TabsTrigger>
           </TabsList>
@@ -66,6 +68,17 @@ export default function Settings() {
                     Save Colors
                   </Button>
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="departments">
+            <Card>
+              <CardHeader>
+                <CardTitle>Departments</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DepartmentSettings />
               </CardContent>
             </Card>
           </TabsContent>

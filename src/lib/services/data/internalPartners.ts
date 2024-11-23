@@ -3,6 +3,10 @@ import { DEPARTMENTS } from "@/lib/constants";
 
 const generateInternalPartner = (name: string, departmentId: string): Collaborator => {
   const department = DEPARTMENTS.find(d => d.id === departmentId);
+  if (!department) {
+    throw new Error(`Department ${departmentId} not found`);
+  }
+  
   return {
     id: `${departmentId}-${name.toLowerCase().replace(/\s+/g, '-')}`,
     name,
@@ -12,7 +16,7 @@ const generateInternalPartner = (name: string, departmentId: string): Collaborat
     projects: [],
     lastActive: new Date().toISOString(),
     type: "other",
-    color: department?.color
+    color: department.color
   };
 };
 
