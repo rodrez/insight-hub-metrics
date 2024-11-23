@@ -11,7 +11,7 @@ export const generateProjectData = (
   const projects: Project[] = [];
   const fortune30Partners = generateFortune30Partners();
   
-  departments.forEach((dept) => {
+  departments.forEach((dept, deptIndex) => {
     const projectCount = dept.projectCount;
     const deptPartners = internalPartners.filter(p => p.department === dept.id);
     
@@ -30,8 +30,9 @@ export const generateProjectData = (
         .sort(() => Math.random() - 0.5)
         .slice(0, 3);
 
-      // Assign at least one Fortune 30 partner
-      const selectedFortune30 = fortune30Partners[Math.floor(Math.random() * fortune30Partners.length)];
+      // Ensure at least one Fortune 30 partner by rotating through them
+      const fortune30Index = (deptIndex + i) % fortune30Partners.length;
+      const selectedFortune30 = fortune30Partners[fortune30Index];
 
       const budget = Math.round(dept.budget / projectCount);
       const spent = Math.round(budget * (Math.random() * 0.8));
