@@ -12,16 +12,26 @@ export type Project = {
   name: string;
   departmentId: string;
   poc: string;
+  pocDepartment: string;
   techLead: string;
+  techLeadDepartment: string;
   budget: number;
   spent: number;
   status: 'active' | 'completed' | 'on-hold';
   collaborators: Collaborator[];
-  internalPartners?: Collaborator[];
+  internalPartners?: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    department: string;
+    color?: string;
+  }[];
   techDomainId?: string;
   nabc?: NABC;
   milestones?: Milestone[];
   metrics?: ProjectMetric[];
+  isSampleData?: boolean;
 };
 
 export type NABC = {

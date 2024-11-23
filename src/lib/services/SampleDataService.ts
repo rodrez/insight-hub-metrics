@@ -1,10 +1,8 @@
 import { Project } from '../types';
 import { Collaborator } from '../types/collaboration';
 import { DataService } from './DataService';
-import { DEPARTMENTS } from '../constants';
-import { defaultTechDomains } from '../types/techDomain';
 import { generateFortune30Partners } from './data/fortune30Partners';
-import { generateInternalPartners } from './data/internalPartners';
+import { generateSampleData } from './data/sampleDataGenerator';
 
 export class SampleDataService implements DataService {
   private db: DataService;
@@ -19,91 +17,20 @@ export class SampleDataService implements DataService {
 
   async populateSampleData(): Promise<void> {
     const fortune30Companies = generateFortune30Partners();
-    const internalPartners = generateInternalPartners();
+    const { projects } = generateSampleData();
 
     // Add collaborators
-    for (const collaborator of [...fortune30Companies, ...internalPartners]) {
+    for (const collaborator of fortune30Companies) {
       await this.db.addCollaborator(collaborator);
     }
 
-    // Add projects
-    for (const dept of DEPARTMENTS) {
-      const projectCount = dept.projectCount;
-      const availableInternalPartners = internalPartners.filter(
-        p => p.department === dept.id
-      );
-
-      for (let i = 0; i < projectCount; i++) {
-        const budget = Math.round(dept.budget / projectCount);
-        const spent = Math.round(budget * (Math.random() * 0.8));
-        const techPOC = availableInternalPartners[i % availableInternalPartners.length];
-        const programManager = availableInternalPartners[(i + 1) % availableInternalPartners.length];
-
-        // Randomly select 2-5 internal partners
-        const partnerCount = Math.floor(Math.random() * 4) + 2;
-        const selectedPartners = [...availableInternalPartners]
-          .sort(() => Math.random() - 0.5)
-          .slice(0, partnerCount);
-
-        const project = {
-          id: `${dept.id}-project-${i + 1}`,
-          name: `${dept.name} Project ${i + 1}`,
-          departmentId: dept.id,
-          poc: programManager.name,
-          techLead: techPOC.name,
-          budget,
-          spent,
-          status: "active" as const,
-          collaborators: [fortune30Companies[i % fortune30Companies.length]],
-          internalPartners: selectedPartners,
-          techDomainId: defaultTechDomains[Math.floor(Math.random() * defaultTechDomains.length)].id,
-          nabc: {
-            needs: `Sample needs for ${dept.name}`,
-            approach: `Sample approach for ${dept.name}`,
-            benefits: `Sample benefits for ${dept.name}`,
-            competition: `Sample competition analysis for ${dept.name}`,
-          },
-          milestones: [
-            {
-              id: `${dept.id}-milestone-1`,
-              title: "Initial Phase",
-              description: "Project initialization and planning",
-              dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-              status: "in-progress" as const,
-              progress: 65
-            },
-            {
-              id: `${dept.id}-milestone-2`,
-              title: "Development Phase",
-              description: "Core development and testing",
-              dueDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
-              status: "pending" as const,
-              progress: 0
-            }
-          ],
-          metrics: [
-            {
-              id: `${dept.id}-metric-1`,
-              name: "Progress",
-              value: Math.round(Math.random() * 100),
-              target: 100,
-              unit: "%",
-              trend: "up" as const,
-              description: "Overall project completion progress"
-            },
-            {
-              id: `${dept.id}-metric-2`,
-              name: "Efficiency",
-              value: Math.round(Math.random() * 95),
-              target: 95,
-              unit: "%",
-              trend: "stable" as const,
-              description: "Resource utilization efficiency"
-            }
-          ],
-        };
-        await this.db.addProject(project);
-      }
+    // Add projects with Fortune 30 collaborators
+    for (const project of projects) {
+      // Assign random Fortune 30 collaborator
+      project.collaborators = [
+        fortune30Companies[Math.floor(Math.random() * fortune30Companies.length)]
+      ];
+      await this.db.addProject(project);
     }
   }
 
