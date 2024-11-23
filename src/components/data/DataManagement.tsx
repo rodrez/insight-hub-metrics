@@ -2,6 +2,8 @@ import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
 import { useEffect, useState } from "react";
 import { DatabaseActions } from "./DatabaseActions";
+import { DEPARTMENTS } from "@/lib/constants";
+import { sampleFortune30, sampleInternalPartners } from "./SampleData";
 
 export default function DataManagement() {
   const [isInitialized, setIsInitialized] = useState(false);
