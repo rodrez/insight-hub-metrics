@@ -3,27 +3,77 @@ import DepartmentCard from '@/components/dashboard/DepartmentCard';
 import ProjectSummary from '@/components/dashboard/ProjectSummary';
 import ProjectList from '@/components/projects/ProjectList';
 import { Link } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { runIntegrityChecks } from '@/lib/utils/integrityChecks';
 import { toast } from '@/components/ui/use-toast';
+import { db } from '@/lib/db';
 
 export default function Dashboard() {
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    const checkIntegrity = async () => {
-      toast({
-        title: "Running Integrity Checks",
-        description: "Verifying data integrity...",
+    const initializeData = async () => {
+      const loadingToast = toast({
+        title: "Initializing Dashboard",
+        description: "Loading application data...",
+        variant: "default",
       });
-      
+
       try {
-        await runIntegrityChecks();
+        // Initialize database
+        await db.init();
+        
+        // Run integrity checks
+        const results = await runIntegrityChecks();
+        
+        // If critical checks fail, try to repopulate data
+        if (!results.projects || !results.fortune30Partners || !results.internalPartners) {
+          toast({
+            title: "Attempting Data Recovery",
+            description: "Repopulating sample data...",
+            variant: "default",
+          });
+          
+          await db.clear();
+          await db.init();
+          await db.populateSampleData();
+          
+          // Run integrity checks again
+          const retryResults = await runIntegrityChecks();
+          
+          if (!retryResults.projects || !retryResults.fortune30Partners || !retryResults.internalPartners) {
+            toast({
+              title: "Data Recovery Failed",
+              description: "Please contact an administrator for assistance.",
+              variant: "destructive",
+            });
+          }
+        }
       } catch (error) {
-        console.error('Integrity check failed:', error);
+        console.error('Dashboard initialization failed:', error);
+        toast({
+          title: "Initialization Failed",
+          description: "Please contact an administrator for assistance.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    checkIntegrity();
+    initializeData();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 pt-24 pb-12 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold mb-4">Loading Dashboard...</h2>
+          <p className="text-muted-foreground">Please wait while we verify data integrity</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 pt-24 pb-12">
