@@ -2,9 +2,7 @@ import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
 import { useEffect, useState } from "react";
 import { DatabaseActions } from "./DatabaseActions";
-import { DEPARTMENTS } from "@/lib/constants";
-import { sampleFortune30 } from "./SampleData";
-import { generateSampleData } from "@/lib/services/data/sampleDataGenerator";
+import { sampleFortune30, sampleInternalPartners } from "./SampleData";
 
 export default function DataManagement() {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -66,17 +64,13 @@ export default function DataManagement() {
 
     setIsPopulating(true);
     try {
-      const { projects, internalPartners } = generateSampleData();
-      
-      // Add collaborators to the database
-      for (const collaborator of [...sampleFortune30, ...internalPartners]) {
+      // First, add all collaborators
+      for (const collaborator of [...sampleFortune30, ...sampleInternalPartners]) {
         await db.addCollaborator(collaborator);
       }
 
-      // Add projects to the database
-      for (const project of projects) {
-        await db.addProject(project);
-      }
+      // Generate projects with the collaborators
+      const { projects } = await db.populateSampleData();
 
       toast({
         title: "Sample data populated",

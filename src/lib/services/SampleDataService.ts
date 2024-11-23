@@ -15,23 +15,20 @@ export class SampleDataService implements DataService {
     await this.db.init();
   }
 
-  async populateSampleData(): Promise<void> {
-    const fortune30Companies = generateFortune30Partners();
-    const { projects } = generateSampleData();
+  async populateSampleData(): Promise<{ projects: Project[] }> {
+    const { projects, internalPartners } = generateSampleData();
 
     // Add collaborators
-    for (const collaborator of fortune30Companies) {
+    for (const collaborator of [...generateFortune30Partners(), ...internalPartners]) {
       await this.db.addCollaborator(collaborator);
     }
 
     // Add projects with Fortune 30 collaborators
     for (const project of projects) {
-      // Assign random Fortune 30 collaborator
-      project.collaborators = [
-        fortune30Companies[Math.floor(Math.random() * fortune30Companies.length)]
-      ];
       await this.db.addProject(project);
     }
+
+    return { projects };
   }
 
   async getAllProjects(): Promise<Project[]> {

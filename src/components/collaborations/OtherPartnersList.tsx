@@ -46,14 +46,20 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
               </TableCell>
               <TableCell>
                 <div className="flex flex-wrap gap-1">
-                  {collaborator.projects.map((project) => (
-                    <Badge key={project.id} variant="secondary" className="text-xs">
-                      {project.name}
-                      <span className="ml-1 text-muted-foreground">
-                        ({project.description})
-                      </span>
-                    </Badge>
-                  ))}
+                  {collaborator.projects && collaborator.projects.length > 0 ? (
+                    collaborator.projects.map((project) => (
+                      <Badge key={project.id} variant="secondary" className="text-xs">
+                        {project.name}
+                        {project.description && (
+                          <span className="ml-1 text-muted-foreground">
+                            ({project.description})
+                          </span>
+                        )}
+                      </Badge>
+                    ))
+                  ) : (
+                    <span className="text-muted-foreground text-sm">No active projects</span>
+                  )}
                 </div>
               </TableCell>
               <TableCell className="flex items-center gap-2">
