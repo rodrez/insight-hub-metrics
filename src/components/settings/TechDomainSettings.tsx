@@ -13,18 +13,26 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Info, Plus, Trash } from "lucide-react";
+import { Info, Plus, Trash, Edit2 } from "lucide-react";
 import { TechDomain, defaultTechDomains } from "@/lib/types/techDomain";
 import { toast } from "@/components/ui/use-toast";
 
 export function TechDomainSettings() {
   const [domains, setDomains] = useState<TechDomain[]>(defaultTechDomains);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [editDomain, setEditDomain] = useState<TechDomain | null>(null);
   const [newDomain, setNewDomain] = useState<Partial<TechDomain>>({});
 
   const handleAdd = () => {
@@ -55,8 +63,11 @@ export function TechDomainSettings() {
     });
   };
 
-  const handleUpdate = (id: string, updates: Partial<TechDomain>) => {
-    setDomains(domains.map(d => d.id === id ? { ...d, ...updates } : d));
+  const handleUpdate = () => {
+    if (!editDomain) return;
+    
+    setDomains(domains.map(d => d.id === editDomain.id ? editDomain : d));
+    setEditDomain(null);
     toast({
       title: "Success",
       description: "Tech domain updated successfully",
@@ -127,6 +138,13 @@ export function TechDomainSettings() {
             <Button
               variant="ghost"
               size="icon"
+              onClick={() => setEditDomain(domain)}
+            >
+              <Edit2 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setDeleteId(domain.id)}
             >
               <Trash className="h-4 w-4" />
@@ -151,6 +169,52 @@ export function TechDomainSettings() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={!!editDomain} onOpenChange={(open) => !open && setEditDomain(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Tech Domain</DialogTitle>
+          </DialogHeader>
+          {editDomain && (
+            <div className="grid gap-4 py-4">
+              <div>
+                <Input
+                  placeholder="Domain Name"
+                  value={editDomain.name}
+                  onChange={e => setEditDomain({ ...editDomain, name: e.target.value })}
+                />
+              </div>
+              <div className="flex gap-4 items-center">
+                <Input
+                  type="color"
+                  value={editDomain.color}
+                  onChange={e => setEditDomain({ ...editDomain, color: e.target.value })}
+                  className="w-20 h-10"
+                />
+                <div
+                  className="w-10 h-10 rounded border"
+                  style={{ backgroundColor: editDomain.color }}
+                />
+              </div>
+              <div>
+                <Textarea
+                  placeholder="Description"
+                  value={editDomain.description}
+                  onChange={e => setEditDomain({ ...editDomain, description: e.target.value })}
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDomain(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdate}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
