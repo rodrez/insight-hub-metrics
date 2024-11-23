@@ -9,8 +9,8 @@ interface ProjectHeaderProps {
 }
 
 export function ProjectHeader({ project, isEditing, onUpdate }: ProjectHeaderProps) {
-  const getDepartmentName = (id: string) => {
-    return DEPARTMENTS.find(d => d.id === id)?.name || id;
+  const getDepartmentColor = (id: string) => {
+    return DEPARTMENTS.find(d => d.id === id)?.color;
   };
 
   if (!isEditing) {
@@ -20,15 +20,21 @@ export function ProjectHeader({ project, isEditing, onUpdate }: ProjectHeaderPro
           <h1 className="text-3xl font-bold">{project.name}</h1>
           <div className="mt-2 space-y-1 text-muted-foreground">
             <p className="flex items-center gap-2">
-              POC: {project.poc}
-              <Badge variant="outline" className="text-xs">
-                {getDepartmentName(project.pocDepartment)}
+              POC:{" "}
+              <Badge
+                style={{ backgroundColor: getDepartmentColor(project.pocDepartment) }}
+                className="text-white"
+              >
+                {project.poc}
               </Badge>
             </p>
             <p className="flex items-center gap-2">
-              Tech Lead: {project.techLead}
-              <Badge variant="outline" className="text-xs">
-                {getDepartmentName(project.techLeadDepartment)}
+              Tech Lead:{" "}
+              <Badge
+                style={{ backgroundColor: getDepartmentColor(project.techLeadDepartment) }}
+                className="text-white"
+              >
+                {project.techLead}
               </Badge>
             </p>
           </div>
