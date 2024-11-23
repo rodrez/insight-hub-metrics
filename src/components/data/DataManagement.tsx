@@ -57,7 +57,9 @@ export default function DataManagement() {
             name: `${dept.name} Project ${i + 1}`,
             departmentId: dept.id,
             poc: "John Doe",
+            pocDepartment: dept.id, // Set default department for POC
             techLead: "Jane Smith",
+            techLeadDepartment: dept.id, // Set default department for Tech Lead
             budget,
             spent,
             status: "active" as const,
