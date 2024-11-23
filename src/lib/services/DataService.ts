@@ -12,4 +12,5 @@ export interface DataService {
   addCollaborator(collaborator: Collaborator): Promise<void>;
   exportData(): Promise<void>;
   clear(): Promise<void>;
+  populateSampleData(): Promise<{ projects: Project[] }>;
 }
