@@ -1,5 +1,6 @@
 import { Collaborator } from "@/lib/types";
 import { PartnerBadge } from "./PartnerBadge";
+import { fortune30Partners } from "@/components/data/fortune30Partners";
 
 interface ProjectPartnersProps {
   collaborators: Collaborator[];
@@ -7,16 +8,24 @@ interface ProjectPartnersProps {
 }
 
 export function ProjectPartners({ collaborators, onPartnerClick }: ProjectPartnersProps) {
-  const fortune30Partners = collaborators.filter(c => c.type === 'fortune30');
+  // Get Fortune 30 partners with their colors
+  const fortune30Collaborators = collaborators.filter(c => c.type === 'fortune30').map(partner => {
+    const fortune30Data = fortune30Partners.find(f => f.id === partner.id);
+    return {
+      ...partner,
+      color: fortune30Data?.color || '#333'
+    };
+  });
+  
   const internalPartners = collaborators.filter(c => c.type !== 'fortune30');
 
   return (
     <div className="space-y-2">
-      {fortune30Partners.length > 0 && (
+      {fortune30Collaborators.length > 0 && (
         <div>
           <div className="text-sm text-muted-foreground mb-1">Fortune 30 Partners:</div>
           <div className="flex flex-wrap gap-2">
-            {fortune30Partners.map((partner) => (
+            {fortune30Collaborators.map((partner) => (
               <PartnerBadge
                 key={partner.id}
                 partner={partner}
