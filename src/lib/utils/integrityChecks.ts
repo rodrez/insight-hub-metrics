@@ -24,6 +24,7 @@ export const runIntegrityChecks = async (): Promise<IntegrityCheckResult> => {
     toast({
       title: "Projects Check",
       description: `${projects.length} projects loaded${results.projects ? ' ✓' : ' ✗'}`,
+      variant: "default"
     });
 
     // Check Collaborators
@@ -37,6 +38,7 @@ export const runIntegrityChecks = async (): Promise<IntegrityCheckResult> => {
     toast({
       title: "Collaborators Check",
       description: `${fortune30.length} Fortune 30 partners loaded${results.fortune30Partners ? ' ✓' : ' ✗'}\n${internal.length} internal partners loaded${results.internalPartners ? ' ✓' : ' ✗'}`,
+      variant: "default"
     });
 
     // Validate Project-Collaborator relationships

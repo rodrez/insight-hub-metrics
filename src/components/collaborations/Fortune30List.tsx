@@ -135,7 +135,7 @@ export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30List
                       >
                         <div className="flex items-center justify-between">
                           <span className="font-medium">{project.name}</span>
-                          <Badge variant="outline">Active</Badge>
+                          {project.status === 'active' && <Badge variant="outline">Active</Badge>}
                         </div>
                         <p className="text-sm text-muted-foreground line-clamp-2">
                           {project.description}
