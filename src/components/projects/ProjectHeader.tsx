@@ -13,21 +13,6 @@ export function ProjectHeader({ project, isEditing, onUpdate }: ProjectHeaderPro
     return DEPARTMENTS.find(d => d.id === id)?.color;
   };
 
-  const getStatusVariant = (status: string): "default" | "destructive" | "secondary" | "outline" => {
-    switch (status) {
-      case 'active':
-        return 'default';
-      case 'completed':
-        return 'secondary';
-      case 'delayed':
-        return 'outline';
-      case 'action-needed':
-        return 'destructive';
-      default:
-        return 'default';
-    }
-  };
-
   if (!isEditing) {
     return (
       <div className="flex items-center justify-between">
@@ -54,7 +39,11 @@ export function ProjectHeader({ project, isEditing, onUpdate }: ProjectHeaderPro
             </p>
           </div>
         </div>
-        <Badge variant={getStatusVariant(project.status)}>
+        <Badge variant={
+          project.status === 'active' ? 'default' :
+          project.status === 'completed' ? 'secondary' :
+          project.status === 'delayed' ? 'warning' : 'destructive'
+        }>
           {project.status}
         </Badge>
       </div>
