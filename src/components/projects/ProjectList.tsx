@@ -2,17 +2,18 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { db } from '@/lib/db';
+import { Project } from '@/lib/types';
+import { Link, useNavigate } from 'react-router-dom';
+import { defaultTechDomains } from "@/lib/types/techDomain";
+import { DEPARTMENTS } from "@/lib/constants";
+import { ProjectPartners } from './ProjectPartners';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { db } from '@/lib/db';
-import { Project } from '@/lib/types';
-import { Link, useNavigate } from 'react-router-dom';
-import { defaultTechDomains } from "@/lib/types/techDomain";
-import { DEPARTMENTS } from "@/lib/constants";
 
 export default function ProjectList() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -34,8 +35,10 @@ export default function ProjectList() {
         return 'bg-green-500';
       case 'completed':
         return 'bg-blue-500';
-      case 'on-hold':
+      case 'delayed':
         return 'bg-yellow-500';
+      case 'action-needed':
+        return 'bg-red-700';
       default:
         return 'bg-gray-500';
     }
@@ -46,8 +49,7 @@ export default function ProjectList() {
     return department?.color || '#333';
   };
 
-  const handleCollaboratorClick = (e: React.MouseEvent, collaboratorId: string) => {
-    e.preventDefault();
+  const handleCollaboratorClick = (collaboratorId: string) => {
     navigate(`/collaborations/${collaboratorId}`);
   };
 
@@ -149,62 +151,10 @@ export default function ProjectList() {
                     className="h-2"
                   />
                 </div>
-                <div className="space-y-2">
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Fortune 30 Partners:</div>
-                    <div className="flex flex-wrap gap-2">
-                      {project.collaborators
-                        .filter(collab => collab.type === 'fortune30')
-                        .map((collab) => (
-                          <TooltipProvider key={collab.id}>
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <Badge
-                                  variant="default"
-                                  style={{ backgroundColor: collab.color }}
-                                  className="text-xs cursor-pointer"
-                                  onClick={(e) => handleCollaboratorClick(e, collab.id)}
-                                >
-                                  {collab.name}
-                                </Badge>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Fortune 30 Partner</p>
-                                <p>Role: {collab.role}</p>
-                                <p>Last Active: {new Date(collab.lastActive).toLocaleDateString()}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted-foreground mb-1">Internal Partners:</div>
-                    <div className="flex flex-wrap gap-2">
-                      {project.internalPartners?.map((partner) => (
-                        <TooltipProvider key={partner.id}>
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <Badge
-                                variant="default"
-                                style={{ backgroundColor: getDepartmentColor(partner.department) }}
-                                className="text-xs cursor-pointer text-white"
-                                onClick={(e) => handleCollaboratorClick(e, partner.id)}
-                              >
-                                {partner.name}
-                              </Badge>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Internal Partner</p>
-                              <p>Department: {DEPARTMENTS.find(d => d.id === partner.department)?.name}</p>
-                              <p>Role: {partner.role}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                <ProjectPartners
+                  collaborators={[...(project.collaborators || []), ...(project.internalPartners || [])]}
+                  onPartnerClick={handleCollaboratorClick}
+                />
               </div>
             </CardContent>
           </Card>
