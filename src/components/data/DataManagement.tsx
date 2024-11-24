@@ -19,7 +19,9 @@ export default function DataManagement() {
       name: "Database Initialization",
       action: async () => {
         try {
+          console.log('Starting database initialization...');
           await db.init();
+          console.log('Database initialization completed');
           setIsInitialized(true);
           return true;
         } catch (error) {
@@ -39,7 +41,9 @@ export default function DataManagement() {
       name: "Database Clear",
       action: async () => {
         try {
+          console.log('Starting database clear...');
           await db.clear();
+          console.log('Database cleared successfully');
           await initializeDB();
           return true;
         } catch (error) {
@@ -73,18 +77,34 @@ export default function DataManagement() {
           
           // First, add all collaborators
           console.log('Adding collaborators...');
-          for (const collaborator of [...sampleFortune30, ...sampleInternalPartners]) {
+          for (const collaborator of sampleFortune30) {
+            console.log(`Adding Fortune 30 collaborator: ${collaborator.name}`);
+            await db.addCollaborator(collaborator);
+          }
+          
+          for (const collaborator of sampleInternalPartners) {
+            console.log(`Adding internal collaborator: ${collaborator.name}`);
             await db.addCollaborator(collaborator);
           }
 
           // Generate projects with the collaborators
           console.log('Generating projects...');
           const { projects } = await db.populateSampleData();
-          console.log(`Generated ${projects.length} projects`);
+          console.log(`Generated ${projects.length} projects successfully`);
+
+          toast({
+            title: "Success",
+            description: `Sample data populated with ${projects.length} projects`,
+          });
 
           return true;
         } catch (error) {
           console.error('Sample data population error:', error);
+          toast({
+            title: "Error",
+            description: `Failed to populate sample data: ${error?.message || 'Unknown error'}`,
+            variant: "destructive",
+          });
           return false;
         }
       }

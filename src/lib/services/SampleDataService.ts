@@ -12,23 +12,41 @@ export class SampleDataService implements DataService {
   }
 
   async init(): Promise<void> {
+    console.log('Initializing SampleDataService...');
     await this.db.init();
+    console.log('SampleDataService initialized successfully');
   }
 
   async populateSampleData(): Promise<{ projects: Project[] }> {
+    console.log('Starting sample data generation in SampleDataService...');
     const { projects, internalPartners } = generateSampleData();
+    console.log(`Generated ${projects.length} projects and ${internalPartners.length} internal partners`);
 
-    // Add collaborators
-    for (const collaborator of [...generateFortune30Partners(), ...internalPartners]) {
-      await this.db.addCollaborator(collaborator);
+    try {
+      // Add collaborators
+      console.log('Adding Fortune 30 partners...');
+      const fortune30Partners = generateFortune30Partners();
+      for (const collaborator of fortune30Partners) {
+        await this.db.addCollaborator(collaborator);
+      }
+
+      console.log('Adding internal partners...');
+      for (const collaborator of internalPartners) {
+        await this.db.addCollaborator(collaborator);
+      }
+
+      // Add projects
+      console.log('Adding projects...');
+      for (const project of projects) {
+        await this.db.addProject(project);
+      }
+
+      console.log('Sample data population completed successfully');
+      return { projects };
+    } catch (error) {
+      console.error('Error in SampleDataService.populateSampleData:', error);
+      throw error;
     }
-
-    // Add projects with Fortune 30 collaborators
-    for (const project of projects) {
-      await this.db.addProject(project);
-    }
-
-    return { projects };
   }
 
   async getAllProjects(): Promise<Project[]> {
