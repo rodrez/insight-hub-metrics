@@ -15,8 +15,9 @@ export class TransactionManager {
       const store = transaction.objectStore(storeName);
 
       transaction.onerror = () => {
-        console.error(`Transaction error on ${storeName}:`, transaction.error);
-        reject(transaction.error);
+        const error = transaction.error?.message || `Unknown transaction error on ${storeName}`;
+        console.error(`Transaction error on ${storeName}:`, error);
+        reject(new Error(error));
       };
 
       transaction.oncomplete = () => {
@@ -25,14 +26,20 @@ export class TransactionManager {
 
       try {
         const request = operation(store);
-        request.onsuccess = () => resolve(request.result);
+        
+        request.onsuccess = () => {
+          resolve(request.result);
+        };
+        
         request.onerror = () => {
-          console.error(`Operation error on ${storeName}:`, request.error);
-          reject(request.error);
+          const error = request.error?.message || `Unknown operation error on ${storeName}`;
+          console.error(`Operation error on ${storeName}:`, error);
+          reject(new Error(error));
         };
       } catch (error) {
-        console.error(`Error in ${storeName} operation:`, error);
-        reject(error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`Error in ${storeName} operation:`, errorMessage);
+        reject(new Error(errorMessage));
       }
     });
   }
@@ -47,8 +54,9 @@ export class TransactionManager {
       const store = transaction.objectStore(storeName);
 
       transaction.onerror = () => {
-        console.error(`Batch operation failed on ${storeName}:`, transaction.error);
-        reject(transaction.error);
+        const error = transaction.error?.message || `Unknown batch operation error on ${storeName}`;
+        console.error(`Batch operation failed on ${storeName}:`, error);
+        reject(new Error(error));
       };
 
       transaction.oncomplete = () => {
@@ -60,8 +68,9 @@ export class TransactionManager {
         try {
           operation(store, item);
         } catch (error) {
-          console.error(`Error processing item in ${storeName}:`, error);
-          reject(error);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          console.error(`Error processing item in ${storeName}:`, errorMessage);
+          reject(new Error(errorMessage));
         }
       });
     });

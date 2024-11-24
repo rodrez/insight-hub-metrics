@@ -14,8 +14,9 @@ export class IndexedDBService implements DataService {
       const request = indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
 
       request.onerror = () => {
-        console.error('Database initialization error:', request.error);
-        reject(request.error);
+        const error = request.error?.message || 'Unknown error during initialization';
+        console.error('Database initialization error:', error);
+        reject(new Error(error));
       };
       
       request.onsuccess = () => {
@@ -50,7 +51,16 @@ export class IndexedDBService implements DataService {
 
   async addProject(project: Project): Promise<void> {
     this.ensureInitialized();
-    await this.transactionManager!.performTransaction('projects', 'readwrite', store => store.add(project));
+    try {
+      await this.transactionManager!.performTransaction('projects', 'readwrite', store => {
+        const request = store.add(project);
+        return request;
+      });
+      console.log(`Project ${project.id} added successfully`);
+    } catch (error) {
+      console.error(`Error adding project ${project.id}:`, error);
+      throw error;
+    }
   }
 
   async updateProject(id: string, updates: Partial<Project>): Promise<void> {
@@ -75,25 +85,52 @@ export class IndexedDBService implements DataService {
 
   async addCollaborator(collaborator: Collaborator): Promise<void> {
     this.ensureInitialized();
-    await this.transactionManager!.performTransaction('collaborators', 'readwrite', 
-      store => store.add(collaborator));
+    try {
+      await this.transactionManager!.performTransaction('collaborators', 'readwrite', store => {
+        const request = store.add({ ...collaborator });
+        return request;
+      });
+      console.log(`Collaborator ${collaborator.name} added successfully`);
+    } catch (error) {
+      console.error(`Error adding collaborator ${collaborator.name}:`, error);
+      throw error;
+    }
   }
 
   async populateSampleData(): Promise<{ projects: Project[] }> {
     this.ensureInitialized();
     const { projects, internalPartners } = generateSampleData();
     
-    // Add collaborators in a batch operation
-    console.log('Adding collaborators in batch...');
-    await this.transactionManager!.batchOperation(internalPartners, 'collaborators', 
-      (store, collaborator) => store.add(collaborator));
-    
-    // Add projects in a batch operation
-    console.log('Adding projects in batch...');
-    await this.transactionManager!.batchOperation(projects, 'projects',
-      (store, project) => store.add(project));
-    
-    return { projects };
+    try {
+      // Add collaborators one by one to better track errors
+      console.log('Adding collaborators...');
+      for (const collaborator of internalPartners) {
+        try {
+          console.log(`Adding internal collaborator: ${collaborator.name}`);
+          await this.addCollaborator(collaborator);
+        } catch (error) {
+          console.error(`Failed to add collaborator ${collaborator.name}:`, error);
+          throw error;
+        }
+      }
+      
+      // Add projects one by one to better track errors
+      console.log('Adding projects...');
+      for (const project of projects) {
+        try {
+          console.log(`Adding project: ${project.name}`);
+          await this.addProject(project);
+        } catch (error) {
+          console.error(`Failed to add project ${project.name}:`, error);
+          throw error;
+        }
+      }
+      
+      return { projects };
+    } catch (error) {
+      console.error('Sample data population error:', error);
+      throw error;
+    }
   }
 
   async exportData(): Promise<void> {
@@ -124,8 +161,9 @@ export class IndexedDBService implements DataService {
     return new Promise<void>((resolve, reject) => {
       const request = indexedDB.deleteDatabase(DB_CONFIG.name);
       request.onerror = () => {
-        console.error('Error clearing database:', request.error);
-        reject(request.error);
+        const error = request.error?.message || 'Unknown error during database clear';
+        console.error('Error clearing database:', error);
+        reject(new Error(error));
       };
       request.onsuccess = () => {
         console.log('Database cleared successfully');
