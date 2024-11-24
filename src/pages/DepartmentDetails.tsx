@@ -33,19 +33,19 @@ export default function DepartmentDetails() {
   return (
     <div className="container mx-auto px-4 pt-24 pb-12">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold" style={{ color: department.color }}>
+        <h1 className="text-3xl font-bold text-primary">
           {department.name}
         </h1>
         <div className="mt-4 flex gap-4">
-          <Card className="p-4 flex-1">
+          <Card className="p-4 flex-1 bg-card text-card-foreground">
             <div className="text-sm text-muted-foreground">Total Budget</div>
             <div className="text-2xl font-bold">${(department.budget / 1000000).toFixed(1)}M</div>
           </Card>
-          <Card className="p-4 flex-1">
+          <Card className="p-4 flex-1 bg-card text-card-foreground">
             <div className="text-sm text-muted-foreground">Projects</div>
             <div className="text-2xl font-bold">{department.projectCount}</div>
           </Card>
-          <Card className="p-4 flex-1">
+          <Card className="p-4 flex-1 bg-card text-card-foreground">
             <Button 
               variant="outline" 
               className="w-full" 
@@ -59,14 +59,14 @@ export default function DepartmentDetails() {
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Projects</h2>
+        <h2 className="text-xl font-semibold text-foreground">Projects</h2>
         {projects?.map((project) => (
           <Link 
             key={project.id} 
             to={`/projects/${project.id}`}
             className="block transition-transform hover:scale-[1.01] duration-200"
           >
-            <Card className="p-6">
+            <Card className="p-6 bg-card text-card-foreground">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-lg font-semibold">{project.name}</h3>
