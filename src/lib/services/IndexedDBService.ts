@@ -146,7 +146,6 @@ export class IndexedDBService implements DataService {
     const { projects, internalPartners } = generateSampleData();
     
     try {
-      // Add collaborators one by one to better track errors
       console.log('Adding collaborators...');
       for (const collaborator of internalPartners) {
         try {
@@ -158,7 +157,6 @@ export class IndexedDBService implements DataService {
         }
       }
       
-      // Add projects one by one to better track errors
       console.log('Adding projects...');
       for (const project of projects) {
         try {

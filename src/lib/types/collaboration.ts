@@ -12,7 +12,7 @@ export type CollaborationType = 'fortune30' | 'other';
 export type CollaboratorProject = {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   status?: 'active' | 'completed' | 'delayed' | 'action-needed';
   nabc?: {
     needs: string;
