@@ -64,7 +64,11 @@ export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30List
   };
 
   const handleProjectClick = (projectId: string) => {
-    navigate(`/projects/${projectId}`, { state: { scrollToProject: projectId } });
+    if (!projectId) {
+      console.error('No project ID provided');
+      return;
+    }
+    navigate(`/projects/${projectId}`);
   };
 
   return (
@@ -117,7 +121,7 @@ export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30List
                   </TooltipProvider>
                 </h4>
                 <div className="space-y-2">
-                  {collaborator.projects.map((project, index) => {
+                  {collaborator.projects?.map((project, index) => {
                     const nda = collaborator.agreements?.nda;
                     const jtda = collaborator.agreements?.jtda;
                     const warningColor = nda ? getExpiryWarningColor(nda.expiryDate) : 
