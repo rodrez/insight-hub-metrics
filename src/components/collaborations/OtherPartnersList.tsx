@@ -1,8 +1,14 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Mail } from "lucide-react";
+import { Calendar, Mail, Info } from "lucide-react";
 import { Collaborator } from "@/lib/types/collaboration";
 import { DEPARTMENTS } from "@/lib/constants";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type OtherPartnersListProps = {
   collaborators: Collaborator[];
@@ -14,6 +20,21 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
     return department?.color || '#333';
   };
 
+  const getStatusColor = (status?: string) => {
+    switch (status) {
+      case 'active':
+        return 'bg-green-500';
+      case 'completed':
+        return 'bg-blue-500';
+      case 'delayed':
+        return 'bg-yellow-500';
+      case 'action-needed':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
   return (
     <div className="rounded-lg border">
       <Table>
@@ -22,7 +43,7 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
             <TableHead>Name</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Department</TableHead>
-            <TableHead className="w-[300px]">Projects</TableHead>
+            <TableHead className="w-[400px]">Projects</TableHead>
             <TableHead>Last Active</TableHead>
             <TableHead>Contact</TableHead>
           </TableRow>
@@ -45,17 +66,27 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
                 </Badge>
               </TableCell>
               <TableCell>
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-col gap-2">
                   {collaborator.projects && collaborator.projects.length > 0 ? (
                     collaborator.projects.map((project) => (
-                      <Badge key={project.id} variant="secondary" className="text-xs">
-                        {project.name}
-                        {project.description && (
-                          <span className="ml-1 text-muted-foreground">
-                            ({project.description})
-                          </span>
-                        )}
-                      </Badge>
+                      <div key={project.id} className="flex items-center gap-2">
+                        <Badge 
+                          className={`${getStatusColor(project.status)} text-white`}
+                        >
+                          {project.name}
+                        </Badge>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Info className="h-4 w-4 text-muted-foreground" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{project.description}</p>
+                              <p>Status: {project.status || 'Not specified'}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                     ))
                   ) : (
                     <span className="text-muted-foreground text-sm">No active projects</span>
