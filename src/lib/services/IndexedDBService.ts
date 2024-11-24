@@ -51,24 +51,26 @@ export class IndexedDBService implements DataService {
       this.transactionManager = null;
     }
 
-    await DatabaseCleaner.clearDatabase(DB_CONFIG.name);
+    await DatabaseCleaner.clearDatabase();
   }
 
   async getAllProjects(): Promise<Project[]> {
     this.ensureInitialized();
-    return this.transactionManager!.performTransaction('projects', 'readonly', store => store.getAll());
+    const result = await this.transactionManager!.performTransaction('projects', 'readonly', store => store.getAll());
+    return result as Project[];
   }
 
   async getProject(id: string): Promise<Project | undefined> {
     this.ensureInitialized();
-    return this.transactionManager!.performTransaction('projects', 'readonly', store => store.get(id));
+    const result = await this.transactionManager!.performTransaction('projects', 'readonly', store => store.get(id));
+    return result as Project | undefined;
   }
 
   async addProject(project: Project): Promise<void> {
     this.ensureInitialized();
     try {
       await this.transactionManager!.performTransaction('projects', 'readwrite', store => {
-        const request = store.add(project);
+        const request = store.put(project);
         return request;
       });
       console.log(`Project ${project.id} added successfully`);
@@ -90,10 +92,9 @@ export class IndexedDBService implements DataService {
 
   async getAllCollaborators(): Promise<Collaborator[]> {
     this.ensureInitialized();
-    const collaborators = await this.transactionManager!.performTransaction('collaborators', 'readonly', store => store.getAll());
+    const collaborators = await this.transactionManager!.performTransaction('collaborators', 'readonly', store => store.getAll()) as Collaborator[];
     const projects = await this.getAllProjects();
     
-    // Update collaborator projects with full project data
     return collaborators.map(collaborator => ({
       ...collaborator,
       projects: collaborator.projects.map(colProj => {
@@ -109,7 +110,7 @@ export class IndexedDBService implements DataService {
 
   async getCollaborator(id: string): Promise<Collaborator | undefined> {
     this.ensureInitialized();
-    const collaborator = await this.transactionManager!.performTransaction('collaborators', 'readonly', store => store.get(id));
+    const collaborator = await this.transactionManager!.performTransaction('collaborators', 'readonly', store => store.get(id)) as Collaborator | undefined;
     if (!collaborator) return undefined;
     
     const projects = await this.getAllProjects();
@@ -130,7 +131,7 @@ export class IndexedDBService implements DataService {
     this.ensureInitialized();
     try {
       await this.transactionManager!.performTransaction('collaborators', 'readwrite', store => {
-        const request = store.add({ ...collaborator });
+        const request = store.put({ ...collaborator });
         return request;
       });
       console.log(`Collaborator ${collaborator.name} added successfully`);
