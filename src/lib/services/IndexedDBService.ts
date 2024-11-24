@@ -3,7 +3,6 @@ import { Collaborator } from '../types/collaboration';
 import { DataService } from './DataService';
 import { DB_CONFIG, createStores } from './db/stores';
 import { TransactionManager } from './db/transactionManager';
-import { generateSampleData } from './data/sampleDataGenerator';
 
 export class IndexedDBService implements DataService {
   private db: IDBDatabase | null = null;
@@ -97,40 +96,25 @@ export class IndexedDBService implements DataService {
     }
   }
 
-  async populateSampleData(): Promise<{ projects: Project[] }> {
-    this.ensureInitialized();
-    const { projects, internalPartners } = generateSampleData();
-    
-    try {
-      // Add collaborators one by one to better track errors
-      console.log('Adding collaborators...');
-      for (const collaborator of internalPartners) {
-        try {
-          console.log(`Adding internal collaborator: ${collaborator.name}`);
-          await this.addCollaborator(collaborator);
-        } catch (error) {
-          console.error(`Failed to add collaborator ${collaborator.name}:`, error);
-          throw error;
-        }
-      }
-      
-      // Add projects one by one to better track errors
-      console.log('Adding projects...');
-      for (const project of projects) {
-        try {
-          console.log(`Adding project: ${project.name}`);
-          await this.addProject(project);
-        } catch (error) {
-          console.error(`Failed to add project ${project.name}:`, error);
-          throw error;
-        }
-      }
-      
-      return { projects };
-    } catch (error) {
-      console.error('Sample data population error:', error);
-      throw error;
+  async clear(): Promise<void> {
+    console.log('Starting database clear...');
+    if (this.db) {
+      this.db.close();
     }
+    return new Promise<void>((resolve, reject) => {
+      const request = indexedDB.deleteDatabase(DB_CONFIG.name);
+      request.onerror = () => {
+        const error = request.error?.message || 'Unknown error during database clear';
+        console.error('Error clearing database:', error);
+        reject(new Error(error));
+      };
+      request.onsuccess = () => {
+        console.log('Database cleared successfully');
+        this.db = null;
+        this.transactionManager = null;
+        resolve();
+      };
+    });
   }
 
   async exportData(): Promise<void> {
@@ -152,25 +136,5 @@ export class IndexedDBService implements DataService {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }
-
-  async clear(): Promise<void> {
-    if (this.db) {
-      this.db.close();
-    }
-    return new Promise<void>((resolve, reject) => {
-      const request = indexedDB.deleteDatabase(DB_CONFIG.name);
-      request.onerror = () => {
-        const error = request.error?.message || 'Unknown error during database clear';
-        console.error('Error clearing database:', error);
-        reject(new Error(error));
-      };
-      request.onsuccess = () => {
-        console.log('Database cleared successfully');
-        this.db = null;
-        this.transactionManager = null;
-        resolve();
-      };
-    });
   }
 }

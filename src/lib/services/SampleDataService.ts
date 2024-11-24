@@ -23,6 +23,9 @@ export class SampleDataService implements DataService {
     console.log(`Generated ${projects.length} projects and ${internalPartners.length} internal partners`);
 
     try {
+      // Clear existing data first
+      await this.clear();
+      
       // Add collaborators
       console.log('Adding Fortune 30 partners...');
       const fortune30Partners = generateFortune30Partners();
@@ -82,6 +85,7 @@ export class SampleDataService implements DataService {
   }
 
   async clear(): Promise<void> {
+    console.log('Clearing database in SampleDataService...');
     return this.db.clear();
   }
 }
