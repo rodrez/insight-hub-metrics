@@ -7,6 +7,7 @@ import Navbar from "./components/layout/Navbar";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
 import Collaborations from "./pages/Collaborations";
+import InternalSupport from "./pages/InternalSupport";
 import Wiki from "./pages/Wiki";
 import Glossary from "./pages/Glossary";
 import ProjectDetails from "./components/projects/ProjectDetails";
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/collaborations" element={<Collaborations />} />
+            <Route path="/internal-support" element={<InternalSupport />} />
             <Route path="/collaborations/:id" element={<CollaboratorDetails />} />
             <Route path="/collaborations/department/:departmentId" element={<Collaborations />} />
             <Route path="/wiki" element={<Wiki />} />

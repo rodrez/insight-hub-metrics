@@ -11,6 +11,7 @@ export default function Navbar() {
         <div className="flex items-center space-x-6 text-sm font-medium">
           <Link to="/" className="transition-colors hover:text-foreground/80">Dashboard</Link>
           <Link to="/collaborations" className="transition-colors hover:text-foreground/80">Collaborations</Link>
+          <Link to="/internal-support" className="transition-colors hover:text-foreground/80">Internal Support</Link>
           <Link to="/wiki" className="transition-colors hover:text-foreground/80">Wiki</Link>
           <Link to="/glossary" className="transition-colors hover:text-foreground/80">Glossary</Link>
         </div>
