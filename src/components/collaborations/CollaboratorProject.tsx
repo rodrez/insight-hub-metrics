@@ -1,10 +1,18 @@
 import { Badge } from "@/components/ui/badge";
-import { CollaboratorProject as CollaboratorProjectType, Agreement } from "@/lib/types/collaboration";
+import { Project } from "@/lib/types";
+import { Agreement } from "@/lib/types/collaboration";
 import { AgreementStatus } from "./AgreementStatus";
 import { useNavigate } from "react-router-dom";
 
 interface CollaboratorProjectProps {
-  project: CollaboratorProjectType;
+  project: {
+    id: string;
+    name: string;
+    nabc?: {
+      needs: string;
+    };
+    status?: 'active' | 'completed' | 'delayed' | 'action-needed';
+  };
   agreements?: {
     nda?: Agreement;
     jtda?: Agreement;
@@ -33,7 +41,7 @@ export function CollaboratorProject({ project, agreements, warningColor, formatD
         {project.status === 'active' && <Badge variant="outline">Active</Badge>}
       </div>
       <p className="text-sm text-muted-foreground line-clamp-2">
-        {project.description}
+        {project.nabc?.needs || "No description available"}
       </p>
       <div className="space-y-2 text-sm">
         {agreements?.nda && (
