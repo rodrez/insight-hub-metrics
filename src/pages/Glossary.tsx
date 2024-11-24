@@ -13,20 +13,62 @@ const GLOSSARY_ITEMS: GlossaryItem[] = [
   {
     id: '1',
     term: 'NABC',
-    definition: 'Need, Approach, Benefits, Competition - A framework for evaluating project proposals',
+    definition: 'Need, Approach, Benefits, Competition - A framework for evaluating project proposals and ensuring comprehensive project planning',
     category: 'Frameworks'
   },
   {
     id: '2',
     term: 'POC',
-    definition: 'Point of Contact - The primary person responsible for a project or initiative',
+    definition: 'Point of Contact - The primary person responsible for a project or initiative, who serves as the main communication channel',
     category: 'Roles'
   },
   {
     id: '3',
     term: 'KPI',
-    definition: 'Key Performance Indicator - Metrics used to evaluate project success',
+    definition: 'Key Performance Indicator - Metrics used to evaluate project success and track progress towards objectives',
     category: 'Metrics'
+  },
+  {
+    id: '4',
+    term: 'NDA',
+    definition: 'Non-Disclosure Agreement - A legal contract that establishes confidentiality between parties, required for all external collaborations',
+    category: 'Agreements'
+  },
+  {
+    id: '5',
+    term: 'JTDA',
+    definition: 'Joint Technology Development Agreement - A contract defining the terms of collaboration between organizations, including IP rights and development milestones',
+    category: 'Agreements'
+  },
+  {
+    id: '6',
+    term: 'ROI',
+    definition: 'Return on Investment - A measure of the profitability or benefit of an investment relative to its cost',
+    category: 'Metrics'
+  },
+  {
+    id: '7',
+    term: 'IP',
+    definition: 'Intellectual Property - Legal rights to creations of the mind, including patents, trade secrets, and proprietary technologies',
+    category: 'Legal'
+  },
+  {
+    id: '8',
+    term: 'AI/ML',
+    definition: 'Artificial Intelligence/Machine Learning - Technologies that enable computers to learn from data and make intelligent decisions',
+    category: 'Tech Domains'
+  },
+  {
+    id: '9',
+    term: 'IoT',
+    definition: 'Internet of Things - Network of physical objects embedded with sensors, software, and connectivity for data exchange',
+    category: 'Tech Domains'
+  },
+  {
+    id: '10',
+    term: 'AR/VR',
+    definition: 'Augmented Reality/Virtual Reality - Technologies that either enhance real-world environments with digital content (AR) or create fully immersive digital environments (VR)',
+    category: 'Tech Domains'
   }
 ];
 
