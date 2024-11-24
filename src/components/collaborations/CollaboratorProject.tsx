@@ -1,5 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import { Project } from "@/lib/types";
 import { Agreement } from "@/lib/types/collaboration";
 import { AgreementStatus } from "./AgreementStatus";
 import { useNavigate } from "react-router-dom";

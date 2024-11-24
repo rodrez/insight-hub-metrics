@@ -51,7 +51,7 @@ export class IndexedDBService implements DataService {
       this.transactionManager = null;
     }
 
-    await DatabaseCleaner.clearDatabase();
+    await DatabaseCleaner.clearDatabase(DB_CONFIG.name);
   }
 
   async getAllProjects(): Promise<Project[]> {
@@ -90,12 +90,40 @@ export class IndexedDBService implements DataService {
 
   async getAllCollaborators(): Promise<Collaborator[]> {
     this.ensureInitialized();
-    return this.transactionManager!.performTransaction('collaborators', 'readonly', store => store.getAll());
+    const collaborators = await this.transactionManager!.performTransaction('collaborators', 'readonly', store => store.getAll());
+    const projects = await this.getAllProjects();
+    
+    // Update collaborator projects with full project data
+    return collaborators.map(collaborator => ({
+      ...collaborator,
+      projects: collaborator.projects.map(colProj => {
+        const fullProject = projects.find(p => p.id === colProj.id);
+        return {
+          ...colProj,
+          nabc: fullProject?.nabc,
+          status: fullProject?.status
+        };
+      })
+    }));
   }
 
   async getCollaborator(id: string): Promise<Collaborator | undefined> {
     this.ensureInitialized();
-    return this.transactionManager!.performTransaction('collaborators', 'readonly', store => store.get(id));
+    const collaborator = await this.transactionManager!.performTransaction('collaborators', 'readonly', store => store.get(id));
+    if (!collaborator) return undefined;
+    
+    const projects = await this.getAllProjects();
+    return {
+      ...collaborator,
+      projects: collaborator.projects.map(colProj => {
+        const fullProject = projects.find(p => p.id === colProj.id);
+        return {
+          ...colProj,
+          nabc: fullProject?.nabc,
+          status: fullProject?.status
+        };
+      })
+    };
   }
 
   async addCollaborator(collaborator: Collaborator): Promise<void> {

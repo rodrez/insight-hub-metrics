@@ -14,6 +14,9 @@ export type CollaboratorProject = {
   name: string;
   description: string;
   status?: 'active' | 'completed' | 'delayed' | 'action-needed';
+  nabc?: {
+    needs: string;
+  };
 };
 
 export type Collaborator = {
