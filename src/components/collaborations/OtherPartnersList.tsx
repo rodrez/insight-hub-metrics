@@ -36,7 +36,19 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
   };
 
   const getCollaboratorProjects = (collaborator: Collaborator) => {
-    return collaborator.projects || [];
+    // Get the base projects from the collaborator
+    const collaboratorProjectIds = (collaborator.projects || []).map(p => p.id);
+    
+    // Find the full project details from the dashboard projects
+    return allProjects
+      .filter(project => collaboratorProjectIds.includes(project.id))
+      .map(project => ({
+        id: project.id,
+        name: project.name,
+        nabc: project.nabc,
+        status: project.status,
+        pocDepartment: project.pocDepartment
+      }));
   };
 
   return (
