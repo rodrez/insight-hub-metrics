@@ -1,7 +1,7 @@
 import { Project } from '../types';
 import { Collaborator } from '../types/collaboration';
 import { DataService } from './DataService';
-import { generateFortune30Partners } from './data/fortune30Partners';
+import { sampleFortune30 } from '@/components/data/SampleData';
 import { generateSampleData } from './data/sampleDataGenerator';
 
 export class SampleDataService implements DataService {
@@ -26,22 +26,40 @@ export class SampleDataService implements DataService {
       // Clear existing data first
       await this.clear();
       
-      // Add collaborators
+      // Add Fortune 30 partners first
       console.log('Adding Fortune 30 partners...');
-      const fortune30Partners = generateFortune30Partners();
-      for (const collaborator of fortune30Partners) {
-        await this.db.addCollaborator(collaborator);
+      for (const collaborator of sampleFortune30) {
+        try {
+          console.log(`Adding Fortune 30 collaborator: ${collaborator.name}`);
+          await this.db.addCollaborator(collaborator);
+        } catch (error) {
+          console.error(`Failed to add Fortune 30 collaborator ${collaborator.name}:`, error);
+          throw error;
+        }
       }
 
+      // Add internal partners
       console.log('Adding internal partners...');
       for (const collaborator of internalPartners) {
-        await this.db.addCollaborator(collaborator);
+        try {
+          console.log(`Adding internal collaborator: ${collaborator.name}`);
+          await this.db.addCollaborator(collaborator);
+        } catch (error) {
+          console.error(`Failed to add internal collaborator ${collaborator.name}:`, error);
+          throw error;
+        }
       }
 
       // Add projects
       console.log('Adding projects...');
       for (const project of projects) {
-        await this.db.addProject(project);
+        try {
+          console.log(`Adding project: ${project.name}`);
+          await this.db.addProject(project);
+        } catch (error) {
+          console.error(`Failed to add project ${project.name}:`, error);
+          throw error;
+        }
       }
 
       console.log('Sample data population completed successfully');
