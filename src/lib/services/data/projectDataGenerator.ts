@@ -1,7 +1,7 @@
 import { Project, Department } from '@/lib/types';
 import { TechDomain } from '@/lib/types/techDomain';
 import { Collaborator } from '@/lib/types/collaboration';
-import { fortune30Partners } from '@/lib/services/data/fortune30Partners';
+import { generateFortune30Partners } from '@/lib/services/data/fortune30Partners';
 
 // Track used names across all projects
 const usedNames = new Set<string>();
@@ -13,6 +13,7 @@ export const generateProjectData = (
 ) => {
   const projects: Project[] = [];
   usedNames.clear(); // Clear the set before generating new projects
+  const fortune30Partners = generateFortune30Partners();
   
   departments.forEach((dept, deptIndex) => {
     const projectCount = dept.projectCount;
