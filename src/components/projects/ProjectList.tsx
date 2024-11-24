@@ -46,6 +46,30 @@ export default function ProjectList() {
     return department?.color || '#333';
   };
 
+  // Get unique collaborators for a project
+  const getUniqueCollaborators = (collaborators: Project['collaborators']) => {
+    const uniqueCollabs = new Map();
+    collaborators
+      .filter(collab => collab.type === 'fortune30')
+      .forEach(collab => {
+        if (!uniqueCollabs.has(collab.id)) {
+          uniqueCollabs.set(collab.id, collab);
+        }
+      });
+    return Array.from(uniqueCollabs.values());
+  };
+
+  // Get unique internal partners for a project
+  const getUniqueInternalPartners = (partners: Project['internalPartners'] = []) => {
+    const uniquePartners = new Map();
+    partners.forEach(partner => {
+      if (!uniquePartners.has(partner.id)) {
+        uniquePartners.set(partner.id, partner);
+      }
+    });
+    return Array.from(uniquePartners.values());
+  };
+
   return (
     <div className="space-y-4 animate-fade-in">
       {projects.map((project) => (
@@ -149,20 +173,18 @@ export default function ProjectList() {
                   <div>
                     <div className="text-sm text-muted-foreground mb-1">Fortune 30 Partners:</div>
                     <div className="flex flex-wrap gap-2">
-                      {project.collaborators
-                        .filter(collab => collab.type === 'fortune30')
-                        .map((collab) => (
-                          <ProjectPartnerBadge 
-                            key={`${project.id}-${collab.id}`}
-                            partner={collab}
-                          />
+                      {getUniqueCollaborators(project.collaborators).map((collab) => (
+                        <ProjectPartnerBadge 
+                          key={`${project.id}-${collab.id}`}
+                          partner={collab}
+                        />
                       ))}
                     </div>
                   </div>
                   <div>
                     <div className="text-sm text-muted-foreground mb-1">Internal Partners:</div>
                     <div className="flex flex-wrap gap-2">
-                      {project.internalPartners?.map((partner) => (
+                      {getUniqueInternalPartners(project.internalPartners).map((partner) => (
                         <ProjectPartnerBadge 
                           key={`${project.id}-${partner.id}`}
                           partner={partner}
