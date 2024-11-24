@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/lib/types";
 import { DEPARTMENTS } from "@/lib/constants";
+import { toast } from "@/components/ui/use-toast";
 
 interface ProjectHeaderProps {
   project: Project;
@@ -11,6 +12,30 @@ interface ProjectHeaderProps {
 export function ProjectHeader({ project, isEditing, onUpdate }: ProjectHeaderProps) {
   const getDepartmentColor = (id: string) => {
     return DEPARTMENTS.find(d => d.id === id)?.color;
+  };
+
+  const handlePOCChange = (value: string) => {
+    if (value === project.techLead) {
+      toast({
+        title: "Invalid Assignment",
+        description: "The same person cannot be both POC and Tech Lead.",
+        variant: "destructive",
+      });
+      return;
+    }
+    onUpdate({ poc: value });
+  };
+
+  const handleTechLeadChange = (value: string) => {
+    if (value === project.poc) {
+      toast({
+        title: "Invalid Assignment",
+        description: "The same person cannot be both POC and Tech Lead.",
+        variant: "destructive",
+      });
+      return;
+    }
+    onUpdate({ techLead: value });
   };
 
   if (!isEditing) {
@@ -64,7 +89,7 @@ export function ProjectHeader({ project, isEditing, onUpdate }: ProjectHeaderPro
           <input
             type="text"
             value={project.poc}
-            onChange={(e) => onUpdate({ poc: e.target.value })}
+            onChange={(e) => handlePOCChange(e.target.value)}
             className="bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary w-full"
             placeholder="POC"
           />
@@ -84,7 +109,7 @@ export function ProjectHeader({ project, isEditing, onUpdate }: ProjectHeaderPro
           <input
             type="text"
             value={project.techLead}
-            onChange={(e) => onUpdate({ techLead: e.target.value })}
+            onChange={(e) => handleTechLeadChange(e.target.value)}
             className="bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary w-full"
             placeholder="Tech Lead"
           />
