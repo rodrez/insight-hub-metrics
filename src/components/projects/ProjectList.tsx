@@ -153,7 +153,7 @@ export default function ProjectList() {
                         .filter(collab => collab.type === 'fortune30')
                         .map((collab) => (
                           <ProjectPartnerBadge 
-                            key={collab.id} 
+                            key={`${project.id}-${collab.id}`}
                             partner={collab}
                           />
                       ))}
@@ -164,7 +164,7 @@ export default function ProjectList() {
                     <div className="flex flex-wrap gap-2">
                       {project.internalPartners?.map((partner) => (
                         <ProjectPartnerBadge 
-                          key={partner.id} 
+                          key={`${project.id}-${partner.id}`}
                           partner={partner}
                           departmentColor={getDepartmentColor(partner.department)}
                         />
