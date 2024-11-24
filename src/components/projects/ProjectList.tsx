@@ -55,7 +55,8 @@ export default function ProjectList() {
     <div className="space-y-4 animate-fade-in">
       {projects.map((project) => (
         <Link 
-          key={project.id} 
+          key={project.id}
+          id={`project-${project.id}`}
           to={`/projects/${project.id}`}
           className="block transition-transform hover:scale-[1.01] duration-200"
         >

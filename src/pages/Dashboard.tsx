@@ -2,13 +2,15 @@ import { DEPARTMENTS } from '@/lib/constants';
 import DepartmentCard from '@/components/dashboard/DepartmentCard';
 import ProjectSummary from '@/components/dashboard/ProjectSummary';
 import ProjectList from '@/components/projects/ProjectList';
-import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { Link, useEffect, useState } from 'react';
 import { runIntegrityChecks } from '@/lib/utils/integrityChecks';
 import { toast } from '@/components/ui/use-toast';
 import { db } from '@/lib/db';
+import { useLocation } from 'react-router-dom';
+import { scrollToProject } from '@/utils/scrollUtils';
 
 export default function Dashboard() {
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -63,6 +65,12 @@ export default function Dashboard() {
 
     initializeData();
   }, []);
+
+  useEffect(() => {
+    if (location.state?.scrollToProject) {
+      scrollToProject(location.state.scrollToProject);
+    }
+  }, [location.state]);
 
   if (isLoading) {
     return (

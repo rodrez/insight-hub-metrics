@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Mail, Edit, Trash2, Shield, Calendar, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collaborator } from "@/lib/types/collaboration";
+import { scrollToProject } from "@/utils/scrollUtils";
 import {
   Tooltip,
   TooltipContent,
@@ -68,7 +69,7 @@ export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30List
       console.error('No project ID provided');
       return;
     }
-    navigate(`/projects/${projectId}`);
+    navigate('/', { state: { scrollToProject: projectId } });
   };
 
   return (
