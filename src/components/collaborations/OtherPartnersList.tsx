@@ -35,6 +35,15 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
     navigate('/', { state: { scrollToProject: projectId } });
   };
 
+  // Group projects by collaborator ID to avoid duplicates
+  const uniqueCollaborators = collaborators.reduce((acc, current) => {
+    const existing = acc.find(item => item.id === current.id);
+    if (!existing) {
+      acc.push(current);
+    }
+    return acc;
+  }, [] as Collaborator[]);
+
   const getCollaboratorProjects = (collaborator: Collaborator) => {
     // Get the base projects from the collaborator
     const collaboratorProjectIds = (collaborator.projects || []).map(p => p.id);
@@ -65,7 +74,7 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {collaborators.map((collaborator) => {
+          {uniqueCollaborators.map((collaborator) => {
             const collaboratorProjects = getCollaboratorProjects(collaborator);
 
             return (
