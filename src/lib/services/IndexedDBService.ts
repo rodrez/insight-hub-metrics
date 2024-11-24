@@ -3,6 +3,7 @@ import { Collaborator } from '../types/collaboration';
 import { DataService } from './DataService';
 import { DB_CONFIG, createStores } from './db/stores';
 import { TransactionManager } from './db/transactionManager';
+import { generateSampleData } from './data/sampleDataGenerator';
 
 export class IndexedDBService implements DataService {
   private db: IDBDatabase | null = null;
@@ -92,6 +93,42 @@ export class IndexedDBService implements DataService {
       console.log(`Collaborator ${collaborator.name} added successfully`);
     } catch (error) {
       console.error(`Error adding collaborator ${collaborator.name}:`, error);
+      throw error;
+    }
+  }
+
+  async populateSampleData(): Promise<{ projects: Project[] }> {
+    this.ensureInitialized();
+    const { projects, internalPartners } = generateSampleData();
+    
+    try {
+      // Add collaborators one by one to better track errors
+      console.log('Adding collaborators...');
+      for (const collaborator of internalPartners) {
+        try {
+          console.log(`Adding internal collaborator: ${collaborator.name}`);
+          await this.addCollaborator(collaborator);
+        } catch (error) {
+          console.error(`Failed to add collaborator ${collaborator.name}:`, error);
+          throw error;
+        }
+      }
+      
+      // Add projects one by one to better track errors
+      console.log('Adding projects...');
+      for (const project of projects) {
+        try {
+          console.log(`Adding project: ${project.name}`);
+          await this.addProject(project);
+        } catch (error) {
+          console.error(`Failed to add project ${project.name}:`, error);
+          throw error;
+        }
+      }
+      
+      return { projects };
+    } catch (error) {
+      console.error('Sample data population error:', error);
       throw error;
     }
   }
