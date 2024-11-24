@@ -43,50 +43,37 @@ export const generateInternalPartners = async (): Promise<Collaborator[]> => {
   
   const partners: Collaborator[] = [];
   
-  // Create initial partners with specific departments
-  const initialPartners = [
-    {
-      firstName: 'Sarah',
-      lastName: 'Johnson',
-      departmentId: 'airplanes',
-      role: 'Project Manager'
-    },
-    {
-      firstName: 'Michael',
-      lastName: 'Chen',
-      departmentId: 'space',
-      role: 'Technical Lead'
-    },
-    {
-      firstName: 'Emily',
-      lastName: 'Rodriguez',
-      departmentId: 'energy',
-      role: 'Program Director'
-    }
-  ];
-
-  for (const partner of initialPartners) {
-    partners.push(await generateInternalPartner(
-      partner.firstName,
-      partner.lastName,
-      partner.departmentId,
-      partner.role
-    ));
-  }
-
-  // Generate additional partners for remaining departments
+  // Generate 4 partners for each department
   for (const dept of DEPARTMENTS) {
-    if (!partners.some(p => p.department === dept.id)) {
-      const randomNames = {
-        first: ['James', 'Maria', 'David', 'Lisa'][Math.floor(Math.random() * 4)],
-        last: ['Wilson', 'Garcia', 'Kim', 'Anderson'][Math.floor(Math.random() * 4)]
-      };
-      
+    const departmentPartners = [
+      {
+        firstName: ['Sarah', 'Michael', 'Emily', 'James'][0],
+        lastName: ['Johnson', 'Chen', 'Rodriguez', 'Wilson'][0],
+        role: ['Project Manager', 'Technical Lead', 'Senior Engineer', 'Department Head'][0]
+      },
+      {
+        firstName: ['David', 'Lisa', 'Robert', 'Maria'][1],
+        lastName: ['Smith', 'Park', 'Taylor', 'Garcia'][1],
+        role: ['Systems Engineer', 'Research Lead', 'Technical Specialist', 'Program Director'][1]
+      },
+      {
+        firstName: ['John', 'Amanda', 'Thomas', 'Rachel'][2],
+        lastName: ['Brown', 'White', 'Lee', 'Martinez'][2],
+        role: ['Innovation Lead', 'Development Manager', 'Integration Specialist', 'Operations Manager'][2]
+      },
+      {
+        firstName: ['Daniel', 'Jennifer', 'William', 'Patricia'][3],
+        lastName: ['Kim', 'Anderson', 'Davis', 'Thompson'][3],
+        role: ['Technical Architect', 'Product Manager', 'Solutions Engineer', 'Team Lead'][3]
+      }
+    ];
+
+    for (const partner of departmentPartners) {
       partners.push(await generateInternalPartner(
-        randomNames.first,
-        randomNames.last,
+        partner.firstName,
+        partner.lastName,
         dept.id,
-        ['Senior Engineer', 'Department Head', 'Technical Specialist'][Math.floor(Math.random() * 3)]
+        partner.role
       ));
     }
   }

@@ -28,29 +28,18 @@ export class SampleDataService implements DataService {
     try {
       // Get internal partners first
       const internalPartners = await getSampleInternalPartners();
+      console.log(`Generated ${internalPartners.length} internal partners`);
       
       // Generate sample data with the resolved internal partners
       const { projects } = generateSampleData(internalPartners);
-      console.log(`Generated ${projects.length} projects and ${internalPartners.length} internal partners`);
+      console.log(`Generated ${projects.length} projects with internal partners`);
 
       // Clear existing data
       console.log('Clearing existing data...');
       await this.clear();
       await this.init(); // Reinitialize after clear
 
-      // Add Fortune 30 partners first since they're referenced by projects
-      console.log('Adding Fortune 30 partners...');
-      for (const collaborator of sampleFortune30) {
-        try {
-          console.log(`Adding Fortune 30 collaborator: ${collaborator.name}`);
-          await this.db.addCollaborator(collaborator);
-        } catch (error) {
-          console.error(`Failed to add Fortune 30 collaborator ${collaborator.name}:`, error);
-          throw error;
-        }
-      }
-
-      // Add internal partners
+      // Add internal partners first since they're referenced by projects
       console.log('Adding internal partners...');
       for (const collaborator of internalPartners) {
         try {
@@ -58,6 +47,18 @@ export class SampleDataService implements DataService {
           await this.db.addCollaborator(collaborator);
         } catch (error) {
           console.error(`Failed to add internal collaborator ${collaborator.name}:`, error);
+          throw error;
+        }
+      }
+
+      // Add Fortune 30 partners
+      console.log('Adding Fortune 30 partners...');
+      for (const collaborator of sampleFortune30) {
+        try {
+          console.log(`Adding Fortune 30 collaborator: ${collaborator.name}`);
+          await this.db.addCollaborator(collaborator);
+        } catch (error) {
+          console.error(`Failed to add Fortune 30 collaborator ${collaborator.name}:`, error);
           throw error;
         }
       }
