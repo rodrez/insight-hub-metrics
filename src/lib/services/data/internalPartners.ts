@@ -6,7 +6,7 @@ const generateInternalPartner = (
   lastName: string,
   departmentId: string,
   role: string,
-  projects: Array<{id: string; name: string; description: string; status: string}>
+  projects: Array<{id: string; name: string; description: string; status: 'active' | 'completed' | 'delayed' | 'action-needed'}>
 ): Collaborator => {
   const department = DEPARTMENTS.find(d => d.id === departmentId);
   if (!department) {
@@ -71,13 +71,13 @@ export const generateInternalPartners = (): Collaborator[] => {
     generateInternalPartner(
       'Emily',
       'Rodriguez',
-      'defense',
+      'energy',
       'Program Director',
       [
         {
           id: 'cyber-defense',
-          name: 'Cyber Defense Initiative',
-          description: 'Advanced cybersecurity systems development',
+          name: 'Energy Security Initiative',
+          description: 'Advanced energy systems development',
           status: 'action-needed'
         }
       ]
@@ -98,7 +98,7 @@ export const generateInternalPartners = (): Collaborator[] => {
               id: `${dept.id}-project-1`,
               name: `${dept.name} Innovation`,
               description: `Key innovation project for ${dept.name}`,
-              status: ['active', 'delayed', 'completed'][Math.floor(Math.random() * 3)]
+              status: ['active', 'delayed', 'completed'][Math.floor(Math.random() * 3)] as 'active' | 'delayed' | 'completed'
             }
           ]
         )
