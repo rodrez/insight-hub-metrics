@@ -31,21 +31,6 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
     return department?.color || '#333';
   };
 
-  const getStatusColor = (status?: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-500';
-      case 'completed':
-        return 'bg-blue-500';
-      case 'delayed':
-        return 'bg-yellow-500';
-      case 'action-needed':
-        return 'bg-red-500';
-      default:
-        return 'bg-gray-500';
-    }
-  };
-
   const handleProjectClick = (projectId: string) => {
     navigate('/', { state: { scrollToProject: projectId } });
   };
@@ -97,7 +82,11 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
                           onClick={() => handleProjectClick(project.id)}
                         >
                           <Badge 
-                            className={`${getStatusColor(project.status)} text-white`}
+                            className="text-white"
+                            style={{ 
+                              backgroundColor: getDepartmentColor(project.pocDepartment),
+                              borderColor: getDepartmentColor(project.pocDepartment)
+                            }}
                           >
                             {project.name}
                           </Badge>
