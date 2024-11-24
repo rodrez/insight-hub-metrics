@@ -67,7 +67,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
     toast({
       title: "Duplicate Team Members Detected",
       description: `${duplicatePartners.map(p => p.name).join(", ")} ${duplicatePartners.length === 1 ? "is" : "are"} already listed as POC or Tech Lead and will not be shown in Internal Partners.`,
-      variant: "warning",
+      variant: "default"  // Changed from "warning" to "default"
     });
   }
 
