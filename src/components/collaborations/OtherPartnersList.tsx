@@ -35,29 +35,55 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
     navigate('/', { state: { scrollToProject: projectId } });
   };
 
-  // Group projects by collaborator ID to avoid duplicates
+  // Group collaborators by their ID and merge their properties
   const uniqueCollaborators = collaborators.reduce((acc, current) => {
-    const existing = acc.find(item => item.id === current.id);
-    if (!existing) {
+    const existingCollaborator = acc.find(item => item.id === current.id);
+    if (!existingCollaborator) {
       acc.push(current);
+    } else {
+      // If this person appears in multiple departments, merge their properties
+      // Keep the most recent lastActive date
+      if (new Date(current.lastActive) > new Date(existingCollaborator.lastActive)) {
+        existingCollaborator.lastActive = current.lastActive;
+      }
+      // Combine projects if they exist
+      if (current.projects) {
+        existingCollaborator.projects = [
+          ...existingCollaborator.projects,
+          ...current.projects.filter(project => 
+            !existingCollaborator.projects.some(p => p.id === project.id)
+          )
+        ];
+      }
     }
     return acc;
   }, [] as Collaborator[]);
 
   const getCollaboratorProjects = (collaborator: Collaborator) => {
     // Get only projects where this collaborator is listed as an internal partner
-    // or where they are the POC or Tech Lead
-    return allProjects.filter(project => 
-      (project.internalPartners || []).some(partner => partner.id === collaborator.id) ||
+    // or where they are the POC or Tech Lead, accounting for possible duplicates
+    const collaboratorProjects = allProjects.filter(project => 
+      (project.internalPartners || []).some(partner => 
+        partner.id === collaborator.id || 
+        partner.name === collaborator.name
+      ) ||
       project.poc === collaborator.name ||
       project.techLead === collaborator.name
-    ).map(project => ({
-      id: project.id,
-      name: project.name,
-      nabc: project.nabc,
-      status: project.status,
-      pocDepartment: project.pocDepartment
-    }));
+    );
+
+    // Remove duplicate projects
+    const uniqueProjects = Array.from(new Set(collaboratorProjects.map(p => p.id)))
+      .map(id => collaboratorProjects.find(p => p.id === id))
+      .filter((project): project is NonNullable<typeof project> => project !== undefined)
+      .map(project => ({
+        id: project.id,
+        name: project.name,
+        nabc: project.nabc,
+        status: project.status,
+        pocDepartment: project.pocDepartment
+      }));
+
+    return uniqueProjects;
   };
 
   return (
