@@ -13,7 +13,7 @@ export type CollaboratorProject = {
   id: string;
   name: string;
   description: string;
-  status?: 'active' | 'inactive';
+  status?: 'active' | 'completed' | 'delayed' | 'action-needed';
 };
 
 export type Collaborator = {

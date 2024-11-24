@@ -11,12 +11,14 @@ export const collaborators: Collaborator[] = [
       {
         id: 'supply-chain',
         name: 'Supply Chain Optimization',
-        description: 'Optimizing global supply chain operations'
+        description: 'Optimizing global supply chain operations',
+        status: 'active'
       },
       {
         id: 'digital-transform',
         name: 'Digital Transformation',
-        description: 'Implementing digital solutions'
+        description: 'Implementing digital solutions',
+        status: 'active'
       }
     ],
     lastActive: '2024-02-20',
@@ -45,12 +47,14 @@ export const collaborators: Collaborator[] = [
       {
         id: 'cloud-migration',
         name: 'Cloud Migration',
-        description: 'Enterprise-wide migration to cloud infrastructure.'
+        description: 'Enterprise-wide migration to cloud infrastructure.',
+        status: 'active'
       },
       {
         id: 'ai-integration',
         name: 'AI Integration',
-        description: 'Integration of AI capabilities across business processes.'
+        description: 'Integration of AI capabilities across business processes.',
+        status: 'delayed'
       }
     ],
     lastActive: '2024-02-19',
@@ -74,12 +78,14 @@ export const collaborators: Collaborator[] = [
       {
         id: 'mobile-solutions',
         name: 'Mobile Solutions',
-        description: 'Development of enterprise mobile solutions.'
+        description: 'Development of enterprise mobile solutions.',
+        status: 'completed'
       },
       {
         id: 'enterprise-integration',
         name: 'Enterprise Integration',
-        description: 'Integration of Apple products into enterprise environments.'
+        description: 'Integration of Apple products into enterprise environments.',
+        status: 'active'
       }
     ],
     lastActive: '2024-02-18',
