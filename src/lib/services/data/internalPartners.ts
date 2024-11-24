@@ -5,7 +5,8 @@ const generateInternalPartner = (
   firstName: string,
   lastName: string,
   departmentId: string,
-  role: string
+  role: string,
+  projects: Array<{id: string; name: string; description: string; status: string}>
 ): Collaborator => {
   const department = DEPARTMENTS.find(d => d.id === departmentId);
   if (!department) {
@@ -18,7 +19,7 @@ const generateInternalPartner = (
     email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@company.com`,
     role,
     department: departmentId,
-    projects: [],
+    projects,
     lastActive: new Date().toISOString(),
     type: "other",
     color: department.color
@@ -26,22 +27,82 @@ const generateInternalPartner = (
 };
 
 export const generateInternalPartners = (): Collaborator[] => {
-  const partners: Collaborator[] = [];
-  
-  // Generate 2-3 partners for each department
+  const partners: Collaborator[] = [
+    generateInternalPartner(
+      'Sarah',
+      'Johnson',
+      'airplanes',
+      'Project Manager',
+      [
+        {
+          id: 'wing-design',
+          name: 'Wing Design Optimization',
+          description: 'Advanced aerodynamics research for next-gen aircraft',
+          status: 'active'
+        },
+        {
+          id: 'fuel-efficiency',
+          name: 'Fuel Efficiency Program',
+          description: 'Developing fuel-efficient engine technologies',
+          status: 'completed'
+        }
+      ]
+    ),
+    generateInternalPartner(
+      'Michael',
+      'Chen',
+      'space',
+      'Technical Lead',
+      [
+        {
+          id: 'satellite-comm',
+          name: 'Satellite Communications',
+          description: 'Next-generation satellite communication systems',
+          status: 'active'
+        },
+        {
+          id: 'propulsion',
+          name: 'Advanced Propulsion',
+          description: 'Research on new propulsion technologies',
+          status: 'delayed'
+        }
+      ]
+    ),
+    generateInternalPartner(
+      'Emily',
+      'Rodriguez',
+      'defense',
+      'Program Director',
+      [
+        {
+          id: 'cyber-defense',
+          name: 'Cyber Defense Initiative',
+          description: 'Advanced cybersecurity systems development',
+          status: 'action-needed'
+        }
+      ]
+    )
+  ];
+
+  // Generate additional partners for each department
   DEPARTMENTS.forEach(dept => {
-    const firstNames = ['Sarah', 'Michael', 'David', 'Emily', 'James', 'Lisa', 'Robert', 'Maria', 'John', 'Amanda', 'Thomas', 'Rachel'];
-    const lastNames = ['Johnson', 'Chen', 'Rodriguez', 'Thompson', 'Wilson', 'Anderson', 'Kim', 'Garcia', 'Smith', 'Lee', 'Brown', 'Martinez'];
-    const roles = ['Project Manager', 'Technical Lead', 'Senior Engineer', 'Program Director', 'Department Head'];
-    
-    // Generate 2-3 partners per department
-    const count = 2 + Math.floor(Math.random() * 2);
-    for (let i = 0; i < count; i++) {
-      const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-      const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-      const role = roles[Math.floor(Math.random() * roles.length)];
-      
-      partners.push(generateInternalPartner(firstName, lastName, dept.id, role));
+    if (!partners.some(p => p.department === dept.id)) {
+      partners.push(
+        generateInternalPartner(
+          ['James', 'Maria', 'David', 'Lisa'][Math.floor(Math.random() * 4)],
+          ['Wilson', 'Garcia', 'Kim', 'Anderson'][Math.floor(Math.random() * 4)],
+          dept.id,
+          ['Senior Engineer', 'Department Head', 'Technical Specialist'][Math.floor(Math.random() * 3)],
+          [
+            {
+              id: `${dept.id}-project-1`,
+              name: `${dept.name} Innovation`,
+              description: `Key innovation project for ${dept.name}`,
+              status: ['active', 'delayed', 'completed'][Math.floor(Math.random() * 3)]
+            }
+          ]
+        )
+      );
     }
   });
 
