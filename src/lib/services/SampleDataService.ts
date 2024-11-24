@@ -1,7 +1,7 @@
 import { Project } from '../types';
 import { Collaborator } from '../types/collaboration';
 import { DataService } from './DataService';
-import { sampleFortune30 } from '@/components/data/SampleData';
+import { sampleFortune30, getSampleInternalPartners } from '@/components/data/SampleData';
 import { generateSampleData } from './data/sampleDataGenerator';
 
 export class SampleDataService implements DataService {
@@ -26,8 +26,11 @@ export class SampleDataService implements DataService {
     console.log('Starting sample data population...');
     
     try {
-      // Generate sample data first to ensure we have all the data ready
-      const { projects, internalPartners } = generateSampleData();
+      // Get internal partners first
+      const internalPartners = await getSampleInternalPartners();
+      
+      // Generate sample data with the resolved internal partners
+      const { projects } = generateSampleData(internalPartners);
       console.log(`Generated ${projects.length} projects and ${internalPartners.length} internal partners`);
 
       // Clear existing data

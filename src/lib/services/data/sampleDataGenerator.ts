@@ -2,11 +2,10 @@ import { Project, Department } from '@/lib/types';
 import { DEPARTMENTS } from '@/lib/constants';
 import { defaultTechDomains } from '@/lib/types/techDomain';
 import { generateProjectData } from './projectDataGenerator';
-import { generateInternalPartners } from './internalPartners';
+import { Collaborator } from '@/lib/types/collaboration';
 
-export const generateSampleData = () => {
+export const generateSampleData = (internalPartners: Collaborator[]) => {
   const departments = [...DEPARTMENTS]; // Create mutable copy
-  const internalPartners = generateInternalPartners();
   const { projects } = generateProjectData(departments, defaultTechDomains, internalPartners);
   return { projects, internalPartners };
 };
