@@ -45,10 +45,10 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
   }, [] as Collaborator[]);
 
   const getCollaboratorProjects = (collaborator: Collaborator) => {
-    // Get all projects where this collaborator is listed as an internal partner
+    // Get only projects where this collaborator is listed as an internal partner
     // or where they are the POC or Tech Lead
     return allProjects.filter(project => 
-      project.internalPartners?.some(partner => partner.id === collaborator.id) ||
+      (project.internalPartners || []).some(partner => partner.id === collaborator.id) ||
       project.poc === collaborator.name ||
       project.techLead === collaborator.name
     ).map(project => ({
