@@ -22,10 +22,6 @@ export default function DepartmentDetails() {
     }
   });
 
-  if (!department) {
-    return <div className="container mx-auto px-4 py-8">Department not found</div>;
-  }
-
   const handleViewCollaborators = () => {
     navigate(`/collaborations/department/${id}`);
   };
@@ -34,6 +30,23 @@ export default function DepartmentDetails() {
     const department = DEPARTMENTS.find(d => d.id === departmentId);
     return department?.color || '#333';
   };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'bg-green-500';
+      case 'completed':
+        return 'bg-blue-500';
+      case 'on-hold':
+        return 'bg-yellow-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  if (!department) {
+    return <div className="container mx-auto px-4 py-8">Department not found</div>;
+  }
 
   return (
     <div className="container mx-auto px-4 pt-24 pb-12">
@@ -88,7 +101,11 @@ export default function DepartmentDetails() {
                     </Badge>
                   </p>
                 </div>
-                <Badge>{project.status}</Badge>
+                <Badge 
+                  className={`${getStatusColor(project.status)} text-white`}
+                >
+                  {project.status}
+                </Badge>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
