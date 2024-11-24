@@ -2,7 +2,7 @@ import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
 import { useEffect, useState } from "react";
 import { DatabaseActions } from "./DatabaseActions";
-import { sampleFortune30, sampleInternalPartners } from "./SampleData";
+import { sampleFortune30, getSampleInternalPartners } from "./SampleData";
 import { executeWithRetry, LoadingStep } from "@/lib/utils/loadingRetry";
 
 export default function DataManagement() {
@@ -82,7 +82,8 @@ export default function DataManagement() {
             await db.addCollaborator(collaborator);
           }
           
-          for (const collaborator of sampleInternalPartners) {
+          const internalPartners = await getSampleInternalPartners();
+          for (const collaborator of internalPartners) {
             console.log(`Adding internal collaborator: ${collaborator.name}`);
             await db.addCollaborator(collaborator);
           }
