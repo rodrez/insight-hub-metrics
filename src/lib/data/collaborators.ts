@@ -16,8 +16,8 @@ export const collaborators: Collaborator[] = [
       },
       {
         id: 'digital-transform',
-        name: 'Digital Transformation Initiative',
-        description: 'Enterprise-wide digital transformation program',
+        name: 'Digital Transformation',
+        description: 'Implementing digital solutions',
         status: 'active'
       }
     ],
@@ -46,8 +46,8 @@ export const collaborators: Collaborator[] = [
     projects: [
       {
         id: 'cloud-migration',
-        name: 'Cloud Infrastructure Migration',
-        description: 'Migration of core systems to cloud platform',
+        name: 'Cloud Migration',
+        description: 'Enterprise cloud infrastructure',
         status: 'active'
       }
     ],
@@ -71,14 +71,14 @@ export const collaborators: Collaborator[] = [
     projects: [
       {
         id: 'mobile-solutions',
-        name: 'Enterprise Mobile Platform',
-        description: 'Next-generation mobile enterprise solutions',
+        name: 'Mobile Solutions',
+        description: 'Enterprise mobile solutions',
         status: 'completed'
       },
       {
-        id: 'enterprise-integration',
-        name: 'Enterprise Systems Integration',
-        description: 'Seamless integration of enterprise platforms',
+        id: 'ai-ml',
+        name: 'AI & Machine Learning',
+        description: 'Advanced AI solutions',
         status: 'active'
       }
     ],
