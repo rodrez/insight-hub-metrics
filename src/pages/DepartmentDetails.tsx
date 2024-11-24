@@ -30,6 +30,11 @@ export default function DepartmentDetails() {
     navigate(`/collaborations/department/${id}`);
   };
 
+  const getDepartmentColor = (departmentId: string) => {
+    const department = DEPARTMENTS.find(d => d.id === departmentId);
+    return department?.color || '#333';
+  };
+
   return (
     <div className="container mx-auto px-4 pt-24 pb-12">
       <div className="mb-8">
@@ -70,8 +75,17 @@ export default function DepartmentDetails() {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-lg font-semibold">{project.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    POC: {project.poc}
+                  <p className="text-sm text-muted-foreground flex items-center gap-2">
+                    POC:{" "}
+                    <Badge
+                      style={{ 
+                        backgroundColor: getDepartmentColor(project.pocDepartment),
+                        color: 'white',
+                        borderColor: getDepartmentColor(project.pocDepartment)
+                      }}
+                    >
+                      {project.poc}
+                    </Badge>
                   </p>
                 </div>
                 <Badge>{project.status}</Badge>
