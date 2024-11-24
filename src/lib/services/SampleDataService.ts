@@ -13,20 +13,29 @@ export class SampleDataService implements DataService {
 
   async init(): Promise<void> {
     console.log('Initializing SampleDataService...');
-    await this.db.init();
-    console.log('SampleDataService initialized successfully');
+    try {
+      await this.db.init();
+      console.log('Database initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize database:', error);
+      throw error;
+    }
   }
 
   async populateSampleData(): Promise<{ projects: Project[] }> {
-    console.log('Starting sample data generation in SampleDataService...');
-    const { projects, internalPartners } = generateSampleData();
-    console.log(`Generated ${projects.length} projects and ${internalPartners.length} internal partners`);
-
+    console.log('Starting sample data population...');
+    
     try {
-      // Clear existing data first
+      // Generate sample data first to ensure we have all the data ready
+      const { projects, internalPartners } = generateSampleData();
+      console.log(`Generated ${projects.length} projects and ${internalPartners.length} internal partners`);
+
+      // Clear existing data
+      console.log('Clearing existing data...');
       await this.clear();
-      
-      // Add Fortune 30 partners first
+      await this.init(); // Reinitialize after clear
+
+      // Add Fortune 30 partners first since they're referenced by projects
       console.log('Adding Fortune 30 partners...');
       for (const collaborator of sampleFortune30) {
         try {
@@ -50,7 +59,7 @@ export class SampleDataService implements DataService {
         }
       }
 
-      // Add projects
+      // Add projects last since they reference collaborators
       console.log('Adding projects...');
       for (const project of projects) {
         try {
@@ -65,7 +74,7 @@ export class SampleDataService implements DataService {
       console.log('Sample data population completed successfully');
       return { projects };
     } catch (error) {
-      console.error('Error in SampleDataService.populateSampleData:', error);
+      console.error('Failed to populate sample data:', error);
       throw error;
     }
   }
@@ -104,6 +113,12 @@ export class SampleDataService implements DataService {
 
   async clear(): Promise<void> {
     console.log('Clearing database in SampleDataService...');
-    return this.db.clear();
+    try {
+      await this.db.clear();
+      console.log('Database cleared successfully');
+    } catch (error) {
+      console.error('Failed to clear database:', error);
+      throw error;
+    }
   }
 }
