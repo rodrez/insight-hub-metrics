@@ -35,6 +35,14 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
     navigate('/', { state: { scrollToProject: projectId } });
   };
 
+  const getCollaboratorProjects = (collaborator: Collaborator) => {
+    return allProjects.filter(project => 
+      project.poc === collaborator.name || 
+      project.techLead === collaborator.name ||
+      project.internalPartners?.some(p => p.id === collaborator.id)
+    );
+  };
+
   return (
     <div className="rounded-lg border">
       <Table>
@@ -50,11 +58,8 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
         </TableHeader>
         <TableBody>
           {collaborators.map((collaborator) => {
-            // Find all dashboard projects that have this collaborator
-            const collaboratorProjects = allProjects.filter(project => 
-              project.collaborators?.some(c => c.id === collaborator.id) ||
-              project.internalPartners?.some(p => p.id === collaborator.id)
-            );
+            // Get only the projects this person is involved in
+            const collaboratorProjects = getCollaboratorProjects(collaborator);
 
             return (
               <TableRow key={collaborator.id} className="hover:bg-muted/50">
