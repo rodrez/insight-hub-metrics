@@ -7,13 +7,7 @@ export const itPartners: Collaborator[] = [
     email: "j.wilson@company.com",
     role: "IT Systems Engineer",
     department: "it",
-    projects: [
-      {
-        id: "infrastructure",
-        name: "Infrastructure Modernization",
-        description: "Upgrading IT infrastructure"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   },
@@ -23,13 +17,7 @@ export const itPartners: Collaborator[] = [
     email: "m.rodriguez@company.com",
     role: "Systems Analyst",
     department: "it",
-    projects: [
-      {
-        id: "security-systems",
-        name: "Security Systems Enhancement",
-        description: "Advanced security implementation"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   },
@@ -39,13 +27,7 @@ export const itPartners: Collaborator[] = [
     email: "w.taylor@company.com",
     role: "Network Architect",
     department: "it",
-    projects: [
-      {
-        id: "network-upgrade",
-        name: "Network Infrastructure",
-        description: "Network systems upgrade"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   },
@@ -55,13 +37,7 @@ export const itPartners: Collaborator[] = [
     email: "s.turner@company.com",
     role: "Information Security Analyst",
     department: "it",
-    projects: [
-      {
-        id: "security-analytics",
-        name: "Security Analytics Platform",
-        description: "Advanced security monitoring"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   }

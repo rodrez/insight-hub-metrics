@@ -7,13 +7,7 @@ export const airplanesPartners: Collaborator[] = [
     email: "john.smith@company.com",
     role: "Lead Engineer",
     department: "airplanes",
-    projects: [
-      {
-        id: "wing-design",
-        name: "Wing Design Optimization",
-        description: "Optimizing wing designs for better aerodynamics"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   },
@@ -23,13 +17,7 @@ export const airplanesPartners: Collaborator[] = [
     email: "r.chen@company.com",
     role: "Propulsion Engineer",
     department: "airplanes",
-    projects: [
-      {
-        id: "engine-efficiency",
-        name: "Engine Efficiency Program",
-        description: "Improving aircraft engine performance"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   },
@@ -39,13 +27,7 @@ export const airplanesPartners: Collaborator[] = [
     email: "j.lee@company.com",
     role: "Materials Scientist",
     department: "airplanes",
-    projects: [
-      {
-        id: "composite-materials",
-        name: "Composite Materials Research",
-        description: "Developing advanced aircraft materials"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   },
@@ -55,13 +37,7 @@ export const airplanesPartners: Collaborator[] = [
     email: "c.brown@company.com",
     role: "Aerodynamics Specialist",
     department: "airplanes",
-    projects: [
-      {
-        id: "flow-simulation",
-        name: "Flow Simulation Systems",
-        description: "Advanced aerodynamics simulation"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   }

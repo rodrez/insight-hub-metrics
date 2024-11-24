@@ -7,13 +7,7 @@ export const techlabPartners: Collaborator[] = [
     email: "t.anderson@company.com",
     role: "AI Specialist",
     department: "techlab",
-    projects: [
-      {
-        id: "ai-research",
-        name: "AI Research Program",
-        description: "Advanced AI systems research"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   },
@@ -23,13 +17,7 @@ export const techlabPartners: Collaborator[] = [
     email: "e.zhang@company.com",
     role: "Research Scientist",
     department: "techlab",
-    projects: [
-      {
-        id: "emerging-tech",
-        name: "Emerging Technologies",
-        description: "Research on emerging technologies"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   },
@@ -39,13 +27,7 @@ export const techlabPartners: Collaborator[] = [
     email: "m.johnson@company.com",
     role: "Innovation Lead",
     department: "techlab",
-    projects: [
-      {
-        id: "innovation-lab",
-        name: "Innovation Lab Projects",
-        description: "Leading innovation initiatives"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   },
@@ -55,13 +37,7 @@ export const techlabPartners: Collaborator[] = [
     email: "r.green@company.com",
     role: "Technology Researcher",
     department: "techlab",
-    projects: [
-      {
-        id: "tech-research",
-        name: "Technology Research",
-        description: "Advanced technology research"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   }

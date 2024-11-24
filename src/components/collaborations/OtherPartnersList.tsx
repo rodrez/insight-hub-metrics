@@ -45,19 +45,16 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
   }, [] as Collaborator[]);
 
   const getCollaboratorProjects = (collaborator: Collaborator) => {
-    // Get the base projects from the collaborator
-    const collaboratorProjectIds = (collaborator.projects || []).map(p => p.id);
-    
-    // Find the full project details from the dashboard projects
-    return allProjects
-      .filter(project => collaboratorProjectIds.includes(project.id))
-      .map(project => ({
-        id: project.id,
-        name: project.name,
-        nabc: project.nabc,
-        status: project.status,
-        pocDepartment: project.pocDepartment
-      }));
+    // Get all projects where this collaborator is listed as an internal partner
+    return allProjects.filter(project => 
+      project.internalPartners?.some(partner => partner.id === collaborator.id)
+    ).map(project => ({
+      id: project.id,
+      name: project.name,
+      nabc: project.nabc,
+      status: project.status,
+      pocDepartment: project.pocDepartment
+    }));
   };
 
   return (

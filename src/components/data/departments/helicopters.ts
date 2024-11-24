@@ -7,13 +7,7 @@ export const helicoptersPartners: Collaborator[] = [
     email: "s.wilson@company.com",
     role: "Rotor Systems Engineer",
     department: "helicopters",
-    projects: [
-      {
-        id: "rotor-dynamics",
-        name: "Rotor Dynamics Optimization",
-        description: "Improving rotor system efficiency"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   },
@@ -23,13 +17,7 @@ export const helicoptersPartners: Collaborator[] = [
     email: "m.zhang@company.com",
     role: "Structural Engineer",
     department: "helicopters",
-    projects: [
-      {
-        id: "airframe-design",
-        name: "Airframe Design Innovation",
-        description: "Advanced helicopter airframe design"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   },
@@ -39,13 +27,7 @@ export const helicoptersPartners: Collaborator[] = [
     email: "e.parker@company.com",
     role: "Systems Integration",
     department: "helicopters",
-    projects: [
-      {
-        id: "avionics-integration",
-        name: "Avionics Integration",
-        description: "Next-gen avionics systems"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   },
@@ -55,13 +37,7 @@ export const helicoptersPartners: Collaborator[] = [
     email: "d.kumar@company.com",
     role: "Flight Test Engineer",
     department: "helicopters",
-    projects: [
-      {
-        id: "flight-testing",
-        name: "Flight Test Program",
-        description: "Comprehensive flight testing"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   }

@@ -7,13 +7,7 @@ export const spacePartners: Collaborator[] = [
     email: "m.chang@company.com",
     role: "Systems Architect",
     department: "space",
-    projects: [
-      {
-        id: "satellite-communications",
-        name: "Satellite Communications",
-        description: "Developing communication systems for satellites"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   },
@@ -23,13 +17,7 @@ export const spacePartners: Collaborator[] = [
     email: "l.park@company.com",
     role: "Mission Specialist",
     department: "space",
-    projects: [
-      {
-        id: "mission-planning",
-        name: "Mission Planning Systems",
-        description: "Developing mission planning software"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   },
@@ -39,13 +27,7 @@ export const spacePartners: Collaborator[] = [
     email: "d.kim@company.com",
     role: "Propulsion Specialist",
     department: "space",
-    projects: [
-      {
-        id: "propulsion-systems",
-        name: "Advanced Propulsion",
-        description: "Next-gen spacecraft propulsion"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   },
@@ -55,13 +37,7 @@ export const spacePartners: Collaborator[] = [
     email: "a.white@company.com",
     role: "Navigation Systems Engineer",
     department: "space",
-    projects: [
-      {
-        id: "navigation-systems",
-        name: "Space Navigation",
-        description: "Spacecraft navigation systems"
-      }
-    ],
+    projects: [],
     lastActive: new Date().toISOString(),
     type: "other"
   }
