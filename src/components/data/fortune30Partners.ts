@@ -10,14 +10,16 @@ export const fortune30Partners: Collaborator[] = [
     department: "Retail",
     projects: [
       {
-        id: "supply-chain",
-        name: "Supply Chain Optimization",
-        description: "Optimizing global supply chain operations"
+        id: "retail-project-1",
+        name: "Retail Innovation Project 1",
+        description: "Developing next-generation retail systems with improved efficiency and reduced environmental impact.",
+        status: "active"
       },
       {
-        id: "digital-transform",
-        name: "Digital Transformation",
-        description: "Implementing digital solutions"
+        id: "retail-project-2",
+        name: "Retail Innovation Project 2",
+        description: "Implementing advanced technologies and innovative solutions for retail operations.",
+        status: "active"
       }
     ],
     lastActive: new Date().toISOString(),
@@ -39,9 +41,10 @@ export const fortune30Partners: Collaborator[] = [
     department: "Cloud Services",
     projects: [
       {
-        id: "cloud-migration",
-        name: "Cloud Migration",
-        description: "Enterprise cloud infrastructure"
+        id: "cloud-services-project-1",
+        name: "Cloud Services Innovation Project 1",
+        description: "Developing next-generation cloud systems with improved efficiency and scalability.",
+        status: "active"
       }
     ],
     lastActive: new Date().toISOString(),
@@ -63,9 +66,10 @@ export const fortune30Partners: Collaborator[] = [
     department: "Technology",
     projects: [
       {
-        id: "mobile-solutions",
-        name: "Mobile Solutions",
-        description: "Enterprise mobile solutions"
+        id: "technology-project-1",
+        name: "Technology Innovation Project 1",
+        description: "Developing next-generation technology systems with improved user experience.",
+        status: "active"
       }
     ],
     lastActive: new Date().toISOString(),
@@ -87,9 +91,10 @@ export const fortune30Partners: Collaborator[] = [
     department: "Software",
     projects: [
       {
-        id: "cloud-services",
-        name: "Cloud Services",
-        description: "Enterprise cloud solutions"
+        id: "software-project-1",
+        name: "Software Innovation Project 1",
+        description: "Developing next-generation software systems with improved performance.",
+        status: "active"
       }
     ],
     lastActive: new Date().toISOString(),
@@ -111,9 +116,10 @@ export const fortune30Partners: Collaborator[] = [
     department: "Technology",
     projects: [
       {
-        id: "ai-ml",
-        name: "AI & Machine Learning",
-        description: "Advanced AI solutions"
+        id: "technology-project-2",
+        name: "Technology Innovation Project 2",
+        description: "Developing next-generation AI and ML systems with improved accuracy.",
+        status: "active"
       }
     ],
     lastActive: new Date().toISOString(),
