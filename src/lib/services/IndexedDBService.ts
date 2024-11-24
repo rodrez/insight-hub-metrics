@@ -143,7 +143,7 @@ export class IndexedDBService implements DataService {
 
   async populateSampleData(): Promise<{ projects: Project[] }> {
     this.ensureInitialized();
-    const { projects, internalPartners } = generateSampleData();
+    const { projects, internalPartners } = await generateSampleData([]);
     
     try {
       console.log('Adding collaborators...');

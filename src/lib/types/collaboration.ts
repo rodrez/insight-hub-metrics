@@ -1,36 +1,10 @@
-export type AgreementStatus = 'signed' | 'pending' | 'expired';
-export type AgreementType = 'NDA' | 'JTDA' | 'Both' | 'None';
+import type { AgreementStatus, AgreementType, Agreement, CollaborationType, CollaboratorProject, Collaborator } from '../types';
 
-export type Agreement = {
-  signedDate: string;
-  expiryDate: string;
-  status: AgreementStatus;
-};
-
-export type CollaborationType = 'fortune30' | 'other';
-
-export type CollaboratorProject = {
-  id: string;
-  name: string;
-  description?: string;
-  status?: 'active' | 'completed' | 'delayed' | 'action-needed';
-  nabc?: {
-    needs: string;
-  };
-};
-
-export type Collaborator = {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  department: string;
-  projects: CollaboratorProject[];
-  lastActive: string;
-  type: CollaborationType;
-  color?: string;
-  agreements?: {
-    nda?: Agreement;
-    jtda?: Agreement;
-  };
+export type { 
+  AgreementStatus,
+  AgreementType,
+  Agreement,
+  CollaborationType,
+  CollaboratorProject,
+  Collaborator
 };
