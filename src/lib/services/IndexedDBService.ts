@@ -139,17 +139,24 @@ export class IndexedDBService implements DataService {
       this.db.close();
     }
     return new Promise<void>((resolve, reject) => {
-      const request = indexedDB.deleteDatabase(DB_CONFIG.name);
-      request.onerror = () => {
-        const error = request.error?.message || 'Unknown error during database clear';
+      const deleteRequest = indexedDB.deleteDatabase(DB_CONFIG.name);
+      
+      deleteRequest.onerror = () => {
+        const error = deleteRequest.error?.message || 'Unknown error during database clear';
         console.error('Error clearing database:', error);
         reject(new Error(error));
       };
-      request.onsuccess = () => {
-        console.log('Database cleared successfully');
+      
+      deleteRequest.onsuccess = () => {
+        console.log('Database deleted successfully');
         this.db = null;
         this.transactionManager = null;
         resolve();
+      };
+
+      deleteRequest.onblocked = () => {
+        console.error('Database deletion was blocked');
+        reject(new Error('Database deletion was blocked'));
       };
     });
   }

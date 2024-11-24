@@ -8,13 +8,15 @@ export const DB_CONFIG = {
 };
 
 export const createStores = (db: IDBDatabase) => {
-  if (!db.objectStoreNames.contains(DB_CONFIG.stores.projects)) {
-    console.log('Creating projects store');
-    db.createObjectStore(DB_CONFIG.stores.projects, { keyPath: 'id' });
-  }
+  // Remove existing object stores if they exist during upgrade
+  Array.from(db.objectStoreNames).forEach(storeName => {
+    db.deleteObjectStore(storeName);
+  });
 
-  if (!db.objectStoreNames.contains(DB_CONFIG.stores.collaborators)) {
-    console.log('Creating collaborators store');
-    db.createObjectStore(DB_CONFIG.stores.collaborators, { keyPath: 'id' });
-  }
+  // Create fresh object stores
+  console.log('Creating projects store');
+  db.createObjectStore(DB_CONFIG.stores.projects, { keyPath: 'id' });
+
+  console.log('Creating collaborators store');
+  db.createObjectStore(DB_CONFIG.stores.collaborators, { keyPath: 'id' });
 };
