@@ -35,14 +35,14 @@ export const generateInternalPartners = (): Collaborator[] => {
       'Project Manager',
       [
         {
-          id: 'wing-design',
-          name: 'Wing Design Optimization',
+          id: 'airplane-innovation-1',
+          name: 'Airplanes Innovation Project 1',
           description: 'Advanced aerodynamics research for next-gen aircraft',
           status: 'active'
         },
         {
-          id: 'fuel-efficiency',
-          name: 'Fuel Efficiency Program',
+          id: 'airplane-innovation-2',
+          name: 'Airplanes Innovation Project 2',
           description: 'Developing fuel-efficient engine technologies',
           status: 'completed'
         }
@@ -55,14 +55,14 @@ export const generateInternalPartners = (): Collaborator[] => {
       'Technical Lead',
       [
         {
-          id: 'satellite-comm',
-          name: 'Satellite Communications',
+          id: 'space-innovation-1',
+          name: 'Space Innovation Project 1',
           description: 'Next-generation satellite communication systems',
           status: 'active'
         },
         {
-          id: 'propulsion',
-          name: 'Advanced Propulsion',
+          id: 'space-innovation-2',
+          name: 'Space Innovation Project 2',
           description: 'Research on new propulsion technologies',
           status: 'delayed'
         }
@@ -75,8 +75,8 @@ export const generateInternalPartners = (): Collaborator[] => {
       'Program Director',
       [
         {
-          id: 'cyber-defense',
-          name: 'Energy Security Initiative',
+          id: 'energy-innovation-1',
+          name: 'Energy Innovation Project 1',
           description: 'Advanced energy systems development',
           status: 'action-needed'
         }
@@ -95,8 +95,8 @@ export const generateInternalPartners = (): Collaborator[] => {
           ['Senior Engineer', 'Department Head', 'Technical Specialist'][Math.floor(Math.random() * 3)],
           [
             {
-              id: `${dept.id}-project-1`,
-              name: `${dept.name} Innovation`,
+              id: `${dept.id}-innovation-1`,
+              name: `${dept.name} Innovation Project 1`,
               description: `Key innovation project for ${dept.name}`,
               status: ['active', 'delayed', 'completed'][Math.floor(Math.random() * 3)] as 'active' | 'delayed' | 'completed'
             }
