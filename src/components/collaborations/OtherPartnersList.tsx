@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Mail, Info } from "lucide-react";
 import { Collaborator } from "@/lib/types/collaboration";
 import { DEPARTMENTS } from "@/lib/constants";
+import { useNavigate } from "react-router-dom";
 import {
   Tooltip,
   TooltipContent,
@@ -15,6 +16,8 @@ type OtherPartnersListProps = {
 };
 
 export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
+  const navigate = useNavigate();
+
   const getDepartmentColor = (departmentId: string) => {
     const department = DEPARTMENTS.find(d => d.id === departmentId);
     return department?.color || '#333';
@@ -33,6 +36,10 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
       default:
         return 'bg-gray-500';
     }
+  };
+
+  const handleProjectClick = (projectId: string) => {
+    navigate('/', { state: { scrollToProject: projectId } });
   };
 
   return (
@@ -69,7 +76,11 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
                 <div className="flex flex-col gap-2">
                   {collaborator.projects && collaborator.projects.length > 0 ? (
                     collaborator.projects.map((project) => (
-                      <div key={project.id} className="flex items-center gap-2">
+                      <div 
+                        key={project.id} 
+                        className="flex items-center gap-2 cursor-pointer"
+                        onClick={() => handleProjectClick(project.id)}
+                      >
                         <Badge 
                           className={`${getStatusColor(project.status)} text-white`}
                         >
