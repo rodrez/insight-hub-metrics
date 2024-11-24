@@ -51,7 +51,7 @@ export class IndexedDBService implements DataService {
       this.transactionManager = null;
     }
 
-    await DatabaseCleaner.clearDatabase();
+    await DatabaseCleaner.clearDatabase(DB_CONFIG.name);
   }
 
   async getAllProjects(): Promise<Project[]> {
