@@ -15,19 +15,31 @@ export const generateProjectData = (
     const deptPartners = internalPartners.filter(p => p.department === dept.id);
     
     for (let i = 0; i < projectCount; i++) {
-      // Assign POC and Tech Lead from the same department if possible
-      const pocPartner = deptPartners[i % deptPartners.length] || internalPartners[0];
-      const techLeadPartner = deptPartners[(i + 1) % deptPartners.length] || internalPartners[1];
-
-      // Select random internal partners from other departments
-      const otherPartners = internalPartners.filter(p => 
-        p.id !== pocPartner.id && 
-        p.id !== techLeadPartner.id
-      );
+      // Create a pool of available partners excluding POC and Tech Lead
+      const availablePartners = [...deptPartners];
       
-      const selectedPartners = otherPartners
+      // Select POC and Tech Lead from different departments to ensure diversity
+      const otherDeptPartners = internalPartners.filter(p => p.department !== dept.id);
+      
+      // Select POC from current department
+      const pocIndex = Math.floor(Math.random() * availablePartners.length);
+      const pocPartner = availablePartners[pocIndex];
+      availablePartners.splice(pocIndex, 1); // Remove POC from available pool
+      
+      // Select Tech Lead from other departments to ensure different person
+      const techLeadIndex = Math.floor(Math.random() * otherDeptPartners.length);
+      const techLeadPartner = otherDeptPartners[techLeadIndex];
+      
+      // Remove Tech Lead from available partners if present
+      const techLeadAvailableIndex = availablePartners.findIndex(p => p.id === techLeadPartner.id);
+      if (techLeadAvailableIndex !== -1) {
+        availablePartners.splice(techLeadAvailableIndex, 1);
+      }
+      
+      // Select random internal partners from remaining pool
+      const selectedPartners = availablePartners
         .sort(() => Math.random() - 0.5)
-        .slice(0, 3);
+        .slice(0, Math.min(3, availablePartners.length));
 
       // Ensure at least one Fortune 30 partner by rotating through them
       const fortune30Index = (deptIndex + i) % fortune30Partners.length;
@@ -51,7 +63,7 @@ export const generateProjectData = (
         spent,
         status: "active",
         collaborators: [selectedFortune30],
-        internalPartners: [pocPartner, techLeadPartner, ...selectedPartners],
+        internalPartners: selectedPartners,
         techDomainId: randomTechDomain.id,
         nabc: generateNABC(dept.name),
         milestones: generateMilestones(`${dept.id}-project-${i + 1}`),

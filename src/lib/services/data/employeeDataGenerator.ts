@@ -18,17 +18,36 @@ export const generateEmployeeData = (departments: Department[]): InternalEmploye
     'Systems Engineer',
     'Program Director',
     'IT Lead',
-    'Research Lead'
+    'Research Lead',
+    'Development Manager',
+    'Innovation Lead',
+    'Operations Manager',
+    'Integration Specialist'
   ];
 
-  departments.forEach((dept, index) => {
-    // Generate 2-3 employees per department
-    const empCount = Math.floor(Math.random() * 2) + 2;
+  const firstNames = [
+    'Sarah', 'Michael', 'David', 'Emily', 'James', 
+    'Lisa', 'Robert', 'Maria', 'John', 'Amanda', 
+    'Thomas', 'Rachel', 'Daniel', 'Jessica', 'William',
+    'Jennifer', 'Christopher', 'Elizabeth', 'Andrew', 'Patricia'
+  ];
+
+  const lastNames = [
+    'Johnson', 'Chen', 'Rodriguez', 'Thompson', 'Wilson',
+    'Anderson', 'Kim', 'Garcia', 'Smith', 'Lee',
+    'Brown', 'Martinez', 'Taylor', 'Patel', 'Williams',
+    'Davis', 'Miller', 'Singh', 'Clark', 'White'
+  ];
+
+  // Generate more employees per department to ensure enough unique people
+  departments.forEach((dept) => {
+    // Generate 3-4 employees per department
+    const empCount = Math.floor(Math.random() * 2) + 3;
     
     for (let i = 0; i < empCount; i++) {
       const role = roles[Math.floor(Math.random() * roles.length)];
-      const firstName = ['Sarah', 'Michael', 'David', 'Emily', 'James', 'Lisa', 'Robert', 'Maria', 'John', 'Amanda', 'Thomas', 'Rachel'][Math.floor(Math.random() * 12)];
-      const lastName = ['Johnson', 'Chen', 'Rodriguez', 'Thompson', 'Wilson', 'Anderson', 'Kim', 'Garcia', 'Smith', 'Lee', 'Brown', 'Martinez'][Math.floor(Math.random() * 12)];
+      const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+      const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
       
       employees.push({
         id: `emp-${dept.id}-${i + 1}`,
