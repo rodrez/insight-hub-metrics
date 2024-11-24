@@ -4,6 +4,8 @@ import { DataService } from './DataService';
 import { DB_CONFIG, createStores } from './db/stores';
 import { TransactionManager } from './db/transactionManager';
 import { generateSampleData } from './data/sampleDataGenerator';
+import { connectionManager } from './db/connectionManager';
+import { DatabaseCleaner } from './db/databaseCleaner';
 
 export class IndexedDBService implements DataService {
   private db: IDBDatabase | null = null;
@@ -22,6 +24,7 @@ export class IndexedDBService implements DataService {
       request.onsuccess = () => {
         console.log('IndexedDB initialized successfully');
         this.db = request.result;
+        connectionManager.addConnection(this.db);
         this.transactionManager = new TransactionManager(this.db);
         resolve();
       };
@@ -37,6 +40,18 @@ export class IndexedDBService implements DataService {
     if (!this.db || !this.transactionManager) {
       throw new Error('Database not initialized');
     }
+  }
+
+  async clear(): Promise<void> {
+    console.log('Starting database clear...');
+    
+    if (this.db) {
+      connectionManager.closeAllConnections();
+      this.db = null;
+      this.transactionManager = null;
+    }
+
+    await DatabaseCleaner.clearDatabase();
   }
 
   async getAllProjects(): Promise<Project[]> {
@@ -131,57 +146,6 @@ export class IndexedDBService implements DataService {
       console.error('Sample data population error:', error);
       throw error;
     }
-  }
-
-  async clear(): Promise<void> {
-    console.log('Starting database clear...');
-    
-    // Close any existing connections
-    if (this.db) {
-      // Close all active transactions
-      const transactions = Array.from(this.db.objectStoreNames).map(storeName => 
-        this.db!.transaction(storeName, 'readwrite')
-      );
-      transactions.forEach(transaction => transaction.abort());
-      
-      // Close the database connection
-      this.db.close();
-      this.db = null;
-      this.transactionManager = null;
-    }
-
-    return new Promise<void>((resolve, reject) => {
-      // Small delay to ensure connections are closed
-      setTimeout(() => {
-        const deleteRequest = indexedDB.deleteDatabase(DB_CONFIG.name);
-        
-        deleteRequest.onerror = () => {
-          const error = deleteRequest.error?.message || 'Unknown error during database clear';
-          console.error('Error clearing database:', error);
-          reject(new Error(error));
-        };
-        
-        deleteRequest.onsuccess = () => {
-          console.log('Database deleted successfully');
-          resolve();
-        };
-
-        deleteRequest.onblocked = () => {
-          console.error('Database deletion was blocked');
-          // Instead of rejecting, we'll wait a bit and try again
-          setTimeout(() => {
-            const retryRequest = indexedDB.deleteDatabase(DB_CONFIG.name);
-            retryRequest.onsuccess = () => {
-              console.log('Database deleted successfully on retry');
-              resolve();
-            };
-            retryRequest.onerror = () => {
-              reject(new Error('Database deletion failed after retry'));
-            };
-          }, 1000);
-        };
-      }, 100);
-    });
   }
 
   async exportData(): Promise<void> {
