@@ -5,32 +5,13 @@ import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { NABCSection } from "./NABCSection";
 import { MilestonesSection } from "./MilestonesSection";
-import { CollaboratorCard } from "@/components/projects/CollaboratorCard";
 import { Project } from "@/lib/types";
 import { TechDomainSelect } from "./TechDomainSelect";
 import { ProjectHeader } from "./ProjectHeader";
 import { FinancialDetails } from "./FinancialDetails";
-import { Edit, Save, TrendingUp, Info } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Edit, Save } from "lucide-react";
+import { Fortune30Section } from "./Fortune30Section";
 import { InternalPartnersSection } from "./InternalPartnersSection";
-
-const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
-  switch (trend) {
-    case 'up':
-      return <TrendingUp className="h-4 w-4 text-green-500" />;
-    case 'down':
-      return <TrendingUp className="h-4 w-4 text-red-500 transform rotate-180" />;
-    default:
-      return <TrendingUp className="h-4 w-4 text-gray-500 transform rotate-90" />;
-  }
-};
 
 function ProjectDetailsWrapper() {
   const { id } = useParams();
@@ -163,6 +144,8 @@ function ProjectDetailsComponent({ project: initialProject }: { project: Project
         </div>
       </div>
 
+      <Fortune30Section project={currentProject} />
+
       {currentProject.nabc && (
         <NABCSection 
           projectId={currentProject.id} 
@@ -179,51 +162,6 @@ function ProjectDetailsComponent({ project: initialProject }: { project: Project
           onUpdate={(milestones) => updateProject({ milestones })}
           isEditing={isEditing}
         />
-      )}
-
-      {project.metrics && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Key Metrics
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {project.metrics.map((metric) => (
-                <div key={metric.id} className="p-4 border rounded-lg">
-                  <TooltipProvider>
-                    <div className="flex items-center justify-between mb-2">
-                      <Tooltip>
-                        <TooltipTrigger className="flex items-center gap-2">
-                          <span className="font-medium">{metric.name}</span>
-                          <Info className="h-4 w-4" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{metric.description}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      {getTrendIcon(metric.trend)}
-                    </div>
-                  </TooltipProvider>
-                  <div className="text-2xl font-bold mb-2">
-                    {metric.value} {metric.unit}
-                  </div>
-                  <div className="space-y-2">
-                    <div className="text-sm text-muted-foreground">
-                      Target: {metric.target} {metric.unit}
-                    </div>
-                    <Progress 
-                      value={(metric.value / metric.target) * 100} 
-                      className="h-2"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
       )}
     </div>
   );
