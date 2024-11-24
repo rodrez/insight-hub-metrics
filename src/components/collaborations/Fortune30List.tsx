@@ -1,17 +1,15 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Mail, Edit, Trash2, Shield, Calendar, Info } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { Mail, Edit, Trash2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collaborator } from "@/lib/types/collaboration";
-import { scrollToProject } from "@/utils/scrollUtils";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { CollaboratorProject } from "./CollaboratorProject";
 
 type Fortune30ListProps = {
   collaborators: Collaborator[];
@@ -27,7 +25,6 @@ type WarningSettings = {
 };
 
 export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30ListProps) {
-  const navigate = useNavigate();
   const [warningSettings, setWarningSettings] = useState<WarningSettings>({
     warningDays: 180,
     criticalDays: 90,
@@ -62,14 +59,6 @@ export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30List
       return warningSettings.warningColor;
     }
     return undefined;
-  };
-
-  const handleProjectClick = (projectId: string) => {
-    if (!projectId) {
-      console.error('No project ID provided');
-      return;
-    }
-    navigate('/', { state: { scrollToProject: projectId } });
   };
 
   return (
@@ -130,66 +119,13 @@ export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30List
                                        undefined;
                     
                     return (
-                      <div 
-                        key={index} 
-                        className={`p-3 rounded-lg border space-y-2 cursor-pointer hover:bg-muted/50 transition-colors ${
-                          project.status === 'active' ? 'border-green-500' : ''
-                        }`}
-                        onClick={() => handleProjectClick(project.id)}
-                        style={{ backgroundColor: warningColor }}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium">{project.name}</span>
-                          {project.status === 'active' && <Badge variant="outline">Active</Badge>}
-                        </div>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {project.description}
-                        </p>
-                        <div className="space-y-2 text-sm">
-                          {collaborator.agreements?.nda && (
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <Shield className={`h-4 w-4 ${
-                                collaborator.agreements.nda.status === 'signed' 
-                                  ? 'text-green-500' 
-                                  : 'text-yellow-500'
-                              }`} />
-                              <span>NDA: {collaborator.agreements.nda.status}</span>
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger>
-                                    <Calendar className="h-4 w-4" />
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Signed: {formatDate(collaborator.agreements.nda.signedDate)}</p>
-                                    <p>Expires: {formatDate(collaborator.agreements.nda.expiryDate)}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </div>
-                          )}
-                          {collaborator.agreements?.jtda && (
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <Shield className={`h-4 w-4 ${
-                                collaborator.agreements.jtda.status === 'signed' 
-                                  ? 'text-green-500' 
-                                  : 'text-yellow-500'
-                              }`} />
-                              <span>JTDA: {collaborator.agreements.jtda.status}</span>
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger>
-                                    <Calendar className="h-4 w-4" />
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Signed: {formatDate(collaborator.agreements.jtda.signedDate)}</p>
-                                    <p>Expires: {formatDate(collaborator.agreements.jtda.expiryDate)}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                      <CollaboratorProject
+                        key={index}
+                        project={project}
+                        agreements={collaborator.agreements}
+                        warningColor={warningColor}
+                        formatDate={formatDate}
+                      />
                     );
                   })}
                 </div>
