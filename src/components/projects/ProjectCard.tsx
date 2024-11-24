@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import { defaultTechDomains } from "@/lib/types/techDomain";
 import { DEPARTMENTS } from "@/lib/constants";
 import { ProjectPartnerBadge } from './ProjectPartnerBadge';
+import { toast } from "@/components/ui/use-toast";
 
 interface ProjectCardProps {
   project: Project;
@@ -36,7 +37,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
     return department?.color || '#333';
   };
 
-  // Get unique collaborators by using Set to deduplicate based on ID
+  // Get unique collaborators
   const uniqueCollaborators = Array.from(
     new Set(
       project.collaborators
@@ -45,12 +46,30 @@ export function ProjectCard({ project }: ProjectCardProps) {
     )
   ).map(id => project.collaborators.find(collab => collab.id === id)!);
 
-  // Get unique internal partners by using Set to deduplicate based on ID
+  // Create a Set of already displayed people (POC and Tech Lead)
+  const displayedPeople = new Set([project.poc, project.techLead]);
+
+  // Filter internal partners to exclude POC and Tech Lead
   const uniqueInternalPartners = Array.from(
     new Set(
-      (project.internalPartners || []).map(partner => partner.id)
+      (project.internalPartners || [])
+        .filter(partner => !displayedPeople.has(partner.name))
+        .map(partner => partner.id)
     )
   ).map(id => project.internalPartners?.find(partner => partner.id === id)!);
+
+  // Show warning toast if there are duplicates
+  const duplicatePartners = project.internalPartners?.filter(partner => 
+    displayedPeople.has(partner.name)
+  ) || [];
+
+  if (duplicatePartners.length > 0) {
+    toast({
+      title: "Duplicate Team Members Detected",
+      description: `${duplicatePartners.map(p => p.name).join(", ")} ${duplicatePartners.length === 1 ? "is" : "are"} already listed as POC or Tech Lead and will not be shown in Internal Partners.`,
+      variant: "warning",
+    });
+  }
 
   return (
     <Link 
