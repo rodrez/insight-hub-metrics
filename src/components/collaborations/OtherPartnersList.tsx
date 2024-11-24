@@ -36,17 +36,7 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
   };
 
   const getCollaboratorProjects = (collaborator: Collaborator) => {
-    return allProjects.filter(project => {
-      // Check if this person is explicitly listed as POC or Tech Lead
-      if (project.poc === collaborator.name || project.techLead === collaborator.name) {
-        return true;
-      }
-      
-      // Check if this person is explicitly listed in internalPartners by name
-      return project.internalPartners?.some(partner => 
-        partner.name === collaborator.name
-      );
-    });
+    return collaborator.projects || [];
   };
 
   return (
@@ -64,7 +54,6 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
         </TableHeader>
         <TableBody>
           {collaborators.map((collaborator) => {
-            // Get only the projects this person is involved in
             const collaboratorProjects = getCollaboratorProjects(collaborator);
 
             return (
