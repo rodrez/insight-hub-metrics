@@ -1,6 +1,10 @@
 import { Collaborator } from "@/lib/types/collaboration";
 
 export const generateFortune30Partners = (): Collaborator[] => {
+  const today = new Date();
+  const nearExpiryDate = new Date(today.getTime() + (60 * 24 * 60 * 60 * 1000)); // 60 days from now
+  const veryNearExpiryDate = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000)); // 30 days from now
+
   return [
     { 
       id: "walmart",
@@ -26,7 +30,7 @@ export const generateFortune30Partners = (): Collaborator[] => {
       agreements: {
         nda: {
           signedDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
-          expiryDate: new Date(Date.now() + 275 * 24 * 60 * 60 * 1000).toISOString(),
+          expiryDate: nearExpiryDate.toISOString(),
           status: "signed"
         },
         jtda: {
@@ -60,7 +64,7 @@ export const generateFortune30Partners = (): Collaborator[] => {
       agreements: {
         nda: {
           signedDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-          expiryDate: new Date(Date.now() + 305 * 24 * 60 * 60 * 1000).toISOString(),
+          expiryDate: veryNearExpiryDate.toISOString(),
           status: "signed"
         }
       }
@@ -89,7 +93,7 @@ export const generateFortune30Partners = (): Collaborator[] => {
       agreements: {
         jtda: {
           signedDate: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
-          expiryDate: new Date(Date.now() + 245 * 24 * 60 * 60 * 1000).toISOString(),
+          expiryDate: nearExpiryDate.toISOString(),
           status: "signed"
         }
       }
@@ -113,7 +117,7 @@ export const generateFortune30Partners = (): Collaborator[] => {
       agreements: {
         nda: {
           signedDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-          expiryDate: new Date(Date.now() + 270 * 24 * 60 * 60 * 1000).toISOString(),
+          expiryDate: veryNearExpiryDate.toISOString(),
           status: "signed"
         }
       }
