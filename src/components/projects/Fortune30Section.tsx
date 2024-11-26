@@ -24,8 +24,8 @@ export function Fortune30Section({ project }: Fortune30SectionProps) {
     return null;
   }
 
-  const handleCollaboratorClick = (collaboratorId: string) => {
-    navigate(`/collaborations/${collaboratorId}`);
+  const handlePartnerClick = (partnerId: string) => {
+    navigate('/collaborations', { state: { scrollToPartner: partnerId } });
   };
 
   return (
@@ -42,8 +42,8 @@ export function Fortune30Section({ project }: Fortune30SectionProps) {
                   <Badge
                     variant="default"
                     style={{ backgroundColor: partner.color }}
-                    className="text-white cursor-pointer px-3 py-1"
-                    onClick={() => handleCollaboratorClick(partner.id)}
+                    className="text-white cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => handlePartnerClick(partner.id)}
                   >
                     {partner.name}
                   </Badge>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Search, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -8,12 +8,14 @@ import { toast } from "@/components/ui/use-toast";
 import { Fortune30List } from '@/components/collaborations/Fortune30List';
 import { db } from '@/lib/db';
 import { useQuery } from '@tanstack/react-query';
+import { useLocation } from 'react-router-dom';
 
 export default function Collaborations() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedCollaborator, setSelectedCollaborator] = useState<string | null>(null);
+  const location = useLocation();
 
   const { data: collaborators = [], isLoading } = useQuery({
     queryKey: ['collaborators'],
@@ -22,6 +24,15 @@ export default function Collaborations() {
       return allCollaborators.filter(c => c.type === 'fortune30');
     },
   });
+
+  useEffect(() => {
+    if (location.state?.scrollToPartner) {
+      const element = document.getElementById(`partner-${location.state.scrollToPartner}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [location.state?.scrollToPartner, collaborators]);
 
   const handleDelete = async (id: string) => {
     setSelectedCollaborator(id);
