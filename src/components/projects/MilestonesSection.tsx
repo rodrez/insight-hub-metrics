@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { Milestone as MilestoneIcon, Calendar } from "lucide-react";
+import { Milestone as MilestoneIcon, Calendar, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Milestone } from "@/lib/types";
 import { db } from "@/lib/db";
 
@@ -24,12 +26,20 @@ interface MilestonesSectionProps {
   projectId: string;
   milestones: Milestone[];
   onUpdate: (milestones: Milestone[]) => void;
-  isEditing: boolean;  // Added this prop
+  isEditing: boolean;
 }
 
 export function MilestonesSection({ projectId, milestones, onUpdate, isEditing }: MilestonesSectionProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<Partial<Milestone>>({});
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [newMilestone, setNewMilestone] = useState<Partial<Milestone>>({
+    title: '',
+    description: '',
+    dueDate: new Date().toISOString().split('T')[0],
+    status: 'pending',
+    progress: 0
+  });
 
   const handleEdit = (milestone: Milestone) => {
     setEditingId(milestone.id);
@@ -84,13 +94,63 @@ export function MilestonesSection({ projectId, milestones, onUpdate, isEditing }
     }
   };
 
+  const handleAddMilestone = async () => {
+    try {
+      const newMilestoneComplete: Milestone = {
+        id: `${projectId}-m${milestones.length + 1}`,
+        title: newMilestone.title || '',
+        description: newMilestone.description || '',
+        dueDate: newMilestone.dueDate || new Date().toISOString(),
+        status: 'pending',
+        progress: 0
+      };
+
+      const updatedMilestones = [...milestones, newMilestoneComplete];
+
+      await db.init();
+      await db.updateProject(projectId, { milestones: updatedMilestones });
+
+      onUpdate(updatedMilestones);
+      setShowAddDialog(false);
+      setNewMilestone({
+        title: '',
+        description: '',
+        dueDate: new Date().toISOString().split('T')[0],
+        status: 'pending',
+        progress: 0
+      });
+
+      toast({
+        title: "Success",
+        description: "New milestone added successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add new milestone",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
           <MilestoneIcon className="h-5 w-5" />
           Milestones
         </CardTitle>
+        {isEditing && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowAddDialog(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            Add Milestone
+          </Button>
+        )}
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -193,6 +253,38 @@ export function MilestonesSection({ projectId, milestones, onUpdate, isEditing }
             </div>
           ))}
         </div>
+
+        <AlertDialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Add New Milestone</AlertDialogTitle>
+              <AlertDialogDescription>
+                Create a new milestone for this project.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="space-y-4 py-4">
+              <Input
+                placeholder="Milestone Title"
+                value={newMilestone.title}
+                onChange={(e) => setNewMilestone({ ...newMilestone, title: e.target.value })}
+              />
+              <Textarea
+                placeholder="Description"
+                value={newMilestone.description}
+                onChange={(e) => setNewMilestone({ ...newMilestone, description: e.target.value })}
+              />
+              <Input
+                type="date"
+                value={newMilestone.dueDate}
+                onChange={(e) => setNewMilestone({ ...newMilestone, dueDate: e.target.value })}
+              />
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleAddMilestone}>Add Milestone</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardContent>
     </Card>
   );
