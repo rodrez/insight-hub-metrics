@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Search, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,6 @@ import { toast } from "@/components/ui/use-toast";
 import { Fortune30List } from '@/components/collaborations/Fortune30List';
 import { db } from '@/lib/db';
 import { useQuery } from '@tanstack/react-query';
-import { useLocation } from 'react-router-dom';
-import { scrollToCollaborator } from '@/utils/scrollUtils';
 
 export default function Collaborations() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -51,14 +49,6 @@ export default function Collaborations() {
     setSelectedCollaborator(id);
     setShowEditDialog(true);
   };
-
-  const location = useLocation();
-
-  useEffect(() => {
-    if (location.state?.scrollToCollaborator) {
-      scrollToCollaborator(location.state.scrollToCollaborator);
-    }
-  }, [location.state]);
 
   if (isLoading) {
     return (

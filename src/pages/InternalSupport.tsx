@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Search, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,7 @@ import { OtherPartnersList } from '@/components/collaborations/OtherPartnersList
 import { DEPARTMENTS } from '@/lib/constants';
 import { db } from '@/lib/db';
 import { useQuery } from '@tanstack/react-query';
-import { useParams, useLocation } from 'react-router-dom';
-import { scrollToCollaborator } from '@/utils/scrollUtils';
+import { useParams } from 'react-router-dom';
 
 export default function InternalSupport() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,14 +57,6 @@ export default function InternalSupport() {
     setSelectedCollaborator(id);
     setShowEditDialog(true);
   };
-
-  const location = useLocation();
-
-  useEffect(() => {
-    if (location.state?.scrollToCollaborator) {
-      scrollToCollaborator(location.state.scrollToCollaborator);
-    }
-  }, [location.state]);
 
   if (isLoading) {
     return (

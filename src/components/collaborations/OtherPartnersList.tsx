@@ -104,7 +104,7 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
             const collaboratorProjects = getCollaboratorProjects(collaborator);
 
             return (
-              <TableRow key={collaborator.id} id={`collaborator-${collaborator.id}`} className="hover:bg-muted/50">
+              <TableRow key={collaborator.id} className="hover:bg-muted/50">
                 <TableCell className="font-medium">{collaborator.name}</TableCell>
                 <TableCell>{collaborator.role}</TableCell>
                 <TableCell>
