@@ -12,7 +12,11 @@ export function ProjectPartnerBadge({ partner, departmentColor }: ProjectPartner
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate(`/collaborations/${partner.id}`);
+    if (partner.type === 'fortune30') {
+      navigate('/collaborations', { state: { scrollToCollaborator: partner.id } });
+    } else {
+      navigate('/internal-support', { state: { scrollToCollaborator: partner.id } });
+    }
   };
 
   return (
