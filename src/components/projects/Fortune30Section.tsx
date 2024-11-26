@@ -8,6 +8,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { CollaborationDialog } from "../collaborations/CollaborationDialog";
+import { useState } from "react";
 
 type Fortune30SectionProps = {
   project: Project;
@@ -15,14 +19,11 @@ type Fortune30SectionProps = {
 
 export function Fortune30Section({ project }: Fortune30SectionProps) {
   const navigate = useNavigate();
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   const fortune30Partners = project.collaborators.filter(
     (collab) => collab.type === "fortune30"
   );
-
-  if (fortune30Partners.length === 0) {
-    return null;
-  }
 
   const handlePartnerClick = (partnerId: string) => {
     navigate('/collaborations', { state: { scrollToPartner: partnerId } });
@@ -30,32 +31,56 @@ export function Fortune30Section({ project }: Fortune30SectionProps) {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-xl">Fortune 30 Partners</CardTitle>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => setShowAddDialog(true)}
+          className="flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          Add Partner
+        </Button>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-wrap gap-3">
+        <div className="space-y-4">
           {fortune30Partners.map((partner) => (
-            <TooltipProvider key={partner.id}>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Badge
-                    variant="default"
-                    style={{ backgroundColor: partner.color }}
-                    className="text-white cursor-pointer hover:opacity-90 transition-opacity"
-                    onClick={() => handlePartnerClick(partner.id)}
-                  >
-                    {partner.name}
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Role: {partner.role}</p>
-                  <p>Last Active: {new Date(partner.lastActive).toLocaleDateString()}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <div key={partner.id} className="border rounded-lg p-4 space-y-2">
+              <div className="flex justify-between items-start">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Badge
+                        style={{ backgroundColor: partner.color }}
+                        className="text-white cursor-pointer hover:opacity-90 transition-opacity"
+                        onClick={() => handlePartnerClick(partner.id)}
+                      >
+                        {partner.name}
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Click to view partner details</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                <p className="font-medium mb-1">Scope Summary:</p>
+                <p>{partner.projects?.[0]?.description || "No scope defined"}</p>
+              </div>
+            </div>
           ))}
+          {fortune30Partners.length === 0 && (
+            <p className="text-muted-foreground text-sm">No Fortune 30 partners added yet.</p>
+          )}
         </div>
+
+        <CollaborationDialog
+          open={showAddDialog}
+          onOpenChange={setShowAddDialog}
+          departmentId={project.departmentId}
+        />
       </CardContent>
     </Card>
   );
