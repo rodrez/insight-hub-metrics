@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { GlobalSearch } from "../search/GlobalSearch";
+import { ThemeToggle } from "../theme/ThemeToggle";
 
 export default function Navbar() {
   return (
@@ -17,6 +18,7 @@ export default function Navbar() {
         </div>
         <div className="ml-auto flex items-center space-x-4">
           <GlobalSearch />
+          <ThemeToggle />
           <Link to="/settings" className="transition-colors hover:text-foreground/80">Settings</Link>
         </div>
       </div>
