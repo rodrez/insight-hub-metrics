@@ -46,15 +46,18 @@ export function Fortune30Section({ project }: Fortune30SectionProps) {
       <CardContent>
         <div className="space-y-4">
           {fortune30Partners.map((partner) => (
-            <div key={partner.id} className="border rounded-lg p-4 space-y-2">
+            <div 
+              key={partner.id} 
+              className="border rounded-lg p-4 space-y-2 cursor-pointer hover:bg-muted/50 transition-colors"
+              onClick={() => handlePartnerClick(partner.id)}
+            >
               <div className="flex justify-between items-start">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
                       <Badge
                         style={{ backgroundColor: partner.color }}
-                        className="text-white cursor-pointer hover:opacity-90 transition-opacity"
-                        onClick={() => handlePartnerClick(partner.id)}
+                        className="text-white hover:opacity-90 transition-opacity"
                       >
                         {partner.name}
                       </Badge>
