@@ -94,6 +94,20 @@ export class IndexedDBService extends BaseDBService implements DataService {
     return this.addSPI({ ...spi, ...updates });
   }
 
+  async getAllObjectives(): Promise<Objective[]> {
+    return this.performTransaction('objectives', 'readonly', store => store.getAll());
+  }
+
+  async addObjective(objective: Objective): Promise<void> {
+    return this.performTransaction('objectives', 'readwrite', store => store.put(objective));
+  }
+
+  async updateObjective(id: string, updates: Partial<Objective>): Promise<void> {
+    const objective = await this.performTransaction('objectives', 'readonly', store => store.get(id));
+    if (!objective) throw new Error('Objective not found');
+    return this.addObjective({ ...objective, ...updates });
+  }
+
   async clear(): Promise<void> {
     // Implement clearing logic
   }

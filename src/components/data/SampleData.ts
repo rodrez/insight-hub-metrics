@@ -23,7 +23,7 @@ export const generateSampleProjects = async (): Promise<{
     
     // Generate projects
     const result = await generateProjects(fortune30, internalPartners);
-    const projects = result.slice(0, 10); // Take first 10 projects
+    const projects = result.projects.slice(0, 10); // Take first 10 projects
     
     // Generate exactly 10 SPIs
     const spis = generateSampleSPIs(projects.map(p => p.id));
