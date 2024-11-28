@@ -54,5 +54,3 @@ export const CollaborationFormFields = ({ form, departmentId }: CollaborationFor
     </div>
   );
 };
-
-export { formSchema };
