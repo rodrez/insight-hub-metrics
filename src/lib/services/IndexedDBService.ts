@@ -103,7 +103,8 @@ export class IndexedDBService implements DataService {
   }
 
   // Implement the missing populateSampleData method
-  async populateSampleData(): Promise<{ projects: Project[] }> {
+
+  async populateSampleData(quantities: SampleDataQuantities): Promise<void> {
     this.ensureInitialized();
     const { projects, smePartners } = await generateSampleData([]);
     
@@ -116,8 +117,6 @@ export class IndexedDBService implements DataService {
     for (const partner of smePartners) {
       await this.addSMEPartner(partner);
     }
-
-    return { projects };
   }
 
   async getAllCollaborators(): Promise<Collaborator[]> {
@@ -297,3 +296,4 @@ export class IndexedDBService implements DataService {
     return teams;
   }
 }
+

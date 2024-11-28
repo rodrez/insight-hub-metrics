@@ -4,6 +4,7 @@ import { generateProjectData } from '../data/projectDataGenerator';
 import { Collaborator } from '@/lib/types/collaboration';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from '@/lib/services/sampleData/spiData';
 import { generateSMEPartners } from '../data/smePartners';
+import { SampleDataQuantities } from '@/lib/services/DataService';
 
 export const generateSampleData = async (internalPartners: Collaborator[]) => {
   const departments = [...DEPARTMENTS];

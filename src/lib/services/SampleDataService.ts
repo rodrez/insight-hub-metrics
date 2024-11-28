@@ -5,6 +5,7 @@ import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
 import { Team } from '../types/team';
+import { SampleDataQuantities } from './DataService';
 
 export class SampleDataService implements DataService {
   private indexedDBService: IndexedDBService;
@@ -93,8 +94,8 @@ export class SampleDataService implements DataService {
     return this.indexedDBService.getAllTeams();
   }
 
-  async populateSampleData(): Promise<{ projects: Project[] }> {
-    return this.indexedDBService.populateSampleData();
+  async populateSampleData(quantities: SampleDataQuantities): Promise<void> {
+    await this.indexedDBService.populateSampleData(quantities);
   }
 
   async getAllSMEPartners(): Promise<Collaborator[]> {
