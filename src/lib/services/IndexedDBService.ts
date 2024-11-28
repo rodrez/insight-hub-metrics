@@ -98,28 +98,6 @@ export class IndexedDBService extends BaseDBService implements DataService {
     // Implement clearing logic
   }
 
-  async populateSampleData(quantities: SampleDataQuantities): Promise<void> {
-    // Implement population logic
-  }
-
-  async getAllObjectives(): Promise<Objective[]> {
-    return this.performTransaction('objectives', 'readonly', store => store.getAll());
-  }
-
-  async addObjective(objective: Objective): Promise<void> {
-    return this.performTransaction('objectives', 'readwrite', store => store.put(objective));
-  }
-
-  async updateObjective(id: string, updates: Partial<Objective>): Promise<void> {
-    const objective = await this.getObjective(id);
-    if (!objective) throw new Error('Objective not found');
-    return this.addObjective({ ...objective, ...updates });
-  }
-
-  async getObjective(id: string): Promise<Objective | undefined> {
-    return this.performTransaction('objectives', 'readonly', store => store.get(id));
-  }
-
   async exportData(): Promise<void> {
     const data = {
       projects: await this.getAllProjects(),
@@ -157,6 +135,6 @@ export class IndexedDBService extends BaseDBService implements DataService {
   }
 
   async populateSampleData(quantities: SampleDataQuantities): Promise<void> {
-    // Implementation will be added as needed
+    console.log('Sample data population not implemented yet');
   }
 }
