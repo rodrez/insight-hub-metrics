@@ -98,3 +98,9 @@ export type Agreement = {
   expiryDate: string;
   status: AgreementStatus;
 };
+
+export type Team = {
+  id: string;
+  name: string;
+  department?: string;
+};

@@ -1,5 +1,5 @@
 import { DataService, SampleDataQuantities } from './DataService';
-import { Project, Collaborator, Team } from '../types';
+import { Project, Collaborator } from '../types';
 import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
@@ -12,7 +12,8 @@ import { CollaboratorService } from './db/CollaboratorService';
 import { SitRepService } from './db/SitRepService';
 import { SPIService } from './db/SPIService';
 import { BaseDBService } from './db/base/BaseDBService';
-import { generateSampleData } from './sampleData/sampleDataGenerator';
+import { generateSampleData } from '../services/sampleData/sampleDataGenerator';
+import { Team } from '../types';
 
 export class IndexedDBService extends BaseDBService implements DataService {
   private projectStore: ProjectStore | null = null;
@@ -190,15 +191,15 @@ export class IndexedDBService extends BaseDBService implements DataService {
 
   async populateSampleData(quantities: SampleDataQuantities): Promise<void> {
     this.ensureInitialized();
-    const { projects, collaborators, spis, objectives, sitreps } = await generateSampleData([]);
+    const { projects, internalPartners, spis, objectives, sitreps } = await generateSampleData([]);
     
     // Add all data in sequence
     for (const project of projects) {
       await this.addProject(project);
     }
     
-    for (const collaborator of collaborators) {
-      await this.addCollaborator(collaborator);
+    for (const partner of internalPartners) {
+      await this.addCollaborator(partner);
     }
     
     for (const spi of spis) {
