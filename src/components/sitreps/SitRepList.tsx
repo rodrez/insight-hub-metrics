@@ -6,7 +6,11 @@ import { db } from "@/lib/db";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export function SitRepList() {
+interface SitRepListProps {
+  showDateFilter: boolean;
+}
+
+export function SitRepList({ showDateFilter }: SitRepListProps) {
   const [filterDate, setFilterDate] = useState<Date>();
 
   const { data: sitreps } = useQuery({
@@ -36,15 +40,17 @@ export function SitRepList() {
   return (
     <div className="space-y-6">
       <div className="flex items-start gap-6">
-        <div>
-          <h2 className="text-lg font-medium mb-2">Filter by Date</h2>
-          <Calendar
-            mode="single"
-            selected={filterDate}
-            onSelect={setFilterDate}
-            className="rounded-md border"
-          />
-        </div>
+        {showDateFilter && (
+          <div>
+            <h2 className="text-lg font-medium mb-2">Filter by Date</h2>
+            <Calendar
+              mode="single"
+              selected={filterDate}
+              onSelect={setFilterDate}
+              className="rounded-md border"
+            />
+          </div>
+        )}
 
         <div className="flex-1 space-y-4">
           {filteredSitreps?.map(sitrep => (
