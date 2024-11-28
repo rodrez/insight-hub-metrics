@@ -34,6 +34,15 @@ export class BaseDBService {
       throw new DatabaseError('Database not initialized');
     }
   }
+
+  protected async getStore(storeName: string): Promise<IDBObjectStore> {
+    await this.ensureInitialized();
+    if (!this.db) {
+      throw new DatabaseError('Database not initialized');
+    }
+    const transaction = this.db.transaction(storeName, 'readwrite');
+    return transaction.objectStore(storeName);
+  }
   
   protected async performTransaction<T>(
     storeName: string,
