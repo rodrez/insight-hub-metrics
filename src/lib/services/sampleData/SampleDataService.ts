@@ -1,28 +1,19 @@
 import { Project, Collaborator } from '@/lib/types';
 import { DEPARTMENTS } from '@/lib/constants';
-import { generateFortune30Partners } from './generators/fortune30Generator';
-import { generateInternalPartners } from './generators/internalPartnersGenerator';
-import { generateSMEPartners } from './generators/smePartnersGenerator';
-import { generateProjects } from './generators/projectGenerator';
+import { generateFortune30Partners } from '../data/fortune30Partners';
+import { generateInternalPartners } from '../data/internalPartners';
+import { generateSMEPartners } from '../data/smePartners';
+import { generateSampleProjects } from '../data/sampleProjectGenerator';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiData';
 
 export class SampleDataService {
   async generateSampleData() {
     const fortune30Partners = generateFortune30Partners();
-    const internalPartners = generateInternalPartners();
+    const internalPartners = await generateInternalPartners();
     const smePartners = generateSMEPartners();
     
-    // Convert readonly array to mutable array with spread operator
-    const departments = [...DEPARTMENTS];
-    const projects = generateProjects(
-      departments,
-      internalPartners,
-      fortune30Partners
-    );
-    
-    const spis = generateSampleSPIs(projects.map(p => p.id));
-    const objectives = generateSampleObjectives();
-    const sitreps = generateSampleSitReps(spis);
+    // Generate projects and related data
+    const { projects, spis, objectives, sitreps } = await generateSampleProjects(fortune30Partners, internalPartners);
     
     return {
       fortune30Partners,
