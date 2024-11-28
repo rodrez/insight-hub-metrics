@@ -4,6 +4,7 @@ import { toast } from "@/components/ui/use-toast";
 import { LoadingStep, executeWithRetry } from "@/lib/utils/loadingRetry";
 import { sampleFortune30 } from "@/lib/services/data/fortune30Partners";
 import { generateInternalPartners } from "@/lib/services/data/internalPartners";
+import { generateSampleProjects } from "@/components/data/SampleData";
 
 export function useDataPopulation() {
   const [isPopulating, setIsPopulating] = useState(false);
@@ -33,7 +34,12 @@ export function useDataPopulation() {
 
             // Generate and add all sample data
             console.log('Generating and adding sample data...');
-            const result = await generateSampleProjects(sampleFortune30, internalPartners);
+            const result = await generateSampleProjects({
+              projects: 10,
+              spis: 10,
+              objectives: 5,
+              sitreps: 10
+            });
             
             // Add projects
             for (const project of result.projects) {
