@@ -2,7 +2,7 @@ import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
 import { useEffect, useState } from "react";
 import { DatabaseActions } from "./DatabaseActions";
-import { sampleFortune30, getSampleInternalPartners } from "./SampleData";
+import { sampleFortune30, getSampleInternalPartners, generateSampleProjects } from "./SampleData";
 import { executeWithRetry, LoadingStep } from "@/lib/utils/loadingRetry";
 
 export default function DataManagement() {
