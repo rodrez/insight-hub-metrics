@@ -1,30 +1,31 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Mail, Info } from "lucide-react";
+import { Calendar, Mail, Info, ArrowUpDown } from "lucide-react";
 import { Collaborator } from "@/lib/types/collaboration";
 import { DEPARTMENTS } from "@/lib/constants";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useState } from "react";
 
 type OtherPartnersListProps = {
   collaborators: Collaborator[];
 };
 
+type SortField = 'name' | 'role' | 'department' | 'projects' | 'lastActive';
+type SortDirection = 'asc' | 'desc';
+
 export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
   const navigate = useNavigate();
-
-  // Fetch all projects from the dashboard
-  const { data: allProjects = [] } = useQuery({
-    queryKey: ['projects'],
-    queryFn: () => db.getAllProjects(),
-  });
+  const [sortField, setSortField] = useState<SortField>('name');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
   const getDepartmentColor = (departmentId: string) => {
     const department = DEPARTMENTS.find(d => d.id === departmentId);
@@ -35,18 +36,14 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
     navigate('/', { state: { scrollToProject: projectId } });
   };
 
-  // Group collaborators by their ID and merge their properties
   const uniqueCollaborators = collaborators.reduce((acc, current) => {
     const existingCollaborator = acc.find(item => item.id === current.id);
     if (!existingCollaborator) {
       acc.push(current);
     } else {
-      // If this person appears in multiple departments, merge their properties
-      // Keep the most recent lastActive date
       if (new Date(current.lastActive) > new Date(existingCollaborator.lastActive)) {
         existingCollaborator.lastActive = current.lastActive;
       }
-      // Combine projects if they exist
       if (current.projects) {
         existingCollaborator.projects = [
           ...existingCollaborator.projects,
@@ -60,8 +57,6 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
   }, [] as Collaborator[]);
 
   const getCollaboratorProjects = (collaborator: Collaborator) => {
-    // Get only projects where this collaborator is listed as an internal partner
-    // or where they are the POC or Tech Lead, accounting for possible duplicates
     const collaboratorProjects = allProjects.filter(project => 
       (project.internalPartners || []).some(partner => 
         partner.id === collaborator.id || 
@@ -71,7 +66,6 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
       project.techLead === collaborator.name
     );
 
-    // Remove duplicate projects
     const uniqueProjects = Array.from(new Set(collaboratorProjects.map(p => p.id)))
       .map(id => collaboratorProjects.find(p => p.id === id))
       .filter((project): project is NonNullable<typeof project> => project !== undefined)
@@ -86,21 +80,94 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
     return uniqueProjects;
   };
 
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const sortedCollaborators = [...uniqueCollaborators].sort((a, b) => {
+    const multiplier = sortDirection === 'asc' ? 1 : -1;
+    
+    switch (sortField) {
+      case 'name':
+        return multiplier * a.name.localeCompare(b.name);
+      case 'role':
+        return multiplier * a.role.localeCompare(b.role);
+      case 'department':
+        return multiplier * a.department.localeCompare(b.department);
+      case 'projects':
+        return multiplier * ((a.projects?.length || 0) - (b.projects?.length || 0));
+      case 'lastActive':
+        return multiplier * (new Date(a.lastActive).getTime() - new Date(b.lastActive).getTime());
+      default:
+        return 0;
+    }
+  });
+
   return (
     <div className="rounded-lg border">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Department</TableHead>
-            <TableHead className="w-[400px]">Projects</TableHead>
-            <TableHead>Last Active</TableHead>
+            <TableHead>
+              <Button 
+                variant="ghost" 
+                onClick={() => handleSort('name')}
+                className="flex items-center gap-1"
+              >
+                Name
+                <ArrowUpDown className="h-4 w-4" />
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button 
+                variant="ghost" 
+                onClick={() => handleSort('role')}
+                className="flex items-center gap-1"
+              >
+                Role
+                <ArrowUpDown className="h-4 w-4" />
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button 
+                variant="ghost" 
+                onClick={() => handleSort('department')}
+                className="flex items-center gap-1"
+              >
+                Department
+                <ArrowUpDown className="h-4 w-4" />
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button 
+                variant="ghost" 
+                onClick={() => handleSort('projects')}
+                className="flex items-center gap-1"
+              >
+                Projects
+                <ArrowUpDown className="h-4 w-4" />
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button 
+                variant="ghost" 
+                onClick={() => handleSort('lastActive')}
+                className="flex items-center gap-1"
+              >
+                Last Active
+                <ArrowUpDown className="h-4 w-4" />
+              </Button>
+            </TableHead>
             <TableHead>Contact</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {uniqueCollaborators.map((collaborator) => {
+          {sortedCollaborators.map((collaborator) => {
             const collaboratorProjects = getCollaboratorProjects(collaborator);
 
             return (
