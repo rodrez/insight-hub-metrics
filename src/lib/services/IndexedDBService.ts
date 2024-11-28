@@ -1,5 +1,8 @@
-import { Project, Collaborator } from '../types';
 import { DataService, SampleDataQuantities } from './DataService';
+import { Project, Collaborator, Team } from '../types';
+import { SitRep } from '../types/sitrep';
+import { SPI } from '../types/spi';
+import { Objective } from '../types/objective';
 import { DB_CONFIG, createStores } from './db/stores';
 import { connectionManager } from './db/connectionManager';
 import { DatabaseCleaner } from './db/databaseCleaner';
@@ -9,6 +12,7 @@ import { CollaboratorService } from './db/CollaboratorService';
 import { SitRepService } from './db/SitRepService';
 import { SPIService } from './db/SPIService';
 import { BaseDBService } from './db/base/BaseDBService';
+import { generateSampleData } from './sampleData/sampleDataGenerator';
 
 export class IndexedDBService extends BaseDBService implements DataService {
   private projectStore: ProjectStore | null = null;
@@ -37,9 +41,9 @@ export class IndexedDBService extends BaseDBService implements DataService {
       request.onsuccess = () => {
         console.log('IndexedDB initialized successfully');
         this.db = request.result;
-        this.collaboratorService.db = this.db;
-        this.sitRepService.db = this.db;
-        this.spiService.db = this.db;
+        this.collaboratorService.setDatabase(this.db);
+        this.sitRepService.setDatabase(this.db);
+        this.spiService.setDatabase(this.db);
         connectionManager.addConnection(this.db);
         this.projectStore = new ProjectStore(this.db);
         this.smeStore = new SMEStore(this.db);
@@ -84,7 +88,7 @@ export class IndexedDBService extends BaseDBService implements DataService {
     return this.projectStore!.updateProject(id, updates);
   }
 
-  // Delegate to CollaboratorService
+  // Collaborator methods delegated to CollaboratorService
   async getAllCollaborators(): Promise<Collaborator[]> {
     return this.collaboratorService.getAllCollaborators();
   }
@@ -97,44 +101,116 @@ export class IndexedDBService extends BaseDBService implements DataService {
     return this.collaboratorService.addCollaborator(collaborator);
   }
 
-  // Delegate to SitRepService
-  async getAllSitReps() {
+  // SitRep methods delegated to SitRepService
+  async getAllSitReps(): Promise<SitRep[]> {
     return this.sitRepService.getAllSitReps();
   }
 
-  async addSitRep(sitrep) {
+  async addSitRep(sitrep: SitRep): Promise<void> {
     return this.sitRepService.addSitRep(sitrep);
   }
 
-  // Delegate to SPIService
-  async getAllSPIs() {
+  // SPI methods delegated to SPIService
+  async getAllSPIs(): Promise<SPI[]> {
     return this.spiService.getAllSPIs();
   }
 
-  async getSPI(id: string) {
+  async getSPI(id: string): Promise<SPI | undefined> {
     return this.spiService.getSPI(id);
   }
 
-  async addSPI(spi) {
+  async addSPI(spi: SPI): Promise<void> {
     return this.spiService.addSPI(spi);
   }
 
-  async updateSPI(id: string, updates) {
+  async updateSPI(id: string, updates: Partial<SPI>): Promise<void> {
     return this.spiService.updateSPI(id, updates);
+  }
+
+  // Implementing missing methods required by DataService interface
+  async getAllObjectives(): Promise<Objective[]> {
+    return this.performTransaction<Objective[]>(
+      'objectives',
+      'readonly',
+      store => store.getAll()
+    );
+  }
+
+  async addObjective(objective: Objective): Promise<void> {
+    await this.performTransaction(
+      'objectives',
+      'readwrite',
+      store => store.put(objective)
+    );
+  }
+
+  async updateObjective(id: string, updates: Partial<Objective>): Promise<void> {
+    const existing = await this.performTransaction<Objective | undefined>(
+      'objectives',
+      'readonly',
+      store => store.get(id)
+    );
+    if (!existing) {
+      throw new Error('Objective not found');
+    }
+    await this.performTransaction(
+      'objectives',
+      'readwrite',
+      store => store.put({ ...existing, ...updates })
+    );
+  }
+
+  async exportData(): Promise<void> {
+    const data = {
+      projects: await this.getAllProjects(),
+      collaborators: await this.getAllCollaborators(),
+      sitreps: await this.getAllSitReps(),
+      spis: await this.getAllSPIs(),
+      objectives: await this.getAllObjectives()
+    };
+    
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `project-data-${new Date().toISOString()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  async getAllTeams(): Promise<Team[]> {
+    return this.performTransaction<Team[]>(
+      'teams',
+      'readonly',
+      store => store.getAll()
+    );
   }
 
   async populateSampleData(quantities: SampleDataQuantities): Promise<void> {
     this.ensureInitialized();
-    const { projects, smePartners } = await generateSampleData([]);
+    const { projects, collaborators, spis, objectives, sitreps } = await generateSampleData([]);
     
-    // Add all projects
+    // Add all data in sequence
     for (const project of projects) {
       await this.addProject(project);
     }
-
-    // Add all SME partners
-    for (const partner of smePartners) {
-      await this.addSMEPartner(partner);
+    
+    for (const collaborator of collaborators) {
+      await this.addCollaborator(collaborator);
+    }
+    
+    for (const spi of spis) {
+      await this.addSPI(spi);
+    }
+    
+    for (const objective of objectives) {
+      await this.addObjective(objective);
+    }
+    
+    for (const sitrep of sitreps) {
+      await this.addSitRep(sitrep);
     }
   }
 

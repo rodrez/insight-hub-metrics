@@ -36,4 +36,8 @@ export class BaseDBService {
       }
     });
   }
+
+  setDatabase(db: IDBDatabase) {
+    this.db = db;
+  }
 }
