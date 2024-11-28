@@ -123,9 +123,10 @@ export class IndexedDBService extends BaseDBService implements DataService {
 
   async updateObjective(id: string, updates: Partial<Objective>): Promise<void> {
     await this.ensureInitialized();
-    const objective = await this.performTransaction('objectives', 'readonly', store => store.get(id));
+    const objective = await this.performTransaction('objectives', 'readonly', store => store.get(id)) as Objective | undefined;
     if (!objective) throw new Error('Objective not found');
-    return this.addObjective({ ...objective, ...updates } as Objective);
+    const updatedObjective: Objective = { ...objective, ...updates as Partial<Objective> };
+    return this.addObjective(updatedObjective);
   }
 
   async getAllTeams(): Promise<Team[]> {
