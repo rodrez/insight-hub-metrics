@@ -6,6 +6,7 @@ import { generateSampleData } from './data/sampleDataGenerator';
 import { generateSampleSPIs, generateSampleSitReps } from './data/spiSitrepGenerator';
 import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
+import { Team } from '../types/team';
 
 export class SampleDataService implements DataService {
   private db: DataService;
@@ -187,5 +188,9 @@ export class SampleDataService implements DataService {
       console.error('Failed to clear database:', error);
       throw error;
     }
+  }
+
+  async getAllTeams(): Promise<Team[]> {
+    return this.db.getAllTeams();
   }
 }

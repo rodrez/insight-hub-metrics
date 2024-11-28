@@ -33,7 +33,7 @@ export function CompactSitRepForm({ onSubmitSuccess }: CompactSitRepFormProps) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [importanceLevel, setImportanceLevel] = useState("vp");
+  const [importanceLevel, setImportanceLevel] = useState<"vp" | "svp" | "ceo">("vp");
   const [keyTeam, setKeyTeam] = useState<string>("none");
   const [supportingTeams, setSupportingTeams] = useState<string[]>([]);
   const [pointsOfContact, setPointsOfContact] = useState<PointOfContact[]>([]);

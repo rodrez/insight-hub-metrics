@@ -8,6 +8,7 @@ import { connectionManager } from './db/connectionManager';
 import { DatabaseCleaner } from './db/databaseCleaner';
 import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
+import { Team } from '../types/team';
 
 export class IndexedDBService implements DataService {
   private db: IDBDatabase | null = null;
@@ -252,5 +253,15 @@ export class IndexedDBService implements DataService {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+
+  async getAllTeams(): Promise<Team[]> {
+    this.ensureInitialized();
+    const departments = ["Engineering", "Product", "Design", "Marketing", "Operations"];
+    return departments.map(dept => ({
+      id: dept.toLowerCase(),
+      name: dept,
+      department: dept
+    }));
   }
 }

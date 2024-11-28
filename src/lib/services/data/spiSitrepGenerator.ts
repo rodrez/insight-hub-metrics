@@ -84,12 +84,14 @@ export const generateSampleSitReps = (spiIds: string[]): SitRep[] => {
     
     sitreps.push({
       id: `sample-sitrep-${index + 1}`,
+      title: `SitRep ${index + 1}`,
       date,
       spiId,
       update,
       challenges: challenges[index],
       nextSteps: "Continue with planned activities and monitor progress",
-      status: Math.random() > 0.3 ? 'on-track' : 'at-risk'
+      status: Math.random() > 0.3 ? 'on-track' : 'at-risk',
+      content: update
     });
   });
 

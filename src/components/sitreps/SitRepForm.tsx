@@ -21,6 +21,7 @@ interface SitRepFormProps {
 
 export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [update, setUpdate] = useState("");
   const [challenges, setChallenges] = useState("");
@@ -60,6 +61,7 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
     try {
       await db.addSitRep({
         id: `sitrep-${Date.now()}`,
+        title,
         date: selectedDate?.toISOString() || new Date().toISOString(),
         spiId: "temp-spi-id",
         update,
@@ -79,6 +81,7 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
       });
       
       // Reset form
+      setTitle("");
       setSummary("");
       setUpdate("");
       setChallenges("");
@@ -110,6 +113,17 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
               selected={selectedDate}
               onSelect={setSelectedDate}
               className="rounded-md border"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">Title</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2"
+              placeholder="Enter sitrep title"
+              required
             />
           </div>
         </div>
