@@ -17,7 +17,7 @@ export default function ProjectSummary() {
       setTotalProjects(projects.length);
       setActiveProjects(projects.filter(p => p.status === 'active').length);
       setTotalBudget(projects.reduce((sum, p) => sum + p.budget, 0));
-      setTotalBusinessImpact(projects.reduce((sum, p) => sum + (p.businessImpact || 0), 0));
+      setTotalBusinessImpact(projects.reduce((sum, p) => sum + (p.businessImpact || 10000000), 0));
     };
 
     loadSummary();
