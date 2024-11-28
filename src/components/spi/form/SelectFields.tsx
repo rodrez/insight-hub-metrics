@@ -46,6 +46,7 @@ export function SelectFields({
             <SelectItem value="on-track">On Track</SelectItem>
             <SelectItem value="delayed">Delayed</SelectItem>
             <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
           </SelectContent>
         </Select>
       </div>

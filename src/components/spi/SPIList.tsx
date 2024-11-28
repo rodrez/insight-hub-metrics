@@ -26,6 +26,8 @@ export function SPIList() {
         return 'bg-green-500';
       case 'delayed':
         return 'bg-red-500';
+      case 'cancelled':
+        return 'bg-gray-500';
       default:
         return 'bg-yellow-500';
     }
