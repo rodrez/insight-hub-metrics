@@ -1,6 +1,9 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { CollaborationFormFields } from "./CollaborationFormFields";
+import { CollaborationFormFields, CollaborationFormSchema } from "./CollaborationFormFields";
 import { CollaborationType } from "@/lib/types";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "@/components/ui/form";
 
 export interface CollaborationDialogProps {
   open: boolean;
@@ -17,15 +20,34 @@ export function CollaborationDialog({
   departmentId,
   collaborationType = 'fortune30'
 }: CollaborationDialogProps) {
+  const form = useForm<CollaborationFormSchema>({
+    resolver: zodResolver(CollaborationFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      role: "",
+      department: departmentId || "",
+      agreementType: "None",
+      primaryContact: {
+        name: "",
+        role: "",
+        email: "",
+      },
+    },
+  });
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <CollaborationFormFields
-          collaboratorId={collaboratorId}
-          departmentId={departmentId}
-          collaborationType={collaborationType}
-          onSuccess={() => onOpenChange(false)}
-        />
+        <Form {...form}>
+          <CollaborationFormFields
+            form={form}
+            collaboratorId={collaboratorId}
+            departmentId={departmentId}
+            collaborationType={collaborationType}
+            onSuccess={() => onOpenChange(false)}
+          />
+        </Form>
       </DialogContent>
     </Dialog>
   );
