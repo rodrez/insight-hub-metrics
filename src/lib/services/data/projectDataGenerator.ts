@@ -6,104 +6,115 @@ import { generateFortune30Partners } from '@/lib/services/data/fortune30Partners
 // Track used names across all projects
 const usedNames = new Set<string>();
 
+const projectNames = [
+  "Next-Gen AI Integration",
+  "Sustainable Aviation",
+  "Cloud Infrastructure Upgrade",
+  "Quantum Computing Research",
+  "Green Energy Initiative",
+  "Digital Transformation",
+  "Smart Manufacturing",
+  "Autonomous Systems",
+  "Data Analytics Platform",
+  "Cybersecurity Enhancement"
+];
+
 export const generateProjectData = (
   departments: Department[], 
   techDomains: TechDomain[],
   internalPartners: Collaborator[]
 ) => {
   const projects: Project[] = [];
-  usedNames.clear(); // Clear the set before generating new projects
+  usedNames.clear();
   const fortune30Partners = generateFortune30Partners();
   
-  departments.forEach((dept, deptIndex) => {
-    const projectCount = dept.projectCount;
+  // Ensure we create exactly 10 projects spread across departments
+  for (let i = 0; i < 10; i++) {
+    const dept = departments[i % departments.length];
     const deptPartners = internalPartners.filter(p => p.department === dept.id);
     
-    for (let i = 0; i < projectCount; i++) {
-      // Create a pool of available partners excluding POC and Tech Lead
-      const availablePartners = [...deptPartners];
-      
-      // Select POC from current department's partners
-      const pocIndex = Math.floor(Math.random() * availablePartners.length);
-      const pocPartner = availablePartners[pocIndex];
-      
-      if (!pocPartner) {
-        console.warn(`No available POC partner for department ${dept.id}`);
-        continue;
-      }
-
-      // Add POC to used names
-      usedNames.add(pocPartner.name);
-      availablePartners.splice(pocIndex, 1); // Remove POC from available pool
-      
-      // Select Tech Lead from partners not in usedNames
-      const availableTechLeads = internalPartners.filter(p => 
-        p.department !== dept.id && !usedNames.has(p.name)
-      );
-
-      if (availableTechLeads.length === 0) {
-        console.warn(`No available Tech Lead for project in department ${dept.id}`);
-        continue;
-      }
-
-      const techLeadIndex = Math.floor(Math.random() * availableTechLeads.length);
-      const techLeadPartner = availableTechLeads[techLeadIndex];
-      usedNames.add(techLeadPartner.name);
-      
-      // Select random internal partners from remaining pool who aren't already used
-      const remainingPartners = internalPartners.filter(p => 
-        !usedNames.has(p.name) && 
-        p.id !== pocPartner.id && 
-        p.id !== techLeadPartner.id
-      );
-
-      const selectedPartners = remainingPartners
-        .sort(() => Math.random() - 0.5)
-        .slice(0, Math.min(3, remainingPartners.length));
-
-      // Add selected partners to used names
-      selectedPartners.forEach(partner => usedNames.add(partner.name));
-
-      // Ensure at least one Fortune 30 partner by rotating through them
-      const fortune30Index = (deptIndex + i) % fortune30Partners.length;
-      const selectedFortune30 = fortune30Partners[fortune30Index];
-
-      const budget = Math.round(dept.budget / projectCount);
-      const spent = Math.round(budget * (Math.random() * 0.8));
-
-      // Assign a random tech domain
-      const randomTechDomain = techDomains[Math.floor(Math.random() * techDomains.length)];
-
-      const project: Project = {
-        id: `${dept.id}-project-${i + 1}`,
-        name: `${dept.name} Innovation Project ${i + 1}`,
-        departmentId: dept.id,
-        poc: pocPartner.name,
-        pocDepartment: pocPartner.department,
-        techLead: techLeadPartner.name,
-        techLeadDepartment: techLeadPartner.department,
-        budget,
-        spent,
-        status: "active",
-        collaborators: [selectedFortune30],
-        internalPartners: selectedPartners,
-        techDomainId: randomTechDomain.id,
-        nabc: generateNABC(dept.name),
-        milestones: generateMilestones(`${dept.id}-project-${i + 1}`),
-        metrics: generateMetrics(`${dept.id}-project-${i + 1}`, spent, budget),
-        isSampleData: true
-      };
-
-      projects.push(project);
+    if (deptPartners.length === 0) {
+      console.warn(`No available partners for department ${dept.id}`);
+      continue;
     }
-  });
+
+    // Select POC from current department's partners
+    const pocIndex = Math.floor(Math.random() * deptPartners.length);
+    const pocPartner = deptPartners[pocIndex];
+    
+    if (!pocPartner) {
+      console.warn(`No available POC partner for department ${dept.id}`);
+      continue;
+    }
+
+    usedNames.add(pocPartner.name);
+    
+    // Select Tech Lead from partners not in usedNames
+    const availableTechLeads = internalPartners.filter(p => 
+      p.department !== dept.id && !usedNames.has(p.name)
+    );
+
+    if (availableTechLeads.length === 0) {
+      console.warn(`No available Tech Lead for project in department ${dept.id}`);
+      continue;
+    }
+
+    const techLeadIndex = Math.floor(Math.random() * availableTechLeads.length);
+    const techLeadPartner = availableTechLeads[techLeadIndex];
+    usedNames.add(techLeadPartner.name);
+    
+    // Select random internal partners
+    const remainingPartners = internalPartners.filter(p => 
+      !usedNames.has(p.name) && 
+      p.id !== pocPartner.id && 
+      p.id !== techLeadPartner.id
+    );
+
+    const selectedPartners = remainingPartners
+      .sort(() => Math.random() - 0.5)
+      .slice(0, Math.min(3, remainingPartners.length));
+
+    selectedPartners.forEach(partner => usedNames.add(partner.name));
+
+    // Ensure at least one Fortune 30 partner
+    const fortune30Index = i % fortune30Partners.length;
+    const selectedFortune30 = fortune30Partners[fortune30Index];
+
+    const budget = Math.round((dept.budget / dept.projectCount) * (0.8 + Math.random() * 0.4));
+    const spent = Math.round(budget * (0.2 + Math.random() * 0.5)); // 20-70% spent
+
+    // Assign a random tech domain
+    const randomTechDomain = techDomains[Math.floor(Math.random() * techDomains.length)];
+
+    const project: Project = {
+      id: `${dept.id}-project-${i + 1}`,
+      name: projectNames[i],
+      departmentId: dept.id,
+      poc: pocPartner.name,
+      pocDepartment: pocPartner.department,
+      techLead: techLeadPartner.name,
+      techLeadDepartment: techLeadPartner.department,
+      budget,
+      spent,
+      status: "active",
+      collaborators: [selectedFortune30],
+      internalPartners: selectedPartners,
+      techDomainId: randomTechDomain.id,
+      nabc: generateNABC(dept.name, projectNames[i]),
+      milestones: generateMilestones(`${dept.id}-project-${i + 1}`),
+      metrics: generateMetrics(`${dept.id}-project-${i + 1}`, spent, budget),
+      isSampleData: true
+    };
+
+    projects.push(project);
+  }
 
   return { projects };
 };
 
-const generateNABC = (deptName: string) => ({
-  needs: `Developing next-generation ${deptName.toLowerCase()} systems with improved efficiency and reduced environmental impact.`,
-  approach: "Implementing advanced technologies and innovative solutions, combined with AI-driven optimization algorithms for maximum performance.",
+const generateNABC = (deptName: string, projectName: string) => ({
+  needs: `Addressing critical business needs in ${deptName.toLowerCase()} through ${projectName.toLowerCase()} implementation.`,
+  approach: "Implementing cutting-edge technologies and innovative solutions, combined with AI-driven optimization algorithms for maximum performance.",
   benefits: "20% reduction in operational costs, 15% decrease in maintenance costs, and potential market leadership in eco-friendly solutions.",
   competition: "Major competitors are investing in similar technologies, but our integrated approach provides a significant advantage in time-to-market."
 });
