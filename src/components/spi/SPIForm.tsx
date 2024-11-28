@@ -18,7 +18,6 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
   const [deliverable, setDeliverable] = useState("");
   const [details, setDetails] = useState("");
   const [expectedDate, setExpectedDate] = useState<Date | undefined>(new Date());
-  const [actualDate, setActualDate] = useState<Date | undefined>();
   const [status, setStatus] = useState<SPI['status']>("on-track");
   const [selectedProject, setSelectedProject] = useState<string>("none");
   const [selectedFortune30, setSelectedFortune30] = useState<string>("none");
@@ -54,7 +53,6 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
         deliverable,
         details,
         expectedCompletionDate: expectedDate.toISOString(),
-        actualCompletionDate: actualDate?.toISOString(),
         status,
         projectId: selectedProject !== "none" ? selectedProject : undefined,
         fortune30Id: selectedFortune30 !== "none" ? selectedFortune30 : undefined,
@@ -76,7 +74,6 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
       setDeliverable("");
       setDetails("");
       setExpectedDate(new Date());
-      setActualDate(undefined);
       setStatus("on-track");
       setSelectedProject("none");
       setSelectedFortune30("none");
@@ -122,16 +119,6 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
               mode="single"
               selected={expectedDate}
               onSelect={setExpectedDate}
-              className="rounded-md border"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Actual Completion Date (Optional)</label>
-            <Calendar
-              mode="single"
-              selected={actualDate}
-              onSelect={setActualDate}
               className="rounded-md border"
             />
           </div>
