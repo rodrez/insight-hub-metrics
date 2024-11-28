@@ -14,6 +14,7 @@ export class IndexedDBService extends BaseDBService implements DataService {
   private sitRepService: any;
   private spiService: any;
   private sampleDataService: any;
+  private initialized: boolean = false;
 
   constructor() {
     super();
@@ -21,6 +22,8 @@ export class IndexedDBService extends BaseDBService implements DataService {
   }
 
   async init(): Promise<void> {
+    if (this.initialized) return;
+    
     try {
       await super.init();
       this.projectService.setDatabase(this.db);
@@ -28,6 +31,7 @@ export class IndexedDBService extends BaseDBService implements DataService {
       this.sitRepService?.setDatabase(this.db);
       this.spiService?.setDatabase(this.db);
       this.sampleDataService?.setDatabase(this.db);
+      this.initialized = true;
     } catch (error) {
       toast({
         title: "Error",
@@ -39,73 +43,109 @@ export class IndexedDBService extends BaseDBService implements DataService {
   }
 
   async getAllProjects(): Promise<Project[]> {
+    await this.ensureInitialized();
     return this.performTransaction('projects', 'readonly', store => store.getAll());
   }
 
   async getProject(id: string): Promise<Project | undefined> {
+    await this.ensureInitialized();
     return this.performTransaction('projects', 'readonly', store => store.get(id));
   }
 
   async addProject(project: Project): Promise<void> {
+    await this.ensureInitialized();
     return this.performTransaction('projects', 'readwrite', store => store.put(project));
   }
 
   async updateProject(id: string, updates: Partial<Project>): Promise<void> {
+    await this.ensureInitialized();
     const project = await this.getProject(id);
     if (!project) throw new Error('Project not found');
     return this.addProject({ ...project, ...updates });
   }
 
   async getAllCollaborators(): Promise<Collaborator[]> {
+    await this.ensureInitialized();
     return this.performTransaction('collaborators', 'readonly', store => store.getAll());
   }
 
   async getCollaborator(id: string): Promise<Collaborator | undefined> {
+    await this.ensureInitialized();
     return this.performTransaction('collaborators', 'readonly', store => store.get(id));
   }
 
   async addCollaborator(collaborator: Collaborator): Promise<void> {
+    await this.ensureInitialized();
     return this.performTransaction('collaborators', 'readwrite', store => store.put(collaborator));
   }
 
   async getAllSitReps(): Promise<SitRep[]> {
+    await this.ensureInitialized();
     return this.performTransaction('sitreps', 'readonly', store => store.getAll());
   }
 
   async addSitRep(sitrep: SitRep): Promise<void> {
+    await this.ensureInitialized();
     return this.performTransaction('sitreps', 'readwrite', store => store.put(sitrep));
   }
 
   async getAllSPIs(): Promise<SPI[]> {
+    await this.ensureInitialized();
     return this.performTransaction('spis', 'readonly', store => store.getAll());
   }
 
   async getSPI(id: string): Promise<SPI | undefined> {
+    await this.ensureInitialized();
     return this.performTransaction('spis', 'readonly', store => store.get(id));
   }
 
   async addSPI(spi: SPI): Promise<void> {
+    await this.ensureInitialized();
     return this.performTransaction('spis', 'readwrite', store => store.put(spi));
   }
 
   async updateSPI(id: string, updates: Partial<SPI>): Promise<void> {
+    await this.ensureInitialized();
     const spi = await this.getSPI(id);
     if (!spi) throw new Error('SPI not found');
     return this.addSPI({ ...spi, ...updates });
   }
 
   async getAllObjectives(): Promise<Objective[]> {
+    await this.ensureInitialized();
     return this.performTransaction('objectives', 'readonly', store => store.getAll());
   }
 
   async addObjective(objective: Objective): Promise<void> {
+    await this.ensureInitialized();
     return this.performTransaction('objectives', 'readwrite', store => store.put(objective));
   }
 
   async updateObjective(id: string, updates: Partial<Objective>): Promise<void> {
+    await this.ensureInitialized();
     const objective = await this.performTransaction('objectives', 'readonly', store => store.get(id));
     if (!objective) throw new Error('Objective not found');
-    return this.addObjective({ ...objective, ...updates });
+    return this.addObjective({ ...objective, ...updates } as Objective);
+  }
+
+  async getAllTeams(): Promise<Team[]> {
+    await this.ensureInitialized();
+    return this.performTransaction('teams', 'readonly', store => store.getAll());
+  }
+
+  async getAllSMEPartners(): Promise<Collaborator[]> {
+    await this.ensureInitialized();
+    return this.performTransaction('smePartners', 'readonly', store => store.getAll());
+  }
+
+  async getSMEPartner(id: string): Promise<Collaborator | undefined> {
+    await this.ensureInitialized();
+    return this.performTransaction('smePartners', 'readonly', store => store.get(id));
+  }
+
+  async addSMEPartner(partner: Collaborator): Promise<void> {
+    await this.ensureInitialized();
+    return this.performTransaction('smePartners', 'readwrite', store => store.put(partner));
   }
 
   async clear(): Promise<void> {
@@ -113,6 +153,7 @@ export class IndexedDBService extends BaseDBService implements DataService {
   }
 
   async exportData(): Promise<void> {
+    await this.ensureInitialized();
     const data = {
       projects: await this.getAllProjects(),
       collaborators: await this.getAllCollaborators(),
@@ -130,22 +171,6 @@ export class IndexedDBService extends BaseDBService implements DataService {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }
-
-  async getAllTeams(): Promise<Team[]> {
-    return this.performTransaction('teams', 'readonly', store => store.getAll());
-  }
-
-  async getAllSMEPartners(): Promise<Collaborator[]> {
-    return this.performTransaction('smePartners', 'readonly', store => store.getAll());
-  }
-
-  async getSMEPartner(id: string): Promise<Collaborator | undefined> {
-    return this.performTransaction('smePartners', 'readonly', store => store.get(id));
-  }
-
-  async addSMEPartner(partner: Collaborator): Promise<void> {
-    return this.performTransaction('smePartners', 'readwrite', store => store.put(partner));
   }
 
   async populateSampleData(quantities: SampleDataQuantities): Promise<void> {

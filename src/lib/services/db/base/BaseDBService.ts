@@ -1,11 +1,34 @@
+import { DB_CONFIG, createStores } from '../stores';
+
 export class BaseDBService {
   protected db: IDBDatabase | null = null;
   
   protected async init(): Promise<void> {
-    // Base initialization logic
+    if (this.db) return;
+
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
+
+      request.onerror = () => {
+        reject(new Error('Failed to open database'));
+      };
+
+      request.onsuccess = () => {
+        this.db = request.result;
+        resolve();
+      };
+
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        createStores(db);
+      };
+    });
   }
   
-  protected ensureInitialized() {
+  protected async ensureInitialized(): Promise<void> {
+    if (!this.db) {
+      await this.init();
+    }
     if (!this.db) {
       throw new Error('Database not initialized');
     }
@@ -16,7 +39,7 @@ export class BaseDBService {
     mode: IDBTransactionMode,
     operation: (store: IDBObjectStore) => IDBRequest
   ): Promise<T> {
-    this.ensureInitialized();
+    await this.ensureInitialized();
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction(storeName, mode);
       const store = transaction.objectStore(storeName);

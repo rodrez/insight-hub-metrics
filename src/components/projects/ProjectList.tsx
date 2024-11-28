@@ -1,20 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Project } from '@/lib/types';
 import { ProjectCard } from './ProjectCard';
 
 export default function ProjectList() {
-  const [projects, setProjects] = useState<Project[]>([]);
-
-  useEffect(() => {
-    const loadProjects = async () => {
+  const { data: projects = [], isLoading } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => {
       await db.init();
-      const allProjects = await db.getAllProjects();
-      setProjects(allProjects);
-    };
+      return db.getAllProjects();
+    }
+  });
 
-    loadProjects();
-  }, []);
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="space-y-4 animate-fade-in">
