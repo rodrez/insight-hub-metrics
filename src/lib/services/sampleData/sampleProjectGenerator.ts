@@ -1,14 +1,7 @@
 import { Project } from '@/lib/types';
 import { Collaborator } from '@/lib/types/collaboration';
 import { defaultTechDomains } from '@/lib/types/techDomain';
-
-const projectDescriptions = {
-  airplanes: "Developing next-generation airplanes systems with improved efficiency and reduced environmental impact.",
-  helicopters: "Developing next-generation helicopters systems with improved efficiency and reduced environmental impact.",
-  energy: "Developing next-generation energy systems with improved efficiency and reduced environmental impact.",
-  space: "Developing next-generation space systems with improved efficiency and reduced environmental impact.",
-  it: "Implementing enterprise-wide IT infrastructure improvements and cybersecurity enhancements."
-};
+import { projectDescriptions } from './projectUtils'; // Importing from new utility file
 
 const generateFallbackProject = (fortune30: Collaborator[], internalPartners: Collaborator[]): Project => ({
   id: "fallback-project-1",
@@ -217,10 +210,54 @@ export const generateSampleProjects = async (fortune30: Collaborator[], internal
         internalPartners: internalPartners.filter(p => p.department === "helicopters").slice(0, 3),
         techDomainId: "propulsion",
         nabc: {
-          needs: "Electric vertical takeoff and landing capability",
+          needs: projectDescriptions.helicopters,
           approach: "Novel electric propulsion system",
           benefits: "Zero emissions and 30% noise reduction",
           competition: "Pioneer in electric VTOL technology"
+        },
+        isSampleData: true
+      },
+      {
+        id: "energy-project-2",
+        name: "Renewable Energy Integration",
+        departmentId: "energy",
+        poc: "David Brown",
+        pocDepartment: "energy",
+        techLead: "Jennifer Lee",
+        techLeadDepartment: "engineering",
+        budget: 1500000,
+        spent: 450000,
+        status: "active" as const,
+        collaborators: [fortune30.find(c => c.name === "Google") || fortune30[4]],
+        internalPartners: internalPartners.filter(p => p.department === "energy").slice(3, 6),
+        techDomainId: "ai-ml",
+        nabc: {
+          needs: "Smart grid integration with renewable energy sources",
+          approach: "AI-powered grid management system",
+          benefits: "50% increase in renewable energy utilization",
+          competition: "Leading smart grid technology provider"
+        },
+        isSampleData: true
+      },
+      {
+        id: "space-project-2",
+        name: "Deep Space Communication",
+        departmentId: "space",
+        poc: "Lisa Wong",
+        pocDepartment: "space",
+        techLead: "Mark Davis",
+        techLeadDepartment: "engineering",
+        budget: 2500000,
+        spent: 1200000,
+        status: "active" as const,
+        collaborators: [fortune30.find(c => c.name === "Microsoft") || fortune30[3]],
+        internalPartners: internalPartners.filter(p => p.department === "space").slice(3, 6),
+        techDomainId: "quantum-computing",
+        nabc: {
+          needs: "Ultra-long range space communication",
+          approach: "Quantum entanglement communication system",
+          benefits: "Instantaneous communication across solar system",
+          competition: "Pioneer in quantum space communication"
         },
         isSampleData: true
       }
