@@ -4,12 +4,20 @@ import { useDataInitialization } from "./hooks/useDataInitialization";
 import { useDataCounts } from "./hooks/useDataCounts";
 import { useDataClearing } from "./hooks/useDataClearing";
 import { useDataPopulation } from "./hooks/useDataPopulation";
+import { useEffect } from "react";
 
 export default function DataManagement() {
   const { isInitialized } = useDataInitialization();
   const { isClearing, clearDatabase } = useDataClearing();
   const { isPopulating, populateSampleData } = useDataPopulation();
-  const { dataCounts } = useDataCounts(isInitialized);
+  const { dataCounts, updateDataCounts } = useDataCounts(isInitialized);
+
+  // Update counts after population or clearing
+  useEffect(() => {
+    if (!isPopulating && !isClearing) {
+      updateDataCounts();
+    }
+  }, [isPopulating, isClearing]);
 
   return (
     <div className="space-y-4 p-4">
@@ -19,7 +27,10 @@ export default function DataManagement() {
         isClearing={isClearing}
         isPopulating={isPopulating}
         onClear={clearDatabase}
-        onPopulate={populateSampleData}
+        onPopulate={async () => {
+          await populateSampleData();
+          updateDataCounts();
+        }}
       />
       <DataStats dataCounts={dataCounts} />
     </div>

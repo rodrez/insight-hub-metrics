@@ -15,6 +15,8 @@ export function useDataCounts(isInitialized: boolean) {
   });
 
   const updateDataCounts = async () => {
+    if (!isInitialized) return;
+    
     try {
       const projects = await db.getAllProjects();
       const spis = await db.getAllSPIs();
@@ -23,14 +25,16 @@ export function useDataCounts(isInitialized: boolean) {
       const collaborators = await db.getAllCollaborators();
       const smePartners = await db.getAllSMEPartners();
 
+      console.log('SME Partners count:', smePartners?.length || 0);
+
       setDataCounts({
-        projects: projects.length,
-        spis: spis.length,
-        objectives: objectives.length,
-        sitreps: sitreps.length,
-        fortune30: collaborators.filter(c => c.type === 'fortune30').length,
-        internalPartners: collaborators.filter(c => c.type === 'other').length,
-        smePartners: smePartners.length
+        projects: projects?.length || 0,
+        spis: spis?.length || 0,
+        objectives: objectives?.length || 0,
+        sitreps: sitreps?.length || 0,
+        fortune30: collaborators?.filter(c => c.type === 'fortune30')?.length || 0,
+        internalPartners: collaborators?.filter(c => c.type === 'other')?.length || 0,
+        smePartners: smePartners?.length || 0
       });
     } catch (error) {
       console.error('Error updating data counts:', error);
