@@ -20,10 +20,14 @@ import { toast } from "@/components/ui/use-toast";
 export default function SitReps() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [summary, setSummary] = useState("");
+  const [update, setUpdate] = useState("");
+  const [challenges, setChallenges] = useState("");
+  const [nextSteps, setNextSteps] = useState("");
   const [selectedProject, setSelectedProject] = useState<string>("");
   const [selectedFortune30, setSelectedFortune30] = useState<string>("");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("");
   const [selectedPartner, setSelectedPartner] = useState<string>("");
+  const [status, setStatus] = useState<'on-track' | 'at-risk'>('on-track');
 
   const { data: projects } = useQuery({
     queryKey: ['projects'],
@@ -55,6 +59,11 @@ export default function SitReps() {
       await db.addSitRep({
         id: `sitrep-${Date.now()}`,
         date: selectedDate?.toISOString() || new Date().toISOString(),
+        spiId: "temp-spi-id", // This should be selected from a list of SPIs in a real implementation
+        update,
+        challenges,
+        nextSteps,
+        status,
         summary,
         projectId: selectedProject,
         fortune30Id: selectedFortune30,
@@ -68,10 +77,14 @@ export default function SitReps() {
       });
       
       setSummary("");
+      setUpdate("");
+      setChallenges("");
+      setNextSteps("");
       setSelectedProject("");
       setSelectedFortune30("");
       setSelectedDepartment("");
       setSelectedPartner("");
+      setStatus('on-track');
     } catch (error) {
       toast({
         title: "Error",
@@ -154,6 +167,19 @@ export default function SitReps() {
               </Select>
             </div>
 
+            <div>
+              <label className="block text-sm font-medium mb-2">Status</label>
+              <Select value={status} onValueChange={(value: 'on-track' | 'at-risk') => setStatus(value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="on-track">On Track</SelectItem>
+                  <SelectItem value="at-risk">At Risk</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {selectedDepartment && (
               <div>
                 <label className="block text-sm font-medium mb-2">Internal Partner</label>
@@ -180,7 +206,37 @@ export default function SitReps() {
           <Textarea
             value={summary}
             onChange={(e) => setSummary(e.target.value)}
-            placeholder="Write your 3-sentence summary here..."
+            placeholder="Write your summary here..."
+            className="h-32"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Update</label>
+          <Textarea
+            value={update}
+            onChange={(e) => setUpdate(e.target.value)}
+            placeholder="Write your update here..."
+            className="h-32"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Challenges</label>
+          <Textarea
+            value={challenges}
+            onChange={(e) => setChallenges(e.target.value)}
+            placeholder="Write your challenges here..."
+            className="h-32"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Next Steps</label>
+          <Textarea
+            value={nextSteps}
+            onChange={(e) => setNextSteps(e.target.value)}
+            placeholder="Write your next steps here..."
             className="h-32"
           />
         </div>
