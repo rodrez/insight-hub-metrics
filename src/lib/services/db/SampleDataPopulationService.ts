@@ -9,16 +9,20 @@ import { toast } from "@/components/ui/use-toast";
 export class SampleDataPopulationService extends BaseDBService {
   async populateData(quantities: SampleDataQuantities): Promise<void> {
     try {
+      console.log('Starting sample data population...');
+      
       // Generate all sample data
-      const fortune30Partners = generateFortune30Partners();
+      const fortune30Partners = generateFortune30Partners().slice(0, quantities.fortune30);
       const internalPartners = await generateInternalPartners();
-      const smePartners = generateSMEPartners();
+      const smePartners = generateSMEPartners().slice(0, quantities.smePartners);
       
       // Generate projects and related data with specified quantities
       const { projects, spis, objectives, sitreps } = await generateSampleProjects(quantities);
       
+      console.log('Generated all sample data, starting database population...');
+
       // Add Fortune 30 partners
-      for (const partner of fortune30Partners.slice(0, quantities.fortune30)) {
+      for (const partner of fortune30Partners) {
         await this.performTransaction(
           'collaborators',
           'readwrite',
@@ -36,7 +40,7 @@ export class SampleDataPopulationService extends BaseDBService {
       }
       
       // Add SME partners
-      for (const partner of smePartners.slice(0, quantities.smePartners)) {
+      for (const partner of smePartners) {
         await this.performTransaction(
           'smePartners',
           'readwrite',
@@ -80,6 +84,8 @@ export class SampleDataPopulationService extends BaseDBService {
         );
       }
 
+      console.log('Sample data population completed successfully');
+      
       toast({
         title: "Success",
         description: "Sample data populated successfully",
