@@ -5,8 +5,21 @@ import { generateSMEPartners } from '@/lib/services/data/smePartners';
 import { generateSampleProjects } from '@/components/data/SampleData';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiData';
 import { SampleDataQuantities } from '../DataService';
+import { toast } from "@/components/ui/use-toast";
 
 export class SampleDataService {
+  private validateQuantities(available: number, requested: number, type: string): number {
+    if (requested > available) {
+      toast({
+        title: "Warning",
+        description: `Requested ${requested} ${type}, but only ${available} are available. Adjusting quantity.`,
+        variant: "warning",
+      });
+      return available;
+    }
+    return requested;
+  }
+
   async generateSampleData(quantities: SampleDataQuantities = {
     projects: 10,
     spis: 10,
@@ -17,23 +30,37 @@ export class SampleDataService {
     smePartners: 10
   }) {
     try {
-      console.log('Starting sample data generation...');
-      
-      const fortune30Partners = generateFortune30Partners().slice(0, quantities.fortune30);
-      const internalPartners = await generateInternalPartners();
-      const smePartners = generateSMEPartners().slice(0, quantities.smePartners);
-      
-      console.log('Generated partners data');
-      
-      // Generate projects and related data
-      const { projects, spis, objectives, sitreps } = await generateSampleProjects(quantities);
-      
-      console.log('Generated projects and related data');
+      const progress = (step: string) => {
+        toast({
+          title: "Generating Data",
+          description: `Step: ${step}`,
+        });
+      };
+
+      progress("Generating partners...");
+      const allFortune30 = generateFortune30Partners();
+      const allInternalPartners = await generateInternalPartners();
+      const allSMEPartners = generateSMEPartners();
+
+      // Validate and adjust quantities
+      const fortune30Count = this.validateQuantities(allFortune30.length, quantities.fortune30, "Fortune 30 partners");
+      const internalCount = this.validateQuantities(allInternalPartners.length, quantities.internalPartners, "internal partners");
+      const smeCount = this.validateQuantities(allSMEPartners.length, quantities.smePartners, "SME partners");
+
+      progress("Generating projects and related data...");
+      const { projects, spis, objectives, sitreps } = await generateSampleProjects({
+        projects: quantities.projects,
+        spis: quantities.spis,
+        objectives: quantities.objectives,
+        sitreps: quantities.sitreps
+      });
+
+      progress("Finalizing data generation...");
       
       return {
-        fortune30Partners,
-        internalPartners: internalPartners.slice(0, quantities.internalPartners),
-        smePartners,
+        fortune30Partners: allFortune30.slice(0, fortune30Count),
+        internalPartners: allInternalPartners.slice(0, internalCount),
+        smePartners: allSMEPartners.slice(0, smeCount),
         projects: projects.slice(0, quantities.projects),
         spis: spis.slice(0, quantities.spis),
         objectives: objectives.slice(0, quantities.objectives),
@@ -41,6 +68,11 @@ export class SampleDataService {
       };
     } catch (error) {
       console.error('Error in sample data generation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate sample data. Please try again.",
+        variant: "destructive",
+      });
       throw error;
     }
   }
