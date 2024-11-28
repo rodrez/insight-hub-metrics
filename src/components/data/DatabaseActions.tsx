@@ -4,6 +4,7 @@ import { Trash2, Database } from "lucide-react";
 import { ExportActions } from "./actions/ExportActions";
 import { BackupActions } from "./actions/BackupActions";
 import { toast } from "@/components/ui/use-toast";
+import { DatabaseOperations } from "./operations/DatabaseOperations";
 
 interface DatabaseActionsProps {
   isInitialized: boolean;
@@ -20,6 +21,8 @@ export function DatabaseActions({
   onClear,
   onPopulate
 }: DatabaseActionsProps) {
+  const databaseOps = new DatabaseOperations();
+
   const handleClear = async () => {
     try {
       await onClear();

@@ -5,10 +5,13 @@ import { LoadingStep, executeWithRetry } from "@/lib/utils/loadingRetry";
 import { SampleDataService } from "@/lib/services/sampleData/SampleDataService";
 import { useQueryClient } from "@tanstack/react-query";
 import { DatabaseError } from "@/lib/utils/errorHandling";
+import { DatabaseOperations } from "../operations/DatabaseOperations";
+import { trackGenerationProgress } from "@/lib/services/data/utils/dataGenerationUtils";
 
 export function useDataPopulation() {
   const [isPopulating, setIsPopulating] = useState(false);
   const queryClient = useQueryClient();
+  const databaseOps = new DatabaseOperations();
 
   const populateSampleData = async () => {
     setIsPopulating(true);
@@ -18,8 +21,6 @@ export function useDataPopulation() {
         name: "Sample Data Population",
         action: async () => {
           try {
-            console.log('Starting sample data population...');
-            
             const sampleDataService = new SampleDataService();
             const {
               fortune30Partners,
@@ -30,70 +31,44 @@ export function useDataPopulation() {
               objectives,
               sitreps
             } = await sampleDataService.generateSampleData();
-            
-            // Add fortune30 partners
-            await Promise.all(fortune30Partners.map(async collaborator => {
-              try {
-                await db.addCollaborator(collaborator);
-              } catch (error) {
-                throw new DatabaseError(`Failed to add fortune30 partner: ${collaborator.name}`, error);
-              }
-            }));
-            
-            // Add internal partners
-            await Promise.all(internalPartners.map(async partner => {
-              try {
-                await db.addCollaborator(partner);
-              } catch (error) {
-                throw new DatabaseError(`Failed to add internal partner: ${partner.name}`, error);
-              }
-            }));
 
-            // Add SME partners
-            await Promise.all(smePartners.map(async partner => {
-              try {
-                await db.addSMEPartner(partner);
-              } catch (error) {
-                throw new DatabaseError(`Failed to add SME partner: ${partner.name}`, error);
-              }
-            }));
+            // Add partners with progress tracking
+            await databaseOps.addCollaboratorsInBatches(
+              fortune30Partners,
+              (progress) => trackGenerationProgress("Fortune 30 Partners", progress)
+            );
 
-            // Add projects sequentially to maintain data integrity
-            for (const project of projects) {
-              try {
-                await db.addProject(project);
-              } catch (error) {
-                throw new DatabaseError(`Failed to add project: ${project.name}`, error);
-              }
-            }
-            
-            // Add SPIs, objectives, and sitreps
-            await Promise.all([
-              ...spis.map(async spi => {
-                try {
-                  await db.addSPI(spi);
-                } catch (error) {
-                  throw new DatabaseError(`Failed to add SPI: ${spi.id}`, error);
-                }
-              }),
+            await databaseOps.addCollaboratorsInBatches(
+              internalPartners,
+              (progress) => trackGenerationProgress("Internal Partners", progress)
+            );
 
-              ...objectives.map(async objective => {
-                try {
-                  await db.addObjective(objective);
-                } catch (error) {
-                  throw new DatabaseError(`Failed to add objective: ${objective.id}`, error);
-                }
-              }),
+            await databaseOps.addCollaboratorsInBatches(
+              smePartners,
+              (progress) => trackGenerationProgress("SME Partners", progress)
+            );
 
-              ...sitreps.map(async sitrep => {
-                try {
-                  await db.addSitRep(sitrep);
-                } catch (error) {
-                  throw new DatabaseError(`Failed to add sitrep: ${sitrep.id}`, error);
-                }
-              })
-            ]);
-            
+            // Add projects and related data with progress tracking
+            await databaseOps.addProjectsInBatches(
+              projects,
+              (progress) => trackGenerationProgress("Projects", progress)
+            );
+
+            await databaseOps.addSPIsInBatches(
+              spis,
+              (progress) => trackGenerationProgress("SPIs", progress)
+            );
+
+            await databaseOps.addObjectivesInBatches(
+              objectives,
+              (progress) => trackGenerationProgress("Objectives", progress)
+            );
+
+            await databaseOps.addSitRepsInBatches(
+              sitreps,
+              (progress) => trackGenerationProgress("SitReps", progress)
+            );
+
             // Invalidate queries to trigger refetch
             queryClient.invalidateQueries({ queryKey: ['data-counts'] });
             
