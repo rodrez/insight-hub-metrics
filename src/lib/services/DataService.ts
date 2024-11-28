@@ -3,6 +3,7 @@ import { Collaborator } from '../types/collaboration';
 import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
 import { Team } from '../types/team';
+import { Objective } from '../types/objective';
 
 export interface DataService {
   init(): Promise<void>;
@@ -19,8 +20,9 @@ export interface DataService {
   getSPI(id: string): Promise<SPI | undefined>;
   addSPI(spi: SPI): Promise<void>;
   updateSPI(id: string, updates: Partial<SPI>): Promise<void>;
+  getAllObjectives(): Promise<Objective[]>;
+  updateObjective(id: string, updates: Partial<Objective>): Promise<void>;
   exportData(): Promise<void>;
   clear(): Promise<void>;
-  populateSampleData(): Promise<{ projects: Project[] }>;
   getAllTeams(): Promise<Team[]>;
 }

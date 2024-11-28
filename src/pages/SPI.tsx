@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { SPIForm } from "@/components/spi/SPIForm";
 import { SPIList } from "@/components/spi/SPIList";
+import { ObjectivesList } from "@/components/spi/objectives/ObjectivesList";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function SPIPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -33,7 +35,19 @@ export default function SPIPage() {
           </DialogContent>
         </Dialog>
       </div>
-      <SPIList />
+
+      <Tabs defaultValue="spis">
+        <TabsList>
+          <TabsTrigger value="spis">SPIs</TabsTrigger>
+          <TabsTrigger value="objectives">Objectives</TabsTrigger>
+        </TabsList>
+        <TabsContent value="spis">
+          <SPIList />
+        </TabsContent>
+        <TabsContent value="objectives">
+          <ObjectivesList />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

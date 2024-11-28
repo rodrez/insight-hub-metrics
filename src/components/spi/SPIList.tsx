@@ -50,8 +50,14 @@ export function SPIList() {
           <CardContent>
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-medium mb-2">Goals</h4>
-                <p className="text-sm text-muted-foreground">{spi.goals}</p>
+                <h4 className="font-medium mb-2">Deliverable</h4>
+                <p className="text-sm text-muted-foreground">{spi.deliverable}</p>
+                {spi.details && (
+                  <>
+                    <h4 className="font-medium mb-2 mt-4">Details</h4>
+                    <p className="text-sm text-muted-foreground">{spi.details}</p>
+                  </>
+                )}
               </div>
               <div>
                 <h4 className="font-medium mb-2">Dates</h4>
