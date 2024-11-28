@@ -18,7 +18,7 @@ export const generateSampleSPIs = (): SPI[] => {
     "Digital Transformation Initiative"
   ];
 
-  const goals = [
+  const deliverables = [
     "Improve system efficiency by 30%",
     "Reduce operational costs by 25%",
     "Enhance user experience metrics",
@@ -38,10 +38,11 @@ export const generateSampleSPIs = (): SPI[] => {
     spis.push({
       id: `sample-spi-${index + 1}`,
       name,
-      goals: goals[index],
+      deliverable: deliverables[index],
+      details: "",
       expectedCompletionDate: expectedDate,
       status: Math.random() > 0.7 ? 'delayed' : 'on-track',
-      sitrepIds: [], // Will be populated later
+      sitrepIds: [],
       createdAt
     });
   });

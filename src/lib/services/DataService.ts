@@ -25,4 +25,5 @@ export interface DataService {
   exportData(): Promise<void>;
   clear(): Promise<void>;
   getAllTeams(): Promise<Team[]>;
+  populateSampleData(): Promise<{ projects: Project[] }>;
 }
