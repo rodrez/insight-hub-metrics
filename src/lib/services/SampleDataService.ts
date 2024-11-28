@@ -88,4 +88,8 @@ export class SampleDataService implements DataService {
   async getAllTeams(): Promise<Team[]> {
     return this.indexedDBService.getAllTeams();
   }
+
+  async populateSampleData(): Promise<{ projects: Project[] }> {
+    return this.indexedDBService.populateSampleData();
+  }
 }
