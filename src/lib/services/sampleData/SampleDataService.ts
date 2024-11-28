@@ -12,8 +12,10 @@ export class SampleDataService {
     const internalPartners = generateInternalPartners();
     const smePartners = generateSMEPartners();
     
+    // Convert readonly array to mutable array with spread operator
+    const departments = [...DEPARTMENTS];
     const projects = generateProjects(
-      DEPARTMENTS,
+      departments,
       internalPartners,
       fortune30Partners
     );

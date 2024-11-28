@@ -41,7 +41,8 @@ const generateInternalPartner = (
     department: departmentId,
     lastActive: new Date().toISOString(),
     type: "other",
-    color: department.color
+    color: department.color,
+    projects: [] // Add empty projects array to satisfy Collaborator type
   };
 };
 
