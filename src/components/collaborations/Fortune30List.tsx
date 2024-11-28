@@ -184,8 +184,8 @@ export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30List
                               <h5 className="font-medium">{workstream.title}</h5>
                               <Badge variant={
                                 workstream.status === 'active' ? 'default' :
-                                workstream.status === 'completed' ? 'success' :
-                                'secondary'
+                                workstream.status === 'completed' ? 'secondary' :
+                                'outline'
                               }>
                                 {workstream.status}
                               </Badge>
