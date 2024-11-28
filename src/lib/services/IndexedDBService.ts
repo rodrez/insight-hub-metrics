@@ -5,7 +5,7 @@ import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
 import { BaseDBService } from './db/base/BaseDBService';
 import { ProjectService } from './db/ProjectService';
-import { toast } from "@/components/ui/use-toast";
+import { handleDatabaseError, DatabaseError } from '../utils/errorHandling';
 
 export class IndexedDBService extends BaseDBService implements DataService {
   protected db: IDBDatabase | null = null;
@@ -33,50 +33,73 @@ export class IndexedDBService extends BaseDBService implements DataService {
       this.sampleDataService?.setDatabase(this.db);
       this.initialized = true;
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to initialize database services",
-        variant: "destructive",
-      });
-      throw error;
+      throw new DatabaseError('Failed to initialize database', error);
     }
   }
 
   async getAllProjects(): Promise<Project[]> {
-    await this.ensureInitialized();
-    return this.performTransaction('projects', 'readonly', store => store.getAll());
+    try {
+      await this.ensureInitialized();
+      return await this.performTransaction('projects', 'readonly', store => store.getAll());
+    } catch (error) {
+      return handleDatabaseError(error, 'getAllProjects');
+    }
   }
 
   async getProject(id: string): Promise<Project | undefined> {
-    await this.ensureInitialized();
-    return this.performTransaction('projects', 'readonly', store => store.get(id));
+    try {
+      await this.ensureInitialized();
+      return await this.performTransaction('projects', 'readonly', store => store.get(id));
+    } catch (error) {
+      return handleDatabaseError(error, 'getProject');
+    }
   }
 
   async addProject(project: Project): Promise<void> {
-    await this.ensureInitialized();
-    return this.performTransaction('projects', 'readwrite', store => store.put(project));
+    try {
+      await this.ensureInitialized();
+      await this.performTransaction('projects', 'readwrite', store => store.put(project));
+    } catch (error) {
+      handleDatabaseError(error, 'addProject');
+    }
   }
 
   async updateProject(id: string, updates: Partial<Project>): Promise<void> {
-    await this.ensureInitialized();
-    const project = await this.getProject(id);
-    if (!project) throw new Error('Project not found');
-    return this.addProject({ ...project, ...updates });
+    try {
+      await this.ensureInitialized();
+      const project = await this.getProject(id);
+      if (!project) throw new DatabaseError('Project not found');
+      await this.addProject({ ...project, ...updates });
+    } catch (error) {
+      handleDatabaseError(error, 'updateProject');
+    }
   }
 
   async getAllCollaborators(): Promise<Collaborator[]> {
-    await this.ensureInitialized();
-    return this.performTransaction('collaborators', 'readonly', store => store.getAll());
+    try {
+      await this.ensureInitialized();
+      return await this.performTransaction('collaborators', 'readonly', store => store.getAll());
+    } catch (error) {
+      return handleDatabaseError(error, 'getAllCollaborators');
+    }
   }
 
   async getCollaborator(id: string): Promise<Collaborator | undefined> {
-    await this.ensureInitialized();
-    return this.performTransaction('collaborators', 'readonly', store => store.get(id));
+    try {
+      await this.ensureInitialized();
+      return await this.performTransaction('collaborators', 'readonly', store => store.get(id));
+    } catch (error) {
+      return handleDatabaseError(error, 'getCollaborator');
+    }
   }
 
   async addCollaborator(collaborator: Collaborator): Promise<void> {
-    await this.ensureInitialized();
-    return this.performTransaction('collaborators', 'readwrite', store => store.put(collaborator));
+    try {
+      await this.ensureInitialized();
+      await this.performTransaction('collaborators', 'readwrite', store => store.put(collaborator));
+    } catch (error) {
+      handleDatabaseError(error, 'addCollaborator');
+    }
   }
 
   async getAllSitReps(): Promise<SitRep[]> {
@@ -150,31 +173,52 @@ export class IndexedDBService extends BaseDBService implements DataService {
   }
 
   async clear(): Promise<void> {
-    // Implement clearing logic
+    try {
+      const request = indexedDB.deleteDatabase(DB_CONFIG.name);
+      
+      await new Promise<void>((resolve, reject) => {
+        request.onerror = () => reject(new DatabaseError('Failed to clear database'));
+        request.onsuccess = () => resolve();
+      });
+      
+      this.db = null;
+      this.initialized = false;
+    } catch (error) {
+      handleDatabaseError(error, 'clear');
+    }
   }
 
   async exportData(): Promise<void> {
-    await this.ensureInitialized();
-    const data = {
-      projects: await this.getAllProjects(),
-      collaborators: await this.getAllCollaborators(),
-      objectives: await this.getAllObjectives(),
-      sitreps: await this.getAllSitReps(),
-      spis: await this.getAllSPIs()
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `project-data-${new Date().toISOString()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    try {
+      await this.ensureInitialized();
+      const data = {
+        projects: await this.getAllProjects(),
+        collaborators: await this.getAllCollaborators(),
+        objectives: await this.getAllObjectives(),
+        sitreps: await this.getAllSitReps(),
+        spis: await this.getAllSPIs()
+      };
+      
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `project-data-${new Date().toISOString()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      handleDatabaseError(error, 'exportData');
+    }
   }
 
   async populateSampleData(quantities: SampleDataQuantities): Promise<void> {
+    try {
+      await this.ensureInitialized();
     console.log('Sample data population not implemented yet');
+    } catch (error) {
+      handleDatabaseError(error, 'populateSampleData');
+    }
   }
 }

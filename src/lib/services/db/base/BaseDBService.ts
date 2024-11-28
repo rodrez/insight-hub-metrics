@@ -1,4 +1,5 @@
 import { DB_CONFIG, createStores } from '../stores';
+import { DatabaseError } from '@/lib/utils/errorHandling';
 
 export class BaseDBService {
   protected db: IDBDatabase | null = null;
@@ -10,7 +11,7 @@ export class BaseDBService {
       const request = indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
 
       request.onerror = () => {
-        reject(new Error('Failed to open database'));
+        reject(new DatabaseError('Failed to open database'));
       };
 
       request.onsuccess = () => {
@@ -30,7 +31,7 @@ export class BaseDBService {
       await this.init();
     }
     if (!this.db) {
-      throw new Error('Database not initialized');
+      throw new DatabaseError('Database not initialized');
     }
   }
   
@@ -46,8 +47,7 @@ export class BaseDBService {
 
       transaction.onerror = () => {
         const error = transaction.error?.message || `Unknown transaction error on ${storeName}`;
-        console.error(`Transaction error on ${storeName}:`, error);
-        reject(new Error(error));
+        reject(new DatabaseError(error));
       };
 
       try {
@@ -55,11 +55,11 @@ export class BaseDBService {
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => {
           const error = request.error?.message || `Unknown operation error on ${storeName}`;
-          reject(new Error(error));
+          reject(new DatabaseError(error));
         };
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        reject(new Error(errorMessage));
+        reject(new DatabaseError(errorMessage));
       }
     });
   }
