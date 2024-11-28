@@ -64,18 +64,18 @@ export function DatabaseActions({
                 </Button>
               </TooltipTrigger>
               <TooltipContent className="max-w-sm">
-                <p>Populates the database with sample data including:</p>
+                <p>Populates the database with sample data in the following order:</p>
                 <ul className="list-disc ml-4 mt-2">
-                  <li>Internal department projects</li>
                   <li>Fortune 30 company collaborations</li>
                   <li>Internal department partnerships</li>
-                  <li>Project milestones and metrics</li>
-                  <li>Detailed NABC analyses</li>
+                  <li>Subject Matter Expert (SME) partners</li>
+                  <li>Department projects with collaborators</li>
                   <li>Strategic Planning Initiatives (SPIs)</li>
                   <li>Project objectives and goals</li>
                   <li>Situation reports (SitReps)</li>
                   <li>Team configurations</li>
                   <li>Department-specific metrics</li>
+                  <li>NABC analyses</li>
                 </ul>
               </TooltipContent>
             </Tooltip>
