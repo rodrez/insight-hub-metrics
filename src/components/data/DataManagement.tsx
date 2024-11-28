@@ -79,13 +79,13 @@ export default function DataManagement() {
           try {
             console.log('Starting sample data population...');
             
-            // First, add Fortune 30 collaborators
+            // Add Fortune 30 collaborators
             console.log('Adding Fortune 30 collaborators...');
             for (const collaborator of sampleFortune30) {
               await db.addCollaborator(collaborator);
             }
             
-            // Then add internal partners
+            // Add internal partners
             console.log('Adding internal partners...');
             const internalPartners = await getSampleInternalPartners();
             for (const collaborator of internalPartners) {
@@ -96,10 +96,6 @@ export default function DataManagement() {
             console.log('Generating and adding projects...');
             const projects = await generateSampleProjects();
             
-            if (!projects || projects.length === 0) {
-              throw new Error('Failed to generate projects');
-            }
-
             for (const project of projects) {
               await db.addProject(project);
             }
