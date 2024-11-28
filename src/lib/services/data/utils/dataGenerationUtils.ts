@@ -3,6 +3,7 @@ import { Project, Collaborator } from '@/lib/types';
 import { SPI } from '@/lib/types/spi';
 import { Objective } from '@/lib/types/objective';
 import { SitRep } from '@/lib/types/sitrep';
+import { globalProgressTracker } from '@/lib/utils/progressTracking';
 
 export interface GenerationProgress {
   step: string;
@@ -26,18 +27,9 @@ export const processInBatches = async<T>(
     const progress = ((i + 1) / batches.length) * 100;
     onProgress?.(progress);
     
-    // Update UI with progress
-    if (i % 2 === 0) { // Update every other batch to avoid too many toasts
-      trackGenerationProgress("Processing", progress);
-    }
+    // Update progress tracker
+    globalProgressTracker.updateProgress("Processing", progress);
   }
-};
-
-export const trackGenerationProgress = (step: string, progress: number) => {
-  toast({
-    title: "Generating Data",
-    description: `${step}: ${Math.round(progress)}%`,
-  });
 };
 
 export const validateDataQuantities = (
@@ -61,9 +53,12 @@ export const generateDataWithProgress = async<T>(
   step: string
 ): Promise<T> => {
   try {
-    trackGenerationProgress(step, 0);
+    globalProgressTracker.addStep(step, 100);
+    globalProgressTracker.updateProgress(step, 0);
+    
     const result = await generatorFn();
-    trackGenerationProgress(step, 100);
+    
+    globalProgressTracker.updateProgress(step, 100);
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
