@@ -1,7 +1,9 @@
-import { Project, Department } from '@/lib/types';
-import { TechDomain } from '@/lib/types/techDomain';
+import { Project } from '@/lib/types';
 import { Collaborator } from '@/lib/types/collaboration';
 import { buildProject } from './projectBuilder';
+import { DEPARTMENTS } from '@/lib/constants';
+import { defaultTechDomains } from '@/lib/types/techDomain';
+import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiData';
 import { clearUsedNames } from './collaboratorAssignment';
 
 export const generateSampleProjects = async (
@@ -26,12 +28,17 @@ export const generateSampleProjects = async (
         projects.push(project);
       }
     }
+
+    // Generate related data
+    const spis = generateSampleSPIs(projects.map(p => p.id));
+    const objectives = generateSampleObjectives();
+    const sitreps = generateSampleSitReps(spis);
     
     return { 
       projects: projects.length > 0 ? projects : [generateFallbackProject(fortune30, internalPartners)],
-      spis: [],
-      objectives: [],
-      sitreps: []
+      spis,
+      objectives,
+      sitreps
     };
   } catch (error) {
     console.error('Error generating sample projects:', error);

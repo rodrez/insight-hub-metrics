@@ -7,7 +7,8 @@ import { DataCounts } from "./types/dataTypes";
 import { toast } from "@/components/ui/use-toast";
 import { LoadingStep, executeWithRetry } from "@/lib/utils/loadingRetry";
 import { sampleFortune30 } from "@/lib/services/data/fortune30Partners";
-import { generateSampleProjects, getSampleInternalPartners } from "@/lib/services/sampleData/sampleProjectGenerator";
+import { generateSampleProjects } from "@/lib/services/sampleData/sampleProjectGenerator";
+import { generateInternalPartners } from "@/lib/services/data/internalPartners";
 
 export default function DataManagement() {
   const { isInitialized } = useDataInitialization();
@@ -105,7 +106,7 @@ export default function DataManagement() {
             
             // Add internal partners
             console.log('Adding internal partners...');
-            const internalPartners = await getSampleInternalPartners();
+            const internalPartners = await generateInternalPartners();
             for (const collaborator of internalPartners) {
               await db.addCollaborator(collaborator);
             }
