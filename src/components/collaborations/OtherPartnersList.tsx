@@ -27,6 +27,11 @@ export function OtherPartnersList({ collaborators }: OtherPartnersListProps) {
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
+  const { data: allProjects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: () => db.getAllProjects(),
+  });
+
   const getDepartmentColor = (departmentId: string) => {
     const department = DEPARTMENTS.find(d => d.id === departmentId);
     return department?.color || '#333';
