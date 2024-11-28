@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { GlobalSearch } from "../search/GlobalSearch";
 import { ThemeToggle } from "../theme/ThemeToggle";
-import { ChartBar, Users, UserCheck, BookOpen, ListTodo, Settings } from "lucide-react";
+import { ChartBar, Users, UserCheck, BookOpen, ListTodo, Settings, FileText, TrendingUp } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -52,6 +52,32 @@ export default function Navbar() {
               </TooltipTrigger>
               <TooltipContent>
                 <p>Internal Support</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link to="/sitreps" className="transition-colors hover:text-foreground/80">
+                  <FileText className="h-5 w-5" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>SitReps</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link to="/spi" className="transition-colors hover:text-foreground/80">
+                  <TrendingUp className="h-5 w-5" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>SPI</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

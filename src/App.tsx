@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import Navbar from "./components/layout/Navbar";
 import Dashboard from "./pages/Dashboard";
@@ -16,8 +16,37 @@ import CollaboratorDetails from "./pages/CollaboratorDetails";
 import DepartmentDetails from "./pages/DepartmentDetails";
 import SitReps from "./pages/SitReps";
 import SPI from "./pages/SPI";
+import BackButton from "./components/navigation/BackButton";
 
 const queryClient = new QueryClient();
+
+function AppContent() {
+  const location = useLocation();
+  const showBackButton = location.pathname !== '/';
+
+  return (
+    <>
+      <Navbar />
+      {showBackButton && <BackButton />}
+      <div className="pt-14">
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/collaborations" element={<Collaborations />} />
+          <Route path="/internal-support" element={<InternalSupport />} />
+          <Route path="/collaborations/:id" element={<CollaboratorDetails />} />
+          <Route path="/collaborations/department/:departmentId" element={<Collaborations />} />
+          <Route path="/wiki" element={<Wiki />} />
+          <Route path="/glossary" element={<Glossary />} />
+          <Route path="/projects/:id" element={<ProjectDetails />} />
+          <Route path="/departments/:id" element={<DepartmentDetails />} />
+          <Route path="/sitreps" element={<SitReps />} />
+          <Route path="/spi" element={<SPI />} />
+        </Routes>
+      </div>
+    </>
+  );
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -26,23 +55,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Navbar />
-          <div className="pt-14">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/collaborations" element={<Collaborations />} />
-              <Route path="/internal-support" element={<InternalSupport />} />
-              <Route path="/collaborations/:id" element={<CollaboratorDetails />} />
-              <Route path="/collaborations/department/:departmentId" element={<Collaborations />} />
-              <Route path="/wiki" element={<Wiki />} />
-              <Route path="/glossary" element={<Glossary />} />
-              <Route path="/projects/:id" element={<ProjectDetails />} />
-              <Route path="/departments/:id" element={<DepartmentDetails />} />
-              <Route path="/sitreps" element={<SitReps />} />
-              <Route path="/spi" element={<SPI />} />
-            </Routes>
-          </div>
+          <AppContent />
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
