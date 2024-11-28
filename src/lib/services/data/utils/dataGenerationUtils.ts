@@ -23,7 +23,13 @@ export const processInBatches = async<T>(
 
   for (let i = 0; i < batches.length; i++) {
     await processFn(batches[i]);
-    onProgress?.((i + 1) / batches.length * 100);
+    const progress = ((i + 1) / batches.length) * 100;
+    onProgress?.(progress);
+    
+    // Update UI with progress
+    if (i % 2 === 0) { // Update every other batch to avoid too many toasts
+      trackGenerationProgress("Processing", progress);
+    }
   }
 };
 
@@ -50,10 +56,10 @@ export const validateDataQuantities = (
   return requested;
 };
 
-export const generateDataWithProgress = async (
-  generatorFn: () => Promise<any>,
+export const generateDataWithProgress = async<T>(
+  generatorFn: () => Promise<T>,
   step: string
-): Promise<any> => {
+): Promise<T> => {
   try {
     trackGenerationProgress(step, 0);
     const result = await generatorFn();
@@ -69,4 +75,22 @@ export const generateDataWithProgress = async (
     });
     throw error;
   }
+};
+
+export const validateDataConsistency = <T extends { id: string }>(
+  data: T[],
+  type: string
+): boolean => {
+  const uniqueIds = new Set(data.map(item => item.id));
+  const isValid = uniqueIds.size === data.length;
+  
+  if (!isValid) {
+    toast({
+      title: "Validation Error",
+      description: `Duplicate IDs found in ${type} data`,
+      variant: "destructive",
+    });
+  }
+  
+  return isValid;
 };

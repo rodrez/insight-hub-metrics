@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Trash2, Database } from "lucide-react";
+import { Trash2, Database, Loader2 } from "lucide-react";
 import { ExportActions } from "./actions/ExportActions";
 import { BackupActions } from "./actions/BackupActions";
 import { toast } from "@/components/ui/use-toast";
@@ -63,8 +63,16 @@ export function DatabaseActions({
         <div className="flex gap-4">
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" disabled={!isInitialized || isClearing}>
-                <Trash2 className="h-4 w-4 mr-2" />
+              <Button 
+                variant="destructive" 
+                disabled={!isInitialized || isClearing}
+                className="relative"
+              >
+                {isClearing ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4 mr-2" />
+                )}
                 Clear Database
               </Button>
             </AlertDialogTrigger>
@@ -85,9 +93,13 @@ export function DatabaseActions({
           <Button 
             onClick={handlePopulate} 
             disabled={!isInitialized || isPopulating}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 relative"
           >
-            <Database className="h-4 w-4" />
+            {isPopulating ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Database className="h-4 w-4" />
+            )}
             {isPopulating ? "Generating..." : "Generate Sample Data"}
           </Button>
         </div>

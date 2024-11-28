@@ -31,6 +31,25 @@ export const getSampleInternalPartners = async (): Promise<Collaborator[]> => {
   );
 };
 
+export const validateDataRelationships = (data: GeneratedData): boolean => {
+  // Validate project-SPI relationships
+  const validSPIs = data.spis.every(spi => 
+    data.projects.some(project => project.id === spi.projectId)
+  );
+
+  // Validate SPI-SitRep relationships
+  const validSitReps = data.sitreps.every(sitrep => 
+    data.spis.some(spi => spi.id === sitrep.spiId)
+  );
+
+  // Validate objectives consistency
+  const validObjectives = data.objectives.every(objective => 
+    objective.id && objective.title && objective.description
+  );
+
+  return validSPIs && validSitReps && validObjectives;
+};
+
 export const generateSampleProjects = async (quantities: DataQuantities): Promise<GeneratedData> => {
   return generateDataWithProgress(async () => {
     const fortune30 = sampleFortune30;
@@ -45,11 +64,18 @@ export const generateSampleProjects = async (quantities: DataQuantities): Promis
     const objectives = generateSampleObjectives();
     const sitreps = generateSampleSitReps(spis);
 
-    return {
+    const generatedData = {
       projects,
       spis: spis.slice(0, quantities.spis),
       objectives: objectives.slice(0, quantities.objectives),
       sitreps: sitreps.slice(0, quantities.sitreps)
     };
+
+    // Validate data relationships before returning
+    if (!validateDataRelationships(generatedData)) {
+      throw new Error("Generated data failed relationship validation");
+    }
+
+    return generatedData;
   }, "Sample Projects");
 };
