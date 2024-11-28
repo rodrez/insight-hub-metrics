@@ -33,7 +33,7 @@ export function CompactSitRepForm({ onSubmitSuccess }: CompactSitRepFormProps) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [importanceLevel, setImportanceLevel] = useState<"vp" | "svp" | "ceo">("vp");
+  const [importanceLevel, setImportanceLevel] = useState<"cto" | "svp" | "ceo">("cto");
   const [keyTeam, setKeyTeam] = useState<string>("none");
   const [supportingTeams, setSupportingTeams] = useState<string[]>([]);
   const [pointsOfContact, setPointsOfContact] = useState<PointOfContact[]>([]);
@@ -114,7 +114,7 @@ export function CompactSitRepForm({ onSubmitSuccess }: CompactSitRepFormProps) {
   };
 
   const handleImportanceLevelChange = (value: string) => {
-    if (value === "vp" || value === "svp" || value === "ceo") {
+    if (value === "cto" || value === "svp" || value === "ceo") {
       setImportanceLevel(value);
     }
   };
@@ -160,8 +160,8 @@ export function CompactSitRepForm({ onSubmitSuccess }: CompactSitRepFormProps) {
                 className="flex space-x-4"
               >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="vp" id="vp" />
-                  <Label htmlFor="vp">VP</Label>
+                  <RadioGroupItem value="cto" id="cto" />
+                  <Label htmlFor="cto">CTO</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="svp" id="svp" />

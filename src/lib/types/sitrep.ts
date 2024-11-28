@@ -13,7 +13,7 @@ export interface SitRep {
   fortune30Id?: string;
   departmentId?: string;
   partnerId?: string;
-  importanceLevel?: 'vp' | 'svp' | 'ceo';
+  importanceLevel?: 'cto' | 'svp' | 'ceo';
   keyTeam?: string;
   supportingTeams?: string[];
   pointsOfContact?: Array<{
