@@ -5,7 +5,6 @@ import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
 import { DB_CONFIG, createStores } from './db/stores';
 import { connectionManager } from './db/connectionManager';
-import { DatabaseCleaner } from './db/databaseCleaner';
 import { ProjectStore } from './db/stores/projectStore';
 import { SMEStore } from './db/stores/smeStore';
 import { CollaboratorService } from './db/CollaboratorService';
@@ -13,8 +12,8 @@ import { SitRepService } from './db/SitRepService';
 import { SPIService } from './db/SPIService';
 import { BaseDBService } from './db/base/BaseDBService';
 import { SampleDataPopulationService } from './db/SampleDataPopulationService';
+import { DatabaseClearingService } from './db/DatabaseClearingService';
 import { Team } from '../types';
-import { toast } from "@/components/ui/use-toast";
 
 export class IndexedDBService extends BaseDBService implements DataService {
   private projectStore: ProjectStore | null = null;
@@ -23,6 +22,7 @@ export class IndexedDBService extends BaseDBService implements DataService {
   private sitRepService: SitRepService;
   private spiService: SPIService;
   private sampleDataService: SampleDataPopulationService;
+  private databaseClearingService: DatabaseClearingService;
 
   constructor() {
     super();
@@ -30,6 +30,7 @@ export class IndexedDBService extends BaseDBService implements DataService {
     this.sitRepService = new SitRepService();
     this.spiService = new SPIService();
     this.sampleDataService = new SampleDataPopulationService();
+    this.databaseClearingService = new DatabaseClearingService(this.db, this.projectStore, this.smeStore);
   }
 
   async init(): Promise<void> {
@@ -76,31 +77,7 @@ export class IndexedDBService extends BaseDBService implements DataService {
   }
 
   async clear(): Promise<void> {
-    try {
-      // Close all existing connections
-      connectionManager.closeAllConnections();
-      
-      // Use DatabaseCleaner to clear the database
-      await DatabaseCleaner.clearDatabase();
-      
-      // Reset internal stores
-      this.projectStore = null;
-      this.smeStore = null;
-      this.db = null;
-
-      toast({
-        title: "Database cleared",
-        description: "All data has been successfully removed.",
-      });
-    } catch (error) {
-      console.error('Error clearing database:', error);
-      toast({
-        title: "Error",
-        description: "Failed to clear database",
-        variant: "destructive",
-      });
-      throw error;
-    }
+    return this.databaseClearingService.clearDatabase();
   }
 
   async getAllProjects(): Promise<Project[]> {
