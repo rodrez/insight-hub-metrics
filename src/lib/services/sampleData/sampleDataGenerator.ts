@@ -1,13 +1,11 @@
 import { DEPARTMENTS } from '@/lib/constants';
 import { defaultTechDomains } from '@/lib/types/techDomain';
-import { generateProjectData } from './projectDataGenerator';
+import { generateProjectData } from '../data/projectDataGenerator';
 import { Collaborator } from '@/lib/types/collaboration';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from '@/lib/services/sampleData/spiData';
-import { generateSMEPartners } from '../data/smePartners';
 
 export const generateSampleData = async (internalPartners: Collaborator[]) => {
   const departments = [...DEPARTMENTS];
-  const smePartners = generateSMEPartners();
   const { projects } = generateProjectData(departments, defaultTechDomains, internalPartners);
   
   // Generate SPIs first, passing project IDs for linking some SPIs to projects
@@ -22,9 +20,9 @@ export const generateSampleData = async (internalPartners: Collaborator[]) => {
   return { 
     projects, 
     internalPartners,
-    smePartners,
     spis,
     objectives,
-    sitreps
+    sitreps,
+    smePartners: [] // Add empty array for SME partners
   };
 };

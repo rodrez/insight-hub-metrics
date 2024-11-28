@@ -1,19 +1,22 @@
-import { Project } from '../types';
-import { Collaborator } from '../types/collaboration';
+import { Project, Collaborator } from '../types';
 import { DataService } from './DataService';
 import { DB_CONFIG, createStores } from './db/stores';
 import { TransactionManager } from './db/transactionManager';
-import { generateSampleData } from './data/sampleDataGenerator';
+import { generateSampleData } from './sampleData/sampleDataGenerator';
 import { connectionManager } from './db/connectionManager';
 import { DatabaseCleaner } from './db/databaseCleaner';
 import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
 import { Team } from '../types/team';
 import { Objective } from '../types/objective';
+import { ProjectStore } from './db/stores/projectStore';
+import { SMEStore } from './db/stores/smeStore';
 
 export class IndexedDBService implements DataService {
   private db: IDBDatabase | null = null;
   private transactionManager: TransactionManager | null = null;
+  private projectStore: ProjectStore | null = null;
+  private smeStore: SMEStore | null = null;
 
   async init(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -30,6 +33,8 @@ export class IndexedDBService implements DataService {
         this.db = request.result;
         connectionManager.addConnection(this.db);
         this.transactionManager = new TransactionManager(this.db);
+        this.projectStore = new ProjectStore(this.db);
+        this.smeStore = new SMEStore(this.db);
         resolve();
       };
 
@@ -41,7 +46,7 @@ export class IndexedDBService implements DataService {
   }
 
   private ensureInitialized() {
-    if (!this.db || !this.transactionManager) {
+    if (!this.db || !this.transactionManager || !this.projectStore || !this.smeStore) {
       throw new Error('Database not initialized');
     }
   }
@@ -53,45 +58,66 @@ export class IndexedDBService implements DataService {
       connectionManager.closeAllConnections();
       this.db = null;
       this.transactionManager = null;
+      this.projectStore = null;
+      this.smeStore = null;
     }
 
     await DatabaseCleaner.clearDatabase();
   }
 
+  // Project methods
   async getAllProjects(): Promise<Project[]> {
     this.ensureInitialized();
-    const result = await this.transactionManager!.performTransaction('projects', 'readonly', store => store.getAll());
-    return result as Project[];
+    return this.projectStore!.getAllProjects();
   }
 
   async getProject(id: string): Promise<Project | undefined> {
     this.ensureInitialized();
-    const result = await this.transactionManager!.performTransaction('projects', 'readonly', store => store.get(id));
-    return result as Project | undefined;
+    return this.projectStore!.getProject(id);
   }
 
   async addProject(project: Project): Promise<void> {
     this.ensureInitialized();
-    try {
-      await this.transactionManager!.performTransaction('projects', 'readwrite', store => {
-        const request = store.put(project);
-        return request;
-      });
-      console.log(`Project ${project.id} added successfully`);
-    } catch (error) {
-      console.error(`Error adding project ${project.id}:`, error);
-      throw error;
-    }
+    return this.projectStore!.addProject(project);
   }
 
   async updateProject(id: string, updates: Partial<Project>): Promise<void> {
     this.ensureInitialized();
-    const existingProject = await this.getProject(id);
-    if (!existingProject) {
-      throw new Error('Project not found');
+    return this.projectStore!.updateProject(id, updates);
+  }
+
+  // SME methods
+  async getAllSMEPartners(): Promise<Collaborator[]> {
+    this.ensureInitialized();
+    return this.smeStore!.getAllSMEPartners();
+  }
+
+  async getSMEPartner(id: string): Promise<Collaborator | undefined> {
+    this.ensureInitialized();
+    return this.smeStore!.getSMEPartner(id);
+  }
+
+  async addSMEPartner(partner: Collaborator): Promise<void> {
+    this.ensureInitialized();
+    return this.smeStore!.addSMEPartner(partner);
+  }
+
+  // Implement the missing populateSampleData method
+  async populateSampleData(): Promise<{ projects: Project[] }> {
+    this.ensureInitialized();
+    const { projects, smePartners } = await generateSampleData([]);
+    
+    // Add all projects
+    for (const project of projects) {
+      await this.addProject(project);
     }
-    await this.transactionManager!.performTransaction('projects', 'readwrite', 
-      store => store.put({ ...existingProject, ...updates }));
+
+    // Add all SME partners
+    for (const partner of smePartners) {
+      await this.addSMEPartner(partner);
+    }
+
+    return { projects };
   }
 
   async getAllCollaborators(): Promise<Collaborator[]> {
@@ -269,31 +295,5 @@ export class IndexedDBService implements DataService {
     this.ensureInitialized();
     const teams = await this.transactionManager!.performTransaction('teams', 'readonly', store => store.getAll()) as Team[];
     return teams;
-  }
-
-  async getAllSMEPartners(): Promise<Collaborator[]> {
-    this.ensureInitialized();
-    const partners = await this.transactionManager!.performTransaction('smePartners', 'readonly', store => store.getAll()) as Collaborator[];
-    return partners;
-  }
-
-  async getSMEPartner(id: string): Promise<Collaborator | undefined> {
-    this.ensureInitialized();
-    const partner = await this.transactionManager!.performTransaction('smePartners', 'readonly', store => store.get(id)) as Collaborator | undefined;
-    return partner;
-  }
-
-  async addSMEPartner(partner: Collaborator): Promise<void> {
-    this.ensureInitialized();
-    try {
-      await this.transactionManager!.performTransaction('smePartners', 'readwrite', store => {
-        const request = store.put(partner);
-        return request;
-      });
-      console.log(`SME Partner ${partner.name} added successfully`);
-    } catch (error) {
-      console.error(`Error adding SME Partner ${partner.name}:`, error);
-      throw error;
-    }
   }
 }
