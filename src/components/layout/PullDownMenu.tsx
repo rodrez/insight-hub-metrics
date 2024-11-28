@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
-import { LayoutDashboard, Users, BookOpen, BookText, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, BookText, Settings, FileText } from 'lucide-react';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
   { icon: Users, label: 'Collaborations', path: '/collaborations' },
+  { icon: FileText, label: 'SitReps', path: '/sitreps' },
   { icon: BookOpen, label: 'Wiki', path: '/wiki' },
   { icon: BookText, label: 'Glossary', path: '/glossary' },
   { icon: Settings, label: 'Settings', path: '/settings' },

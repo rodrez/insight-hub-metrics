@@ -14,6 +14,7 @@ import Glossary from "./pages/Glossary";
 import ProjectDetails from "./components/projects/ProjectDetails";
 import CollaboratorDetails from "./pages/CollaboratorDetails";
 import DepartmentDetails from "./pages/DepartmentDetails";
+import SitReps from "./pages/SitReps";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/glossary" element={<Glossary />} />
               <Route path="/projects/:id" element={<ProjectDetails />} />
               <Route path="/departments/:id" element={<DepartmentDetails />} />
+              <Route path="/sitreps" element={<SitReps />} />
             </Routes>
           </div>
         </BrowserRouter>

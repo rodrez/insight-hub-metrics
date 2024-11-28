@@ -1,5 +1,6 @@
 import { Project } from '../types';
 import { Collaborator } from '../types/collaboration';
+import { SitRep } from '../types/sitrep';
 
 export interface DataService {
   init(): Promise<void>;
@@ -10,6 +11,8 @@ export interface DataService {
   getAllCollaborators(): Promise<Collaborator[]>;
   getCollaborator(id: string): Promise<Collaborator | undefined>;
   addCollaborator(collaborator: Collaborator): Promise<void>;
+  getAllSitReps(): Promise<SitRep[]>;
+  addSitRep(sitrep: SitRep): Promise<void>;
   exportData(): Promise<void>;
   clear(): Promise<void>;
   populateSampleData(): Promise<{ projects: Project[] }>;
