@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,11 +27,52 @@ export function SampleDataSettings() {
     spis: 10,
     objectives: 5,
     sitreps: 10,
-    fortune30: 30,
+    fortune30: 6, // Changed default to 6
     internalPartners: 20,
     smePartners: 10
   });
+  const [currentCounts, setCurrentCounts] = useState<DataCounts>({
+    projects: 0,
+    spis: 0,
+    objectives: 0,
+    sitreps: 0,
+    fortune30: 0,
+    internalPartners: 0,
+    smePartners: 0
+  });
   const [generatedCounts, setGeneratedCounts] = useState<DataCounts | null>(null);
+
+  useEffect(() => {
+    loadCurrentCounts();
+  }, []);
+
+  const loadCurrentCounts = async () => {
+    try {
+      const projects = await db.getAllProjects();
+      const spis = await db.getAllSPIs();
+      const objectives = await db.getAllObjectives();
+      const sitreps = await db.getAllSitReps();
+      const collaborators = await db.getAllCollaborators();
+      const smePartners = await db.getAllSMEPartners();
+
+      setCurrentCounts({
+        projects: projects.length,
+        spis: spis.length,
+        objectives: objectives.length,
+        sitreps: sitreps.length,
+        fortune30: collaborators.filter(c => c.type === 'fortune30').length,
+        internalPartners: collaborators.filter(c => c.type === 'other').length,
+        smePartners: smePartners.length
+      });
+    } catch (error) {
+      console.error('Error loading current counts:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load current data counts",
+        variant: "destructive",
+      });
+    }
+  };
 
   const updateQuantity = (key: keyof typeof quantities, value: string) => {
     const numValue = parseInt(value) || 0;
@@ -44,6 +85,7 @@ export function SampleDataSettings() {
       await db.clear();
       await db.init();
       setGeneratedCounts(null);
+      await loadCurrentCounts(); // Reload counts after clearing
       toast({
         title: "Success",
         description: "Database cleared successfully",
@@ -62,31 +104,14 @@ export function SampleDataSettings() {
   const populateDatabase = async () => {
     setIsPopulating(true);
     try {
-      const result = await db.populateSampleData(quantities);
+      await db.populateSampleData(quantities);
+      await loadCurrentCounts(); // Reload counts after populating
       
-      // Get actual counts from database
-      const projects = await db.getAllProjects();
-      const spis = await db.getAllSPIs();
-      const objectives = await db.getAllObjectives();
-      const sitreps = await db.getAllSitReps();
-      const fortune30 = await db.getAllCollaborators();
-      const internalPartners = await db.getAllCollaborators();
-      const smePartners = await db.getAllSMEPartners();
-
-      const counts: DataCounts = {
-        projects: projects.length,
-        spis: spis.length,
-        objectives: objectives.length,
-        sitreps: sitreps.length,
-        fortune30: fortune30.filter(c => c.type === 'fortune30').length,
-        internalPartners: internalPartners.filter(c => c.type === 'other').length,
-        smePartners: smePartners.length
-      };
-
-      setGeneratedCounts(counts);
+      const newCounts = { ...currentCounts };
+      setGeneratedCounts(newCounts);
 
       // Validate counts match requested quantities
-      const mismatches = Object.entries(counts).filter(
+      const mismatches = Object.entries(newCounts).filter(
         ([key, count]) => count !== quantities[key as keyof typeof quantities]
       );
 
@@ -115,6 +140,20 @@ export function SampleDataSettings() {
 
   return (
     <div className="space-y-6">
+      <Card>
+        <CardContent className="pt-6">
+          <h3 className="text-lg font-semibold mb-4">Current Data Counts</h3>
+          <div className="grid gap-2">
+            {Object.entries(currentCounts).map(([key, count]) => (
+              <div key={key} className="flex justify-between items-center">
+                <span>{key.charAt(0).toUpperCase() + key.slice(1)}:</span>
+                <span>{count}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid gap-4 md:grid-cols-2">
         {Object.entries(quantities).map(([key, value]) => (
           <div key={key} className="space-y-2">
