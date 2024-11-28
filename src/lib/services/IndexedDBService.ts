@@ -75,6 +75,34 @@ export class IndexedDBService extends BaseDBService implements DataService {
     }
   }
 
+  async clear(): Promise<void> {
+    try {
+      // Close all existing connections
+      connectionManager.closeAllConnections();
+      
+      // Use DatabaseCleaner to clear the database
+      await DatabaseCleaner.clearDatabase();
+      
+      // Reset internal stores
+      this.projectStore = null;
+      this.smeStore = null;
+      this.db = null;
+
+      toast({
+        title: "Database cleared",
+        description: "All data has been successfully removed.",
+      });
+    } catch (error) {
+      console.error('Error clearing database:', error);
+      toast({
+        title: "Error",
+        description: "Failed to clear database",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  }
+
   async getAllProjects(): Promise<Project[]> {
     this.ensureInitialized();
     return this.projectStore!.getAllProjects();
