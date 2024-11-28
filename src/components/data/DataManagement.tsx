@@ -22,14 +22,6 @@ export default function DataManagement() {
           console.log('Starting database initialization...');
           await db.init();
           console.log('Database initialization completed');
-          
-          // Check if we have any data
-          const projects = await db.getAllProjects();
-          if (projects.length === 0) {
-            console.log('No data found, populating sample data...');
-            await populateSampleData();
-          }
-          
           setIsInitialized(true);
           return true;
         } catch (error) {
@@ -66,7 +58,7 @@ export default function DataManagement() {
   };
 
   const populateSampleData = async () => {
-    if (!isInitialized && !isPopulating) {
+    if (!isInitialized) {
       toast({
         title: "Error",
         description: "Please wait for database initialization to complete.",
@@ -86,11 +78,13 @@ export default function DataManagement() {
           // First, add all collaborators
           console.log('Adding collaborators...');
           for (const collaborator of sampleFortune30) {
+            console.log(`Adding Fortune 30 collaborator: ${collaborator.name}`);
             await db.addCollaborator(collaborator);
           }
           
           const internalPartners = await getSampleInternalPartners();
           for (const collaborator of internalPartners) {
+            console.log(`Adding internal collaborator: ${collaborator.name}`);
             await db.addCollaborator(collaborator);
           }
 
@@ -113,13 +107,12 @@ export default function DataManagement() {
             variant: "destructive",
           });
           return false;
-        } finally {
-          setIsPopulating(false);
         }
       }
     };
 
     await executeWithRetry(populateStep);
+    setIsPopulating(false);
   };
 
   return (

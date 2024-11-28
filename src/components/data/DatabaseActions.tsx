@@ -70,10 +70,6 @@ export function DatabaseActions({
                   <li>Internal department projects</li>
                   <li>Project milestones and metrics</li>
                   <li>Detailed NABC analyses</li>
-                  <li>Strategic Program Initiatives (SPIs)</li>
-                  <li>Project objectives and goals</li>
-                  <li>Situation Reports (SitReps) with status updates</li>
-                  <li>Project team assignments and roles</li>
                 </ul>
               </TooltipContent>
             </Tooltip>
