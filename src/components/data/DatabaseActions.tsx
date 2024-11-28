@@ -66,8 +66,9 @@ export function DatabaseActions({
               <TooltipContent className="max-w-sm">
                 <p>Populates the database with sample data including:</p>
                 <ul className="list-disc ml-4 mt-2">
+                  <li>Internal department projects</li>
                   <li>Fortune 30 company collaborations</li>
-                  <li>Internal department projects and partnerships</li>
+                  <li>Internal department partnerships</li>
                   <li>Project milestones and metrics</li>
                   <li>Detailed NABC analyses</li>
                   <li>Strategic Planning Initiatives (SPIs)</li>
@@ -75,7 +76,6 @@ export function DatabaseActions({
                   <li>Situation reports (SitReps)</li>
                   <li>Team configurations</li>
                   <li>Department-specific metrics</li>
-                  <li>Project status and progress indicators</li>
                 </ul>
               </TooltipContent>
             </Tooltip>

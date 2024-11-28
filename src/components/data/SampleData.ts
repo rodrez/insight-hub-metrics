@@ -7,11 +7,15 @@ export const sampleFortune30 = generateFortune30Partners();
 
 // Initialize internal partners in an async function to handle the Promise
 export const getSampleInternalPartners = async () => {
-  return await generateInternalPartners();
+  const fortune30 = sampleFortune30;
+  const internalPartners = await generateInternalPartners();
+  return internalPartners;
 };
 
 // Generate sample projects with the collaborators
 export const generateSampleProjects = async (): Promise<Project[]> => {
-  const { projects } = await generateSampleData([]);
+  const fortune30 = sampleFortune30;
+  const internalPartners = await generateInternalPartners();
+  const { projects } = await generateSampleData([...fortune30, ...internalPartners]);
   return projects;
 };
