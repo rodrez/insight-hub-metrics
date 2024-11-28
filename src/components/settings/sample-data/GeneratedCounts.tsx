@@ -24,9 +24,14 @@ export function GeneratedCounts({ counts, requestedQuantities }: GeneratedCounts
           {Object.entries(counts).map(([key, count]) => (
             <div key={key} className="flex justify-between items-center">
               <span>{key.charAt(0).toUpperCase() + key.slice(1)}:</span>
-              <span className={count === requestedQuantities[key] ? "text-green-600" : "text-red-600"}>
-                {count}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className={count === requestedQuantities[key] ? "text-green-600" : "text-red-600"}>
+                  {count}
+                </span>
+                <span className="text-gray-400 text-sm">
+                  / {requestedQuantities[key]}
+                </span>
+              </div>
             </div>
           ))}
         </div>
