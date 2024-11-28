@@ -8,13 +8,13 @@ export const generateSampleData = async (internalPartners: Collaborator[]) => {
   const departments = [...DEPARTMENTS];
   const { projects } = generateProjectData(departments, defaultTechDomains, internalPartners);
   
-  // Generate SPIs first
-  const spis = generateSampleSPIs();
+  // Generate SPIs first, passing project IDs for linking some SPIs to projects
+  const spis = generateSampleSPIs(projects.map(p => p.id));
   
   // Generate objectives that reference the SPIs
   const objectives = generateSampleObjectives();
   
-  // Generate sitreps that reference the SPIs
+  // Generate sitreps that reference the SPIs and inherit project links
   const sitreps = generateSampleSitReps(spis);
   
   return { 
