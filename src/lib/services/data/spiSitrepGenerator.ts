@@ -1,99 +1,104 @@
 import { SPI } from '@/lib/types/spi';
 import { SitRep } from '@/lib/types/sitrep';
+import { Objective } from '@/lib/types/objective';
 import { format, subDays, addDays } from 'date-fns';
 
 export const generateSampleSPIs = (): SPI[] => {
-  const spis: SPI[] = [];
-  
-  const spiNames = [
-    "Cloud Migration Initiative",
-    "AI Integration Project",
-    "Security Enhancement Program",
-    "DevOps Transformation",
-    "Data Center Optimization",
-    "Mobile App Development",
-    "Network Infrastructure Upgrade",
-    "Blockchain Implementation",
-    "IoT Platform Development",
-    "Digital Transformation Initiative"
-  ];
-
-  const deliverables = [
-    "Improve system efficiency by 30%",
-    "Reduce operational costs by 25%",
-    "Enhance user experience metrics",
-    "Increase platform reliability to 99.99%",
-    "Optimize resource utilization",
-    "Strengthen security measures",
-    "Accelerate deployment cycles",
-    "Modernize legacy systems",
-    "Implement automated testing",
-    "Establish new data centers"
-  ];
-
-  spiNames.forEach((name, index) => {
-    const createdAt = subDays(new Date(), Math.floor(Math.random() * 30)).toISOString();
-    const expectedDate = addDays(new Date(), 30 + Math.floor(Math.random() * 60)).toISOString();
-    
-    spis.push({
-      id: `sample-spi-${index + 1}`,
-      name,
-      deliverable: deliverables[index],
-      details: "",
-      expectedCompletionDate: expectedDate,
-      status: Math.random() > 0.7 ? 'delayed' : 'on-track',
+  const spis: SPI[] = [
+    {
+      id: 'spi-cloud-1',
+      name: "Cloud Migration Initiative",
+      deliverable: "Migrate 80% of on-premise systems to cloud",
+      details: "Systematic migration of critical systems to AWS infrastructure",
+      expectedCompletionDate: addDays(new Date(), 90).toISOString(),
+      status: 'on-track',
       sitrepIds: [],
-      createdAt
-    });
-  });
+      createdAt: new Date().toISOString(),
+      departmentId: 'engineering'
+    },
+    {
+      id: 'spi-ai-1',
+      name: "AI Integration Project",
+      deliverable: "Implement AI-driven analytics across 3 key products",
+      details: "Integration of machine learning models for predictive analytics",
+      expectedCompletionDate: addDays(new Date(), 120).toISOString(),
+      status: 'on-track',
+      sitrepIds: [],
+      createdAt: new Date().toISOString(),
+      departmentId: 'techlab'
+    },
+    {
+      id: 'spi-security-1',
+      name: "Security Enhancement Program",
+      deliverable: "Achieve SOC2 Type II Compliance",
+      details: "Implementation of security controls and documentation",
+      expectedCompletionDate: addDays(new Date(), 180).toISOString(),
+      status: 'delayed',
+      sitrepIds: [],
+      createdAt: new Date().toISOString(),
+      departmentId: 'it'
+    }
+  ];
 
   return spis;
 };
 
-export const generateSampleSitReps = (spiIds: string[]): SitRep[] => {
+export const generateSampleObjectives = (): Objective[] => {
+  return [
+    {
+      id: 'obj-1',
+      initiative: "Cloud-First Infrastructure",
+      desiredOutcome: "Reduce infrastructure costs by 40% through cloud adoption",
+      spiIds: ['spi-cloud-1']
+    },
+    {
+      id: 'obj-2',
+      initiative: "AI-Powered Innovation",
+      desiredOutcome: "Launch 3 AI-enhanced products by Q4",
+      spiIds: ['spi-ai-1']
+    },
+    {
+      id: 'obj-3',
+      initiative: "Enterprise Security",
+      desiredOutcome: "Achieve highest security certifications and compliance",
+      spiIds: ['spi-security-1']
+    }
+  ];
+};
+
+export const generateSampleSitReps = (spis: SPI[]): SitRep[] => {
   const sitreps: SitRep[] = [];
   
-  const updates = [
-    "Successfully completed milestone 1",
-    "Team alignment meeting conducted",
-    "Technical challenges identified",
-    "Resource allocation optimized",
-    "Integration testing completed",
-    "Performance metrics improved",
-    "Security audit passed",
-    "User feedback incorporated",
-    "Documentation updated",
-    "Deployment strategy finalized"
-  ];
-
-  const challenges = [
-    "Resource constraints affecting timeline",
-    "Technical debt in legacy systems",
-    "Integration complexity higher than expected",
-    "Team capacity limitations",
-    "Dependencies causing delays",
-    "Performance bottlenecks identified",
-    "Security compliance requirements",
-    "Stakeholder alignment needed",
-    "Budget constraints",
-    "Technical skill gaps"
-  ];
-
-  updates.forEach((update, index) => {
-    const date = subDays(new Date(), Math.floor(Math.random() * 15)).toISOString();
-    const spiId = spiIds[Math.floor(Math.random() * spiIds.length)];
+  spis.forEach(spi => {
+    // Generate 2-3 sitreps per SPI
+    const numSitreps = 2 + Math.floor(Math.random() * 2);
     
-    sitreps.push({
-      id: `sample-sitrep-${index + 1}`,
-      title: `SitRep ${index + 1}`,
-      date,
-      spiId,
-      update,
-      challenges: challenges[index],
-      nextSteps: "Continue with planned activities and monitor progress",
-      status: Math.random() > 0.3 ? 'on-track' : 'at-risk',
-      content: update
-    });
+    for (let i = 0; i < numSitreps; i++) {
+      const date = subDays(new Date(), i * 7).toISOString();
+      const isLatest = i === 0;
+      
+      sitreps.push({
+        id: `sitrep-${spi.id}-${i + 1}`,
+        title: `${spi.name} Update ${i + 1}`,
+        date,
+        spiId: spi.id,
+        update: isLatest ? 
+          "Latest milestone achieved on schedule" : 
+          "Continuing implementation according to plan",
+        challenges: isLatest ?
+          "Resource allocation needs optimization" :
+          "Minor technical challenges being addressed",
+        nextSteps: "Continue with planned activities and monitor progress",
+        status: Math.random() > 0.3 ? 'on-track' : 'at-risk',
+        summary: `Progress update for ${spi.name}`,
+        departmentId: spi.departmentId
+      });
+    }
+    
+    // Update the SPI with sitrep IDs
+    spi.sitrepIds = sitreps
+      .filter(sitrep => sitrep.spiId === spi.id)
+      .map(sitrep => sitrep.id);
   });
 
   return sitreps;

@@ -219,29 +219,34 @@ export class IndexedDBService implements DataService {
 
   async populateSampleData(): Promise<{ projects: Project[] }> {
     this.ensureInitialized();
-    const { projects, internalPartners } = await generateSampleData([]);
+    const { projects, internalPartners, spis, objectives, sitreps } = await generateSampleData([]);
     
     try {
       console.log('Adding collaborators...');
       for (const collaborator of internalPartners) {
-        try {
-          console.log(`Adding internal collaborator: ${collaborator.name}`);
-          await this.addCollaborator(collaborator);
-        } catch (error) {
-          console.error(`Failed to add collaborator ${collaborator.name}:`, error);
-          throw error;
-        }
+        await this.addCollaborator(collaborator);
       }
       
       console.log('Adding projects...');
       for (const project of projects) {
-        try {
-          console.log(`Adding project: ${project.name}`);
-          await this.addProject(project);
-        } catch (error) {
-          console.error(`Failed to add project ${project.name}:`, error);
-          throw error;
-        }
+        await this.addProject(project);
+      }
+
+      console.log('Adding SPIs...');
+      for (const spi of spis) {
+        await this.addSPI(spi);
+      }
+
+      console.log('Adding objectives...');
+      for (const objective of objectives) {
+        await this.transactionManager!.performTransaction('objectives', 'readwrite', store => {
+          return store.put(objective);
+        });
+      }
+
+      console.log('Adding sitreps...');
+      for (const sitrep of sitreps) {
+        await this.addSitRep(sitrep);
       }
       
       return { projects };
@@ -249,36 +254,5 @@ export class IndexedDBService implements DataService {
       console.error('Sample data population error:', error);
       throw error;
     }
-  }
-
-  async exportData(): Promise<void> {
-    const projects = await this.getAllProjects();
-    const collaborators = await this.getAllCollaborators();
-    const data = {
-      projects,
-      collaborators,
-      exportDate: new Date().toISOString(),
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `project-data-${new Date().toISOString()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-
-  async getAllTeams(): Promise<Team[]> {
-    this.ensureInitialized();
-    const departments = ["Engineering", "Product", "Design", "Marketing", "Operations"];
-    return departments.map(dept => ({
-      id: dept.toLowerCase(),
-      name: dept,
-      department: dept
-    }));
   }
 }
