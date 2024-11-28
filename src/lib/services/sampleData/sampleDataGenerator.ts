@@ -3,6 +3,7 @@ import { defaultTechDomains } from '@/lib/types/techDomain';
 import { generateProjectData } from '../data/projectDataGenerator';
 import { Collaborator } from '@/lib/types/collaboration';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from '@/lib/services/sampleData/spiData';
+import { generateSMEPartners } from '../data/smePartners';
 
 export const generateSampleData = async (internalPartners: Collaborator[]) => {
   const departments = [...DEPARTMENTS];
@@ -16,6 +17,9 @@ export const generateSampleData = async (internalPartners: Collaborator[]) => {
   
   // Generate sitreps that reference the SPIs and inherit project links
   const sitreps = generateSampleSitReps(spis);
+
+  // Generate SME partners
+  const smePartners = generateSMEPartners();
   
   return { 
     projects, 
@@ -23,6 +27,6 @@ export const generateSampleData = async (internalPartners: Collaborator[]) => {
     spis,
     objectives,
     sitreps,
-    smePartners: [] // Add empty array for SME partners
+    smePartners
   };
 };
