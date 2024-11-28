@@ -5,6 +5,16 @@ import { SPI } from '../types/spi';
 import { Team } from '../types/team';
 import { Objective } from '../types/objective';
 
+export interface SampleDataQuantities {
+  projects: number;
+  spis: number;
+  objectives: number;
+  sitreps: number;
+  fortune30: number;
+  internalPartners: number;
+  smePartners: number;
+}
+
 export interface DataService {
   init(): Promise<void>;
   getAllProjects(): Promise<Project[]>;
@@ -26,8 +36,7 @@ export interface DataService {
   exportData(): Promise<void>;
   clear(): Promise<void>;
   getAllTeams(): Promise<Team[]>;
-  populateSampleData(): Promise<{ projects: Project[] }>;
-  // New SME-related methods
+  populateSampleData(quantities: SampleDataQuantities): Promise<void>;
   getAllSMEPartners(): Promise<Collaborator[]>;
   getSMEPartner(id: string): Promise<Collaborator | undefined>;
   addSMEPartner(partner: Collaborator): Promise<void>;

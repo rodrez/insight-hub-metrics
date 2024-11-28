@@ -4,6 +4,7 @@ import { TechDomainSettings } from "@/components/settings/TechDomainSettings";
 import { DepartmentSettings } from "@/components/settings/DepartmentSettings";
 import { AgreementWarningSettings } from "@/components/settings/AgreementWarningSettings";
 import { StatusColorSettings } from "@/components/settings/StatusColorSettings";
+import { SampleDataSettings } from "@/components/settings/SampleDataSettings";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -18,6 +19,7 @@ export default function Settings() {
             <TabsTrigger value="colors">Status Colors</TabsTrigger>
             <TabsTrigger value="departments">Departments</TabsTrigger>
             <TabsTrigger value="tech-domains">Tech Domains</TabsTrigger>
+            <TabsTrigger value="sample-data">Sample Data</TabsTrigger>
             <TabsTrigger value="data">Data Management</TabsTrigger>
           </TabsList>
 
@@ -51,6 +53,17 @@ export default function Settings() {
               </CardHeader>
               <CardContent>
                 <TechDomainSettings />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="sample-data">
+            <Card>
+              <CardHeader>
+                <CardTitle>Sample Data Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SampleDataSettings />
               </CardContent>
             </Card>
           </TabsContent>
