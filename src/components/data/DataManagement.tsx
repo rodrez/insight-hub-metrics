@@ -22,14 +22,6 @@ export default function DataManagement() {
           console.log('Starting database initialization...');
           await db.init();
           console.log('Database initialization completed');
-          
-          // Check if we have any data
-          const projects = await db.getAllProjects();
-          if (projects.length === 0) {
-            console.log('No projects found, populating sample data...');
-            await populateSampleData();
-          }
-          
           setIsInitialized(true);
           return true;
         } catch (error) {
@@ -87,23 +79,31 @@ export default function DataManagement() {
           try {
             console.log('Starting sample data population...');
             
-            // First, add all collaborators
-            console.log('Adding collaborators...');
+            // First, generate all the data
+            console.log('Generating sample data...');
+            const { projects } = await db.populateSampleData();
+            
+            // Then add Fortune 30 collaborators
+            console.log('Adding Fortune 30 collaborators...');
             for (const collaborator of sampleFortune30) {
               await db.addCollaborator(collaborator);
             }
             
+            // Then add internal partners
+            console.log('Adding internal partners...');
             const internalPartners = await getSampleInternalPartners();
             for (const collaborator of internalPartners) {
               await db.addCollaborator(collaborator);
             }
 
-            // Generate projects with the collaborators
-            console.log('Generating projects...');
-            const { projects } = await db.populateSampleData();
-            
+            // Finally add the projects
+            console.log('Adding projects to database...');
             if (!projects || projects.length === 0) {
               throw new Error('Failed to generate projects');
+            }
+
+            for (const project of projects) {
+              await db.addProject(project);
             }
             
             console.log(`Generated ${projects.length} projects successfully`);
