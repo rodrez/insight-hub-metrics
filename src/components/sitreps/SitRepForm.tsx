@@ -1,19 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
-import { DEPARTMENTS } from "@/lib/constants";
 import { internalPartners } from "@/components/data/internalPartners";
+import { BasicInfoFields } from "./form/BasicInfoFields";
+import { RelationshipFields } from "./form/RelationshipFields";
+import { ContentFields } from "./form/ContentFields";
 
 interface SitRepFormProps {
   onSubmitSuccess: () => void;
@@ -105,157 +98,40 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Date</label>
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-              className="rounded-md border"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Title</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
-              placeholder="Enter sitrep title"
-              required
-            />
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Project (Optional)</label>
-            <Select value={selectedProject} onValueChange={setSelectedProject}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a project" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                {projects?.map(project => (
-                  <SelectItem key={project.id} value={project.id}>
-                    {project.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Fortune 30 Partner (Optional)</label>
-            <Select value={selectedFortune30} onValueChange={setSelectedFortune30}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a Fortune 30 partner" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                {fortune30Partners.map(partner => (
-                  <SelectItem key={partner.id} value={partner.id}>
-                    {partner.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Department</label>
-            <Select value={selectedDepartment} onValueChange={(value) => {
-              setSelectedDepartment(value);
-              setSelectedPartner("none");
-            }}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                {DEPARTMENTS.map(dept => (
-                  <SelectItem key={dept.id} value={dept.id}>
-                    {dept.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Status</label>
-            <Select value={status} onValueChange={(value: 'on-track' | 'at-risk') => setStatus(value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="on-track">On Track</SelectItem>
-                <SelectItem value="at-risk">At Risk</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {selectedDepartment !== "none" && (
-            <div>
-              <label className="block text-sm font-medium mb-2">Internal Partner</label>
-              <Select value={selectedPartner} onValueChange={setSelectedPartner}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select an internal partner" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {filteredInternalPartners.map(partner => (
-                    <SelectItem key={partner.id} value={partner.id}>
-                      {partner.name} - {partner.role}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-2">Summary (100 words max)</label>
-        <Textarea
-          value={summary}
-          onChange={(e) => setSummary(e.target.value)}
-          placeholder="Write your summary here..."
-          className="h-32"
+        <BasicInfoFields
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          title={title}
+          setTitle={setTitle}
+          status={status}
+          setStatus={setStatus}
+        />
+        
+        <RelationshipFields
+          selectedProject={selectedProject}
+          setSelectedProject={setSelectedProject}
+          selectedFortune30={selectedFortune30}
+          setSelectedFortune30={setSelectedFortune30}
+          selectedDepartment={selectedDepartment}
+          setSelectedDepartment={setSelectedDepartment}
+          selectedPartner={selectedPartner}
+          setSelectedPartner={setSelectedPartner}
+          projects={projects || []}
+          fortune30Partners={fortune30Partners}
+          filteredInternalPartners={filteredInternalPartners}
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-2">Update</label>
-        <Textarea
-          value={update}
-          onChange={(e) => setUpdate(e.target.value)}
-          placeholder="Write your update here..."
-          className="h-32"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-2">Challenges</label>
-        <Textarea
-          value={challenges}
-          onChange={(e) => setChallenges(e.target.value)}
-          placeholder="Write your challenges here..."
-          className="h-32"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-2">Next Steps</label>
-        <Textarea
-          value={nextSteps}
-          onChange={(e) => setNextSteps(e.target.value)}
-          placeholder="Write your next steps here..."
-          className="h-32"
-        />
-      </div>
+      <ContentFields
+        summary={summary}
+        setSummary={setSummary}
+        update={update}
+        setUpdate={setUpdate}
+        challenges={challenges}
+        setChallenges={setChallenges}
+        nextSteps={nextSteps}
+        setNextSteps={setNextSteps}
+      />
 
       <Button type="submit">Add SitRep</Button>
     </form>
