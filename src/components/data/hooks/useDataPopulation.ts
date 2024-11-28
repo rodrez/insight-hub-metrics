@@ -2,9 +2,7 @@ import { useState } from "react";
 import { db } from "@/lib/db";
 import { toast } from "@/components/ui/use-toast";
 import { LoadingStep, executeWithRetry } from "@/lib/utils/loadingRetry";
-import { sampleFortune30 } from "@/lib/services/data/fortune30Partners";
-import { generateInternalPartners } from "@/lib/services/data/internalPartners";
-import { generateSampleProjects } from "@/components/data/SampleData";
+import { SampleDataService } from "@/lib/services/sampleData/SampleDataService";
 
 export function useDataPopulation() {
   const [isPopulating, setIsPopulating] = useState(false);
@@ -19,48 +17,49 @@ export function useDataPopulation() {
           try {
             console.log('Starting sample data population...');
             
+            const sampleDataService = new SampleDataService();
+            const {
+              fortune30Partners,
+              internalPartners,
+              smePartners,
+              projects,
+              spis,
+              objectives,
+              sitreps
+            } = await sampleDataService.generateSampleData();
+            
             // Add Fortune 30 collaborators
-            console.log('Adding Fortune 30 collaborators...');
-            for (const collaborator of sampleFortune30) {
+            for (const collaborator of fortune30Partners) {
               await db.addCollaborator(collaborator);
             }
             
             // Add internal partners
-            console.log('Adding internal partners...');
-            const internalPartners = await generateInternalPartners();
-            for (const collaborator of internalPartners) {
-              await db.addCollaborator(collaborator);
+            for (const partner of internalPartners) {
+              await db.addCollaborator(partner);
             }
 
-            // Generate and add all sample data
-            console.log('Generating and adding sample data...');
-            const result = await generateSampleProjects({
-              projects: 10,
-              spis: 10,
-              objectives: 5,
-              sitreps: 10
-            });
-            
+            // Add SME partners
+            for (const partner of smePartners) {
+              await db.addSMEPartner(partner);
+            }
+
             // Add projects
-            for (const project of result.projects) {
+            for (const project of projects) {
               await db.addProject(project);
             }
             
             // Add SPIs
-            console.log('Adding SPIs...');
-            for (const spi of result.spis) {
+            for (const spi of spis) {
               await db.addSPI(spi);
             }
 
             // Add objectives
-            console.log('Adding objectives...');
-            for (const objective of result.objectives) {
+            for (const objective of objectives) {
               await db.addObjective(objective);
             }
 
             // Add sitreps
-            console.log('Adding sitreps...');
-            for (const sitrep of result.sitreps) {
+            for (const sitrep of sitreps) {
               await db.addSitRep(sitrep);
             }
             
