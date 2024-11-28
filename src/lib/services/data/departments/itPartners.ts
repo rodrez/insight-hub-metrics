@@ -1,6 +1,6 @@
 import { Collaborator } from "@/lib/types/collaboration";
 
-export const itPartners: Collaborator[] = [
+export const generateITPartners = (): Collaborator[] => [
   {
     id: "it-1",
     name: "James Wilson",
