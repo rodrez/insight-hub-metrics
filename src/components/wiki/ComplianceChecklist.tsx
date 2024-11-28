@@ -6,9 +6,9 @@ import { Shield, AlertTriangle } from "lucide-react";
 
 const complianceItems = [
   {
-    id: "dar",
-    label: "Defense Acquisition Regulation (DAR) Compliant",
-    description: "Project meets DAR requirements for defense contracts"
+    id: "far",
+    label: "Federal Acquisition Regulation (FAR) Compliant",
+    description: "Project meets FAR requirements for federal contracts"
   },
   {
     id: "dfars",

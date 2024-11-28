@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Trash2 } from "lucide-react";
+import { Trash2, Database } from "lucide-react";
 import { ExportActions } from "./actions/ExportActions";
 import { BackupActions } from "./actions/BackupActions";
 
@@ -15,7 +15,9 @@ interface DatabaseActionsProps {
 export function DatabaseActions({ 
   isInitialized, 
   isClearing,
+  isPopulating,
   onClear,
+  onPopulate
 }: DatabaseActionsProps) {
   return (
     <div className="space-y-4">
@@ -41,6 +43,15 @@ export function DatabaseActions({
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+
+          <Button 
+            onClick={onPopulate} 
+            disabled={!isInitialized || isPopulating}
+            className="flex items-center gap-2"
+          >
+            <Database className="h-4 w-4" />
+            {isPopulating ? "Generating..." : "Generate Sample Data"}
+          </Button>
         </div>
 
         <ExportActions isInitialized={isInitialized} />
