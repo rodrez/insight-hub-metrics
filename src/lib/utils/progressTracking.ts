@@ -27,13 +27,17 @@ export class ProgressTracker {
   }
 
   private showProgress() {
-    const progress = Array.from(this.steps.values())
-      .map(step => `${step.name}: ${Math.round((step.current / step.total) * 100)}%`)
+    const progressLines = Array.from(this.steps.values())
+      .map(step => {
+        const percentage = Math.round((step.current / step.total) * 100);
+        return `${step.name}: ${percentage}%`;
+      })
       .join('\n');
 
     toast({
       title: "Generating Data",
-      description: progress,
+      description: progressLines,
+      duration: 3000,
     });
   }
 
@@ -44,3 +48,7 @@ export class ProgressTracker {
 }
 
 export const globalProgressTracker = new ProgressTracker();
+
+export const trackGenerationProgress = (stepName: string, progress: number) => {
+  globalProgressTracker.updateProgress(stepName, progress);
+};
