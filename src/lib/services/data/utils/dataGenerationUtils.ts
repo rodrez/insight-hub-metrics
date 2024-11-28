@@ -12,6 +12,10 @@ export interface GenerationProgress {
 
 export const BATCH_SIZE = 50;
 
+export const trackGenerationProgress = (step: string, progress: number) => {
+  globalProgressTracker.updateProgress(step, progress);
+};
+
 export const processInBatches = async<T>(
   items: T[],
   processFn: (batch: T[]) => Promise<void>,

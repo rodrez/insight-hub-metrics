@@ -32,7 +32,6 @@ export class ProgressTracker {
       .join('\n');
 
     toast({
-      id: this.toastId || undefined,
       title: "Generating Data",
       description: progress,
     });
