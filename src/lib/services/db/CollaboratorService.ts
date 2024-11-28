@@ -14,7 +14,11 @@ export class CollaboratorService extends BaseDBService {
 
   async getCollaborator(id: string): Promise<Collaborator | undefined> {
     const store = await this.getStore("collaborators");
-    return store.get(id);
+    const request = store.get(id);
+    return new Promise((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result as Collaborator);
+      request.onerror = () => reject(request.error);
+    });
   }
 
   async updateCollaborator(id: string, collaborator: Partial<Collaborator>): Promise<void> {
@@ -40,10 +44,10 @@ export class CollaboratorService extends BaseDBService {
 
   async getAllCollaborators(): Promise<Collaborator[]> {
     const store = await this.getStore("collaborators");
-    const collaborators: Collaborator[] = [];
-    await store.iterate((collaborator) => {
-      collaborators.push(collaborator);
+    return new Promise((resolve, reject) => {
+      const request = store.getAll();
+      request.onsuccess = () => resolve(request.result as Collaborator[]);
+      request.onerror = () => reject(request.error);
     });
-    return collaborators;
   }
 }

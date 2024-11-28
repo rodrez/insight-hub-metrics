@@ -14,7 +14,7 @@ export class ProjectService extends BaseDBService {
 
   async updateProject(id: string, updates: Partial<Project>): Promise<void> {
     const store = await this.getStore("projects");
-    const existingProject = await store.get(id);
+    const existingProject = await this.getProject(id);
 
     if (!existingProject) {
       throw new Error("Project not found");
@@ -31,12 +31,20 @@ export class ProjectService extends BaseDBService {
 
   async getProject(id: string): Promise<Project | undefined> {
     const store = await this.getStore("projects");
-    return store.get(id);
+    return new Promise((resolve, reject) => {
+      const request = store.get(id);
+      request.onsuccess = () => resolve(request.result as Project);
+      request.onerror = () => reject(request.error);
+    });
   }
 
   async getAllProjects(): Promise<Project[]> {
     const store = await this.getStore("projects");
-    return store.getAll();
+    return new Promise((resolve, reject) => {
+      const request = store.getAll();
+      request.onsuccess = () => resolve(request.result as Project[]);
+      request.onerror = () => reject(request.error);
+    });
   }
 
   async deleteProject(id: string): Promise<void> {
