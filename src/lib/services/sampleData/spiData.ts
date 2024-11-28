@@ -104,30 +104,40 @@ export const generateSampleObjectives = (): Objective[] => {
   const objectives: Objective[] = [
     {
       id: 'obj-1',
+      title: 'Cloud Infrastructure Modernization',
+      description: 'Modernize our infrastructure through cloud adoption and optimization',
       initiative: "Cloud-First Infrastructure",
       desiredOutcome: "Reduce infrastructure costs by 40% through cloud adoption",
       spiIds: ['spi-1']
     },
     {
       id: 'obj-2',
+      title: 'AI Product Innovation',
+      description: 'Develop and launch AI-enhanced products across our portfolio',
       initiative: "AI-Powered Innovation",
       desiredOutcome: "Launch 3 AI-enhanced products by Q4",
       spiIds: ['spi-2']
     },
     {
       id: 'obj-3',
+      title: 'Security Enhancement Program',
+      description: 'Strengthen enterprise security posture through certification and compliance',
       initiative: "Enterprise Security",
       desiredOutcome: "Achieve highest security certifications and compliance",
       spiIds: ['spi-3']
     },
     {
       id: 'obj-4',
+      title: 'Quantum Computing Research',
+      description: 'Research and develop quantum computing applications',
       initiative: "Quantum Technology Leadership",
       desiredOutcome: "Establish leadership in quantum computing applications",
       spiIds: ['spi-4']
     },
     {
       id: 'obj-5',
+      title: 'Sustainability Initiative',
+      description: 'Implement sustainable operations across the organization',
       initiative: "Sustainable Operations",
       desiredOutcome: "Become carbon neutral by 2025",
       spiIds: ['spi-5']
