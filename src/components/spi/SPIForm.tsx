@@ -3,17 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
 import { SPI } from "@/lib/types/spi";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
+import { SelectFields } from "./form/SelectFields";
 
 interface SPIFormProps {
   onSubmitSuccess: () => void;
@@ -29,7 +23,6 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
   const [selectedProject, setSelectedProject] = useState<string>("none");
   const [selectedFortune30, setSelectedFortune30] = useState<string>("none");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("none");
-  const [selectedPartner, setSelectedPartner] = useState<string>("none");
 
   const { data: projects } = useQuery({
     queryKey: ['projects'],
@@ -66,7 +59,7 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
         projectId: selectedProject !== "none" ? selectedProject : undefined,
         fortune30Id: selectedFortune30 !== "none" ? selectedFortune30 : undefined,
         departmentId: selectedDepartment !== "none" ? selectedDepartment : undefined,
-        internalPartnerId: selectedPartner !== "none" ? selectedPartner : undefined,
+        internalPartnerId: undefined,
         sitrepIds: [],
         createdAt: new Date().toISOString()
       };
@@ -88,7 +81,6 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
       setSelectedProject("none");
       setSelectedFortune30("none");
       setSelectedDepartment("none");
-      setSelectedPartner("none");
       
       onSubmitSuccess();
     } catch (error) {
@@ -146,56 +138,18 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Select value={status} onValueChange={(value: SPI['status']) => setStatus(value)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="on-track">On Track</SelectItem>
-            <SelectItem value="delayed">Delayed</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select value={selectedProject} onValueChange={setSelectedProject}>
-          <SelectTrigger>
-            <SelectValue placeholder="Related Project" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">None</SelectItem>
-            {projects?.map(project => (
-              <SelectItem key={project.id} value={project.id}>
-                {project.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select value={selectedFortune30} onValueChange={setSelectedFortune30}>
-          <SelectTrigger>
-            <SelectValue placeholder="Fortune 30 Partner" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">None</SelectItem>
-            {fortune30Partners.map(partner => (
-              <SelectItem key={partner.id} value={partner.id}>
-                {partner.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-          <SelectTrigger>
-            <SelectValue placeholder="Department" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">None</SelectItem>
-            {/* Add department options */}
-          </SelectContent>
-        </Select>
-      </div>
+      <SelectFields
+        status={status}
+        setStatus={setStatus}
+        selectedProject={selectedProject}
+        setSelectedProject={setSelectedProject}
+        selectedFortune30={selectedFortune30}
+        setSelectedFortune30={setSelectedFortune30}
+        selectedDepartment={selectedDepartment}
+        setSelectedDepartment={setSelectedDepartment}
+        projects={projects}
+        fortune30Partners={fortune30Partners}
+      />
 
       <Button type="submit">Add SPI</Button>
     </form>
