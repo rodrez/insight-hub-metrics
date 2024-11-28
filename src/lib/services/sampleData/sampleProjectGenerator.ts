@@ -1,7 +1,12 @@
 import { Project } from '@/lib/types';
 import { Collaborator } from '@/lib/types/collaboration';
 import { defaultTechDomains } from '@/lib/types/techDomain';
-import { projectDescriptions } from './projectUtils'; // Importing from new utility file
+import { projectDescriptions } from './projectUtils';
+import { generateInternalPartners } from '@/lib/services/data/internalPartners';
+
+export const getSampleInternalPartners = async () => {
+  return generateInternalPartners();
+};
 
 const generateFallbackProject = (fortune30: Collaborator[], internalPartners: Collaborator[]): Project => ({
   id: "fallback-project-1",
@@ -26,9 +31,17 @@ const generateFallbackProject = (fortune30: Collaborator[], internalPartners: Co
   isSampleData: true
 });
 
-export const generateSampleProjects = async (fortune30: Collaborator[], internalPartners: Collaborator[]): Promise<Project[]> => {
+export const generateSampleProjects = async (
+  fortune30: Collaborator[], 
+  internalPartners: Collaborator[]
+): Promise<{
+  projects: Project[];
+  spis: any[];
+  objectives: any[];
+  sitreps: any[];
+}> => {
   try {
-    const projects: Project[] = [
+    const projects = [
       {
         id: "airplanes-project-1",
         name: "Airplanes Innovation Project 1",
@@ -263,9 +276,23 @@ export const generateSampleProjects = async (fortune30: Collaborator[], internal
       }
     ];
     
-    return projects.length > 0 ? projects : [generateFallbackProject(fortune30, internalPartners)];
+    const spis = [];
+    const objectives = [];
+    const sitreps = [];
+    
+    return { 
+      projects: projects.length > 0 ? projects : [generateFallbackProject(fortune30, internalPartners)],
+      spis,
+      objectives,
+      sitreps
+    };
   } catch (error) {
     console.error('Error generating sample projects:', error);
-    return [generateFallbackProject(fortune30, internalPartners)];
+    return {
+      projects: [generateFallbackProject(fortune30, internalPartners)],
+      spis: [],
+      objectives: [],
+      sitreps: []
+    };
   }
 };

@@ -4,19 +4,30 @@ import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
 import { BaseDBService } from './db/base/BaseDBService';
+import { ProjectService } from './db/ProjectService';
 import { toast } from "@/components/ui/use-toast";
 
 export class IndexedDBService extends BaseDBService implements DataService {
-  private db: IDBDatabase | null = null;
+  protected db: IDBDatabase | null = null;
+  private projectService: ProjectService;
+  private collaboratorService: any;
+  private sitRepService: any;
+  private spiService: any;
+  private sampleDataService: any;
+
+  constructor() {
+    super();
+    this.projectService = new ProjectService(null);
+  }
 
   async init(): Promise<void> {
     try {
       await super.init();
       this.projectService.setDatabase(this.db);
-      this.collaboratorService.setDatabase(this.db);
-      this.sitRepService.setDatabase(this.db);
-      this.spiService.setDatabase(this.db);
-      this.sampleDataService.setDatabase(this.db);
+      this.collaboratorService?.setDatabase(this.db);
+      this.sitRepService?.setDatabase(this.db);
+      this.spiService?.setDatabase(this.db);
+      this.sampleDataService?.setDatabase(this.db);
     } catch (error) {
       toast({
         title: "Error",
@@ -105,6 +116,10 @@ export class IndexedDBService extends BaseDBService implements DataService {
     return this.addObjective({ ...objective, ...updates });
   }
 
+  async getObjective(id: string): Promise<Objective | undefined> {
+    return this.performTransaction('objectives', 'readonly', store => store.get(id));
+  }
+
   async exportData(): Promise<void> {
     const data = {
       projects: await this.getAllProjects(),
@@ -139,5 +154,9 @@ export class IndexedDBService extends BaseDBService implements DataService {
 
   async addSMEPartner(partner: Collaborator): Promise<void> {
     return this.performTransaction('smePartners', 'readwrite', store => store.put(partner));
+  }
+
+  async populateSampleData(quantities: SampleDataQuantities): Promise<void> {
+    // Implementation will be added as needed
   }
 }

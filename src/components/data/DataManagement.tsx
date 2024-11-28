@@ -112,28 +112,28 @@ export default function DataManagement() {
 
             // Generate and add all sample data
             console.log('Generating and adding sample data...');
-            const { projects, spis, objectives, sitreps } = await generateSampleProjects();
+            const result = await generateSampleProjects(sampleFortune30, internalPartners);
             
             // Add projects
-            for (const project of projects) {
+            for (const project of result.projects) {
               await db.addProject(project);
             }
             
             // Add SPIs
             console.log('Adding SPIs...');
-            for (const spi of spis) {
+            for (const spi of result.spis) {
               await db.addSPI(spi);
             }
 
             // Add objectives
             console.log('Adding objectives...');
-            for (const objective of objectives) {
+            for (const objective of result.objectives) {
               await db.addObjective(objective);
             }
 
             // Add sitreps
             console.log('Adding sitreps...');
-            for (const sitrep of sitreps) {
+            for (const sitrep of result.sitreps) {
               await db.addSitRep(sitrep);
             }
             
@@ -177,4 +177,3 @@ export default function DataManagement() {
     </div>
   );
 }
-
