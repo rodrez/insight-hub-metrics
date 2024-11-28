@@ -1,9 +1,9 @@
 import { SampleDataQuantities } from '../DataService';
 import { BaseDBService } from './base/BaseDBService';
-import { generateFortune30Partners } from '../data/fortune30Partners';
-import { generateInternalPartners } from '../data/internalPartners';
-import { generateSMEPartners } from '../data/smePartners';
-import { generateSampleProjects } from '../data/sampleProjectGenerator';
+import { generateFortune30Partners } from '@/lib/services/data/fortune30Partners';
+import { generateInternalPartners } from '@/lib/services/data/internalPartners';
+import { generateSMEPartners } from '@/lib/services/data/smePartners';
+import { generateSampleProjects } from '@/components/data/SampleData';
 import { toast } from "@/components/ui/use-toast";
 
 export class SampleDataPopulationService extends BaseDBService {
@@ -15,12 +15,7 @@ export class SampleDataPopulationService extends BaseDBService {
       const smePartners = generateSMEPartners();
       
       // Generate projects and related data with specified quantities
-      const { projects, spis, objectives, sitreps } = await generateSampleProjects({
-        projects: quantities.projects,
-        spis: quantities.spis,
-        objectives: quantities.objectives,
-        sitreps: quantities.sitreps
-      });
+      const { projects, spis, objectives, sitreps } = await generateSampleProjects(quantities);
       
       // Add Fortune 30 partners
       for (const partner of fortune30Partners.slice(0, quantities.fortune30)) {
