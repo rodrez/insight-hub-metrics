@@ -3,9 +3,11 @@ import { db } from "@/lib/db";
 import { toast } from "@/components/ui/use-toast";
 import { LoadingStep, executeWithRetry } from "@/lib/utils/loadingRetry";
 import { SampleDataService } from "@/lib/services/sampleData/SampleDataService";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function useDataPopulation() {
   const [isPopulating, setIsPopulating] = useState(false);
+  const queryClient = useQueryClient();
 
   const populateSampleData = async () => {
     setIsPopulating(true);
@@ -28,40 +30,63 @@ export function useDataPopulation() {
               sitreps
             } = await sampleDataService.generateSampleData();
             
-            // Add Fortune 30 collaborators
-            for (const collaborator of fortune30Partners) {
-              await db.addCollaborator(collaborator);
-            }
-            
-            // Add internal partners
-            for (const partner of internalPartners) {
-              await db.addCollaborator(partner);
-            }
+            // Sequential database operations with proper error handling
+            await Promise.all([
+              ...fortune30Partners.map(collaborator => 
+                db.addCollaborator(collaborator).catch(e => {
+                  console.error('Error adding fortune30 partner:', e);
+                  throw e;
+                })
+              ),
+              
+              ...internalPartners.map(partner => 
+                db.addCollaborator(partner).catch(e => {
+                  console.error('Error adding internal partner:', e);
+                  throw e;
+                })
+              ),
 
-            // Add SME partners
-            for (const partner of smePartners) {
-              await db.addSMEPartner(partner);
-            }
+              ...smePartners.map(partner => 
+                db.addSMEPartner(partner).catch(e => {
+                  console.error('Error adding SME partner:', e);
+                  throw e;
+                })
+              )
+            ]);
 
-            // Add projects
+            // Add projects sequentially to maintain data integrity
             for (const project of projects) {
-              await db.addProject(project);
+              await db.addProject(project).catch(e => {
+                console.error('Error adding project:', e);
+                throw e;
+              });
             }
             
-            // Add SPIs
-            for (const spi of spis) {
-              await db.addSPI(spi);
-            }
+            await Promise.all([
+              ...spis.map(spi => 
+                db.addSPI(spi).catch(e => {
+                  console.error('Error adding SPI:', e);
+                  throw e;
+                })
+              ),
 
-            // Add objectives
-            for (const objective of objectives) {
-              await db.addObjective(objective);
-            }
+              ...objectives.map(objective => 
+                db.addObjective(objective).catch(e => {
+                  console.error('Error adding objective:', e);
+                  throw e;
+                })
+              ),
 
-            // Add sitreps
-            for (const sitrep of sitreps) {
-              await db.addSitRep(sitrep);
-            }
+              ...sitreps.map(sitrep => 
+                db.addSitRep(sitrep).catch(e => {
+                  console.error('Error adding sitrep:', e);
+                  throw e;
+                })
+              )
+            ]);
+            
+            // Invalidate queries to trigger refetch
+            queryClient.invalidateQueries({ queryKey: ['data-counts'] });
             
             toast({
               title: "Success",
