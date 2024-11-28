@@ -22,6 +22,14 @@ export default function DataManagement() {
           console.log('Starting database initialization...');
           await db.init();
           console.log('Database initialization completed');
+          
+          // Check if we have any data
+          const projects = await db.getAllProjects();
+          if (projects.length === 0) {
+            console.log('No projects found, populating sample data...');
+            await populateSampleData();
+          }
+          
           setIsInitialized(true);
           return true;
         } catch (error) {
@@ -37,24 +45,27 @@ export default function DataManagement() {
   const clearDatabase = async () => {
     setIsClearing(true);
     
-    const clearStep: LoadingStep = {
-      name: "Database Clear",
-      action: async () => {
-        try {
-          console.log('Starting database clear...');
-          await db.clear();
-          console.log('Database cleared successfully');
-          await initializeDB();
-          return true;
-        } catch (error) {
-          console.error('Database clear error:', error);
-          return false;
+    try {
+      const clearStep: LoadingStep = {
+        name: "Database Clear",
+        action: async () => {
+          try {
+            console.log('Starting database clear...');
+            await db.clear();
+            console.log('Database cleared successfully');
+            await initializeDB();
+            return true;
+          } catch (error) {
+            console.error('Database clear error:', error);
+            return false;
+          }
         }
-      }
-    };
+      };
 
-    await executeWithRetry(clearStep);
-    setIsClearing(false);
+      await executeWithRetry(clearStep);
+    } finally {
+      setIsClearing(false);
+    }
   };
 
   const populateSampleData = async () => {
@@ -69,50 +80,56 @@ export default function DataManagement() {
 
     setIsPopulating(true);
     
-    const populateStep: LoadingStep = {
-      name: "Sample Data Population",
-      action: async () => {
-        try {
-          console.log('Starting sample data population...');
-          
-          // First, add all collaborators
-          console.log('Adding collaborators...');
-          for (const collaborator of sampleFortune30) {
-            console.log(`Adding Fortune 30 collaborator: ${collaborator.name}`);
-            await db.addCollaborator(collaborator);
+    try {
+      const populateStep: LoadingStep = {
+        name: "Sample Data Population",
+        action: async () => {
+          try {
+            console.log('Starting sample data population...');
+            
+            // First, add all collaborators
+            console.log('Adding collaborators...');
+            for (const collaborator of sampleFortune30) {
+              await db.addCollaborator(collaborator);
+            }
+            
+            const internalPartners = await getSampleInternalPartners();
+            for (const collaborator of internalPartners) {
+              await db.addCollaborator(collaborator);
+            }
+
+            // Generate projects with the collaborators
+            console.log('Generating projects...');
+            const { projects } = await db.populateSampleData();
+            
+            if (!projects || projects.length === 0) {
+              throw new Error('Failed to generate projects');
+            }
+            
+            console.log(`Generated ${projects.length} projects successfully`);
+
+            toast({
+              title: "Success",
+              description: `Sample data populated with ${projects.length} projects`,
+            });
+
+            return true;
+          } catch (error) {
+            console.error('Sample data population error:', error);
+            toast({
+              title: "Error",
+              description: `Failed to populate sample data: ${error?.message || 'Unknown error'}`,
+              variant: "destructive",
+            });
+            return false;
           }
-          
-          const internalPartners = await getSampleInternalPartners();
-          for (const collaborator of internalPartners) {
-            console.log(`Adding internal collaborator: ${collaborator.name}`);
-            await db.addCollaborator(collaborator);
-          }
-
-          // Generate projects with the collaborators
-          console.log('Generating projects...');
-          const { projects } = await db.populateSampleData();
-          console.log(`Generated ${projects.length} projects successfully`);
-
-          toast({
-            title: "Success",
-            description: `Sample data populated with ${projects.length} projects`,
-          });
-
-          return true;
-        } catch (error) {
-          console.error('Sample data population error:', error);
-          toast({
-            title: "Error",
-            description: `Failed to populate sample data: ${error?.message || 'Unknown error'}`,
-            variant: "destructive",
-          });
-          return false;
         }
-      }
-    };
+      };
 
-    await executeWithRetry(populateStep);
-    setIsPopulating(false);
+      await executeWithRetry(populateStep);
+    } finally {
+      setIsPopulating(false);
+    }
   };
 
   return (
