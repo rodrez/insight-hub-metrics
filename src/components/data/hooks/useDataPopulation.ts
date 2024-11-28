@@ -4,6 +4,7 @@ import { toast } from "@/components/ui/use-toast";
 import { LoadingStep, executeWithRetry } from "@/lib/utils/loadingRetry";
 import { SampleDataService } from "@/lib/services/sampleData/SampleDataService";
 import { useQueryClient } from "@tanstack/react-query";
+import { DatabaseError } from "@/lib/utils/errorHandling";
 
 export function useDataPopulation() {
   const [isPopulating, setIsPopulating] = useState(false);
@@ -30,59 +31,67 @@ export function useDataPopulation() {
               sitreps
             } = await sampleDataService.generateSampleData();
             
-            // Sequential database operations with proper error handling
-            await Promise.all([
-              ...fortune30Partners.map(collaborator => 
-                db.addCollaborator(collaborator).catch(e => {
-                  console.error('Error adding fortune30 partner:', e);
-                  throw e;
-                })
-              ),
-              
-              ...internalPartners.map(partner => 
-                db.addCollaborator(partner).catch(e => {
-                  console.error('Error adding internal partner:', e);
-                  throw e;
-                })
-              ),
+            // Add fortune30 partners
+            await Promise.all(fortune30Partners.map(async collaborator => {
+              try {
+                await db.addCollaborator(collaborator);
+              } catch (error) {
+                throw new DatabaseError(`Failed to add fortune30 partner: ${collaborator.name}`, error);
+              }
+            }));
+            
+            // Add internal partners
+            await Promise.all(internalPartners.map(async partner => {
+              try {
+                await db.addCollaborator(partner);
+              } catch (error) {
+                throw new DatabaseError(`Failed to add internal partner: ${partner.name}`, error);
+              }
+            }));
 
-              ...smePartners.map(partner => 
-                db.addSMEPartner(partner).catch(e => {
-                  console.error('Error adding SME partner:', e);
-                  throw e;
-                })
-              )
-            ]);
+            // Add SME partners
+            await Promise.all(smePartners.map(async partner => {
+              try {
+                await db.addSMEPartner(partner);
+              } catch (error) {
+                throw new DatabaseError(`Failed to add SME partner: ${partner.name}`, error);
+              }
+            }));
 
             // Add projects sequentially to maintain data integrity
             for (const project of projects) {
-              await db.addProject(project).catch(e => {
-                console.error('Error adding project:', e);
-                throw e;
-              });
+              try {
+                await db.addProject(project);
+              } catch (error) {
+                throw new DatabaseError(`Failed to add project: ${project.name}`, error);
+              }
             }
             
+            // Add SPIs, objectives, and sitreps
             await Promise.all([
-              ...spis.map(spi => 
-                db.addSPI(spi).catch(e => {
-                  console.error('Error adding SPI:', e);
-                  throw e;
-                })
-              ),
+              ...spis.map(async spi => {
+                try {
+                  await db.addSPI(spi);
+                } catch (error) {
+                  throw new DatabaseError(`Failed to add SPI: ${spi.id}`, error);
+                }
+              }),
 
-              ...objectives.map(objective => 
-                db.addObjective(objective).catch(e => {
-                  console.error('Error adding objective:', e);
-                  throw e;
-                })
-              ),
+              ...objectives.map(async objective => {
+                try {
+                  await db.addObjective(objective);
+                } catch (error) {
+                  throw new DatabaseError(`Failed to add objective: ${objective.id}`, error);
+                }
+              }),
 
-              ...sitreps.map(sitrep => 
-                db.addSitRep(sitrep).catch(e => {
-                  console.error('Error adding sitrep:', e);
-                  throw e;
-                })
-              )
+              ...sitreps.map(async sitrep => {
+                try {
+                  await db.addSitRep(sitrep);
+                } catch (error) {
+                  throw new DatabaseError(`Failed to add sitrep: ${sitrep.id}`, error);
+                }
+              })
             ]);
             
             // Invalidate queries to trigger refetch
@@ -90,15 +99,21 @@ export function useDataPopulation() {
             
             toast({
               title: "Success",
-              description: `Sample data populated successfully`,
+              description: "Sample data populated successfully",
             });
 
             return true;
           } catch (error) {
+            const errorMessage = error instanceof DatabaseError 
+              ? error.message 
+              : error instanceof Error 
+                ? error.message 
+                : 'Unknown error';
+                
             console.error('Sample data population error:', error);
             toast({
               title: "Error",
-              description: `Failed to populate sample data: ${error?.message || 'Unknown error'}`,
+              description: `Failed to populate sample data: ${errorMessage}`,
               variant: "destructive",
             });
             return false;

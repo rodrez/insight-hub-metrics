@@ -3,6 +3,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Trash2, Database } from "lucide-react";
 import { ExportActions } from "./actions/ExportActions";
 import { BackupActions } from "./actions/BackupActions";
+import { toast } from "@/components/ui/use-toast";
 
 interface DatabaseActionsProps {
   isInitialized: boolean;
@@ -19,6 +20,40 @@ export function DatabaseActions({
   onClear,
   onPopulate
 }: DatabaseActionsProps) {
+  const handleClear = async () => {
+    try {
+      await onClear();
+      toast({
+        title: "Success",
+        description: "Database cleared successfully",
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast({
+        title: "Error",
+        description: `Failed to clear database: ${errorMessage}`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handlePopulate = async () => {
+    try {
+      await onPopulate();
+      toast({
+        title: "Success",
+        description: "Sample data populated successfully",
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast({
+        title: "Error",
+        description: `Failed to populate data: ${errorMessage}`,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-4">
@@ -39,13 +74,13 @@ export function DatabaseActions({
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={onClear}>Continue</AlertDialogAction>
+                <AlertDialogAction onClick={handleClear}>Continue</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
 
           <Button 
-            onClick={onPopulate} 
+            onClick={handlePopulate} 
             disabled={!isInitialized || isPopulating}
             className="flex items-center gap-2"
           >
