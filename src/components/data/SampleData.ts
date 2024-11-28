@@ -44,7 +44,9 @@ export const validateDataRelationships = (data: GeneratedData): boolean => {
 
   // Validate objectives consistency
   const validObjectives = data.objectives.every(objective => 
-    objective.id && objective.title && objective.description
+    objective.id && 
+    objective.initiative && 
+    objective.desiredOutcome
   );
 
   return validSPIs && validSitReps && validObjectives;
