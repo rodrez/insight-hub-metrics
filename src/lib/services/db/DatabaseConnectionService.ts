@@ -1,4 +1,4 @@
-import { DB_CONFIG } from '../stores';
+import { DB_CONFIG } from './stores';
 import { DatabaseError } from '../../utils/errorHandling';
 
 export class DatabaseConnectionService {
