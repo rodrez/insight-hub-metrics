@@ -9,6 +9,11 @@ export type Agreement = {
   status: AgreementStatus;
 };
 
+export type CollaboratorAgreements = {
+  nda?: Agreement;
+  jtda?: Agreement;
+};
+
 export type ContactPerson = {
   name: string;
   role: string;
@@ -47,10 +52,7 @@ export type Collaborator = {
   lastActive: string;
   type: CollaborationType;
   color?: string;
-  agreements?: {
-    nda?: Agreement;
-    jtda?: Agreement;
-  };
+  agreements?: CollaboratorAgreements;
   primaryContact?: ContactPerson;
   workstreams?: Workstream[];
 };

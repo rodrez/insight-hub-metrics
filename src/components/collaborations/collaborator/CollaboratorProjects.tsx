@@ -73,9 +73,8 @@ export function CollaboratorProjects({ projects, agreements, warningSettings }: 
               project={{
                 id: project.id,
                 name: project.name,
-                description: project.nabc?.needs || "No description available",
-                status: project.status,
-                nabc: project.nabc
+                nabc: project.nabc,
+                status: project.status
               }}
               agreements={agreements}
               warningColor={warningColor}
