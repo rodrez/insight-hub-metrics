@@ -1,6 +1,10 @@
 export class BaseDBService {
   protected db: IDBDatabase | null = null;
   
+  protected async init(): Promise<void> {
+    // Base initialization logic
+  }
+  
   protected ensureInitialized() {
     if (!this.db) {
       throw new Error('Database not initialized');

@@ -5,6 +5,9 @@ import { DataStats } from "./stats/DataStats";
 import { useDataInitialization } from "./hooks/useDataInitialization";
 import { DataCounts } from "./types/dataTypes";
 import { toast } from "@/components/ui/use-toast";
+import { LoadingStep, executeWithRetry } from "@/lib/utils/loadingRetry";
+import { sampleFortune30 } from "@/lib/services/data/fortune30Partners";
+import { generateSampleProjects, getSampleInternalPartners } from "@/lib/services/sampleData/sampleProjectGenerator";
 
 export default function DataManagement() {
   const { isInitialized } = useDataInitialization();
@@ -174,3 +177,4 @@ export default function DataManagement() {
     </div>
   );
 }
+
