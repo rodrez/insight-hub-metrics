@@ -27,8 +27,6 @@ export function ProjectCard({ project }: ProjectCardProps) {
         return 'bg-blue-500';
       case 'on-hold':
         return 'bg-yellow-500';
-      case 'cancelled':
-        return 'bg-gray-500';
       default:
         return 'bg-gray-500';
     }
@@ -37,11 +35,6 @@ export function ProjectCard({ project }: ProjectCardProps) {
   const getDepartmentColor = (departmentId: string) => {
     const department = DEPARTMENTS.find(d => d.id === departmentId);
     return department?.color || '#333';
-  };
-
-  const getDepartmentName = (departmentId: string) => {
-    const department = DEPARTMENTS.find(d => d.id === departmentId);
-    return department?.name || departmentId;
   };
 
   // Get unique collaborators
@@ -74,7 +67,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
     toast({
       title: "Duplicate Team Members Detected",
       description: `${duplicatePartners.map(p => p.name).join(", ")} ${duplicatePartners.length === 1 ? "is" : "are"} already listed as POC or Tech Lead and will not be shown in Internal Partners.`,
-      variant: "default"
+      variant: "default"  // Changed from "warning" to "default"
     });
   }
 
@@ -131,17 +124,15 @@ export function ProjectCard({ project }: ProjectCardProps) {
                   <Tooltip>
                     <TooltipTrigger>
                       <Badge
-                        style={{ 
-                          backgroundColor: getDepartmentColor(project.pocDepartment),
-                          color: 'white'
-                        }}
+                        style={{ backgroundColor: getDepartmentColor(project.pocDepartment) }}
+                        className="text-white"
                       >
-                        {project.poc} ({getDepartmentName(project.pocDepartment)})
+                        {project.poc}
                       </Badge>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Point of Contact</p>
-                      <p>Department: {getDepartmentName(project.pocDepartment)}</p>
+                      <p>Department: {DEPARTMENTS.find(d => d.id === project.pocDepartment)?.name}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -152,17 +143,15 @@ export function ProjectCard({ project }: ProjectCardProps) {
                   <Tooltip>
                     <TooltipTrigger>
                       <Badge
-                        style={{ 
-                          backgroundColor: getDepartmentColor(project.techLeadDepartment),
-                          color: 'white'
-                        }}
+                        style={{ backgroundColor: getDepartmentColor(project.techLeadDepartment) }}
+                        className="text-white"
                       >
-                        {project.techLead} ({getDepartmentName(project.techLeadDepartment)})
+                        {project.techLead}
                       </Badge>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Technical Lead</p>
-                      <p>Department: {getDepartmentName(project.techLeadDepartment)}</p>
+                      <p>Department: {DEPARTMENTS.find(d => d.id === project.techLeadDepartment)?.name}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>

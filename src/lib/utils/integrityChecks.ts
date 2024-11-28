@@ -1,5 +1,6 @@
 import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
+import { Project, Collaborator } from "@/lib/types";
 import { executeWithRetry, LoadingStep } from "./loadingRetry";
 
 export interface IntegrityCheckResult {
@@ -36,8 +37,8 @@ const checkSPIsAndSitReps = async (): Promise<{
   const spis = await db.getAllSPIs();
   const sitreps = await db.getAllSitReps();
   return {
-    spis: true,
-    sitreps: true
+    spis: spis.length > 0,
+    sitreps: sitreps.length > 0
   };
 };
 
@@ -94,8 +95,8 @@ export const runIntegrityChecks = async (): Promise<IntegrityCheckResult> => {
     fortune30Partners: false,
     internalPartners: false,
     glossaryItems: true,
-    spis: true,
-    sitreps: true 
+    spis: false,
+    sitreps: false
   };
 
   const loadingToast = toast({
@@ -105,6 +106,7 @@ export const runIntegrityChecks = async (): Promise<IntegrityCheckResult> => {
   });
 
   try {
+    // Check Projects
     const projectsStep: LoadingStep = {
       name: "Projects Check",
       action: async () => {
@@ -123,6 +125,7 @@ export const runIntegrityChecks = async (): Promise<IntegrityCheckResult> => {
       return results;
     }
 
+    // Check Collaborators
     const collaboratorsStep: LoadingStep = {
       name: "Collaborators Check",
       action: async () => {
@@ -143,18 +146,28 @@ export const runIntegrityChecks = async (): Promise<IntegrityCheckResult> => {
       return results;
     }
 
+    // Check SPIs and SitReps
     const spisSitrepsStep: LoadingStep = {
       name: "SPIs and SitReps Check",
       action: async () => {
         const { spis, sitreps } = await checkSPIsAndSitReps();
-        results.spis = true;
-        results.sitreps = true;
-        return true;
+        results.spis = spis;
+        results.sitreps = sitreps;
+        return spis && sitreps;
       }
     };
     
-    await executeWithRetry(spisSitrepsStep);
+    const spisSitrepsSuccess = await executeWithRetry(spisSitrepsStep);
+    if (!spisSitrepsSuccess) {
+      toast({
+        title: "SPIs and SitReps Check Failed",
+        description: "Please contact an administrator to resolve this issue.",
+        variant: "destructive",
+      });
+      return results;
+    }
 
+    // Validate relationships
     const relationshipsStep: LoadingStep = {
       name: "Relationship Validation",
       action: validateProjectCollaborators
@@ -162,6 +175,7 @@ export const runIntegrityChecks = async (): Promise<IntegrityCheckResult> => {
     
     await executeWithRetry(relationshipsStep);
 
+    // Check agreements
     const agreementsStep: LoadingStep = {
       name: "Agreements Check",
       action: checkAgreements
@@ -169,6 +183,7 @@ export const runIntegrityChecks = async (): Promise<IntegrityCheckResult> => {
     
     await executeWithRetry(agreementsStep);
 
+    // Final success notification
     toast({
       title: "Integrity Checks Complete",
       description: "All data verified successfully ✓",
