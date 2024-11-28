@@ -54,7 +54,7 @@ export type ProjectMetric = {
   description: string;
 };
 
-export type CollaborationType = 'fortune30' | 'other';
+export type CollaborationType = 'fortune30' | 'other' | 'sme';
 
 export type CollaboratorProject = {
   id: string;

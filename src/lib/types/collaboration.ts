@@ -1,3 +1,5 @@
+import { CollaborationType } from '../types';
+
 export type AgreementStatus = 'signed' | 'pending' | 'expired';
 export type AgreementType = 'NDA' | 'JTDA' | 'Both' | 'None';
 
@@ -34,8 +36,6 @@ export type CollaboratorProject = {
     needs: string;
   };
 };
-
-export type CollaborationType = 'fortune30' | 'other' | 'sme';
 
 export type Collaborator = {
   id: string;
