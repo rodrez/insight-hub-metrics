@@ -20,7 +20,7 @@ export const generateSampleProjects = async (): Promise<{
   try {
     const fortune30 = sampleFortune30;
     const internalPartners = await generateInternalPartners();
-    const projects = generateProjects(fortune30, internalPartners);
+    const projects = await generateProjects(fortune30, internalPartners);
     
     // Generate SPIs first, passing project IDs for linking
     const spis = generateSampleSPIs(projects.map(p => p.id));
