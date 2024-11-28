@@ -1,7 +1,8 @@
 export interface SPI {
   id: string;
   name: string;
-  goals: string;
+  deliverable: string;
+  details: string;
   expectedCompletionDate: string;
   actualCompletionDate?: string;
   status: 'on-track' | 'delayed' | 'completed';

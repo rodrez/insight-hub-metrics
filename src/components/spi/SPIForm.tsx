@@ -21,7 +21,8 @@ interface SPIFormProps {
 
 export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
   const [name, setName] = useState("");
-  const [goals, setGoals] = useState("");
+  const [deliverable, setDeliverable] = useState("");
+  const [details, setDetails] = useState("");
   const [expectedDate, setExpectedDate] = useState<Date | undefined>(new Date());
   const [actualDate, setActualDate] = useState<Date | undefined>();
   const [status, setStatus] = useState<SPI['status']>("on-track");
@@ -44,7 +45,7 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !goals || !expectedDate) {
+    if (!name || !deliverable || !expectedDate) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -57,7 +58,8 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
       const newSPI: SPI = {
         id: `spi-${Date.now()}`,
         name,
-        goals,
+        deliverable,
+        details,
         expectedCompletionDate: expectedDate.toISOString(),
         actualCompletionDate: actualDate?.toISOString(),
         status,
@@ -78,7 +80,8 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
       
       // Reset form
       setName("");
-      setGoals("");
+      setDeliverable("");
+      setDetails("");
       setExpectedDate(new Date());
       setActualDate(undefined);
       setStatus("on-track");
@@ -107,9 +110,15 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
             onChange={(e) => setName(e.target.value)}
           />
           <Textarea
-            placeholder="Goals"
-            value={goals}
-            onChange={(e) => setGoals(e.target.value)}
+            placeholder="Deliverable"
+            value={deliverable}
+            onChange={(e) => setDeliverable(e.target.value)}
+            className="h-32"
+          />
+          <Textarea
+            placeholder="Details"
+            value={details}
+            onChange={(e) => setDetails(e.target.value)}
             className="h-32"
           />
         </div>
