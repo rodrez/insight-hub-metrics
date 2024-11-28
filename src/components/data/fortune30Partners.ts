@@ -8,6 +8,12 @@ export const fortune30Partners: Collaborator[] = [
     email: "partnerships@walmart.com",
     role: "Strategic Partner",
     department: "Retail",
+    primaryContact: {
+      name: "John Smith",
+      role: "Director of Innovation",
+      email: "john.smith@walmart.com",
+      phone: "+1 (555) 123-4567"
+    },
     projects: [
       {
         id: "retail-project-1",
@@ -20,6 +26,24 @@ export const fortune30Partners: Collaborator[] = [
         name: "Retail Innovation Project 2",
         description: "Implementing advanced technologies and innovative solutions for retail operations.",
         status: "active"
+      }
+    ],
+    workstreams: [
+      {
+        id: "ws-1",
+        title: "Supply Chain Optimization",
+        objectives: "Improve supply chain efficiency through AI and automation",
+        nextSteps: "Implement pilot program in selected distribution centers",
+        keyContacts: [
+          {
+            name: "Sarah Johnson",
+            role: "Supply Chain Manager",
+            email: "sarah.j@walmart.com"
+          }
+        ],
+        status: "active",
+        startDate: "2024-01-15",
+        lastUpdated: "2024-03-20"
       }
     ],
     lastActive: new Date().toISOString(),
@@ -39,12 +63,36 @@ export const fortune30Partners: Collaborator[] = [
     email: "enterprise@amazon.com",
     role: "Technology Partner",
     department: "Cloud Services",
+    primaryContact: {
+      name: "Emily Chen",
+      role: "Head of Strategic Partnerships",
+      email: "emily.chen@amazon.com",
+      phone: "+1 (555) 987-6543"
+    },
     projects: [
       {
         id: "cloud-services-project-1",
         name: "Cloud Services Innovation Project 1",
         description: "Developing next-generation cloud systems with improved efficiency and scalability.",
         status: "active"
+      }
+    ],
+    workstreams: [
+      {
+        id: "ws-2",
+        title: "AWS Integration Framework",
+        objectives: "Develop comprehensive cloud integration strategy",
+        nextSteps: "Complete architecture review and security assessment",
+        keyContacts: [
+          {
+            name: "Michael Wong",
+            role: "Solutions Architect",
+            email: "m.wong@amazon.com"
+          }
+        ],
+        status: "active",
+        startDate: "2024-02-01",
+        lastUpdated: "2024-03-15"
       }
     ],
     lastActive: new Date().toISOString(),
