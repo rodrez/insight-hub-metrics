@@ -1,6 +1,7 @@
 import { Project } from '../types';
 import { Collaborator } from '../types/collaboration';
 import { SitRep } from '../types/sitrep';
+import { SPI } from '../types/spi';
 
 export interface DataService {
   init(): Promise<void>;
@@ -13,6 +14,10 @@ export interface DataService {
   addCollaborator(collaborator: Collaborator): Promise<void>;
   getAllSitReps(): Promise<SitRep[]>;
   addSitRep(sitrep: SitRep): Promise<void>;
+  getAllSPIs(): Promise<SPI[]>;
+  getSPI(id: string): Promise<SPI | undefined>;
+  addSPI(spi: SPI): Promise<void>;
+  updateSPI(id: string, updates: Partial<SPI>): Promise<void>;
   exportData(): Promise<void>;
   clear(): Promise<void>;
   populateSampleData(): Promise<{ projects: Project[] }>;
