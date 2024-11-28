@@ -1,18 +1,13 @@
 import { useState } from 'react';
 import { Input } from "@/components/ui/input";
-import { Search, ChevronDown } from 'lucide-react';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Search } from 'lucide-react';
+import WikiSection from '@/components/wiki/WikiSection';
 
-const WIKI_SECTIONS = [
+const DEFAULT_WIKI_SECTIONS = [
   {
     id: '1',
     title: 'Project Management',
-    content: `
-Project Management in our application follows these key processes:
+    content: `Project Management in our application follows these key processes:
 
 1. Project Creation
 - Projects must have a POC (Point of Contact) and Tech Lead from different departments
@@ -27,8 +22,7 @@ Project Management in our application follows these key processes:
 3. Budget Management
 - Projects are allocated department-specific budgets
 - Spending is tracked against allocated budgets
-- Progress bars indicate budget utilization
-    `
+- Progress bars indicate budget utilization`
   },
   {
     id: '2',
@@ -163,11 +157,20 @@ Tech Domains categorize project focus areas:
 
 export default function Wiki() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [wikiSections, setWikiSections] = useState(DEFAULT_WIKI_SECTIONS);
 
-  const filteredSections = WIKI_SECTIONS.filter(section =>
+  const filteredSections = wikiSections.filter(section =>
     section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     section.content.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleSectionUpdate = (id: string, newContent: string) => {
+    setWikiSections(prevSections =>
+      prevSections.map(section =>
+        section.id === id ? { ...section, content: newContent } : section
+      )
+    );
+  };
 
   return (
     <div className="container mx-auto px-4 pt-24 pb-12">
@@ -183,17 +186,13 @@ export default function Wiki() {
         />
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-8">
         {filteredSections.map((section) => (
-          <Collapsible key={section.id}>
-            <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg border p-4 font-medium hover:bg-muted">
-              {section.title}
-              <ChevronDown className="h-4 w-4" />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="p-4 pt-2 text-sm text-muted-foreground whitespace-pre-line">
-              {section.content}
-            </CollapsibleContent>
-          </Collapsible>
+          <WikiSection
+            key={section.id}
+            section={section}
+            onSave={handleSectionUpdate}
+          />
         ))}
       </div>
     </div>
