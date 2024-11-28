@@ -12,8 +12,9 @@ import { CollaboratorService } from './db/CollaboratorService';
 import { SitRepService } from './db/SitRepService';
 import { SPIService } from './db/SPIService';
 import { BaseDBService } from './db/base/BaseDBService';
-import { generateSampleData } from '../services/sampleData/sampleDataGenerator';
+import { SampleDataPopulationService } from './db/SampleDataPopulationService';
 import { Team } from '../types';
+import { toast } from "@/components/ui/use-toast";
 
 export class IndexedDBService extends BaseDBService implements DataService {
   private projectStore: ProjectStore | null = null;
@@ -21,54 +22,59 @@ export class IndexedDBService extends BaseDBService implements DataService {
   private collaboratorService: CollaboratorService;
   private sitRepService: SitRepService;
   private spiService: SPIService;
+  private sampleDataService: SampleDataPopulationService;
 
   constructor() {
     super();
     this.collaboratorService = new CollaboratorService();
     this.sitRepService = new SitRepService();
     this.spiService = new SPIService();
+    this.sampleDataService = new SampleDataPopulationService();
   }
 
   async init(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      const request = indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
+    try {
+      return new Promise<void>((resolve, reject) => {
+        const request = indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
 
-      request.onerror = () => {
-        const error = request.error?.message || 'Unknown error during initialization';
-        console.error('Database initialization error:', error);
-        reject(new Error(error));
-      };
-      
-      request.onsuccess = () => {
-        console.log('IndexedDB initialized successfully');
-        this.db = request.result;
-        this.collaboratorService.setDatabase(this.db);
-        this.sitRepService.setDatabase(this.db);
-        this.spiService.setDatabase(this.db);
-        connectionManager.addConnection(this.db);
-        this.projectStore = new ProjectStore(this.db);
-        this.smeStore = new SMEStore(this.db);
-        resolve();
-      };
+        request.onerror = () => {
+          const error = request.error?.message || 'Unknown error during initialization';
+          console.error('Database initialization error:', error);
+          toast({
+            title: "Database Error",
+            description: "Failed to initialize database",
+            variant: "destructive",
+          });
+          reject(new Error(error));
+        };
+        
+        request.onsuccess = () => {
+          this.db = request.result;
+          this.collaboratorService.setDatabase(this.db);
+          this.sitRepService.setDatabase(this.db);
+          this.spiService.setDatabase(this.db);
+          this.sampleDataService.setDatabase(this.db);
+          connectionManager.addConnection(this.db);
+          this.projectStore = new ProjectStore(this.db);
+          this.smeStore = new SMEStore(this.db);
+          resolve();
+        };
 
-      request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
-        createStores(db);
-      };
-    });
-  }
-
-  async clear(): Promise<void> {
-    if (this.db) {
-      connectionManager.closeAllConnections();
-      this.db = null;
-      this.projectStore = null;
-      this.smeStore = null;
+        request.onupgradeneeded = (event) => {
+          const db = (event.target as IDBOpenDBRequest).result;
+          createStores(db);
+        };
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to initialize database",
+        variant: "destructive",
+      });
+      throw error;
     }
-    await DatabaseCleaner.clearDatabase();
   }
 
-  // Project methods
   async getAllProjects(): Promise<Project[]> {
     this.ensureInitialized();
     return this.projectStore!.getAllProjects();
@@ -89,7 +95,6 @@ export class IndexedDBService extends BaseDBService implements DataService {
     return this.projectStore!.updateProject(id, updates);
   }
 
-  // Collaborator methods delegated to CollaboratorService
   async getAllCollaborators(): Promise<Collaborator[]> {
     return this.collaboratorService.getAllCollaborators();
   }
@@ -102,7 +107,6 @@ export class IndexedDBService extends BaseDBService implements DataService {
     return this.collaboratorService.addCollaborator(collaborator);
   }
 
-  // SitRep methods delegated to SitRepService
   async getAllSitReps(): Promise<SitRep[]> {
     return this.sitRepService.getAllSitReps();
   }
@@ -111,7 +115,6 @@ export class IndexedDBService extends BaseDBService implements DataService {
     return this.sitRepService.addSitRep(sitrep);
   }
 
-  // SPI methods delegated to SPIService
   async getAllSPIs(): Promise<SPI[]> {
     return this.spiService.getAllSPIs();
   }
@@ -128,7 +131,6 @@ export class IndexedDBService extends BaseDBService implements DataService {
     return this.spiService.updateSPI(id, updates);
   }
 
-  // Implementing missing methods required by DataService interface
   async getAllObjectives(): Promise<Objective[]> {
     return this.performTransaction<Objective[]>(
       'objectives',
@@ -191,28 +193,7 @@ export class IndexedDBService extends BaseDBService implements DataService {
 
   async populateSampleData(quantities: SampleDataQuantities): Promise<void> {
     this.ensureInitialized();
-    const { projects, internalPartners, spis, objectives, sitreps } = await generateSampleData([]);
-    
-    // Add all data in sequence
-    for (const project of projects) {
-      await this.addProject(project);
-    }
-    
-    for (const partner of internalPartners) {
-      await this.addCollaborator(partner);
-    }
-    
-    for (const spi of spis) {
-      await this.addSPI(spi);
-    }
-    
-    for (const objective of objectives) {
-      await this.addObjective(objective);
-    }
-    
-    for (const sitrep of sitreps) {
-      await this.addSitRep(sitrep);
-    }
+    await this.sampleDataService.populateData(quantities);
   }
 
   async getAllSMEPartners(): Promise<Collaborator[]> {
