@@ -18,14 +18,21 @@ import SitReps from "./pages/SitReps";
 import SPI from "./pages/SPI";
 import BackButton from "./components/navigation/BackButton";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function AppContent() {
   const location = useLocation();
   const showBackButton = location.pathname !== '/';
 
   return (
-    <>
+    <div className="min-h-screen">
       <Navbar />
       {showBackButton && <BackButton />}
       <div className="pt-14">
@@ -44,7 +51,7 @@ function AppContent() {
           <Route path="/spi" element={<SPI />} />
         </Routes>
       </div>
-    </>
+    </div>
   );
 }
 
