@@ -92,19 +92,38 @@ export default function DataManagement() {
               await db.addCollaborator(collaborator);
             }
 
-            // Generate and add projects
-            console.log('Generating and adding projects...');
-            const projects = await generateSampleProjects();
+            // Generate and add all sample data
+            console.log('Generating and adding sample data...');
+            const { projects, spis, objectives, sitreps } = await generateSampleProjects();
             
+            // Add projects
             for (const project of projects) {
               await db.addProject(project);
+            }
+            
+            // Add SPIs
+            console.log('Adding SPIs...');
+            for (const spi of spis) {
+              await db.addSPI(spi);
+            }
+
+            // Add objectives
+            console.log('Adding objectives...');
+            for (const objective of objectives) {
+              await db.addObjective(objective);
+            }
+
+            // Add sitreps
+            console.log('Adding sitreps...');
+            for (const sitrep of sitreps) {
+              await db.addSitRep(sitrep);
             }
             
             console.log(`Generated ${projects.length} projects successfully`);
 
             toast({
               title: "Success",
-              description: `Sample data populated with ${projects.length} projects`,
+              description: `Sample data populated with ${projects.length} projects, ${spis.length} SPIs, ${objectives.length} objectives, and ${sitreps.length} sitreps`,
             });
 
             return true;

@@ -11,13 +11,29 @@ export const getSampleInternalPartners = async () => {
   return internalPartners;
 };
 
-export const generateSampleProjects = async (): Promise<Project[]> => {
+export const generateSampleProjects = async (): Promise<{
+  projects: Project[];
+  spis: any[];
+  objectives: any[];
+  sitreps: any[];
+}> => {
   try {
     const fortune30 = sampleFortune30;
     const internalPartners = await generateInternalPartners();
-    return generateProjects(fortune30, internalPartners);
+    const projects = generateProjects(fortune30, internalPartners);
+    
+    // Generate SPIs first, passing project IDs for linking
+    const spis = generateSampleSPIs(projects.map(p => p.id));
+    
+    // Generate objectives that reference the SPIs
+    const objectives = generateSampleObjectives();
+    
+    // Generate sitreps that reference the SPIs and inherit project links
+    const sitreps = generateSampleSitReps(spis);
+
+    return { projects, spis, objectives, sitreps };
   } catch (error) {
-    console.error('Error in sample project generation:', error);
+    console.error('Error in sample data generation:', error);
     throw error;
   }
 };
