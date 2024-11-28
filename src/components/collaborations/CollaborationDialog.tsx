@@ -1,9 +1,10 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { CollaborationFormFields, CollaborationFormSchema } from "./CollaborationFormFields";
+import { CollaborationFormFields } from "./CollaborationFormFields";
 import { CollaborationType } from "@/lib/types";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
+import { formSchema, type CollaborationFormSchema } from "./CollaborationFormFields";
 
 export interface CollaborationDialogProps {
   open: boolean;
@@ -21,7 +22,7 @@ export function CollaborationDialog({
   collaborationType = 'fortune30'
 }: CollaborationDialogProps) {
   const form = useForm<CollaborationFormSchema>({
-    resolver: zodResolver(CollaborationFormSchema),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       email: "",
