@@ -113,6 +113,12 @@ export function CompactSitRepForm({ onSubmitSuccess }: CompactSitRepFormProps) {
     }
   };
 
+  const handleImportanceLevelChange = (value: string) => {
+    if (value === "vp" || value === "svp" || value === "ceo") {
+      setImportanceLevel(value);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -150,7 +156,7 @@ export function CompactSitRepForm({ onSubmitSuccess }: CompactSitRepFormProps) {
               <Label className="text-white">Importance Level</Label>
               <RadioGroup
                 value={importanceLevel}
-                onValueChange={setImportanceLevel}
+                onValueChange={handleImportanceLevelChange}
                 className="flex space-x-4"
               >
                 <div className="flex items-center space-x-2">
