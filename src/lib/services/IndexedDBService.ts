@@ -217,6 +217,46 @@ export class IndexedDBService implements DataService {
       store => store.put({ ...existingObjective, ...updates }));
   }
 
+  async exportData(): Promise<void> {
+    this.ensureInitialized();
+    try {
+      const projects = await this.getAllProjects();
+      const collaborators = await this.getAllCollaborators();
+      const spis = await this.getAllSPIs();
+      const objectives = await this.getAllObjectives();
+      const sitreps = await this.getAllSitReps();
+      const teams = await this.getAllTeams();
+
+      const exportData = {
+        projects,
+        collaborators,
+        spis,
+        objectives,
+        sitreps,
+        teams,
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `project-data-${new Date().toISOString()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      throw error;
+    }
+  }
+
+  async getAllTeams(): Promise<Team[]> {
+    this.ensureInitialized();
+    const teams = await this.transactionManager!.performTransaction('teams', 'readonly', store => store.getAll()) as Team[];
+    return teams;
+  }
+
   async populateSampleData(): Promise<{ projects: Project[] }> {
     this.ensureInitialized();
     const { projects, internalPartners, spis, objectives, sitreps } = await generateSampleData([]);
