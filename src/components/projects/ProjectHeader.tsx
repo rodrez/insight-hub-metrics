@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Project } from "@/lib/types";
 import { DEPARTMENTS } from "@/lib/constants";
 import { toast } from "@/components/ui/use-toast";
+import { memo } from "react";
 
 interface ProjectHeaderProps {
   project: Project;
@@ -9,7 +10,7 @@ interface ProjectHeaderProps {
   onUpdate: (updates: Partial<Project>) => void;
 }
 
-export function ProjectHeader({ project, isEditing, onUpdate }: ProjectHeaderProps) {
+export const ProjectHeader = memo(({ project, isEditing, onUpdate }: ProjectHeaderProps) => {
   const getDepartmentColor = (id: string) => {
     return DEPARTMENTS.find(d => d.id === id)?.color;
   };
@@ -138,4 +139,6 @@ export function ProjectHeader({ project, isEditing, onUpdate }: ProjectHeaderPro
       </select>
     </div>
   );
-}
+});
+
+ProjectHeader.displayName = 'ProjectHeader';

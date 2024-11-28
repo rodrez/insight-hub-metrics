@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { db } from "@/lib/db";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, memo } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { NABCSection } from "./NABCSection";
 import { MilestonesSection } from "./MilestonesSection";
@@ -15,46 +15,8 @@ import { ProjectActions } from "./details/ProjectActions";
 import { RelatedSPIs } from "./details/RelatedSPIs";
 import { RelatedSitReps } from "./details/RelatedSitReps";
 
-function ProjectDetailsWrapper() {
-  const { id } = useParams();
-  const [project, setProject] = useState<Project | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadProject = async () => {
-      if (!id) return;
-      try {
-        await db.init();
-        const loadedProject = await db.getProject(id);
-        if (loadedProject) {
-          setProject(loadedProject);
-        }
-      } catch (error) {
-        toast({
-          title: "Error loading project",
-          description: "Could not load project details.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadProject();
-  }, [id]);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!project) {
-    return <div>Project not found</div>;
-  }
-
-  return <ProjectDetailsComponent project={project} />;
-}
-
-function ProjectDetailsComponent({ project: initialProject }: { project: Project }) {
+// Memoize the ProjectDetailsComponent to prevent unnecessary re-renders
+const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Project }) => {
   const [project, setProject] = useState(initialProject);
   const [isEditing, setIsEditing] = useState(false);
   const [editedProject, setEditedProject] = useState(project);
@@ -69,7 +31,7 @@ function ProjectDetailsComponent({ project: initialProject }: { project: Project
     queryFn: () => db.getAllSitReps()
   });
 
-  const handleUpdate = async () => {
+  const handleUpdate = useCallback(async () => {
     try {
       await db.addProject(editedProject);
       setProject(editedProject);
@@ -85,24 +47,24 @@ function ProjectDetailsComponent({ project: initialProject }: { project: Project
         variant: "destructive",
       });
     }
-  };
+  }, [editedProject]);
 
-  const handleEdit = () => {
+  const handleEdit = useCallback(() => {
     setEditedProject(project);
     setIsEditing(true);
-  };
+  }, [project]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setEditedProject(project);
     setIsEditing(false);
-  };
+  }, [project]);
 
-  const updateProject = (updates: Partial<Project>) => {
+  const updateProject = useCallback((updates: Partial<Project>) => {
     setEditedProject(prev => ({
       ...prev,
       ...updates
     }));
-  };
+  }, []);
 
   const currentProject = isEditing ? editedProject : project;
 
@@ -167,6 +129,47 @@ function ProjectDetailsComponent({ project: initialProject }: { project: Project
       )}
     </div>
   );
+});
+
+ProjectDetailsComponent.displayName = 'ProjectDetailsComponent';
+
+function ProjectDetailsWrapper() {
+  const { id } = useParams();
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProject = async () => {
+      if (!id) return;
+      try {
+        await db.init();
+        const loadedProject = await db.getProject(id);
+        if (loadedProject) {
+          setProject(loadedProject);
+        }
+      } catch (error) {
+        toast({
+          title: "Error loading project",
+          description: "Could not load project details.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProject();
+  }, [id]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!project) {
+    return <div>Project not found</div>;
+  }
+
+  return <ProjectDetailsComponent project={project} />;
 }
 
 export default ProjectDetailsWrapper;

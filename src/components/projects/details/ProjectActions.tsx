@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Edit, Save } from "lucide-react";
-import { Project } from "@/lib/types";
+import { memo } from "react";
 
 interface ProjectActionsProps {
   isEditing: boolean;
@@ -9,7 +9,7 @@ interface ProjectActionsProps {
   onUpdate: () => void;
 }
 
-export function ProjectActions({ isEditing, onEdit, onCancel, onUpdate }: ProjectActionsProps) {
+export const ProjectActions = memo(({ isEditing, onEdit, onCancel, onUpdate }: ProjectActionsProps) => {
   return (
     <div className="flex gap-2">
       {!isEditing ? (
@@ -30,4 +30,6 @@ export function ProjectActions({ isEditing, onEdit, onCancel, onUpdate }: Projec
       )}
     </div>
   );
-}
+});
+
+ProjectActions.displayName = 'ProjectActions';
