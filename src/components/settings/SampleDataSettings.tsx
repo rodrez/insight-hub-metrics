@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Database, Info, Trash2 } from "lucide-react";
+import { Database, Trash2 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { QuantityInputs } from "./sample-data/QuantityInputs";
+import { GeneratedCounts } from "./sample-data/GeneratedCounts";
 
 interface DataCounts {
   projects: number;
@@ -20,7 +19,6 @@ interface DataCounts {
 }
 
 export function SampleDataSettings() {
-  const [isInitialized, setIsInitialized] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
   const [isPopulating, setIsPopulating] = useState(false);
   const [quantities, setQuantities] = useState({
@@ -28,13 +26,13 @@ export function SampleDataSettings() {
     spis: 10,
     objectives: 5,
     sitreps: 10,
-    fortune30: 6,  // Changed from 30 to 6
+    fortune30: 6,
     internalPartners: 20,
     smePartners: 10
   });
   const [generatedCounts, setGeneratedCounts] = useState<DataCounts | null>(null);
 
-  const updateQuantity = (key: keyof typeof quantities, value: string) => {
+  const updateQuantity = (key: string, value: string) => {
     const numValue = parseInt(value) || 0;
     setQuantities(prev => ({ ...prev, [key]: numValue }));
   };
@@ -63,30 +61,19 @@ export function SampleDataSettings() {
   const populateDatabase = async () => {
     setIsPopulating(true);
     try {
-      const result = await db.populateSampleData(quantities);
-      
-      // Get actual counts from database
-      const projects = await db.getAllProjects();
-      const spis = await db.getAllSPIs();
-      const objectives = await db.getAllObjectives();
-      const sitreps = await db.getAllSitReps();
-      const fortune30 = await db.getAllCollaborators();
-      const internalPartners = await db.getAllCollaborators();
-      const smePartners = await db.getAllSMEPartners();
-
+      await db.populateSampleData(quantities);
       const counts: DataCounts = {
-        projects: projects.length,
-        spis: spis.length,
-        objectives: objectives.length,
-        sitreps: sitreps.length,
-        fortune30: fortune30.filter(c => c.type === 'fortune30').length,
-        internalPartners: internalPartners.filter(c => c.type === 'other').length,
-        smePartners: smePartners.length
+        projects: (await db.getAllProjects()).length,
+        spis: (await db.getAllSPIs()).length,
+        objectives: (await db.getAllObjectives()).length,
+        sitreps: (await db.getAllSitReps()).length,
+        fortune30: (await db.getAllCollaborators()).filter(c => c.type === 'fortune30').length,
+        internalPartners: (await db.getAllCollaborators()).filter(c => c.type === 'other').length,
+        smePartners: (await db.getAllSMEPartners()).length
       };
 
       setGeneratedCounts(counts);
 
-      // Validate counts match requested quantities
       const mismatches = Object.entries(counts).filter(
         ([key, count]) => count !== quantities[key as keyof typeof quantities]
       );
@@ -116,20 +103,7 @@ export function SampleDataSettings() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2">
-        {Object.entries(quantities).map(([key, value]) => (
-          <div key={key} className="space-y-2">
-            <Label htmlFor={key}>{key.charAt(0).toUpperCase() + key.slice(1)}</Label>
-            <Input
-              id={key}
-              type="number"
-              min="0"
-              value={value}
-              onChange={(e) => updateQuantity(key as keyof typeof quantities, e.target.value)}
-            />
-          </div>
-        ))}
-      </div>
+      <QuantityInputs quantities={quantities} onUpdate={updateQuantity} />
 
       <div className="flex gap-4">
         <AlertDialog>
@@ -178,21 +152,7 @@ export function SampleDataSettings() {
       </div>
 
       {generatedCounts && (
-        <Card>
-          <CardContent className="pt-6">
-            <h3 className="text-lg font-semibold mb-4">Generated Data Counts</h3>
-            <div className="grid gap-2">
-              {Object.entries(generatedCounts).map(([key, count]) => (
-                <div key={key} className="flex justify-between items-center">
-                  <span>{key.charAt(0).toUpperCase() + key.slice(1)}:</span>
-                  <span className={count === quantities[key as keyof typeof quantities] ? "text-green-600" : "text-red-600"}>
-                    {count}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <GeneratedCounts counts={generatedCounts} requestedQuantities={quantities} />
       )}
     </div>
   );

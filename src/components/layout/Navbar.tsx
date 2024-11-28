@@ -2,12 +2,18 @@ import { Link } from "react-router-dom";
 import { GlobalSearch } from "../search/GlobalSearch";
 import { ThemeToggle } from "../theme/ThemeToggle";
 import { ChartBar, Users, UserCheck, BookOpen, ListTodo, Settings, FileText, TrendingUp, UserCog } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { NavItem } from "./NavItem";
+
+const navItems = [
+  { icon: ChartBar, label: 'Dashboard', path: '/' },
+  { icon: Users, label: 'Collaborations', path: '/collaborations' },
+  { icon: UserCog, label: 'SME', path: '/sme' },
+  { icon: UserCheck, label: 'Internal Support', path: '/internal-support' },
+  { icon: FileText, label: 'SitReps', path: '/sitreps' },
+  { icon: TrendingUp, label: 'SPI', path: '/spi' },
+  { icon: BookOpen, label: 'Wiki', path: '/wiki' },
+  { icon: ListTodo, label: 'Glossary', path: '/glossary' },
+];
 
 export default function Navbar() {
   return (
@@ -17,125 +23,19 @@ export default function Navbar() {
           <span className="font-bold">Insight Hub</span>
         </Link>
         <div className="flex items-center space-x-6 text-sm font-medium">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link to="/" className="transition-colors hover:text-foreground/80">
-                  <ChartBar className="h-5 w-5" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Dashboard</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link to="/collaborations" className="transition-colors hover:text-foreground/80">
-                  <Users className="h-5 w-5" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Collaborations</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link to="/sme" className="transition-colors hover:text-foreground/80">
-                  <UserCog className="h-5 w-5" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>SME</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link to="/internal-support" className="transition-colors hover:text-foreground/80">
-                  <UserCheck className="h-5 w-5" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Internal Support</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link to="/sitreps" className="transition-colors hover:text-foreground/80">
-                  <FileText className="h-5 w-5" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>SitReps</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link to="/spi" className="transition-colors hover:text-foreground/80">
-                  <TrendingUp className="h-5 w-5" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>SPI</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link to="/wiki" className="transition-colors hover:text-foreground/80">
-                  <BookOpen className="h-5 w-5" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Wiki</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link to="/glossary" className="transition-colors hover:text-foreground/80">
-                  <ListTodo className="h-5 w-5" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Glossary</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          {navItems.map((item) => (
+            <NavItem
+              key={item.path}
+              to={item.path}
+              icon={item.icon}
+              label={item.label}
+            />
+          ))}
         </div>
         <div className="ml-auto flex items-center space-x-4">
           <GlobalSearch />
           <ThemeToggle />
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link to="/settings" className="transition-colors hover:text-foreground/80">
-                  <Settings className="h-5 w-5" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Settings</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <NavItem to="/settings" icon={Settings} label="Settings" />
         </div>
       </div>
     </nav>

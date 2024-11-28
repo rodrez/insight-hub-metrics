@@ -3,6 +3,15 @@ import { BarChart, Activity, Timer, DollarSign } from 'lucide-react';
 import { useQuery } from "@tanstack/react-query";
 import { db } from '@/lib/db';
 
+const SUMMARY_CARDS = [
+  { title: 'Total Projects', icon: BarChart, getValue: (data: any[]) => data.length },
+  { title: 'Active Projects', icon: Activity, getValue: (data: any[]) => data.filter(p => p.status === 'active').length },
+  { title: 'Total Business Impact', icon: DollarSign, getValue: (data: any[]) => 
+    (data.reduce((sum, p) => sum + (p.businessImpact || 10000000), 0) / 1000000).toFixed(1) + 'M' },
+  { title: 'Total Budget', icon: Timer, getValue: (data: any[]) => 
+    (data.reduce((sum, p) => sum + p.budget, 0) / 1000000).toFixed(1) + 'M' }
+];
+
 export default function ProjectSummary() {
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['projects'],
@@ -12,15 +21,10 @@ export default function ProjectSummary() {
     }
   });
 
-  const totalProjects = projects.length;
-  const activeProjects = projects.filter(p => p.status === 'active').length;
-  const totalBudget = projects.reduce((sum, p) => sum + p.budget, 0);
-  const totalBusinessImpact = projects.reduce((sum, p) => sum + (p.businessImpact || 10000000), 0);
-
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 animate-pulse">
-        {[...Array(4)].map((_, i) => (
+        {SUMMARY_CARDS.map((card, i) => (
           <Card key={i}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <div className="h-4 w-24 bg-gray-200 rounded" />
@@ -37,49 +41,19 @@ export default function ProjectSummary() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
-          <BarChart className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{totalProjects}</div>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
-          <Activity className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{activeProjects}</div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Business Impact</CardTitle>
-          <DollarSign className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            ${(totalBusinessImpact / 1000000).toFixed(1)}M
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Budget</CardTitle>
-          <Timer className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            ${(totalBudget / 1000000).toFixed(1)}M
-          </div>
-        </CardContent>
-      </Card>
+      {SUMMARY_CARDS.map((card, index) => (
+        <Card key={index}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
+            <card.icon className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {card.getValue(projects)}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }

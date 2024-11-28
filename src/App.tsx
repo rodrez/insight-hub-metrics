@@ -28,9 +28,13 @@ const queryClient = new QueryClient({
   },
 });
 
+// Pages that don't need a back button
+const ROOT_PAGES = ['/', '/settings', '/collaborations', '/sme', '/internal-support', 
+  '/wiki', '/glossary', '/sitreps', '/spi'];
+
 function AppContent() {
   const location = useLocation();
-  const showBackButton = location.pathname !== '/';
+  const showBackButton = !ROOT_PAGES.includes(location.pathname);
 
   return (
     <div className="min-h-screen">
