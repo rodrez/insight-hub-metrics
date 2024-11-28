@@ -11,7 +11,12 @@ export const getSampleInternalPartners = async () => {
   return internalPartners;
 };
 
-export const generateSampleProjects = async (): Promise<{
+export const generateSampleProjects = async (quantities: {
+  projects: number;
+  spis: number;
+  objectives: number;
+  sitreps: number;
+}): Promise<{
   projects: Project[];
   spis: any[];
   objectives: any[];
@@ -25,14 +30,14 @@ export const generateSampleProjects = async (): Promise<{
     const result = await generateProjects(fortune30, internalPartners);
     const projects = result.projects;
     
-    // Generate exactly 10 SPIs
-    const spis = generateSampleSPIs(projects.map(p => p.id));
+    // Generate SPIs based on quantity setting
+    const spis = generateSampleSPIs(projects.map(p => p.id)).slice(0, quantities.spis);
     
-    // Generate exactly 5 objectives
-    const objectives = generateSampleObjectives();
+    // Generate objectives based on quantity setting
+    const objectives = generateSampleObjectives().slice(0, quantities.objectives);
     
-    // Generate exactly 10 sitreps
-    const sitreps = generateSampleSitReps(spis);
+    // Generate sitreps based on quantity setting
+    const sitreps = generateSampleSitReps(spis).slice(0, quantities.sitreps);
 
     return { projects, spis, objectives, sitreps };
   } catch (error) {

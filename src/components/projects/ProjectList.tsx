@@ -1,19 +1,18 @@
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Project } from '@/lib/types';
 import { ProjectCard } from './ProjectCard';
+import { useDataInitialization } from '@/components/data/hooks/useDataInitialization';
 
 export default function ProjectList() {
+  const { isInitialized } = useDataInitialization();
+
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['projects'],
-    queryFn: async () => {
-      await db.init();
-      return db.getAllProjects();
-    }
+    queryFn: () => db.getAllProjects(),
+    enabled: isInitialized
   });
 
-  if (isLoading) {
+  if (!isInitialized || isLoading) {
     return <div>Loading...</div>;
   }
 
