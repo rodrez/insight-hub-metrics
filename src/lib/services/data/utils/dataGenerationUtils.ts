@@ -1,8 +1,3 @@
-import { toast } from "@/components/ui/use-toast";
-import { Project, Collaborator } from '@/lib/types';
-import { SPI } from '@/lib/types/spi';
-import { Objective } from '@/lib/types/objective';
-import { SitRep } from '@/lib/types/sitrep';
 import { globalProgressTracker } from '@/lib/utils/progressTracking';
 
 export interface GenerationProgress {
@@ -42,11 +37,7 @@ export const validateDataQuantities = (
   type: string
 ): number => {
   if (requested > available) {
-    toast({
-      title: "Notice",
-      description: `${type} quantity limited to ${available} (requested: ${requested})`,
-      variant: "default",
-    });
+    console.warn(`${type} quantity limited to ${available} (requested: ${requested})`);
     return available;
   }
   return requested;
@@ -67,11 +58,6 @@ export const generateDataWithProgress = async<T>(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error(`Error in ${step}:`, errorMessage);
-    toast({
-      title: "Error",
-      description: `Failed to generate ${step}: ${errorMessage}`,
-      variant: "destructive",
-    });
     throw error;
   }
 };
@@ -84,11 +70,7 @@ export const validateDataConsistency = <T extends { id: string }>(
   const isValid = uniqueIds.size === data.length;
   
   if (!isValid) {
-    toast({
-      title: "Validation Error",
-      description: `Duplicate IDs found in ${type} data`,
-      variant: "destructive",
-    });
+    console.warn(`Duplicate IDs found in ${type} data`);
   }
   
   return isValid;
