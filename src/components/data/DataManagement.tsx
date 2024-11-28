@@ -1,23 +1,13 @@
-import { toast } from "@/components/ui/use-toast";
+import { useState, useEffect } from "react";
 import { db } from "@/lib/db";
-import { useEffect, useState } from "react";
 import { DatabaseActions } from "./DatabaseActions";
-import { sampleFortune30, getSampleInternalPartners, generateSampleProjects } from "./SampleData";
-import { executeWithRetry, LoadingStep } from "@/lib/utils/loadingRetry";
-import { Card, CardContent } from "@/components/ui/card";
-
-interface DataCounts {
-  projects: number;
-  spis: number;
-  objectives: number;
-  sitreps: number;
-  fortune30: number;
-  internalPartners: number;
-  smePartners: number;
-}
+import { DataStats } from "./stats/DataStats";
+import { useDataInitialization } from "./hooks/useDataInitialization";
+import { DataCounts } from "./types/dataTypes";
+import { toast } from "@/components/ui/use-toast";
 
 export default function DataManagement() {
-  const [isInitialized, setIsInitialized] = useState(false);
+  const { isInitialized } = useDataInitialization();
   const [isClearing, setIsClearing] = useState(false);
   const [isPopulating, setIsPopulating] = useState(false);
   const [dataCounts, setDataCounts] = useState<DataCounts>({
@@ -29,10 +19,6 @@ export default function DataManagement() {
     internalPartners: 0,
     smePartners: 0
   });
-
-  useEffect(() => {
-    initializeDB();
-  }, []);
 
   useEffect(() => {
     if (isInitialized) {
@@ -60,51 +46,30 @@ export default function DataManagement() {
       });
     } catch (error) {
       console.error('Error updating data counts:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update data counts",
+        variant: "destructive",
+      });
     }
-  };
-
-  const initializeDB = async () => {
-    const initStep: LoadingStep = {
-      name: "Database Initialization",
-      action: async () => {
-        try {
-          console.log('Starting database initialization...');
-          await db.init();
-          console.log('Database initialization completed');
-          setIsInitialized(true);
-          return true;
-        } catch (error) {
-          console.error('Database initialization error:', error);
-          return false;
-        }
-      }
-    };
-
-    await executeWithRetry(initStep);
   };
 
   const clearDatabase = async () => {
     setIsClearing(true);
-    
     try {
-      const clearStep: LoadingStep = {
-        name: "Database Clear",
-        action: async () => {
-          try {
-            console.log('Starting database clear...');
-            await db.clear();
-            console.log('Database cleared successfully');
-            await initializeDB();
-            await updateDataCounts();
-            return true;
-          } catch (error) {
-            console.error('Database clear error:', error);
-            return false;
-          }
-        }
-      };
-
-      await executeWithRetry(clearStep);
+      await db.clear();
+      await db.init();
+      await updateDataCounts();
+      toast({
+        title: "Success",
+        description: "Database cleared successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to clear database",
+        variant: "destructive",
+      });
     } finally {
       setIsClearing(false);
     }
@@ -205,20 +170,7 @@ export default function DataManagement() {
         onClear={clearDatabase}
         onPopulate={populateSampleData}
       />
-      
-      <Card className="mt-6">
-        <CardContent className="pt-6">
-          <h3 className="text-lg font-semibold mb-4">Current Data Counts</h3>
-          <div className="grid gap-2">
-            {Object.entries(dataCounts).map(([key, count]) => (
-              <div key={key} className="flex justify-between items-center">
-                <span>{key.charAt(0).toUpperCase() + key.slice(1)}:</span>
-                <span>{count}</span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <DataStats dataCounts={dataCounts} />
     </div>
   );
 }
