@@ -4,6 +4,7 @@ import { BasicInfoFields } from "./form/BasicInfoFields";
 import { ContactFields } from "./form/ContactFields";
 import { AgreementFields } from "./form/AgreementFields";
 import { WorkstreamFields } from "./form/WorkstreamFields";
+import { CollaborationType } from "@/lib/types";
 
 const contactPersonSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -39,12 +40,21 @@ export const formSchema = z.object({
 
 export type CollaborationFormSchema = z.infer<typeof formSchema>;
 
-type CollaborationFormFieldsProps = {
+export type CollaborationFormFieldsProps = {
   form: UseFormReturn<CollaborationFormSchema>;
   departmentId?: string;
+  collaboratorId?: string | null;
+  collaborationType?: CollaborationType;
+  onSuccess?: () => void;
 };
 
-export const CollaborationFormFields = ({ form, departmentId }: CollaborationFormFieldsProps) => {
+export const CollaborationFormFields = ({ 
+  form, 
+  departmentId,
+  collaboratorId,
+  collaborationType = 'fortune30',
+  onSuccess 
+}: CollaborationFormFieldsProps) => {
   return (
     <div className="space-y-8">
       <BasicInfoFields form={form} departmentId={departmentId} />
