@@ -1,22 +1,28 @@
 import { Project, Collaborator } from '../types';
 import { DataService, SampleDataQuantities } from './DataService';
 import { DB_CONFIG, createStores } from './db/stores';
-import { TransactionManager } from './db/transactionManager';
-import { generateSampleData } from './sampleData/sampleDataGenerator';
 import { connectionManager } from './db/connectionManager';
 import { DatabaseCleaner } from './db/databaseCleaner';
-import { SitRep } from '../types/sitrep';
-import { SPI } from '../types/spi';
-import { Team } from '../types/team';
-import { Objective } from '../types/objective';
 import { ProjectStore } from './db/stores/projectStore';
 import { SMEStore } from './db/stores/smeStore';
+import { CollaboratorService } from './db/CollaboratorService';
+import { SitRepService } from './db/SitRepService';
+import { SPIService } from './db/SPIService';
+import { BaseDBService } from './db/base/BaseDBService';
 
-export class IndexedDBService implements DataService {
-  private db: IDBDatabase | null = null;
-  private transactionManager: TransactionManager | null = null;
+export class IndexedDBService extends BaseDBService implements DataService {
   private projectStore: ProjectStore | null = null;
   private smeStore: SMEStore | null = null;
+  private collaboratorService: CollaboratorService;
+  private sitRepService: SitRepService;
+  private spiService: SPIService;
+
+  constructor() {
+    super();
+    this.collaboratorService = new CollaboratorService();
+    this.sitRepService = new SitRepService();
+    this.spiService = new SPIService();
+  }
 
   async init(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -31,8 +37,10 @@ export class IndexedDBService implements DataService {
       request.onsuccess = () => {
         console.log('IndexedDB initialized successfully');
         this.db = request.result;
+        this.collaboratorService.db = this.db;
+        this.sitRepService.db = this.db;
+        this.spiService.db = this.db;
         connectionManager.addConnection(this.db);
-        this.transactionManager = new TransactionManager(this.db);
         this.projectStore = new ProjectStore(this.db);
         this.smeStore = new SMEStore(this.db);
         resolve();
@@ -45,23 +53,13 @@ export class IndexedDBService implements DataService {
     });
   }
 
-  private ensureInitialized() {
-    if (!this.db || !this.transactionManager || !this.projectStore || !this.smeStore) {
-      throw new Error('Database not initialized');
-    }
-  }
-
   async clear(): Promise<void> {
-    console.log('Starting database clear...');
-    
     if (this.db) {
       connectionManager.closeAllConnections();
       this.db = null;
-      this.transactionManager = null;
       this.projectStore = null;
       this.smeStore = null;
     }
-
     await DatabaseCleaner.clearDatabase();
   }
 
@@ -86,23 +84,44 @@ export class IndexedDBService implements DataService {
     return this.projectStore!.updateProject(id, updates);
   }
 
-  // SME methods
-  async getAllSMEPartners(): Promise<Collaborator[]> {
-    this.ensureInitialized();
-    return this.smeStore!.getAllSMEPartners();
+  // Delegate to CollaboratorService
+  async getAllCollaborators(): Promise<Collaborator[]> {
+    return this.collaboratorService.getAllCollaborators();
   }
 
-  async getSMEPartner(id: string): Promise<Collaborator | undefined> {
-    this.ensureInitialized();
-    return this.smeStore!.getSMEPartner(id);
+  async getCollaborator(id: string): Promise<Collaborator | undefined> {
+    return this.collaboratorService.getCollaborator(id);
   }
 
-  async addSMEPartner(partner: Collaborator): Promise<void> {
-    this.ensureInitialized();
-    return this.smeStore!.addSMEPartner(partner);
+  async addCollaborator(collaborator: Collaborator): Promise<void> {
+    return this.collaboratorService.addCollaborator(collaborator);
   }
 
-  // Implement the missing populateSampleData method
+  // Delegate to SitRepService
+  async getAllSitReps() {
+    return this.sitRepService.getAllSitReps();
+  }
+
+  async addSitRep(sitrep) {
+    return this.sitRepService.addSitRep(sitrep);
+  }
+
+  // Delegate to SPIService
+  async getAllSPIs() {
+    return this.spiService.getAllSPIs();
+  }
+
+  async getSPI(id: string) {
+    return this.spiService.getSPI(id);
+  }
+
+  async addSPI(spi) {
+    return this.spiService.addSPI(spi);
+  }
+
+  async updateSPI(id: string, updates) {
+    return this.spiService.updateSPI(id, updates);
+  }
 
   async populateSampleData(quantities: SampleDataQuantities): Promise<void> {
     this.ensureInitialized();
@@ -119,181 +138,18 @@ export class IndexedDBService implements DataService {
     }
   }
 
-  async getAllCollaborators(): Promise<Collaborator[]> {
+  async getAllSMEPartners(): Promise<Collaborator[]> {
     this.ensureInitialized();
-    const collaborators = await this.transactionManager!.performTransaction('collaborators', 'readonly', store => store.getAll()) as Collaborator[];
-    const projects = await this.getAllProjects();
-    
-    return collaborators.map(collaborator => ({
-      ...collaborator,
-      projects: collaborator.projects.map(colProj => {
-        const fullProject = projects.find(p => p.id === colProj.id);
-        return {
-          ...colProj,
-          nabc: fullProject?.nabc,
-          status: fullProject?.status
-        };
-      })
-    }));
+    return this.smeStore!.getAllSMEPartners();
   }
 
-  async getCollaborator(id: string): Promise<Collaborator | undefined> {
+  async getSMEPartner(id: string): Promise<Collaborator | undefined> {
     this.ensureInitialized();
-    const collaborator = await this.transactionManager!.performTransaction('collaborators', 'readonly', store => store.get(id)) as Collaborator | undefined;
-    if (!collaborator) return undefined;
-    
-    const projects = await this.getAllProjects();
-    return {
-      ...collaborator,
-      projects: collaborator.projects.map(colProj => {
-        const fullProject = projects.find(p => p.id === colProj.id);
-        return {
-          ...colProj,
-          nabc: fullProject?.nabc,
-          status: fullProject?.status
-        };
-      })
-    };
+    return this.smeStore!.getSMEPartner(id);
   }
 
-  async addCollaborator(collaborator: Collaborator): Promise<void> {
+  async addSMEPartner(partner: Collaborator): Promise<void> {
     this.ensureInitialized();
-    try {
-      await this.transactionManager!.performTransaction('collaborators', 'readwrite', store => {
-        const request = store.put({ ...collaborator });
-        return request;
-      });
-      console.log(`Collaborator ${collaborator.name} added successfully`);
-    } catch (error) {
-      console.error(`Error adding collaborator ${collaborator.name}:`, error);
-      throw error;
-    }
-  }
-
-  async getAllSitReps(): Promise<SitRep[]> {
-    this.ensureInitialized();
-    const sitreps = await this.transactionManager!.performTransaction('sitreps', 'readonly', store => store.getAll()) as SitRep[];
-    return sitreps;
-  }
-
-  async addSitRep(sitrep: SitRep): Promise<void> {
-    this.ensureInitialized();
-    try {
-      await this.transactionManager!.performTransaction('sitreps', 'readwrite', store => {
-        const request = store.put(sitrep);
-        return request;
-      });
-      console.log(`SitRep ${sitrep.id} added successfully`);
-    } catch (error) {
-      console.error(`Error adding SitRep ${sitrep.id}:`, error);
-      throw error;
-    }
-  }
-
-  async getAllSPIs(): Promise<SPI[]> {
-    this.ensureInitialized();
-    const spis = await this.transactionManager!.performTransaction('spis', 'readonly', store => store.getAll()) as SPI[];
-    return spis;
-  }
-
-  async getSPI(id: string): Promise<SPI | undefined> {
-    this.ensureInitialized();
-    const spi = await this.transactionManager!.performTransaction('spis', 'readonly', store => store.get(id)) as SPI | undefined;
-    return spi;
-  }
-
-  async addSPI(spi: SPI): Promise<void> {
-    this.ensureInitialized();
-    try {
-      await this.transactionManager!.performTransaction('spis', 'readwrite', store => {
-        const request = store.put(spi);
-        return request;
-      });
-      console.log(`SPI ${spi.id} added successfully`);
-    } catch (error) {
-      console.error(`Error adding SPI ${spi.id}:`, error);
-      throw error;
-    }
-  }
-
-  async updateSPI(id: string, updates: Partial<SPI>): Promise<void> {
-    this.ensureInitialized();
-    const existingSPI = await this.getSPI(id);
-    if (!existingSPI) {
-      throw new Error('SPI not found');
-    }
-    await this.transactionManager!.performTransaction('spis', 'readwrite', 
-      store => store.put({ ...existingSPI, ...updates }));
-  }
-
-  async getAllObjectives(): Promise<Objective[]> {
-    this.ensureInitialized();
-    const objectives = await this.transactionManager!.performTransaction('objectives', 'readonly', store => store.getAll()) as Objective[];
-    return objectives;
-  }
-
-  async addObjective(objective: Objective): Promise<void> {
-    this.ensureInitialized();
-    try {
-      await this.transactionManager!.performTransaction('objectives', 'readwrite', store => {
-        const request = store.put(objective);
-        return request;
-      });
-      console.log(`Objective ${objective.id} added successfully`);
-    } catch (error) {
-      console.error(`Error adding objective ${objective.id}:`, error);
-      throw error;
-    }
-  }
-
-  async updateObjective(id: string, updates: Partial<Objective>): Promise<void> {
-    this.ensureInitialized();
-    const existingObjective = await this.transactionManager!.performTransaction('objectives', 'readonly', store => store.get(id)) as Objective;
-    if (!existingObjective) {
-      throw new Error('Objective not found');
-    }
-    await this.transactionManager!.performTransaction('objectives', 'readwrite', 
-      store => store.put({ ...existingObjective, ...updates }));
-  }
-
-  async exportData(): Promise<void> {
-    this.ensureInitialized();
-    try {
-      const projects = await this.getAllProjects();
-      const collaborators = await this.getAllCollaborators();
-      const spis = await this.getAllSPIs();
-      const objectives = await this.getAllObjectives();
-      const sitreps = await this.getAllSitReps();
-      const teams = await this.getAllTeams();
-
-      const exportData = {
-        projects,
-        collaborators,
-        spis,
-        objectives,
-        sitreps,
-        teams,
-      };
-
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `project-data-${new Date().toISOString()}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error exporting data:', error);
-      throw error;
-    }
-  }
-
-  async getAllTeams(): Promise<Team[]> {
-    this.ensureInitialized();
-    const teams = await this.transactionManager!.performTransaction('teams', 'readonly', store => store.getAll()) as Team[];
-    return teams;
+    return this.smeStore!.addSMEPartner(partner);
   }
 }
-
