@@ -63,9 +63,7 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
         status,
         summary,
         projectId: selectedProject !== "none" ? selectedProject : undefined,
-        fortune30Id: selectedFortune30 !== "none" ? selectedFortune30 : undefined,
-        departmentId: selectedDepartment !== "none" ? selectedDepartment : undefined,
-        partnerId: selectedPartner !== "none" ? selectedPartner : undefined
+        departmentId: selectedDepartment !== "none" ? selectedDepartment : "default"
       });
       
       toast({

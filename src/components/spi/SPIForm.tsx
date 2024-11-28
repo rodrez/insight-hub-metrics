@@ -53,11 +53,9 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
         deliverable,
         details,
         expectedCompletionDate: expectedDate.toISOString(),
-        status,
+        status: 'on-track',
         projectId: selectedProject !== "none" ? selectedProject : undefined,
-        fortune30Id: selectedFortune30 !== "none" ? selectedFortune30 : undefined,
-        departmentId: selectedDepartment !== "none" ? selectedDepartment : undefined,
-        internalPartnerId: undefined,
+        departmentId: selectedDepartment !== "none" ? selectedDepartment : "default",
         sitrepIds: [],
         createdAt: new Date().toISOString()
       };

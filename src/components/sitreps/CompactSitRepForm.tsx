@@ -63,16 +63,12 @@ export function CompactSitRepForm({ onSubmitSuccess }: CompactSitRepFormProps) {
         date: new Date().toISOString(),
         spiId: "temp-spi-id",
         title,
-        content,
-        importanceLevel,
-        keyTeam: keyTeam !== "none" ? keyTeam : undefined,
-        supportingTeams,
-        pointsOfContact,
-        status: 'on-track',
         update: content,
         challenges: "",
         nextSteps: "",
-        summary: content
+        status: 'on-track',
+        summary: content,
+        departmentId: keyTeam !== "none" ? keyTeam : "default"
       });
       
       toast({
