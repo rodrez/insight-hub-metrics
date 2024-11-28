@@ -5,11 +5,12 @@ import { ContactFields } from "./form/ContactFields";
 import { AgreementFields } from "./form/AgreementFields";
 import { WorkstreamFields } from "./form/WorkstreamFields";
 import { CollaborationType } from "@/lib/types";
+import { validateEmail } from "@/lib/utils/validation";
 
 const contactPersonSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   role: z.string().min(2, "Role must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
+  email: z.string().email("Invalid email address").refine(validateEmail, "Invalid email format"),
   phone: z.string().optional(),
 });
 
@@ -26,7 +27,7 @@ const workstreamSchema = z.object({
 
 export const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
+  email: z.string().email("Invalid email address").refine(validateEmail, "Invalid email format"),
   role: z.string().min(2, "Role must be at least 2 characters"),
   department: z.string().min(2, "Department must be at least 2 characters"),
   agreementType: z.enum(['NDA', 'JTDA', 'Both', 'None'] as const),
