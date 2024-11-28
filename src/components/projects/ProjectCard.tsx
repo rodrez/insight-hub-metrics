@@ -44,7 +44,14 @@ export function ProjectCard({ project }: ProjectCardProps) {
         .filter(collab => collab.type === 'fortune30')
         .map(collab => collab.id)
     )
-  ).map(id => project.collaborators.find(collab => collab.id === id)!);
+  ).map(id => {
+    const collaborator = project.collaborators.find(collab => collab.id === id)!;
+    // Ensure department is set
+    if (!collaborator.department) {
+      collaborator.department = 'it'; // Default to IT department if none specified
+    }
+    return collaborator;
+  });
 
   // Create a Set of already displayed people (POC and Tech Lead)
   const displayedPeople = new Set([project.poc, project.techLead]);
@@ -56,7 +63,14 @@ export function ProjectCard({ project }: ProjectCardProps) {
         .filter(partner => !displayedPeople.has(partner.name))
         .map(partner => partner.id)
     )
-  ).map(id => project.internalPartners?.find(partner => partner.id === id)!);
+  ).map(id => {
+    const partner = project.internalPartners?.find(partner => partner.id === id)!;
+    // Ensure department is set
+    if (!partner.department) {
+      partner.department = 'it'; // Default to IT department if none specified
+    }
+    return partner;
+  });
 
   // Show warning toast if there are duplicates
   const duplicatePartners = project.internalPartners?.filter(partner => 
@@ -67,7 +81,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
     toast({
       title: "Duplicate Team Members Detected",
       description: `${duplicatePartners.map(p => p.name).join(", ")} ${duplicatePartners.length === 1 ? "is" : "are"} already listed as POC or Tech Lead and will not be shown in Internal Partners.`,
-      variant: "default"  // Changed from "warning" to "default"
+      variant: "default"
     });
   }
 
@@ -175,6 +189,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
                     <ProjectPartnerBadge 
                       key={`${project.id}-${collab.id}`}
                       partner={collab}
+                      departmentColor={getDepartmentColor(collab.department)}
                     />
                   ))}
                 </div>
