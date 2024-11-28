@@ -207,6 +207,20 @@ export class IndexedDBService implements DataService {
     return objectives;
   }
 
+  async addObjective(objective: Objective): Promise<void> {
+    this.ensureInitialized();
+    try {
+      await this.transactionManager!.performTransaction('objectives', 'readwrite', store => {
+        const request = store.put(objective);
+        return request;
+      });
+      console.log(`Objective ${objective.id} added successfully`);
+    } catch (error) {
+      console.error(`Error adding objective ${objective.id}:`, error);
+      throw error;
+    }
+  }
+
   async updateObjective(id: string, updates: Partial<Objective>): Promise<void> {
     this.ensureInitialized();
     const existingObjective = await this.transactionManager!.performTransaction('objectives', 'readonly', store => store.get(id)) as Objective;

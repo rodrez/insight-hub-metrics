@@ -73,6 +73,10 @@ export class SampleDataService implements DataService {
     return this.indexedDBService.getAllObjectives();
   }
 
+  async addObjective(objective: Objective): Promise<void> {
+    return this.indexedDBService.addObjective(objective);
+  }
+
   async updateObjective(id: string, updates: Partial<Objective>): Promise<void> {
     return this.indexedDBService.updateObjective(id, updates);
   }
