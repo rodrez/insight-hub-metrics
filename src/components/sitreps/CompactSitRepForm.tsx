@@ -16,7 +16,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { DEPARTMENTS } from "@/lib/constants";
+import { SupportingTeamsSelect } from "./SupportingTeamsSelect";
+import { PointsOfContactForm } from "./PointsOfContactForm";
 
 interface CompactSitRepFormProps {
   onSubmitSuccess: () => void;
@@ -37,12 +39,6 @@ export function CompactSitRepForm({ onSubmitSuccess }: CompactSitRepFormProps) {
   const [keyTeam, setKeyTeam] = useState<string>("none");
   const [supportingTeams, setSupportingTeams] = useState<string[]>([]);
   const [pointsOfContact, setPointsOfContact] = useState<PointOfContact[]>([]);
-  const [newPOC, setNewPOC] = useState<PointOfContact>({
-    name: "",
-    email: "",
-    title: "",
-    department: "Engineering"
-  });
 
   const { data: teams } = useQuery({
     queryKey: ['teams'],
@@ -101,24 +97,6 @@ export function CompactSitRepForm({ onSubmitSuccess }: CompactSitRepFormProps) {
     }
   };
 
-  const addPointOfContact = () => {
-    if (newPOC.name && newPOC.email) {
-      setPointsOfContact([...pointsOfContact, newPOC]);
-      setNewPOC({
-        name: "",
-        email: "",
-        title: "",
-        department: "Engineering"
-      });
-    }
-  };
-
-  const handleImportanceLevelChange = (value: string) => {
-    if (value === "cto" || value === "svp" || value === "ceo") {
-      setImportanceLevel(value);
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -156,7 +134,7 @@ export function CompactSitRepForm({ onSubmitSuccess }: CompactSitRepFormProps) {
               <Label className="text-white">Importance Level</Label>
               <RadioGroup
                 value={importanceLevel}
-                onValueChange={handleImportanceLevelChange}
+                onValueChange={(value: "cto" | "svp" | "ceo") => setImportanceLevel(value)}
                 className="flex space-x-4"
               >
                 <div className="flex items-center space-x-2">
@@ -182,96 +160,24 @@ export function CompactSitRepForm({ onSubmitSuccess }: CompactSitRepFormProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">None</SelectItem>
-                  {teams?.map(team => (
-                    <SelectItem key={team.id} value={team.id}>
-                      {team.name}
+                  {DEPARTMENTS.map(dept => (
+                    <SelectItem key={dept.id} value={dept.id}>
+                      {dept.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            <div>
-              <Label className="text-white">Supporting Teams</Label>
-              <ScrollArea className="h-32 rounded-md border border-gray-700 bg-[#13151D]">
-                <div className="p-4 space-y-2">
-                  {["Engineering", "Product", "Design", "Marketing", "Operations"].map((team) => (
-                    <div key={team} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id={team}
-                        checked={supportingTeams.includes(team)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSupportingTeams([...supportingTeams, team]);
-                          } else {
-                            setSupportingTeams(supportingTeams.filter(t => t !== team));
-                          }
-                        }}
-                        className="rounded border-gray-700"
-                      />
-                      <Label htmlFor={team}>{team}</Label>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
+            <SupportingTeamsSelect 
+              supportingTeams={supportingTeams}
+              setSupportingTeams={setSupportingTeams}
+            />
 
-            <div>
-              <Label className="text-white">Points of Contact</Label>
-              <div className="space-y-4">
-                {pointsOfContact.map((poc, index) => (
-                  <div key={index} className="flex items-center space-x-2 bg-[#13151D] p-2 rounded">
-                    <span>{poc.name}</span>
-                    <span className="text-gray-400">({poc.email})</span>
-                  </div>
-                ))}
-                <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    placeholder="Name"
-                    value={newPOC.name}
-                    onChange={(e) => setNewPOC({ ...newPOC, name: e.target.value })}
-                    className="bg-[#13151D] border-gray-700 text-white"
-                  />
-                  <Input
-                    placeholder="Title"
-                    value={newPOC.title}
-                    onChange={(e) => setNewPOC({ ...newPOC, title: e.target.value })}
-                    className="bg-[#13151D] border-gray-700 text-white"
-                  />
-                  <Input
-                    placeholder="Email"
-                    type="email"
-                    value={newPOC.email}
-                    onChange={(e) => setNewPOC({ ...newPOC, email: e.target.value })}
-                    className="bg-[#13151D] border-gray-700 text-white"
-                  />
-                  <Select
-                    value={newPOC.department}
-                    onValueChange={(value) => setNewPOC({ ...newPOC, department: value })}
-                  >
-                    <SelectTrigger className="bg-[#13151D] border-gray-700 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {["Engineering", "Product", "Design", "Marketing", "Operations"].map((dept) => (
-                        <SelectItem key={dept} value={dept}>
-                          {dept}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={addPointOfContact}
-                  className="w-full bg-[#13151D] text-white border-gray-700"
-                >
-                  + Add POC
-                </Button>
-              </div>
-            </div>
+            <PointsOfContactForm
+              pointsOfContact={pointsOfContact}
+              setPointsOfContact={setPointsOfContact}
+            />
           </div>
 
           <Button type="submit" className="w-full bg-white text-black hover:bg-gray-100">
