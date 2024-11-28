@@ -56,26 +56,26 @@ export const generateSampleSPIs = (projectIds: string[] = []): SPI[] => {
   return spis;
 };
 
-const sitrepTitles = [
-  "Weekly Progress Update",
-  "Technical Implementation Status",
-  "Resource Allocation Review",
-  "Risk Assessment Report",
-  "Milestone Achievement Report",
-  "Integration Status Update",
-  "Performance Metrics Review",
-  "Stakeholder Feedback Summary",
-  "Quality Assurance Report",
-  "Team Velocity Update"
-];
-
 export const generateSampleSitReps = (spis: SPI[]): SitRep[] => {
+  const sitrepTitles = [
+    "Weekly Progress Update",
+    "Technical Implementation Status",
+    "Resource Allocation Review",
+    "Risk Assessment Report",
+    "Milestone Achievement Report",
+    "Integration Status Update",
+    "Performance Metrics Review",
+    "Stakeholder Feedback Summary",
+    "Quality Assurance Report",
+    "Team Velocity Update"
+  ];
+
   const sitreps: SitRep[] = [];
 
   for (let i = 0; i < sitrepTitles.length; i++) {
     const spi = spis[i % spis.length];
     const date = subDays(new Date(), i * 7).toISOString();
-    const status = Math.random() > 0.7 ? 'at-risk' : 'on-track';
+    const status: SitRep['status'] = Math.random() > 0.7 ? 'at-risk' : 'on-track';
     
     const sitrep: SitRep = {
       id: `sitrep-${i + 1}`,

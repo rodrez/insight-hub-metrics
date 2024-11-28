@@ -1,15 +1,13 @@
-export interface SPI {
+export type SPI = {
   id: string;
   name: string;
   deliverable: string;
-  details: string;
+  details?: string;
   expectedCompletionDate: string;
   actualCompletionDate?: string;
-  status: 'on-track' | 'delayed' | 'completed' | 'at-risk' | 'cancelled';
+  status: 'completed' | 'delayed' | 'on-track';
   projectId?: string;
-  fortune30Id?: string;
-  internalPartnerId?: string;
-  departmentId?: string;
+  departmentId: string;
   sitrepIds: string[];
   createdAt: string;
-}
+};

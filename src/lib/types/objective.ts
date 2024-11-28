@@ -1,6 +1,6 @@
-export interface Objective {
+export type Objective = {
   id: string;
   initiative: string;
   desiredOutcome: string;
   spiIds: string[];
-}
+};
