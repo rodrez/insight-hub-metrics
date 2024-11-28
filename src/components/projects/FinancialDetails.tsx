@@ -24,8 +24,29 @@ export function FinancialDetails({ project, isEditing, onUpdate }: FinancialDeta
           Financial Overview
         </CardTitle>
       </CardHeader>
-      <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <CardContent className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <TooltipProvider>
+          <div className="space-y-2">
+            <Tooltip>
+              <TooltipTrigger className="flex items-center gap-2">
+                Business Impact
+                <Info className="h-4 w-4" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Estimated business impact in millions</p>
+              </TooltipContent>
+            </Tooltip>
+            {isEditing ? (
+              <input
+                type="number"
+                value={project.businessImpact || 0}
+                onChange={(e) => onUpdate({ businessImpact: Number(e.target.value) })}
+                className="text-2xl font-bold w-full bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary"
+              />
+            ) : (
+              <p className="text-2xl font-bold">${((project.businessImpact || 0) / 1000000).toFixed(1)}M</p>
+            )}
+          </div>
           <div className="space-y-2">
             <Tooltip>
               <TooltipTrigger className="flex items-center gap-2">

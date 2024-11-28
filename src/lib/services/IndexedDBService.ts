@@ -9,6 +9,7 @@ import { DatabaseCleaner } from './db/databaseCleaner';
 import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
 import { Team } from '../types/team';
+import { Objective } from '../types/objective';
 
 export class IndexedDBService implements DataService {
   private db: IDBDatabase | null = null;
@@ -198,6 +199,22 @@ export class IndexedDBService implements DataService {
     }
     await this.transactionManager!.performTransaction('spis', 'readwrite', 
       store => store.put({ ...existingSPI, ...updates }));
+  }
+
+  async getAllObjectives(): Promise<Objective[]> {
+    this.ensureInitialized();
+    const objectives = await this.transactionManager!.performTransaction('objectives', 'readonly', store => store.getAll()) as Objective[];
+    return objectives;
+  }
+
+  async updateObjective(id: string, updates: Partial<Objective>): Promise<void> {
+    this.ensureInitialized();
+    const existingObjective = await this.transactionManager!.performTransaction('objectives', 'readonly', store => store.get(id)) as Objective;
+    if (!existingObjective) {
+      throw new Error('Objective not found');
+    }
+    await this.transactionManager!.performTransaction('objectives', 'readwrite', 
+      store => store.put({ ...existingObjective, ...updates }));
   }
 
   async populateSampleData(): Promise<{ projects: Project[] }> {
