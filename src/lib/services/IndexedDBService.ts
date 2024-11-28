@@ -1,5 +1,5 @@
 import { Project, Collaborator } from '../types';
-import { DataService } from './DataService';
+import { DataService, SampleDataQuantities } from './DataService';
 import { DB_CONFIG, createStores } from './db/stores';
 import { TransactionManager } from './db/transactionManager';
 import { generateSampleData } from './sampleData/sampleDataGenerator';
