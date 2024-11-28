@@ -12,10 +12,12 @@ import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { Project } from "@/lib/types";
 import { Search } from "lucide-react";
+import { useDataInitialization } from "@/components/data/hooks/useDataInitialization";
 
 export function GlobalSearch() {
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
+  const { isInitialized } = useDataInitialization();
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -30,10 +32,8 @@ export function GlobalSearch() {
 
   const { data: projects } = useQuery({
     queryKey: ["projects"],
-    queryFn: async () => {
-      await db.init();
-      return db.getAllProjects();
-    },
+    queryFn: () => db.getAllProjects(),
+    enabled: isInitialized
   });
 
   return (

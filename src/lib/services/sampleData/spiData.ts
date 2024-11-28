@@ -31,9 +31,8 @@ const spiDeliverables = [
 
 export const generateSampleSPIs = (projectIds: string[] = []): SPI[] => {
   const spis: SPI[] = [];
-  const TOTAL_SPIS = 10;
 
-  for (let i = 0; i < TOTAL_SPIS; i++) {
+  for (let i = 0; i < spiNames.length; i++) {
     const isProjectLinked = i < projectIds.length;
     const completionDate = addDays(new Date(), 30 + Math.floor(Math.random() * 180));
     const status = Math.random() > 0.7 ? 'delayed' : 'on-track';
@@ -72,10 +71,8 @@ const sitrepTitles = [
 
 export const generateSampleSitReps = (spis: SPI[]): SitRep[] => {
   const sitreps: SitRep[] = [];
-  const TOTAL_SITREPS = 10;
 
-  // Generate exactly 10 sitreps, one for each SPI
-  for (let i = 0; i < TOTAL_SITREPS; i++) {
+  for (let i = 0; i < sitrepTitles.length; i++) {
     const spi = spis[i % spis.length];
     const date = subDays(new Date(), i * 7).toISOString();
     const status = Math.random() > 0.7 ? 'at-risk' : 'on-track';
@@ -104,8 +101,6 @@ export const generateSampleSitReps = (spis: SPI[]): SitRep[] => {
 };
 
 export const generateSampleObjectives = (): Objective[] => {
-  const TOTAL_OBJECTIVES = 5;
-  
   const objectives: Objective[] = [
     {
       id: 'obj-1',
@@ -139,5 +134,5 @@ export const generateSampleObjectives = (): Objective[] => {
     }
   ];
 
-  return objectives.slice(0, TOTAL_OBJECTIVES);
+  return objectives;
 };
