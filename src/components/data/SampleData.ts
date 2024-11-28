@@ -46,9 +46,9 @@ export const generateSampleProjects = async (quantities: {
     
     if (projects.length < quantities.projects) {
       toast({
-        title: "Warning",
+        title: "Notice",
         description: `Only ${projects.length} projects could be generated (requested: ${quantities.projects})`,
-        variant: "warning",
+        variant: "default",
       });
     }
     

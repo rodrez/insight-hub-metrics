@@ -11,9 +11,9 @@ export class SampleDataService {
   private validateQuantities(available: number, requested: number, type: string): number {
     if (requested > available) {
       toast({
-        title: "Warning",
+        title: "Notice",
         description: `Requested ${requested} ${type}, but only ${available} are available. Adjusting quantity.`,
-        variant: "warning",
+        variant: "default",
       });
       return available;
     }
@@ -34,6 +34,7 @@ export class SampleDataService {
         toast({
           title: "Generating Data",
           description: `Step: ${step}`,
+          variant: "default",
         });
       };
 
