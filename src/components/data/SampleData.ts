@@ -20,15 +20,17 @@ export const generateSampleProjects = async (): Promise<{
   try {
     const fortune30 = sampleFortune30;
     const internalPartners = await generateInternalPartners();
-    const projects = await generateProjects(fortune30, internalPartners);
     
-    // Generate SPIs first, passing project IDs for linking
+    // Generate exactly 10 projects
+    const projects = (await generateProjects(fortune30, internalPartners)).slice(0, 10);
+    
+    // Generate exactly 10 SPIs
     const spis = generateSampleSPIs(projects.map(p => p.id));
     
-    // Generate objectives that reference the SPIs
+    // Generate exactly 5 objectives
     const objectives = generateSampleObjectives();
     
-    // Generate sitreps that reference the SPIs and inherit project links
+    // Generate exactly 10 sitreps
     const sitreps = generateSampleSitReps(spis);
 
     return { projects, spis, objectives, sitreps };

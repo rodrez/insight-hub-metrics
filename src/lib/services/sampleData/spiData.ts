@@ -13,9 +13,7 @@ const spiNames = [
   "IoT Platform Development",
   "Blockchain Integration",
   "5G Network Deployment",
-  "AR/VR Research Program",
-  "Data Analytics Platform",
-  "Cybersecurity Framework"
+  "Data Analytics Platform"
 ];
 
 const spiDeliverables = [
@@ -28,16 +26,14 @@ const spiDeliverables = [
   "Deploy IoT sensors across facilities",
   "Implement smart contracts system",
   "Complete 5G infrastructure setup",
-  "Launch AR training platform",
-  "Build real-time analytics dashboard",
-  "Implement zero-trust architecture"
+  "Build real-time analytics dashboard"
 ];
 
 export const generateSampleSPIs = (projectIds: string[] = []): SPI[] => {
   const spis: SPI[] = [];
-  const totalSPIs = 12;
+  const TOTAL_SPIS = 10;
 
-  for (let i = 0; i < totalSPIs; i++) {
+  for (let i = 0; i < TOTAL_SPIS; i++) {
     const isProjectLinked = i < projectIds.length;
     const completionDate = addDays(new Date(), 30 + Math.floor(Math.random() * 180));
     const status = Math.random() > 0.7 ? 'delayed' : 'on-track';
@@ -71,49 +67,46 @@ const sitrepTitles = [
   "Performance Metrics Review",
   "Stakeholder Feedback Summary",
   "Quality Assurance Report",
-  "Team Velocity Update",
-  "Budget Utilization Review",
-  "Timeline Adjustment Report"
+  "Team Velocity Update"
 ];
 
 export const generateSampleSitReps = (spis: SPI[]): SitRep[] => {
   const sitreps: SitRep[] = [];
-  let sitrepCount = 0;
+  const TOTAL_SITREPS = 10;
 
-  spis.forEach(spi => {
-    // Generate 2-3 sitreps per SPI
-    const numSitreps = 2 + Math.floor(Math.random() * 2);
+  // Generate exactly 10 sitreps, one for each SPI
+  for (let i = 0; i < TOTAL_SITREPS; i++) {
+    const spi = spis[i % spis.length];
+    const date = subDays(new Date(), i * 7).toISOString();
+    const status = Math.random() > 0.7 ? 'at-risk' : 'on-track';
     
-    for (let i = 0; i < numSitreps; i++) {
-      const date = subDays(new Date(), i * 7 + Math.floor(Math.random() * 3)).toISOString();
-      const status = Math.random() > 0.7 ? 'at-risk' : 'on-track';
-      
-      sitreps.push({
-        id: `sitrep-${++sitrepCount}`,
-        title: `${sitrepTitles[Math.floor(Math.random() * sitrepTitles.length)]} - ${spi.name}`,
-        date,
-        spiId: spi.id,
-        projectId: spi.projectId,
-        update: `Progress update for ${spi.name}: Implementation phase ${Math.floor(Math.random() * 100)}% complete`,
-        challenges: "Resource allocation and technical complexity being addressed",
-        nextSteps: "Continue with planned milestones and weekly reviews",
-        status,
-        summary: `Status report for ${spi.name} implementation progress`,
-        departmentId: spi.departmentId
-      });
-    }
+    const sitrep: SitRep = {
+      id: `sitrep-${i + 1}`,
+      title: sitrepTitles[i],
+      date,
+      spiId: spi.id,
+      projectId: spi.projectId,
+      update: `Progress update for ${spi.name}: Implementation phase ${Math.floor(Math.random() * 100)}% complete`,
+      challenges: "Resource allocation and technical complexity being addressed",
+      nextSteps: "Continue with planned milestones and weekly reviews",
+      status,
+      summary: `Status report for ${spi.name} implementation progress`,
+      departmentId: spi.departmentId
+    };
     
-    // Update the SPI with sitrep IDs
-    spi.sitrepIds = sitreps
-      .filter(sitrep => sitrep.spiId === spi.id)
-      .map(sitrep => sitrep.id);
-  });
+    sitreps.push(sitrep);
+    
+    // Update the SPI with sitrep ID
+    spi.sitrepIds.push(sitrep.id);
+  }
 
   return sitreps;
 };
 
 export const generateSampleObjectives = (): Objective[] => {
-  return [
+  const TOTAL_OBJECTIVES = 5;
+  
+  const objectives: Objective[] = [
     {
       id: 'obj-1',
       initiative: "Cloud-First Infrastructure",
@@ -145,4 +138,6 @@ export const generateSampleObjectives = (): Objective[] => {
       spiIds: ['spi-5']
     }
   ];
+
+  return objectives.slice(0, TOTAL_OBJECTIVES);
 };
