@@ -7,6 +7,7 @@ import { generateSampleData } from './data/sampleDataGenerator';
 import { connectionManager } from './db/connectionManager';
 import { DatabaseCleaner } from './db/databaseCleaner';
 import { SitRep } from '../types/sitrep';
+import { SPI } from '../types/spi';
 
 export class IndexedDBService implements DataService {
   private db: IDBDatabase | null = null;
@@ -160,6 +161,42 @@ export class IndexedDBService implements DataService {
       console.error(`Error adding SitRep ${sitrep.id}:`, error);
       throw error;
     }
+  }
+
+  async getAllSPIs(): Promise<SPI[]> {
+    this.ensureInitialized();
+    const spis = await this.transactionManager!.performTransaction('spis', 'readonly', store => store.getAll()) as SPI[];
+    return spis;
+  }
+
+  async getSPI(id: string): Promise<SPI | undefined> {
+    this.ensureInitialized();
+    const spi = await this.transactionManager!.performTransaction('spis', 'readonly', store => store.get(id)) as SPI | undefined;
+    return spi;
+  }
+
+  async addSPI(spi: SPI): Promise<void> {
+    this.ensureInitialized();
+    try {
+      await this.transactionManager!.performTransaction('spis', 'readwrite', store => {
+        const request = store.put(spi);
+        return request;
+      });
+      console.log(`SPI ${spi.id} added successfully`);
+    } catch (error) {
+      console.error(`Error adding SPI ${spi.id}:`, error);
+      throw error;
+    }
+  }
+
+  async updateSPI(id: string, updates: Partial<SPI>): Promise<void> {
+    this.ensureInitialized();
+    const existingSPI = await this.getSPI(id);
+    if (!existingSPI) {
+      throw new Error('SPI not found');
+    }
+    await this.transactionManager!.performTransaction('spis', 'readwrite', 
+      store => store.put({ ...existingSPI, ...updates }));
   }
 
   async populateSampleData(): Promise<{ projects: Project[] }> {

@@ -4,6 +4,7 @@ import { DataService } from './DataService';
 import { sampleFortune30, getSampleInternalPartners } from '@/components/data/SampleData';
 import { generateSampleData } from './data/sampleDataGenerator';
 import { SitRep } from '../types/sitrep';
+import { SPI } from '../types/spi';
 
 export class SampleDataService implements DataService {
   private db: DataService;
@@ -118,6 +119,22 @@ export class SampleDataService implements DataService {
 
   async addSitRep(sitrep: SitRep): Promise<void> {
     return this.db.addSitRep(sitrep);
+  }
+
+  async getAllSPIs(): Promise<SPI[]> {
+    return this.db.getAllSPIs();
+  }
+
+  async getSPI(id: string): Promise<SPI | undefined> {
+    return this.db.getSPI(id);
+  }
+
+  async addSPI(spi: SPI): Promise<void> {
+    return this.db.addSPI(spi);
+  }
+
+  async updateSPI(id: string, updates: Partial<SPI>): Promise<void> {
+    return this.db.updateSPI(id, updates);
   }
 
   async exportData(): Promise<void> {
