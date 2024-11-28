@@ -3,76 +3,87 @@ import { Collaborator } from '@/lib/types/collaboration';
 const generateSMEPartner = (id: number, today: Date): Collaborator => {
   const smeData = [
     {
-      name: "Dr. Sarah Johnson",
-      role: "AI Research Expert",
+      name: "NeuroSync AI",
+      role: "AI Research & Development",
       department: "Artificial Intelligence",
-      expertise: "Neural Network Optimization"
+      expertise: "Neural Network Optimization",
+      contact: "Dr. Sarah Chen"
     },
     {
-      name: "Prof. Michael Chen",
-      role: "Quantum Computing Specialist",
+      name: "QuantumLeap Tech",
+      role: "Quantum Computing Solutions",
       department: "Quantum Technologies",
-      expertise: "Quantum Algorithm Development"
+      expertise: "Quantum Algorithm Development",
+      contact: "Dr. Michael Zhang"
     },
     {
-      name: "Dr. Emily Rodriguez",
-      role: "Robotics Expert",
+      name: "RoboFlow Dynamics",
+      role: "Robotics Innovation",
       department: "Robotics & Automation",
-      expertise: "Autonomous Systems Integration"
+      expertise: "Autonomous Systems Integration",
+      contact: "Dr. Emily Rodriguez"
     },
     {
-      name: "Dr. James Wilson",
-      role: "Materials Science Expert",
+      name: "NanoMatter Labs",
+      role: "Advanced Materials Research",
       department: "Advanced Materials",
-      expertise: "Composite Materials Development"
+      expertise: "Composite Materials Development",
+      contact: "Dr. James Wilson"
     },
     {
-      name: "Prof. Lisa Zhang",
-      role: "Aerospace Specialist",
+      name: "AeroVolt Innovations",
+      role: "Aerospace Technology",
       department: "Aerospace Engineering",
-      expertise: "Propulsion Systems"
+      expertise: "Propulsion Systems",
+      contact: "Dr. Lisa Zhang"
     },
     {
-      name: "Dr. Robert Kumar",
-      role: "Systems Engineering Expert",
+      name: "SynergyTech Solutions",
+      role: "Systems Engineering",
       department: "Systems Integration",
-      expertise: "Complex Systems Architecture"
+      expertise: "Complex Systems Architecture",
+      contact: "Dr. Robert Kumar"
     },
     {
-      name: "Prof. Maria Garcia",
-      role: "Energy Systems Expert",
+      name: "EcoGrid Ventures",
+      role: "Sustainable Energy Solutions",
       department: "Sustainable Energy",
-      expertise: "Renewable Energy Integration"
+      expertise: "Renewable Energy Integration",
+      contact: "Dr. Maria Garcia"
     },
     {
-      name: "Dr. David Park",
-      role: "Data Science Expert",
+      name: "DataNova Analytics",
+      role: "Data Science Solutions",
       department: "Data Analytics",
-      expertise: "Machine Learning Applications"
+      expertise: "Machine Learning Applications",
+      contact: "Dr. David Park"
     },
     {
-      name: "Prof. Anna Schmidt",
-      role: "Cybersecurity Specialist",
+      name: "CyberShield AI",
+      role: "Cybersecurity Innovation",
       department: "Information Security",
-      expertise: "Advanced Threat Detection"
+      expertise: "Advanced Threat Detection",
+      contact: "Dr. Anna Schmidt"
     },
     {
-      name: "Dr. Thomas Brown",
-      role: "Software Architecture Expert",
+      name: "CloudMatrix Systems",
+      role: "Software Architecture",
       department: "Software Engineering",
-      expertise: "Distributed Systems"
+      expertise: "Distributed Systems",
+      contact: "Dr. Thomas Brown"
     }
   ];
 
   const sme = smeData[id % smeData.length];
-  const firstName = sme.name.split(' ')[0];
-  const lastName = sme.name.split(' ')[1];
+  const contactName = sme.contact.split(' ');
+  const firstName = contactName[1];
+  const lastName = contactName[0].replace('Dr. ', '');
 
   return {
     id: `sme-${id + 1}`,
     name: sme.name,
     color: `#${Math.floor(Math.random()*16777215).toString(16)}`,
-    email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@experts.com`,
+    email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${sme.name.toLowerCase().replace(/\s+/g, '')}.com`,
     role: sme.role,
     department: sme.department,
     projects: [
@@ -85,9 +96,9 @@ const generateSMEPartner = (id: number, today: Date): Collaborator => {
     lastActive: today.toISOString(),
     type: "sme",
     primaryContact: {
-      name: sme.name,
-      role: sme.role,
-      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@experts.com`,
+      name: sme.contact,
+      role: "Chief Technology Officer",
+      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${sme.name.toLowerCase().replace(/\s+/g, '')}.com`,
       phone: `+1 (555) ${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`
     }
   };
