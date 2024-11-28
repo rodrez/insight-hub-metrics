@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Input } from "@/components/ui/input";
-import { Search } from 'lucide-react';
-import WikiSection from '@/components/wiki/WikiSection';
+import { SearchBar } from '@/components/wiki/SearchBar';
+import { WikiContent } from '@/components/wiki/WikiContent';
 
 const DEFAULT_WIKI_SECTIONS = [
   {
@@ -174,26 +173,20 @@ export default function Wiki() {
 
   return (
     <div className="container mx-auto px-4 pt-24 pb-12">
-      <h1 className="text-3xl font-bold mb-8">Wiki</h1>
-      
-      <div className="relative mb-6">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search wiki..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col items-start gap-2 mb-8">
+          <h1 className="text-4xl font-bold tracking-tight">Wiki</h1>
+          <p className="text-muted-foreground">
+            Documentation, guidelines, and compliance information for our projects
+          </p>
+        </div>
+        
+        <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        
+        <WikiContent 
+          sections={filteredSections}
+          onSectionUpdate={handleSectionUpdate}
         />
-      </div>
-
-      <div className="space-y-8">
-        {filteredSections.map((section) => (
-          <WikiSection
-            key={section.id}
-            section={section}
-            onSave={handleSectionUpdate}
-          />
-        ))}
       </div>
     </div>
   );
