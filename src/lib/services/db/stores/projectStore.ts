@@ -38,15 +38,10 @@ export class ProjectStore {
 
   async updateProject(id: string, updates: Partial<Project>): Promise<void> {
     const project = await this.getProject(id);
-    if (!project) throw new Error('Project not found');
+    if (!project) {
+      throw new Error('Project not found');
+    }
 
-    return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction('projects', 'readwrite');
-      const store = transaction.objectStore('projects');
-      const request = store.put({ ...project, ...updates });
-
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
-    });
+    return this.addProject({ ...project, ...updates });
   }
 }
