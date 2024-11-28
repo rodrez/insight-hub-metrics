@@ -66,6 +66,13 @@ export type CollaboratorProject = {
   };
 };
 
+export type ContactPerson = {
+  name: string;
+  role: string;
+  email: string;
+  phone?: string;
+};
+
 export type Collaborator = {
   id: string;
   name: string;
@@ -80,6 +87,7 @@ export type Collaborator = {
     nda?: Agreement;
     jtda?: Agreement;
   };
+  primaryContact?: ContactPerson;
 };
 
 export type AgreementStatus = 'signed' | 'pending' | 'expired';
