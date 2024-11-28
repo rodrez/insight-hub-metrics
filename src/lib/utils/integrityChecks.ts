@@ -8,6 +8,8 @@ export interface IntegrityCheckResult {
   fortune30Partners: boolean;
   internalPartners: boolean;
   glossaryItems: boolean;
+  spis: boolean;
+  sitreps: boolean;
 }
 
 const checkProjects = async (): Promise<boolean> => {
@@ -25,6 +27,18 @@ const checkCollaborators = async (): Promise<{
   return {
     fortune30: fortune30.length > 0,
     internal: internal.length > 0
+  };
+};
+
+const checkSPIsAndSitReps = async (): Promise<{
+  spis: boolean;
+  sitreps: boolean;
+}> => {
+  const spis = await db.getAllSPIs();
+  const sitreps = await db.getAllSitReps();
+  return {
+    spis: spis.length > 0,
+    sitreps: sitreps.length > 0
   };
 };
 
@@ -80,7 +94,9 @@ export const runIntegrityChecks = async (): Promise<IntegrityCheckResult> => {
     projects: false,
     fortune30Partners: false,
     internalPartners: false,
-    glossaryItems: true // Not implemented yet
+    glossaryItems: true,
+    spis: false,
+    sitreps: false
   };
 
   const loadingToast = toast({
@@ -124,6 +140,27 @@ export const runIntegrityChecks = async (): Promise<IntegrityCheckResult> => {
     if (!collaboratorsSuccess) {
       toast({
         title: "Collaborators Check Failed",
+        description: "Please contact an administrator to resolve this issue.",
+        variant: "destructive",
+      });
+      return results;
+    }
+
+    // Check SPIs and SitReps
+    const spisSitrepsStep: LoadingStep = {
+      name: "SPIs and SitReps Check",
+      action: async () => {
+        const { spis, sitreps } = await checkSPIsAndSitReps();
+        results.spis = spis;
+        results.sitreps = sitreps;
+        return spis && sitreps;
+      }
+    };
+    
+    const spisSitrepsSuccess = await executeWithRetry(spisSitrepsStep);
+    if (!spisSitrepsSuccess) {
+      toast({
+        title: "SPIs and SitReps Check Failed",
         description: "Please contact an administrator to resolve this issue.",
         variant: "destructive",
       });

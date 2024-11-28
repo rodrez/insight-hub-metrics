@@ -3,6 +3,7 @@ import { Collaborator } from '../types/collaboration';
 import { DataService } from './DataService';
 import { sampleFortune30, getSampleInternalPartners } from '@/components/data/SampleData';
 import { generateSampleData } from './data/sampleDataGenerator';
+import { generateSampleSPIs, generateSampleSitReps } from './data/spiSitrepGenerator';
 import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
 
@@ -36,6 +37,18 @@ export class SampleDataService implements DataService {
       const { projects } = generateSampleData(internalPartners);
       console.log(`Generated ${projects.length} projects with internal partners`);
 
+      // Generate SPIs and SitReps
+      const spis = generateSampleSPIs();
+      const sitreps = generateSampleSitReps(spis.map(spi => spi.id));
+      
+      // Update SPIs with sitrepIds
+      sitreps.forEach(sitrep => {
+        const spi = spis.find(s => s.id === sitrep.spiId);
+        if (spi) {
+          spi.sitrepIds.push(sitrep.id);
+        }
+      });
+
       // Clear existing data
       console.log('Clearing existing data...');
       await this.clear();
@@ -65,7 +78,7 @@ export class SampleDataService implements DataService {
         }
       }
 
-      // Add projects last since they reference collaborators
+      // Add projects
       console.log('Adding projects...');
       for (const project of projects) {
         try {
@@ -73,6 +86,30 @@ export class SampleDataService implements DataService {
           await this.db.addProject(project);
         } catch (error) {
           console.error(`Failed to add project ${project.name}:`, error);
+          throw error;
+        }
+      }
+
+      // Add SPIs
+      console.log('Adding SPIs...');
+      for (const spi of spis) {
+        try {
+          console.log(`Adding SPI: ${spi.name}`);
+          await this.db.addSPI(spi);
+        } catch (error) {
+          console.error(`Failed to add SPI ${spi.name}:`, error);
+          throw error;
+        }
+      }
+
+      // Add SitReps
+      console.log('Adding SitReps...');
+      for (const sitrep of sitreps) {
+        try {
+          console.log(`Adding SitRep for SPI: ${sitrep.spiId}`);
+          await this.db.addSitRep(sitrep);
+        } catch (error) {
+          console.error(`Failed to add SitRep for SPI ${sitrep.spiId}:`, error);
           throw error;
         }
       }
