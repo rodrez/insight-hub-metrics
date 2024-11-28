@@ -7,6 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Database, Info, Trash2 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface DataCounts {
   projects: number;
@@ -152,10 +153,28 @@ export function SampleDataSettings() {
           </AlertDialogContent>
         </AlertDialog>
 
-        <Button onClick={populateDatabase} disabled={isPopulating}>
-          <Database className="h-4 w-4 mr-2" />
-          {isPopulating ? "Generating..." : "Generate Sample Data"}
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={populateDatabase} disabled={isPopulating}>
+                <Database className="h-4 w-4 mr-2" />
+                {isPopulating ? "Generating..." : "Generate Sample Data"}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[300px] p-4">
+              <p className="text-sm">This will generate sample data in the following order:</p>
+              <ol className="list-decimal ml-4 mt-2 text-sm">
+                <li>Generate Fortune 30 partners</li>
+                <li>Create internal partners across departments</li>
+                <li>Generate SME partners</li>
+                <li>Create projects with assigned partners</li>
+                <li>Generate SPIs for each project</li>
+                <li>Create objectives</li>
+                <li>Generate situation reports</li>
+              </ol>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       {generatedCounts && (
