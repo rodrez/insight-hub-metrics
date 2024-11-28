@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +11,7 @@ import {
 import { DEPARTMENTS } from "@/lib/constants";
 import { Collaborator } from "@/lib/types/collaboration";
 import { X } from "lucide-react";
+import { useInternalPartners } from "@/hooks/useInternalPartners";
 
 interface InternalPartnersSectionProps {
   partners: Collaborator[];
@@ -24,33 +24,14 @@ export function InternalPartnersSection({
   onUpdate,
   isEditing
 }: InternalPartnersSectionProps) {
-  const [newPartnerName, setNewPartnerName] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState("");
-
-  const handleAddPartner = () => {
-    if (!newPartnerName || !selectedDepartment || partners.length >= 5) return;
-
-    const department = DEPARTMENTS.find(d => d.id === selectedDepartment);
-    const newPartner: Collaborator = {
-      id: `internal-${Date.now()}`,
-      name: newPartnerName,
-      email: `${newPartnerName.toLowerCase().replace(/\s+/g, '.')}@company.com`,
-      role: "Internal Partner",
-      department: selectedDepartment,
-      projects: [],
-      lastActive: new Date().toISOString(),
-      type: "other",
-      color: department?.color
-    };
-
-    onUpdate([...partners, newPartner]);
-    setNewPartnerName("");
-    setSelectedDepartment("");
-  };
-
-  const handleRemovePartner = (partnerId: string) => {
-    onUpdate(partners.filter(p => p.id !== partnerId));
-  };
+  const {
+    newPartnerName,
+    setNewPartnerName,
+    selectedDepartment,
+    setSelectedDepartment,
+    handleAddPartner,
+    handleRemovePartner
+  } = useInternalPartners(partners, onUpdate);
 
   return (
     <div className="space-y-4">
