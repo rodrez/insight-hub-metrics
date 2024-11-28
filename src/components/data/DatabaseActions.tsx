@@ -67,9 +67,15 @@ export function DatabaseActions({
                 <p>Populates the database with sample data including:</p>
                 <ul className="list-disc ml-4 mt-2">
                   <li>Fortune 30 company collaborations</li>
-                  <li>Internal department projects</li>
+                  <li>Internal department projects and partnerships</li>
                   <li>Project milestones and metrics</li>
                   <li>Detailed NABC analyses</li>
+                  <li>Strategic Planning Initiatives (SPIs)</li>
+                  <li>Project objectives and goals</li>
+                  <li>Situation reports (SitReps)</li>
+                  <li>Team configurations</li>
+                  <li>Department-specific metrics</li>
+                  <li>Project status and progress indicators</li>
                 </ul>
               </TooltipContent>
             </Tooltip>
