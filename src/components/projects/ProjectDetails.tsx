@@ -114,7 +114,7 @@ function ProjectDetailsComponent({ project: initialProject }: { project: Project
 
   const currentProject = isEditing ? editedProject : project;
 
-  const getStatusColor = (status: 'on-track' | 'delayed' | 'completed' | 'at-risk') => {
+  const getStatusColor = (status: 'on-track' | 'delayed' | 'completed' | 'at-risk' | 'cancelled') => {
     switch (status) {
       case 'completed':
         return 'bg-green-500';
@@ -122,6 +122,8 @@ function ProjectDetailsComponent({ project: initialProject }: { project: Project
         return 'bg-red-500';
       case 'at-risk':
         return 'bg-yellow-500';
+      case 'cancelled':
+        return 'bg-gray-500';
       default:
         return 'bg-blue-500';
     }

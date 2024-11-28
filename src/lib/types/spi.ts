@@ -5,7 +5,7 @@ export interface SPI {
   details: string;
   expectedCompletionDate: string;
   actualCompletionDate?: string;
-  status: 'on-track' | 'delayed' | 'completed' | 'cancelled';
+  status: 'on-track' | 'delayed' | 'completed' | 'at-risk' | 'cancelled';
   projectId?: string;
   fortune30Id?: string;
   internalPartnerId?: string;
