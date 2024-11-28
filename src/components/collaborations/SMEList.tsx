@@ -1,15 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
-import { Mail, Edit, Trash2, Info } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collaborator } from "@/lib/types/collaboration";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { WorkstreamCard } from "./shared/WorkstreamCard";
+import { ContactInfo } from "./shared/ContactInfo";
 
 type SMEListProps = {
   collaborators: Collaborator[];
@@ -46,27 +40,13 @@ export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-6">
-                <div>
-                  <h4 className="font-medium mb-2">Primary Contact</h4>
-                  {collaborator.primaryContact ? (
-                    <div className="space-y-2">
-                      <p className="font-medium">{collaborator.primaryContact.name}</p>
-                      <p className="text-sm text-muted-foreground">{collaborator.primaryContact.role}</p>
-                      <div className="flex flex-col gap-2">
-                        <a 
-                          href={`mailto:${collaborator.primaryContact.email}`}
-                          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-                        >
-                          <Mail className="h-4 w-4" />
-                          {collaborator.primaryContact.email}
-                        </a>
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No primary contact set</p>
-                  )}
-                </div>
+              <div>
+                <h4 className="font-medium mb-2">Primary Contact</h4>
+                {collaborator.primaryContact ? (
+                  <ContactInfo contact={collaborator.primaryContact} />
+                ) : (
+                  <p className="text-sm text-muted-foreground">No primary contact set</p>
+                )}
               </div>
 
               <div>
@@ -74,34 +54,11 @@ export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
                 {collaborator.workstreams && collaborator.workstreams.length > 0 ? (
                   <div className="space-y-4">
                     {collaborator.workstreams.map((workstream) => (
-                      <Card key={workstream.id}>
-                        <CardContent className="pt-6">
-                          <div className="flex justify-between items-start mb-2">
-                            <h5 className="font-medium">{workstream.title}</h5>
-                            <Badge variant={
-                              workstream.status === 'active' ? 'default' :
-                              workstream.status === 'completed' ? 'secondary' :
-                              'outline'
-                            }>
-                              {workstream.status}
-                            </Badge>
-                          </div>
-                          <div className="space-y-2 text-sm">
-                            <div>
-                              <p className="font-medium">Objectives:</p>
-                              <p className="text-muted-foreground">{workstream.objectives}</p>
-                            </div>
-                            <Separator />
-                            <div>
-                              <p className="font-medium">Next Steps:</p>
-                              <p className="text-muted-foreground">{workstream.nextSteps}</p>
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              Last updated: {formatDate(workstream.lastUpdated)}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                      <WorkstreamCard
+                        key={workstream.id}
+                        workstream={workstream}
+                        formatDate={formatDate}
+                      />
                     ))}
                   </div>
                 ) : (
