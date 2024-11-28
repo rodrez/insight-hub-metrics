@@ -27,4 +27,8 @@ export interface DataService {
   clear(): Promise<void>;
   getAllTeams(): Promise<Team[]>;
   populateSampleData(): Promise<{ projects: Project[] }>;
+  // New SME-related methods
+  getAllSMEPartners(): Promise<Collaborator[]>;
+  getSMEPartner(id: string): Promise<Collaborator | undefined>;
+  addSMEPartner(partner: Collaborator): Promise<void>;
 }

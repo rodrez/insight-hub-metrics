@@ -96,4 +96,16 @@ export class SampleDataService implements DataService {
   async populateSampleData(): Promise<{ projects: Project[] }> {
     return this.indexedDBService.populateSampleData();
   }
+
+  async getAllSMEPartners(): Promise<Collaborator[]> {
+    return this.indexedDBService.getAllSMEPartners();
+  }
+
+  async getSMEPartner(id: string): Promise<Collaborator | undefined> {
+    return this.indexedDBService.getSMEPartner(id);
+  }
+
+  async addSMEPartner(partner: Collaborator): Promise<void> {
+    return this.indexedDBService.addSMEPartner(partner);
+  }
 }

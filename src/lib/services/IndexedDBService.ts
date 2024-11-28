@@ -271,41 +271,28 @@ export class IndexedDBService implements DataService {
     return teams;
   }
 
-  async populateSampleData(): Promise<{ projects: Project[] }> {
+  async getAllSMEPartners(): Promise<Collaborator[]> {
     this.ensureInitialized();
-    const { projects, internalPartners, spis, objectives, sitreps } = await generateSampleData([]);
-    
+    const partners = await this.transactionManager!.performTransaction('smePartners', 'readonly', store => store.getAll()) as Collaborator[];
+    return partners;
+  }
+
+  async getSMEPartner(id: string): Promise<Collaborator | undefined> {
+    this.ensureInitialized();
+    const partner = await this.transactionManager!.performTransaction('smePartners', 'readonly', store => store.get(id)) as Collaborator | undefined;
+    return partner;
+  }
+
+  async addSMEPartner(partner: Collaborator): Promise<void> {
+    this.ensureInitialized();
     try {
-      console.log('Adding collaborators...');
-      for (const collaborator of internalPartners) {
-        await this.addCollaborator(collaborator);
-      }
-      
-      console.log('Adding projects...');
-      for (const project of projects) {
-        await this.addProject(project);
-      }
-
-      console.log('Adding SPIs...');
-      for (const spi of spis) {
-        await this.addSPI(spi);
-      }
-
-      console.log('Adding objectives...');
-      for (const objective of objectives) {
-        await this.transactionManager!.performTransaction('objectives', 'readwrite', store => {
-          return store.put(objective);
-        });
-      }
-
-      console.log('Adding sitreps...');
-      for (const sitrep of sitreps) {
-        await this.addSitRep(sitrep);
-      }
-      
-      return { projects };
+      await this.transactionManager!.performTransaction('smePartners', 'readwrite', store => {
+        const request = store.put(partner);
+        return request;
+      });
+      console.log(`SME Partner ${partner.name} added successfully`);
     } catch (error) {
-      console.error('Sample data population error:', error);
+      console.error(`Error adding SME Partner ${partner.name}:`, error);
       throw error;
     }
   }
