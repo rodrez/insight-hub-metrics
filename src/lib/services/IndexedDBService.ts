@@ -6,6 +6,7 @@ import { Objective } from '../types/objective';
 import { BaseDBService } from './db/base/BaseDBService';
 import { ProjectService } from './db/ProjectService';
 import { handleDatabaseError, DatabaseError } from '../utils/errorHandling';
+import { DB_CONFIG } from './db/stores';
 
 export class IndexedDBService extends BaseDBService implements DataService {
   protected db: IDBDatabase | null = null;
