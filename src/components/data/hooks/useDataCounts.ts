@@ -36,7 +36,7 @@ export function useDataCounts(isInitialized: boolean) {
         db.getAllSMEPartners()
       ]);
 
-      return {
+      const counts = {
         projects: projects?.length || 0,
         spis: spis?.length || 0,
         objectives: objectives?.length || 0,
@@ -45,6 +45,13 @@ export function useDataCounts(isInitialized: boolean) {
         internalPartners: collaborators?.filter(c => c.type === 'other')?.length || 0,
         smePartners: smePartners?.length || 0
       };
+
+      // Pre-cache individual counts
+      Object.entries(counts).forEach(([key, value]) => {
+        queryClient.setQueryData(['data-count', key], value);
+      });
+
+      return counts;
     } catch (error) {
       console.error('Error fetching data counts:', error);
       toast({
@@ -64,11 +71,12 @@ export function useDataCounts(isInitialized: boolean) {
     fortune30: 0,
     internalPartners: 0,
     smePartners: 0
-  }, refetch } = useQuery({
+  }} = useQuery({
     queryKey: ['data-counts'],
     queryFn: fetchDataCounts,
     enabled: isInitialized,
     staleTime: 1000 * 60 * 5, // Consider data fresh for 5 minutes
+    cacheTime: 1000 * 60 * 30, // Keep in cache for 30 minutes
   });
 
   const updateDataCounts = async () => {

@@ -5,93 +5,80 @@ import { generateInternalPartners } from '@/lib/services/data/internalPartners';
 import { generateSMEPartners } from '@/lib/services/data/smePartners';
 import { generateSampleProjects } from '@/components/data/SampleData';
 import { toast } from "@/components/ui/use-toast";
+import { DB_CONFIG } from './stores';
 
 export class SampleDataPopulationService extends BaseDBService {
+  private async beginTransaction(): Promise<IDBTransaction> {
+    if (!this.db) throw new Error('Database not initialized');
+    return this.db.transaction(Object.values(DB_CONFIG.stores), 'readwrite');
+  }
+
+  private async populateStore(
+    transaction: IDBTransaction,
+    storeName: string,
+    data: any[]
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const store = transaction.objectStore(storeName);
+      let completed = 0;
+
+      data.forEach(item => {
+        const request = store.put(item);
+        request.onsuccess = () => {
+          completed++;
+          if (completed === data.length) resolve();
+        };
+        request.onerror = () => reject(request.error);
+      });
+
+      if (data.length === 0) resolve();
+    });
+  }
+
   async populateData(quantities: SampleDataQuantities): Promise<void> {
+    let transaction: IDBTransaction | null = null;
+
     try {
       console.log('Starting sample data population...');
       
-      // Generate all sample data
+      // Generate all sample data first
       const fortune30Partners = generateFortune30Partners().slice(0, quantities.fortune30);
-      const internalPartners = await generateInternalPartners();
+      const internalPartners = (await generateInternalPartners()).slice(0, quantities.internalPartners);
       const smePartners = generateSMEPartners().slice(0, quantities.smePartners);
       
-      // Generate projects and related data with specified quantities
       const { projects, spis, objectives, sitreps } = await generateSampleProjects(quantities);
-      
-      console.log('Generated all sample data, starting database population...');
 
-      // Add Fortune 30 partners
-      for (const partner of fortune30Partners) {
-        await this.performTransaction(
-          'collaborators',
-          'readwrite',
-          store => store.put(partner)
-        );
-      }
-      
-      // Add internal partners
-      for (const partner of internalPartners.slice(0, quantities.internalPartners)) {
-        await this.performTransaction(
-          'collaborators',
-          'readwrite',
-          store => store.put(partner)
-        );
-      }
-      
-      // Add SME partners
-      for (const partner of smePartners) {
-        await this.performTransaction(
-          'smePartners',
-          'readwrite',
-          store => store.put(partner)
-        );
-      }
+      // Start transaction
+      transaction = await this.beginTransaction();
 
-      // Add projects
-      for (const project of projects.slice(0, quantities.projects)) {
-        await this.performTransaction(
-          'projects',
-          'readwrite',
-          store => store.put(project)
-        );
-      }
-      
-      // Add SPIs
-      for (const spi of spis.slice(0, quantities.spis)) {
-        await this.performTransaction(
-          'spis',
-          'readwrite',
-          store => store.put(spi)
-        );
-      }
+      // Set up transaction event handlers
+      transaction.onerror = () => {
+        throw new Error('Transaction failed: ' + transaction?.error?.message);
+      };
 
-      // Add objectives
-      for (const objective of objectives.slice(0, quantities.objectives)) {
-        await this.performTransaction(
-          'objectives',
-          'readwrite',
-          store => store.put(objective)
-        );
-      }
-      
-      // Add sitreps
-      for (const sitrep of sitreps.slice(0, quantities.sitreps)) {
-        await this.performTransaction(
-          'sitreps',
-          'readwrite',
-          store => store.put(sitrep)
-        );
-      }
+      // Populate all stores within the same transaction
+      await Promise.all([
+        this.populateStore(transaction, 'collaborators', fortune30Partners),
+        this.populateStore(transaction, 'collaborators', internalPartners),
+        this.populateStore(transaction, 'smePartners', smePartners),
+        this.populateStore(transaction, 'projects', projects),
+        this.populateStore(transaction, 'spis', spis),
+        this.populateStore(transaction, 'objectives', objectives),
+        this.populateStore(transaction, 'sitreps', sitreps),
+      ]);
 
-      console.log('Sample data population completed successfully');
-      
       toast({
         title: "Success",
         description: "Sample data populated successfully",
       });
     } catch (error) {
       console.error('Error populating sample data:', error);
+      
+      // Abort transaction if it exists
+      if (transaction) {
+        transaction.abort();
+      }
+
       toast({
         title: "Error",
         description: "Failed to populate sample data",

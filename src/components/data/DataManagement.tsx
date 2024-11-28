@@ -4,7 +4,7 @@ import { useDataInitialization } from "./hooks/useDataInitialization";
 import { useDataCounts } from "./hooks/useDataCounts";
 import { useDataClearing } from "./hooks/useDataClearing";
 import { useDataPopulation } from "./hooks/useDataPopulation";
-import { useEffect } from "react";
+import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function DataManagement() {
@@ -14,22 +14,15 @@ export default function DataManagement() {
   const { dataCounts, updateDataCounts } = useDataCounts(isInitialized);
   const queryClient = useQueryClient();
 
-  // Update counts after population or clearing
-  useEffect(() => {
-    if (!isPopulating && !isClearing) {
-      updateDataCounts();
-    }
-  }, [isPopulating, isClearing]);
-
-  const handleClear = async () => {
+  const handleClear = useCallback(async () => {
     await clearDatabase();
     queryClient.invalidateQueries({ queryKey: ['data-counts'] });
-  };
+  }, [clearDatabase, queryClient]);
 
-  const handlePopulate = async () => {
+  const handlePopulate = useCallback(async () => {
     await populateSampleData();
     await updateDataCounts();
-  };
+  }, [populateSampleData, updateDataCounts]);
 
   return (
     <div className="space-y-4 p-4">
