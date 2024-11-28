@@ -6,6 +6,7 @@ import { TransactionManager } from './db/transactionManager';
 import { generateSampleData } from './data/sampleDataGenerator';
 import { connectionManager } from './db/connectionManager';
 import { DatabaseCleaner } from './db/databaseCleaner';
+import { SitRep } from '../types/sitrep';
 
 export class IndexedDBService implements DataService {
   private db: IDBDatabase | null = null;
@@ -137,6 +138,26 @@ export class IndexedDBService implements DataService {
       console.log(`Collaborator ${collaborator.name} added successfully`);
     } catch (error) {
       console.error(`Error adding collaborator ${collaborator.name}:`, error);
+      throw error;
+    }
+  }
+
+  async getAllSitReps(): Promise<SitRep[]> {
+    this.ensureInitialized();
+    const sitreps = await this.transactionManager!.performTransaction('sitreps', 'readonly', store => store.getAll()) as SitRep[];
+    return sitreps;
+  }
+
+  async addSitRep(sitrep: SitRep): Promise<void> {
+    this.ensureInitialized();
+    try {
+      await this.transactionManager!.performTransaction('sitreps', 'readwrite', store => {
+        const request = store.put(sitrep);
+        return request;
+      });
+      console.log(`SitRep ${sitrep.id} added successfully`);
+    } catch (error) {
+      console.error(`Error adding SitRep ${sitrep.id}:`, error);
       throw error;
     }
   }

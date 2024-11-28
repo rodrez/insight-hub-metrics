@@ -3,6 +3,7 @@ import { Collaborator } from '../types/collaboration';
 import { DataService } from './DataService';
 import { sampleFortune30, getSampleInternalPartners } from '@/components/data/SampleData';
 import { generateSampleData } from './data/sampleDataGenerator';
+import { SitRep } from '../types/sitrep';
 
 export class SampleDataService implements DataService {
   private db: DataService;
@@ -109,6 +110,14 @@ export class SampleDataService implements DataService {
 
   async addCollaborator(collaborator: Collaborator): Promise<void> {
     return this.db.addCollaborator(collaborator);
+  }
+
+  async getAllSitReps(): Promise<SitRep[]> {
+    return this.db.getAllSitReps();
+  }
+
+  async addSitRep(sitrep: SitRep): Promise<void> {
+    return this.db.addSitRep(sitrep);
   }
 
   async exportData(): Promise<void> {
