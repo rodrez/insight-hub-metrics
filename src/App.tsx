@@ -17,6 +17,7 @@ import DepartmentDetails from "./pages/DepartmentDetails";
 import SitReps from "./pages/SitReps";
 import SPI from "./pages/SPI";
 import BackButton from "./components/navigation/BackButton";
+import SME from "./pages/SME";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,6 +41,7 @@ function AppContent() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/collaborations" element={<Collaborations />} />
+          <Route path="/sme" element={<SME />} />
           <Route path="/internal-support" element={<InternalSupport />} />
           <Route path="/collaborations/:id" element={<CollaboratorDetails />} />
           <Route path="/collaborations/department/:departmentId" element={<Collaborations />} />

@@ -35,7 +35,7 @@ export type CollaboratorProject = {
   };
 };
 
-export type CollaborationType = 'fortune30' | 'other';
+export type CollaborationType = 'fortune30' | 'other' | 'sme';
 
 export type Collaborator = {
   id: string;
