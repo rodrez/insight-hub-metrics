@@ -1,6 +1,13 @@
 import { Link } from "react-router-dom";
 import { GlobalSearch } from "../search/GlobalSearch";
 import { ThemeToggle } from "../theme/ThemeToggle";
+import { ChartBar, Users, UserCheck, BookOpen, ListTodo, Settings } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function Navbar() {
   return (
@@ -10,16 +17,86 @@ export default function Navbar() {
           <span className="font-bold">Insight Hub</span>
         </Link>
         <div className="flex items-center space-x-6 text-sm font-medium">
-          <Link to="/" className="transition-colors hover:text-foreground/80">Dashboard</Link>
-          <Link to="/collaborations" className="transition-colors hover:text-foreground/80">Collaborations</Link>
-          <Link to="/internal-support" className="transition-colors hover:text-foreground/80">Internal Support</Link>
-          <Link to="/wiki" className="transition-colors hover:text-foreground/80">Wiki</Link>
-          <Link to="/glossary" className="transition-colors hover:text-foreground/80">Glossary</Link>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link to="/" className="transition-colors hover:text-foreground/80">
+                  <ChartBar className="h-5 w-5" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Dashboard</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link to="/collaborations" className="transition-colors hover:text-foreground/80">
+                  <Users className="h-5 w-5" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Collaborations</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link to="/internal-support" className="transition-colors hover:text-foreground/80">
+                  <UserCheck className="h-5 w-5" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Internal Support</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link to="/wiki" className="transition-colors hover:text-foreground/80">
+                  <BookOpen className="h-5 w-5" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Wiki</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link to="/glossary" className="transition-colors hover:text-foreground/80">
+                  <ListTodo className="h-5 w-5" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Glossary</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
         <div className="ml-auto flex items-center space-x-4">
           <GlobalSearch />
           <ThemeToggle />
-          <Link to="/settings" className="transition-colors hover:text-foreground/80">Settings</Link>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link to="/settings" className="transition-colors hover:text-foreground/80">
+                  <Settings className="h-5 w-5" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Settings</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
     </nav>
