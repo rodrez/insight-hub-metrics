@@ -14,6 +14,7 @@ import { BaseDBService } from './db/base/BaseDBService';
 import { SampleDataPopulationService } from './db/SampleDataPopulationService';
 import { DatabaseClearingService } from './db/DatabaseClearingService';
 import { Team } from '../types';
+import { toast } from "@/components/ui/use-toast";
 
 export class IndexedDBService extends BaseDBService implements DataService {
   private projectStore: ProjectStore | null = null;
