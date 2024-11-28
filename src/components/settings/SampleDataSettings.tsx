@@ -27,7 +27,7 @@ export function SampleDataSettings() {
     spis: 10,
     objectives: 5,
     sitreps: 10,
-    fortune30: 30,
+    fortune30: 6,  // Changed from 30 to 6
     internalPartners: 20,
     smePartners: 10
   });

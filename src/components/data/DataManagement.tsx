@@ -4,15 +4,64 @@ import { useEffect, useState } from "react";
 import { DatabaseActions } from "./DatabaseActions";
 import { sampleFortune30, getSampleInternalPartners, generateSampleProjects } from "./SampleData";
 import { executeWithRetry, LoadingStep } from "@/lib/utils/loadingRetry";
+import { Card, CardContent } from "@/components/ui/card";
+
+interface DataCounts {
+  projects: number;
+  spis: number;
+  objectives: number;
+  sitreps: number;
+  fortune30: number;
+  internalPartners: number;
+  smePartners: number;
+}
 
 export default function DataManagement() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
   const [isPopulating, setIsPopulating] = useState(false);
+  const [dataCounts, setDataCounts] = useState<DataCounts>({
+    projects: 0,
+    spis: 0,
+    objectives: 0,
+    sitreps: 0,
+    fortune30: 0,
+    internalPartners: 0,
+    smePartners: 0
+  });
 
   useEffect(() => {
     initializeDB();
   }, []);
+
+  useEffect(() => {
+    if (isInitialized) {
+      updateDataCounts();
+    }
+  }, [isInitialized]);
+
+  const updateDataCounts = async () => {
+    try {
+      const projects = await db.getAllProjects();
+      const spis = await db.getAllSPIs();
+      const objectives = await db.getAllObjectives();
+      const sitreps = await db.getAllSitReps();
+      const collaborators = await db.getAllCollaborators();
+      const smePartners = await db.getAllSMEPartners();
+
+      setDataCounts({
+        projects: projects.length,
+        spis: spis.length,
+        objectives: objectives.length,
+        sitreps: sitreps.length,
+        fortune30: collaborators.filter(c => c.type === 'fortune30').length,
+        internalPartners: collaborators.filter(c => c.type === 'other').length,
+        smePartners: smePartners.length
+      });
+    } catch (error) {
+      console.error('Error updating data counts:', error);
+    }
+  };
 
   const initializeDB = async () => {
     const initStep: LoadingStep = {
@@ -46,6 +95,7 @@ export default function DataManagement() {
             await db.clear();
             console.log('Database cleared successfully');
             await initializeDB();
+            await updateDataCounts();
             return true;
           } catch (error) {
             console.error('Database clear error:', error);
@@ -119,11 +169,11 @@ export default function DataManagement() {
               await db.addSitRep(sitrep);
             }
             
-            console.log(`Generated ${projects.length} projects successfully`);
-
+            await updateDataCounts();
+            
             toast({
               title: "Success",
-              description: `Sample data populated with ${projects.length} projects, ${spis.length} SPIs, ${objectives.length} objectives, and ${sitreps.length} sitreps`,
+              description: `Sample data populated successfully`,
             });
 
             return true;
@@ -155,6 +205,20 @@ export default function DataManagement() {
         onClear={clearDatabase}
         onPopulate={populateSampleData}
       />
+      
+      <Card className="mt-6">
+        <CardContent className="pt-6">
+          <h3 className="text-lg font-semibold mb-4">Current Data Counts</h3>
+          <div className="grid gap-2">
+            {Object.entries(dataCounts).map(([key, count]) => (
+              <div key={key} className="flex justify-between items-center">
+                <span>{key.charAt(0).toUpperCase() + key.slice(1)}:</span>
+                <span>{count}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
