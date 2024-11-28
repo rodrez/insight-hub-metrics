@@ -1,4 +1,3 @@
-import { Project, Department } from '@/lib/types';
 import { DEPARTMENTS } from '@/lib/constants';
 import { defaultTechDomains } from '@/lib/types/techDomain';
 import { generateProjectData } from './projectDataGenerator';
