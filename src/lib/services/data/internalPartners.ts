@@ -3,7 +3,7 @@ import { DEPARTMENTS } from "@/lib/constants";
 import { Project } from "@/lib/types";
 import { db } from "@/lib/db";
 
-// Create a map of used names to prevent duplicates across departments
+// Create a map of used names to prevent duplicates
 const usedNames = new Set<string>();
 
 const generateInternalPartner = async (
@@ -47,7 +47,7 @@ const generateInternalPartner = async (
     department: departmentId,
     projects: departmentProjects,
     lastActive: new Date().toISOString(),
-    type: "other",
+    type: "internal",
     color: department.color
   };
 };
@@ -63,29 +63,19 @@ export const generateInternalPartners = async (): Promise<Collaborator[]> => {
     'Sarah', 'Michael', 'Emily', 'James',
     'David', 'Lisa', 'Robert', 'Maria',
     'John', 'Amanda', 'Thomas', 'Rachel',
-    'Daniel', 'Jennifer', 'William', 'Patricia',
-    'Richard', 'Karen', 'Joseph', 'Nancy',
-    'Charles', 'Betty', 'Christopher', 'Margaret',
-    'Steven', 'Sandra', 'Kevin', 'Ashley',
-    'Edward', 'Dorothy', 'Brian', 'Linda'
+    'Daniel', 'Jennifer', 'William', 'Patricia'
   ];
 
   const lastNames = [
     'Johnson', 'Chen', 'Rodriguez', 'Wilson',
     'Smith', 'Park', 'Taylor', 'Garcia',
     'Brown', 'White', 'Lee', 'Martinez',
-    'Kim', 'Anderson', 'Davis', 'Thompson',
-    'Miller', 'Moore', 'Martin', 'Jackson',
-    'Thompson', 'White', 'Lopez', 'Lewis',
-    'Clark', 'Robinson', 'Walker', 'Young',
-    'Allen', 'King', 'Wright', 'Scott'
+    'Kim', 'Anderson', 'Davis', 'Thompson'
   ];
 
   const roles = [
     'Project Manager', 'Technical Lead', 'Senior Engineer', 'Department Head',
-    'Systems Engineer', 'Research Lead', 'Technical Specialist', 'Program Director',
-    'Innovation Lead', 'Development Manager', 'Integration Specialist', 'Operations Manager',
-    'Technical Architect', 'Product Manager', 'Solutions Engineer', 'Team Lead'
+    'Systems Engineer', 'Research Lead', 'Technical Specialist', 'Program Director'
   ];
 
   // Generate 4 unique partners for each department

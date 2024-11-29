@@ -1,6 +1,6 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CollaborationFormFields } from "./CollaborationFormFields";
-import { CollaborationType } from "@/lib/types";
+import { CollaboratorType } from "@/lib/types/collaboration";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";

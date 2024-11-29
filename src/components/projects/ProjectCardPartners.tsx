@@ -39,7 +39,7 @@ export function ProjectCardPartners({ project, getDepartmentColor }: ProjectCard
               partner={{
                 id: collab.id,
                 name: collab.name,
-                type: collab.type as CollaboratorType,
+                type: collab.type,
                 department: collab.department
               }}
               departmentColor={getDepartmentColor(collab.department)}
@@ -56,7 +56,7 @@ export function ProjectCardPartners({ project, getDepartmentColor }: ProjectCard
               partner={{
                 id: partner.id,
                 name: partner.name,
-                type: partner.type as CollaboratorType,
+                type: partner.type,
                 department: partner.department
               }}
               departmentColor={getDepartmentColor(partner.department)}
@@ -74,7 +74,7 @@ export function ProjectCardPartners({ project, getDepartmentColor }: ProjectCard
                 partner={{
                   id: sme.id,
                   name: sme.name,
-                  type: sme.type as CollaboratorType,
+                  type: sme.type,
                   department: sme.department
                 }}
                 departmentColor={getDepartmentColor(sme.department)}

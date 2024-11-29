@@ -20,7 +20,7 @@ export class DataValidationService {
 
       const collaborators = await db.getAllCollaborators();
       const fortune30 = collaborators.filter(c => c.type === 'fortune30');
-      const internal = collaborators.filter(c => c.type === 'other');
+      const internal = collaborators.filter(c => c.type === 'internal');
       this.showValidationStep("Validated Fortune 30 Partners", fortune30.length);
       this.showValidationStep("Validated Internal Partners", internal.length);
 
