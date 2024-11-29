@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SitRep } from "@/lib/types/sitrep";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { db } from "@/lib/db";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +13,12 @@ import { ContactBadges } from "./card/ContactBadges";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { CompactSitRepForm } from "./CompactSitRepForm";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface SitRepCardProps {
   sitrep: SitRep;
@@ -54,6 +59,19 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'submitted':
+        return 'Submitted';
+      case 'pending-review':
+        return 'Pending Review';
+      case 'ready':
+        return 'Ready';
+      default:
+        return status;
+    }
+  };
+
   const wordCount = sitrep.summary.split(/\s+/).filter(word => word.length > 0).length;
   const isWordCountValid = wordCount >= 100;
 
@@ -65,19 +83,27 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-2">
                 <h3 className="text-xl font-semibold">{sitrep.title}</h3>
-                <Select value={sitrep.status} onValueChange={handleStatusChange}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending-review">Pending Review</SelectItem>
-                    <SelectItem value="ready">Ready</SelectItem>
-                    <SelectItem value="submitted">Submitted</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Badge variant="outline" className={getStatusBadgeColor(sitrep.status)}>
-                  {sitrep.status}
-                </Badge>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Badge 
+                      variant="outline" 
+                      className={`${getStatusBadgeColor(sitrep.status)} cursor-pointer hover:opacity-80`}
+                    >
+                      {getStatusLabel(sitrep.status)}
+                    </Badge>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <DropdownMenuItem onClick={() => handleStatusChange('pending-review')}>
+                      Pending Review
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleStatusChange('ready')}>
+                      Ready
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleStatusChange('submitted')}>
+                      Submitted
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <StatusIcon status={sitrep.status} />
               </div>
               <div className="flex gap-2">
