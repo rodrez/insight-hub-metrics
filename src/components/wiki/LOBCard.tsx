@@ -8,6 +8,7 @@ import { Contact } from "./types/contact";
 import { ContactForm } from "./components/ContactForm";
 import { ContactDisplay } from "./components/ContactDisplay";
 import { LOBDisplay } from "./components/LOBDisplay";
+import { Button } from "@/components/ui/button";
 
 interface LOBCardProps {
   lob: { name: string; department: string; };
