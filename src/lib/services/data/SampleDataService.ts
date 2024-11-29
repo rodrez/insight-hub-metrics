@@ -8,26 +8,15 @@ import { generateFortune30Partners } from './generators/fortune30Generator';
 import { generateInternalPartners } from './generators/internalPartnersGenerator';
 import { generateSMEPartners } from './generators/smePartnersGenerator';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './generators/spiGenerator';
+import { generateSampleProjects } from './generators/projectGenerator';
 import { ProgressTracker } from '@/lib/utils/progressTracking';
+import { DEPARTMENTS } from '@/lib/constants';
 
 export class SampleDataService {
   private progressTracker: ProgressTracker;
 
   constructor() {
     this.progressTracker = new ProgressTracker();
-  }
-
-  private validateQuantities(available: number, requested: number, type: string): number {
-    if (requested > available) {
-      console.log(`Adjusting ${type} quantity from ${requested} to ${available} (maximum available)`);
-      toast({
-        title: "Notice",
-        description: `Requested ${requested} ${type}, but only ${available} are available. Adjusting quantity.`,
-        variant: "default",
-      });
-      return available;
-    }
-    return requested;
   }
 
   async generateSampleData(quantities: DataQuantities = {
@@ -45,35 +34,30 @@ export class SampleDataService {
       this.progressTracker.addStep('SME Partners', quantities.smePartners);
       this.progressTracker.addStep('Projects', quantities.projects);
       
-      const allFortune30 = generateFortune30Partners();
-      const allInternalPartners = await generateInternalPartners();
-      const allSMEPartners = generateSMEPartners();
+      // Generate all partners first
+      const fortune30Partners = generateFortune30Partners();
+      const internalPartners = await generateInternalPartners();
+      const smePartners = generateSMEPartners();
 
-      // Validate and adjust quantities
-      const fortune30Count = this.validateQuantities(allFortune30.length, quantities.fortune30, "Fortune 30 partners");
-      const internalCount = this.validateQuantities(allInternalPartners.length, quantities.internalPartners, "internal partners");
-      const smeCount = this.validateQuantities(allSMEPartners.length, quantities.smePartners, "SME partners");
-
-      const fortune30Partners = allFortune30.slice(0, fortune30Count);
-      const internalPartners = allInternalPartners.slice(0, internalCount);
-      const smePartners = allSMEPartners.slice(0, smeCount);
+      // Generate projects using the partners
+      const { projects, spis, objectives, sitreps } = await generateSampleProjects({
+        ...quantities,
+        departments: DEPARTMENTS,
+        fortune30Partners,
+        internalPartners,
+        smePartners
+      });
 
       this.progressTracker.updateProgress('Fortune 30 Partners', fortune30Partners.length);
       this.progressTracker.updateProgress('Internal Partners', internalPartners.length);
       this.progressTracker.updateProgress('SME Partners', smePartners.length);
-
-      // Generate SPIs, objectives, and sitreps
-      const spis = generateSampleSPIs([], quantities.spis);
-      const objectives = generateSampleObjectives(quantities.objectives);
-      const sitreps = generateSampleSitReps(spis, quantities.sitreps);
-
-      this.progressTracker.updateProgress('Projects', quantities.projects);
+      this.progressTracker.updateProgress('Projects', projects.length);
 
       return {
-        fortune30Partners,
-        internalPartners,
-        smePartners,
-        projects: [],  // Projects will be generated based on the partners
+        fortune30Partners: fortune30Partners.slice(0, quantities.fortune30),
+        internalPartners: internalPartners.slice(0, quantities.internalPartners),
+        smePartners: smePartners.slice(0, quantities.smePartners),
+        projects,
         spis,
         objectives,
         sitreps
