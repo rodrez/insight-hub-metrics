@@ -2,16 +2,7 @@ import { Project, Collaborator, Team } from '../types';
 import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
-
-export interface SampleDataQuantities {
-  projects: number;
-  spis: number;
-  objectives: number;
-  sitreps: number;
-  fortune30: number;
-  internalPartners: number;
-  smePartners: number;
-}
+import { DataQuantities } from '../types/data';
 
 export interface DataService {
   init(): Promise<void>;
@@ -36,7 +27,7 @@ export interface DataService {
   updateObjective(id: string, updates: Partial<Objective>): Promise<void>;
   exportData(): Promise<void>;
   getAllTeams(): Promise<Team[]>;
-  populateSampleData(quantities: SampleDataQuantities): Promise<void>;
+  populateSampleData(quantities: DataQuantities): Promise<void>;
   getAllSMEPartners(): Promise<Collaborator[]>;
   getSMEPartner(id: string): Promise<Collaborator | undefined>;
   addSMEPartner(partner: Collaborator): Promise<void>;

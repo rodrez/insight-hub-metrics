@@ -4,6 +4,7 @@ import { Project, Collaborator } from '@/lib/types';
 import { SPI } from '@/lib/types/spi';
 import { Objective } from '@/lib/types/objective';
 import { SitRep } from '@/lib/types/sitrep';
+import { DataQuantities } from '@/lib/types/data';
 import { generateSampleProjects as generateProjects } from '@/lib/services/sampleData/sampleProjectGenerator';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from '@/lib/services/sampleData/spiData';
 import { validateDataQuantities, generateDataWithProgress } from '@/lib/services/data/utils/dataGenerationUtils';
@@ -13,15 +14,6 @@ export interface GeneratedData {
   spis: SPI[];
   objectives: Objective[];
   sitreps: SitRep[];
-}
-
-export interface DataQuantities {
-  projects: number;
-  spis: number;
-  objectives: number;
-  sitreps: number;
-  fortune30: number;
-  internalPartners: number;
 }
 
 export const sampleFortune30: Collaborator[] = generateFortune30Partners();
@@ -135,3 +127,4 @@ export const generateSampleProjects = async (quantities: DataQuantities): Promis
     return generatedData;
   }, "Sample Projects");
 };
+
