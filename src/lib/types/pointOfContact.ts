@@ -5,12 +5,9 @@ export interface PointOfContact {
   department: string;
 }
 
-export interface BusinessCategory {
+export type ContactPerson = {
   name: string;
-  description: string;
-  contacts: PointOfContact[];
-  lobs: {
-    name: string;
-    department: string;
-  }[];
-}
+  role: string;
+  email: string;
+  phone?: string;
+};
