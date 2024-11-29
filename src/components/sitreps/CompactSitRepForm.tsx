@@ -1,18 +1,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
-import { SupportingTeamsSelect } from "./SupportingTeamsSelect";
-import { PointsOfContactForm } from "./PointsOfContactForm";
-import { PartnerSelectionFields } from "./form/PartnerSelectionFields";
 import { SitRep } from "@/lib/types/sitrep";
-import { PointOfContact } from "@/lib/types/pointOfContact";
+import { BasicInfoFields } from "./form/BasicInfoFields";
+import { RelationshipFields } from "./form/RelationshipFields";
+import { ContentFields } from "./form/ContentFields";
 
 interface CompactSitRepFormProps {
   onSubmitSuccess: () => void;
@@ -21,33 +17,39 @@ interface CompactSitRepFormProps {
 
 export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRepFormProps) {
   const [open, setOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    initialData?.date ? new Date(initialData.date) : new Date()
+  );
   const [title, setTitle] = useState(initialData?.title || "");
-  const [content, setContent] = useState(initialData?.update || "");
-  const [importanceLevel, setImportanceLevel] = useState<"cto" | "svp" | "ceo">(
-    (initialData?.level?.toLowerCase() as "cto" | "svp" | "ceo") || "cto"
-  );
-  const [keyTeam, setKeyTeam] = useState<string>(initialData?.departmentId || "none");
-  const [supportingTeams, setSupportingTeams] = useState<string[]>(initialData?.teams || []);
-  const [pointsOfContact, setPointsOfContact] = useState<PointOfContact[]>(
-    initialData?.pointsOfContact?.map(poc => {
-      const [name, title] = poc.split(" (");
-      return {
-        name,
-        title: title?.replace(")", "") || "",
-        email: "",
-        department: ""
-      };
-    }) || []
-  );
+  const [summary, setSummary] = useState(initialData?.summary || "");
+  const [update, setUpdate] = useState(initialData?.update || "");
+  const [challenges, setChallenges] = useState(initialData?.challenges || "");
+  const [nextSteps, setNextSteps] = useState(initialData?.nextSteps || "");
+  const [selectedProject, setSelectedProject] = useState<string>(initialData?.projectId || "none");
   const [selectedFortune30, setSelectedFortune30] = useState<string>(initialData?.fortune30PartnerId || "none");
-  const [selectedSME, setSelectedSME] = useState<string>(initialData?.smePartnerId || "none");
+  const [selectedDepartment, setSelectedDepartment] = useState<string>(initialData?.departmentId || "none");
+  const [selectedPartner, setSelectedPartner] = useState<string>("none");
+  const [status, setStatus] = useState<'pending-review' | 'ready' | 'submitted'>(
+    initialData?.status || 'pending-review'
+  );
+
+  const { data: projects } = useQuery({
+    queryKey: ['projects'],
+    queryFn: () => db.getAllProjects()
+  });
+
+  const { data: collaborators } = useQuery({
+    queryKey: ['collaborators'],
+    queryFn: () => db.getAllCollaborators()
+  });
+
+  const fortune30Partners = collaborators?.filter(c => c.type === 'fortune30') || [];
+  const filteredInternalPartners = [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
-    
-    if (!title || !content) {
+    if (!title || !summary) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -56,32 +58,20 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
       return;
     }
 
-    if (wordCount < 100) {
-      toast({
-        title: "Error",
-        description: "Content must be at least 100 words",
-        variant: "destructive"
-      });
-      return;
-    }
-
     try {
       const sitrepData = {
         id: initialData?.id || `sitrep-${Date.now()}`,
-        date: initialData?.date || new Date().toISOString(),
+        date: selectedDate?.toISOString() || new Date().toISOString(),
         spiId: initialData?.spiId || "temp-spi-id",
         title,
-        update: content,
-        challenges: initialData?.challenges || "",
-        nextSteps: initialData?.nextSteps || "",
-        status: initialData?.status || 'pending-review',
-        summary: content,
-        departmentId: keyTeam !== "none" ? keyTeam : "default",
-        level: importanceLevel.toUpperCase() as "CEO" | "SVP" | "CTO",
-        teams: supportingTeams,
-        pointsOfContact: pointsOfContact.map(poc => `${poc.name} (${poc.title})`),
-        fortune30PartnerId: selectedFortune30 !== "none" ? selectedFortune30 : undefined,
-        smePartnerId: selectedSME !== "none" ? selectedSME : undefined
+        update,
+        challenges,
+        nextSteps,
+        status,
+        summary,
+        projectId: selectedProject !== "none" ? selectedProject : undefined,
+        departmentId: selectedDepartment !== "none" ? selectedDepartment : undefined,
+        fortune30PartnerId: selectedFortune30 !== "none" ? selectedFortune30 : undefined
       };
 
       if (initialData) {
@@ -122,66 +112,41 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div>
-              <Label className="text-white">Title</Label>
-              <Input
-                placeholder="Enter sitrep title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="bg-[#13151D] border-gray-700 text-white"
-              />
-            </div>
-
-            <div>
-              <Label className="text-white">Content</Label>
-              <Textarea
-                placeholder="Enter sitrep content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="h-32 bg-[#13151D] border-gray-700 text-white"
-              />
-            </div>
-
-            <div>
-              <Label className="text-white">Importance Level</Label>
-              <RadioGroup
-                value={importanceLevel}
-                onValueChange={(value: "cto" | "svp" | "ceo") => setImportanceLevel(value)}
-                className="flex space-x-4"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="cto" id="cto" />
-                  <Label htmlFor="cto">CTO</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="svp" id="svp" />
-                  <Label htmlFor="svp">SVP</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="ceo" id="ceo" />
-                  <Label htmlFor="ceo">CEO</Label>
-                </div>
-              </RadioGroup>
-            </div>
-
-            <PartnerSelectionFields
+          <div className="grid gap-6 md:grid-cols-2">
+            <BasicInfoFields
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
+              title={title}
+              setTitle={setTitle}
+              status={status}
+              setStatus={setStatus}
+            />
+            
+            <RelationshipFields
+              selectedProject={selectedProject}
+              setSelectedProject={setSelectedProject}
               selectedFortune30={selectedFortune30}
               setSelectedFortune30={setSelectedFortune30}
-              selectedSME={selectedSME}
-              setSelectedSME={setSelectedSME}
-            />
-
-            <SupportingTeamsSelect 
-              supportingTeams={supportingTeams}
-              setSupportingTeams={setSupportingTeams}
-            />
-
-            <PointsOfContactForm
-              pointsOfContact={pointsOfContact}
-              setPointsOfContact={setPointsOfContact}
+              selectedDepartment={selectedDepartment}
+              setSelectedDepartment={setSelectedDepartment}
+              selectedPartner={selectedPartner}
+              setSelectedPartner={setSelectedPartner}
+              projects={projects || []}
+              fortune30Partners={fortune30Partners}
+              filteredInternalPartners={filteredInternalPartners}
             />
           </div>
+
+          <ContentFields
+            summary={summary}
+            setSummary={setSummary}
+            update={update}
+            setUpdate={setUpdate}
+            challenges={challenges}
+            setChallenges={setChallenges}
+            nextSteps={nextSteps}
+            setNextSteps={setNextSteps}
+          />
 
           <Button type="submit" className="w-full bg-white text-black hover:bg-gray-100">
             {initialData ? "Update Sitrep" : "Create Sitrep"}
