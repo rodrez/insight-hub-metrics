@@ -62,6 +62,8 @@ export function SampleDataSettings() {
     setIsPopulating(true);
     try {
       await db.populateSampleData(quantities);
+      
+      // Fetch actual counts after population
       const counts: DataCounts = {
         projects: (await db.getAllProjects()).length,
         spis: (await db.getAllSPIs()).length,
@@ -91,6 +93,7 @@ export function SampleDataSettings() {
         });
       }
     } catch (error) {
+      console.error('Error populating database:', error);
       toast({
         title: "Error",
         description: "Failed to populate database",
