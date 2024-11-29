@@ -100,12 +100,12 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
     <Dialog open={!initialData && open} onOpenChange={setOpen}>
       {!initialData ? (
         <DialogTrigger asChild>
-          <Button variant="outline" size="icon">
+          <Button variant="outline" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
             <Plus className="h-4 w-4" />
           </Button>
         </DialogTrigger>
       ) : null}
-      <DialogContent className="sm:max-w-[600px] bg-[#1A1F2C] text-white">
+      <DialogContent className="sm:max-w-[600px] w-[95vw] bg-[#1A1F2C] text-white">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-white">
             {initialData ? "Edit Sitrep" : "Create New Sitrep"}
