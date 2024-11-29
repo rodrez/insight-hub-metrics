@@ -23,7 +23,7 @@ export default function SPIPage() {
         <h1 className="text-3xl font-bold">Schedule Performance Index</h1>
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
           <DialogTrigger asChild>
-            <Button size="icon">
+            <Button variant="outline" size="icon">
               <Plus className="h-4 w-4" />
             </Button>
           </DialogTrigger>
