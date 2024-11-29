@@ -2,23 +2,15 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
-import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
-import { DEPARTMENTS } from "@/lib/constants";
 import { SupportingTeamsSelect } from "./SupportingTeamsSelect";
 import { PointsOfContactForm } from "./PointsOfContactForm";
+import { PartnerSelectionFields } from "./form/PartnerSelectionFields";
 import { SitRep } from "@/lib/types/sitrep";
 import { PointOfContact } from "@/lib/types/pointOfContact";
 
@@ -47,6 +39,8 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
       };
     }) || []
   );
+  const [selectedFortune30, setSelectedFortune30] = useState<string>(initialData?.fortune30PartnerId || "none");
+  const [selectedSME, setSelectedSME] = useState<string>(initialData?.smePartnerId || "none");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,7 +79,9 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
         departmentId: keyTeam !== "none" ? keyTeam : "default",
         level: importanceLevel.toUpperCase() as "CEO" | "SVP" | "CTO",
         teams: supportingTeams,
-        pointsOfContact: pointsOfContact.map(poc => `${poc.name} (${poc.title})`)
+        pointsOfContact: pointsOfContact.map(poc => `${poc.name} (${poc.title})`),
+        fortune30PartnerId: selectedFortune30 !== "none" ? selectedFortune30 : undefined,
+        smePartnerId: selectedSME !== "none" ? selectedSME : undefined
       };
 
       if (initialData) {
@@ -169,22 +165,12 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
               </RadioGroup>
             </div>
 
-            <div>
-              <Label className="text-white">Key Team</Label>
-              <Select value={keyTeam} onValueChange={setKeyTeam}>
-                <SelectTrigger className="bg-[#13151D] border-gray-700 text-white">
-                  <SelectValue placeholder="Select key team" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {DEPARTMENTS.map(dept => (
-                    <SelectItem key={dept.id} value={dept.id}>
-                      {dept.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <PartnerSelectionFields
+              selectedFortune30={selectedFortune30}
+              setSelectedFortune30={setSelectedFortune30}
+              selectedSME={selectedSME}
+              setSelectedSME={setSelectedSME}
+            />
 
             <SupportingTeamsSelect 
               supportingTeams={supportingTeams}
