@@ -2,6 +2,7 @@ import { useState } from "react";
 import { SPIForm } from "@/components/spi/SPIForm";
 import { SPIList } from "@/components/spi/SPIList";
 import { ObjectivesList } from "@/components/spi/objectives/ObjectivesList";
+import { SPIAnalytics } from "@/components/spi/analytics/SPIAnalytics";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -40,12 +41,16 @@ export default function SPIPage() {
         <TabsList>
           <TabsTrigger value="spis">SPIs</TabsTrigger>
           <TabsTrigger value="objectives">Objectives</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
         <TabsContent value="spis">
           <SPIList />
         </TabsContent>
         <TabsContent value="objectives">
           <ObjectivesList />
+        </TabsContent>
+        <TabsContent value="analytics">
+          <SPIAnalytics />
         </TabsContent>
       </Tabs>
     </div>
