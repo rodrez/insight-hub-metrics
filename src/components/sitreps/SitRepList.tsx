@@ -33,9 +33,9 @@ export function SitRepList({ showDateFilter }: SitRepListProps) {
       <SitRepStats onStatusFilter={setStatusFilter} activeFilter={statusFilter} />
       
       <div className="relative">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
         <Input
-          className="pl-10 bg-[#1A1F2C] text-white border-gray-700"
+          className="pl-10"
           placeholder="Search sitreps..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}

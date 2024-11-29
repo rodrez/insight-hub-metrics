@@ -24,32 +24,32 @@ export function SitRepStats({ onStatusFilter, activeFilter }: SitRepStatsProps) 
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <Card 
         className={cn(
-          "p-6 bg-[#1A1F2C] text-white cursor-pointer transition-colors hover:bg-[#252B3B]",
-          activeFilter === null && "ring-2 ring-blue-500"
+          "p-6 cursor-pointer transition-colors hover:bg-accent",
+          activeFilter === null && "ring-2 ring-primary"
         )}
         onClick={() => onStatusFilter(null)}
       >
-        <h3 className="text-gray-400 mb-2">Total Sitreps</h3>
+        <h3 className="text-muted-foreground mb-2">Total Sitreps</h3>
         <p className="text-4xl font-bold">{stats.total}</p>
       </Card>
       <Card 
         className={cn(
-          "p-6 bg-[#1A1F2C] text-white cursor-pointer transition-colors hover:bg-[#252B3B]",
-          activeFilter === 'pending-review' && "ring-2 ring-blue-500"
+          "p-6 cursor-pointer transition-colors hover:bg-accent",
+          activeFilter === 'pending-review' && "ring-2 ring-primary"
         )}
         onClick={() => onStatusFilter('pending-review')}
       >
-        <h3 className="text-gray-400 mb-2">Pending Review</h3>
+        <h3 className="text-muted-foreground mb-2">Pending Review</h3>
         <p className="text-4xl font-bold">{stats.pending}</p>
       </Card>
       <Card 
         className={cn(
-          "p-6 bg-[#1A1F2C] text-white cursor-pointer transition-colors hover:bg-[#252B3B]",
-          activeFilter === 'ready' && "ring-2 ring-blue-500"
+          "p-6 cursor-pointer transition-colors hover:bg-accent",
+          activeFilter === 'ready' && "ring-2 ring-primary"
         )}
         onClick={() => onStatusFilter('ready')}
       >
-        <h3 className="text-gray-400 mb-2">Ready for Submission</h3>
+        <h3 className="text-muted-foreground mb-2">Ready for Submission</h3>
         <p className="text-4xl font-bold">{stats.ready}</p>
       </Card>
     </div>

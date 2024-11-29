@@ -59,7 +59,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
 
   return (
     <>
-      <Card className="bg-[#1A1F2C] text-white mb-4">
+      <Card>
         <CardContent className="pt-6">
           <div className="space-y-4">
             <div className="flex justify-between items-start">
@@ -85,7 +85,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsEditDialogOpen(true)}
-                  className="text-gray-400 hover:text-green-500 transition-colors"
+                  className="text-muted-foreground hover:text-green-500 transition-colors"
                 >
                   <Pen className="h-4 w-4" />
                 </Button>
@@ -94,7 +94,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
                     variant="ghost"
                     size="icon"
                     onClick={handleDelete}
-                    className="text-gray-400 hover:text-red-500"
+                    className="text-muted-foreground hover:text-red-500"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -102,9 +102,9 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
               </div>
             </div>
 
-            <p className="text-gray-300">{sitrep.summary}</p>
+            <p className="text-muted-foreground">{sitrep.summary}</p>
 
-            <div className="flex items-center gap-4 text-sm text-gray-400">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <span>{format(new Date(sitrep.date), "MM/dd/yyyy")}</span>
               <span>{sitrep.level}</span>
               <span className={!isWordCountValid ? "text-yellow-500" : ""}>
@@ -125,17 +125,17 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
 
             <div className="pt-2 space-y-2">
               <div className="text-sm">
-                <span className="text-gray-400">Importance Level: </span>
-                <span className="text-white">{sitrep.level}</span>
+                <span className="text-muted-foreground">Importance Level: </span>
+                <span>{sitrep.level}</span>
               </div>
               <div className="text-sm">
-                <span className="text-gray-400">Key Team: </span>
-                <span className="text-white">{sitrep.departmentId}</span>
+                <span className="text-muted-foreground">Key Team: </span>
+                <span>{sitrep.departmentId}</span>
               </div>
               {sitrep.teams && sitrep.teams.length > 0 && (
                 <div className="text-sm">
-                  <span className="text-gray-400">Supporting Teams: </span>
-                  <span className="text-white">{sitrep.teams.join(", ")}</span>
+                  <span className="text-muted-foreground">Supporting Teams: </span>
+                  <span>{sitrep.teams.join(", ")}</span>
                 </div>
               )}
             </div>
@@ -144,7 +144,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
       </Card>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-3xl bg-[#1A1F2C] text-white">
+        <DialogContent className="max-w-3xl">
           <CompactSitRepForm
             initialData={sitrep}
             onSubmitSuccess={() => {
