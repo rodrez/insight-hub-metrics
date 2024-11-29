@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Input } from "@/components/ui/input";
-import { Search, Pen, Trash2 } from 'lucide-react';
+import { Search, Pen, Trash2, Plus } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -8,6 +8,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 type GlossaryItem = {
   id: string;
@@ -81,11 +89,33 @@ const GLOSSARY_ITEMS: GlossaryItem[] = [
 
 export default function Glossary() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [newTerm, setNewTerm] = useState('');
+  const [newDefinition, setNewDefinition] = useState('');
+  const [newCategory, setNewCategory] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const filteredItems = GLOSSARY_ITEMS.filter(item =>
     item.term.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.definition.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleAddTerm = () => {
+    const newItem: GlossaryItem = {
+      id: crypto.randomUUID(),
+      term: newTerm,
+      definition: newDefinition,
+      category: newCategory,
+    };
+    
+    // In a real app, you would save this to your database
+    console.log('New term added:', newItem);
+    
+    // Reset form
+    setNewTerm('');
+    setNewDefinition('');
+    setNewCategory('');
+    setIsDialogOpen(false);
+  };
 
   const groupedItems = filteredItems.reduce((acc, item) => {
     const firstLetter = item.term[0].toUpperCase();
@@ -98,7 +128,60 @@ export default function Glossary() {
 
   return (
     <div className="container mx-auto px-4 pt-24 pb-12">
-      <h1 className="text-3xl font-bold mb-8">Glossary</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Glossary</h1>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Term
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Term</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="term" className="text-sm font-medium">
+                  Term
+                </label>
+                <Input
+                  id="term"
+                  value={newTerm}
+                  onChange={(e) => setNewTerm(e.target.value)}
+                  placeholder="Enter term"
+                />
+              </div>
+              <div>
+                <label htmlFor="definition" className="text-sm font-medium">
+                  Definition
+                </label>
+                <Textarea
+                  id="definition"
+                  value={newDefinition}
+                  onChange={(e) => setNewDefinition(e.target.value)}
+                  placeholder="Enter definition"
+                />
+              </div>
+              <div>
+                <label htmlFor="category" className="text-sm font-medium">
+                  Category
+                </label>
+                <Input
+                  id="category"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  placeholder="Enter category"
+                />
+              </div>
+              <Button onClick={handleAddTerm} className="w-full">
+                Add Term
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
       
       <div className="relative mb-6">
         <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
