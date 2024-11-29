@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Collaborator } from "@/lib/types/collaboration";
 import { WorkstreamCard } from "./shared/WorkstreamCard";
 import { ContactInfo } from "./shared/ContactInfo";
+import { useQuery } from "@tanstack/react-query";
+import { db } from "@/lib/db";
 import {
   Tooltip,
   TooltipContent,
@@ -20,6 +22,17 @@ type SMEListProps = {
 export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString();
+  };
+
+  const { data: allProjects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: () => db.getAllProjects()
+  });
+
+  const getAssociatedProjects = (collaborator: Collaborator) => {
+    return allProjects.filter(project => 
+      project.collaborators?.some(c => c.id === collaborator.id && c.type === 'sme')
+    );
   };
 
   return (
@@ -75,13 +88,29 @@ export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-medium mb-2">Primary Contact</h4>
-                {collaborator.primaryContact ? (
-                  <ContactInfo contact={collaborator.primaryContact} />
-                ) : (
-                  <p className="text-sm text-muted-foreground">No primary contact set</p>
-                )}
+              <div className="space-y-6">
+                <div>
+                  <h4 className="font-medium mb-2">Primary Contact</h4>
+                  {collaborator.primaryContact ? (
+                    <ContactInfo contact={collaborator.primaryContact} />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No primary contact set</p>
+                  )}
+                </div>
+
+                <div>
+                  <h4 className="font-medium mb-2">Associated Projects</h4>
+                  <div className="space-y-2">
+                    {getAssociatedProjects(collaborator).map(project => (
+                      <div key={project.id} className="p-2 border rounded-lg">
+                        <p className="font-medium">{project.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {project.nabc?.needs || "No description available"}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               <div>

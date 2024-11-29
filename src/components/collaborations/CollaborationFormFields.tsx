@@ -1,107 +1,97 @@
-import { UseFormReturn } from "react-hook-form";
-import * as z from "zod";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "@/components/ui/form";
 import { BasicInfoFields } from "./form/BasicInfoFields";
 import { ContactFields } from "./form/ContactFields";
 import { AgreementFields } from "./form/AgreementFields";
 import { WorkstreamFields } from "./form/WorkstreamFields";
-import { CollaborationType } from "@/lib/types";
-import { validateEmail } from "@/lib/utils/validation";
-import { useQuery } from '@tanstack/react-query';
-import { db } from '@/lib/db';
-import { useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Collaborator } from "@/lib/types/collaboration";
+import { useQuery } from "@tanstack/react-query";
+import { db } from "@/lib/db";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FormField, FormItem, FormLabel } from "@/components/ui/form";
 
-const contactPersonSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  role: z.string().min(2, "Role must be at least 2 characters"),
-  email: z.string().email("Invalid email address").refine(validateEmail, "Invalid email format"),
-  phone: z.string().optional(),
+const collaborationFormSchema = z.object({
+  name: z.string().min(1, { message: "Name is required" }),
+  email: z.string().email({ message: "Invalid email address" }),
+  type: z.enum(["fortune30", "sme"]),
+  department: z.string().optional(),
+  associatedProjects: z.array(z.string()).optional(),
+  // Add other fields as necessary
 });
 
-const workstreamSchema = z.object({
-  id: z.string(),
-  title: z.string().min(2, "Title must be at least 2 characters"),
-  objectives: z.string().min(10, "Objectives must be at least 10 characters"),
-  nextSteps: z.string().min(10, "Next steps must be at least 10 characters"),
-  keyContacts: z.array(contactPersonSchema),
-  status: z.enum(['active', 'completed', 'on-hold']),
-  startDate: z.string(),
-  lastUpdated: z.string(),
-});
+type CollaborationFormSchema = z.infer<typeof collaborationFormSchema>;
 
-export const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address").refine(validateEmail, "Invalid email format"),
-  role: z.string().min(2, "Role must be at least 2 characters"),
-  department: z.string().min(2, "Department must be at least 2 characters"),
-  agreementType: z.enum(['NDA', 'JTDA', 'Both', 'None'] as const),
-  signedDate: z.string().optional(),
-  expiryDate: z.string().optional(),
-  details: z.string().optional(),
-  color: z.string().optional(),
-  primaryContact: contactPersonSchema,
-  workstreams: z.array(workstreamSchema).optional(),
-});
-
-export type CollaborationFormSchema = z.infer<typeof formSchema>;
-
-export type CollaborationFormFieldsProps = {
-  form: UseFormReturn<CollaborationFormSchema>;
+type CollaborationFormFieldsProps = {
+  onSubmit: (data: CollaborationFormSchema) => void;
+  initialData?: Collaborator;
+  collaborationType?: "fortune30" | "sme";
   departmentId?: string;
-  collaboratorId?: string | null;
-  collaborationType?: CollaborationType;
-  onSuccess?: () => void;
 };
 
-export const CollaborationFormFields = ({ 
-  form, 
-  departmentId,
-  collaboratorId,
+export function CollaborationFormFields({ 
+  onSubmit, 
+  initialData,
   collaborationType = 'fortune30',
-  onSuccess 
-}: CollaborationFormFieldsProps) => {
-  // Fetch existing collaborator data if collaboratorId is provided
-  const { data: existingCollaborator } = useQuery({
-    queryKey: ['collaborator', collaboratorId],
-    queryFn: async () => {
-      if (!collaboratorId) return null;
-      if (collaborationType === 'sme') {
-        return await db.getSMEPartner(collaboratorId);
-      }
-      return await db.getCollaborator(collaboratorId);
-    },
-    enabled: !!collaboratorId
+  departmentId 
+}: CollaborationFormFieldsProps) {
+  const form = useForm<CollaborationFormSchema>({
+    resolver: zodResolver(collaborationFormSchema),
+    defaultValues: initialData || {
+      type: collaborationType,
+      department: departmentId || '',
+    }
   });
 
-  // Populate form with existing data when available
-  useEffect(() => {
-    if (existingCollaborator) {
-      form.reset({
-        name: existingCollaborator.name,
-        email: existingCollaborator.email,
-        role: existingCollaborator.role,
-        department: existingCollaborator.department,
-        color: existingCollaborator.color,
-        primaryContact: existingCollaborator.primaryContact || {
-          name: '',
-          role: '',
-          email: '',
-          phone: ''
-        },
-        workstreams: [],
-        agreementType: 'None',
-        signedDate: '',
-        expiryDate: '',
-        details: ''
-      });
-    }
-  }, [existingCollaborator, form]);
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: () => db.getAllProjects(),
+    enabled: collaborationType === 'sme'
+  });
 
   return (
-    <div className="space-y-8">
-      <BasicInfoFields form={form} departmentId={departmentId} />
-      <ContactFields form={form} />
-      <AgreementFields form={form} />
-      <WorkstreamFields form={form} />
-    </div>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <BasicInfoFields form={form} departmentId={departmentId} />
+        <ContactFields form={form} />
+        
+        {collaborationType === 'fortune30' && (
+          <AgreementFields form={form} />
+        )}
+
+        {collaborationType === 'sme' && (
+          <FormField
+            control={form.control}
+            name="associatedProjects"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Associated Projects</FormLabel>
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a project" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projects.map((project) => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+        )}
+
+        <WorkstreamFields form={form} />
+        
+        <Button type="submit">Save</Button>
+      </form>
+    </Form>
   );
 }
