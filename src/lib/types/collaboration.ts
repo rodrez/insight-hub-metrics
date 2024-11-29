@@ -1,3 +1,5 @@
+import { CollaborationType } from '../types';
+
 export type AgreementStatus = 'signed' | 'pending' | 'expired';
 export type AgreementType = 'NDA' | 'JTDA' | 'Both' | 'None';
 
