@@ -9,7 +9,6 @@ export interface ProgressStep {
 
 export class ProgressTracker {
   private steps: Map<string, ProgressStep>;
-  private activeToastId: string | null = null;
   private updateInterval: number | null = null;
 
   constructor() {
@@ -73,10 +72,9 @@ export class ProgressTracker {
       .every(step => step.status === 'completed' || step.status === 'error');
 
     toast({
-      id: this.activeToastId || undefined,
       title: "Generating Sample Data",
       description: progressLines,
-      duration: allCompleted ? 3000 : Infinity,
+      duration: allCompleted ? 3000 : 5000,
     });
 
     if (allCompleted) {
@@ -86,7 +84,6 @@ export class ProgressTracker {
 
   reset() {
     this.steps.clear();
-    this.activeToastId = null;
     this.stopProgressUpdates();
   }
 }
