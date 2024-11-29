@@ -35,7 +35,7 @@ export class ProgressTracker {
       .join('\n');
 
     toast({
-      title: "Generating Data",
+      title: "Generating Sample Data",
       description: progressLines,
       duration: 3000,
     });
