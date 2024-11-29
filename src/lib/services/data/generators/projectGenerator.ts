@@ -7,7 +7,7 @@ import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } f
 import { generateNABC } from './templates/projectTemplates';
 import { generateMilestones, generateMetrics } from './templates/metricsTemplates';
 
-interface ProjectGenerationInput extends DataQuantities {
+interface ProjectGenerationInput extends Omit<DataQuantities, 'internalPartners'> {
   departments: Department[];
   fortune30Partners: Collaborator[];
   internalPartners: Collaborator[];

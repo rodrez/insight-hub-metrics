@@ -1,4 +1,4 @@
-import { Project, Collaborator } from '@/lib/types';
+import { Project, Collaborator, Department } from '@/lib/types';
 import { SPI } from '@/lib/types/spi';
 import { Objective } from '@/lib/types/objective';
 import { SitRep } from '@/lib/types/sitrep';
@@ -39,10 +39,13 @@ export class SampleDataService {
       const internalPartners = await generateInternalPartners();
       const smePartners = generateSMEPartners();
 
+      // Convert readonly DEPARTMENTS to regular array for project generation
+      const departments: Department[] = [...DEPARTMENTS];
+
       // Generate projects using the partners
       const { projects, spis, objectives, sitreps } = await generateSampleProjects({
         ...quantities,
-        departments: DEPARTMENTS,
+        departments,
         fortune30Partners,
         internalPartners,
         smePartners
