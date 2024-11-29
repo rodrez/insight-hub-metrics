@@ -5,6 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SitRep } from "@/lib/types/sitrep";
 import { toast } from "@/components/ui/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { db } from "@/lib/db";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface SitRepCardProps {
   sitrep: SitRep;
@@ -13,6 +16,8 @@ interface SitRepCardProps {
 }
 
 export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
+  const queryClient = useQueryClient();
+
   const getStatusIcon = () => {
     switch (sitrep.status) {
       case 'submitted':
@@ -55,7 +60,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
   };
 
   const wordCount = sitrep.summary.split(/\s+/).filter(word => word.length > 0).length;
-  const isWordCountWarning = wordCount > 100;
+  const isWordCountValid = wordCount >= 90 && wordCount <= 100;
 
   const handleDelete = () => {
     if (onDelete) {
@@ -67,6 +72,23 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
     }
   };
 
+  const handleStatusChange = async (newStatus: 'pending-review' | 'ready' | 'submitted') => {
+    try {
+      await db.updateSitRep(sitrep.id, { ...sitrep, status: newStatus });
+      queryClient.invalidateQueries({ queryKey: ['sitreps'] });
+      toast({
+        title: "Status updated",
+        description: `SitRep status changed to ${newStatus.replace('-', ' ')}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update status",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Card className="bg-[#1A1F2C] text-white mb-4">
       <CardContent className="pt-6">
@@ -74,9 +96,16 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-2">
               <h3 className="text-xl font-semibold">{sitrep.title}</h3>
-              <Badge variant="outline" className={getStatusBadgeColor(sitrep.status)}>
-                {sitrep.status.replace('-', ' ').toUpperCase()}
-              </Badge>
+              <Select value={sitrep.status} onValueChange={handleStatusChange}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending-review">Pending Review</SelectItem>
+                  <SelectItem value="ready">Ready</SelectItem>
+                  <SelectItem value="submitted">Submitted</SelectItem>
+                </SelectContent>
+              </Select>
               {sitrep.level && (
                 <Badge variant="outline" className="ml-2">
                   {sitrep.level} Level
@@ -113,8 +142,8 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
           <div className="flex items-center gap-4 text-sm text-gray-400">
             <span>{format(new Date(sitrep.date), "MM/dd/yyyy")}</span>
             <span>{sitrep.level}</span>
-            <span className={isWordCountWarning ? "text-yellow-500" : ""}>
-              {wordCount} words {isWordCountWarning && "(exceeds 100 word limit)"}
+            <span className={!isWordCountValid ? "text-yellow-500" : ""}>
+              {wordCount} words {!isWordCountValid && "(should be 90-100 words)"}
             </span>
           </div>
 

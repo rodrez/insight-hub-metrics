@@ -25,6 +25,7 @@ export interface DataService {
   addCollaborator(collaborator: Collaborator): Promise<void>;
   getAllSitReps(): Promise<SitRep[]>;
   addSitRep(sitrep: SitRep): Promise<void>;
+  updateSitRep(id: string, updates: Partial<SitRep>): Promise<void>;
   getAllSPIs(): Promise<SPI[]>;
   getSPI(id: string): Promise<SPI | undefined>;
   addSPI(spi: SPI): Promise<void>;

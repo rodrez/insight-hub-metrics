@@ -4,6 +4,7 @@ import { StatusColorSettings } from "@/components/settings/StatusColorSettings";
 import { DepartmentSettings } from "@/components/settings/DepartmentSettings";
 import { TechDomainSettings } from "@/components/settings/TechDomainSettings";
 import { AgreementWarningSettings } from "@/components/settings/AgreementWarningSettings";
+import DataManagement from "@/components/data/DataManagement";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -45,6 +46,7 @@ export default function Settings() {
       <Tabs defaultValue="sample-data">
         <TabsList>
           <TabsTrigger value="sample-data">Sample Data</TabsTrigger>
+          <TabsTrigger value="database">Database</TabsTrigger>
           <TabsTrigger value="status-colors">Status Colors</TabsTrigger>
           <TabsTrigger value="departments">Departments</TabsTrigger>
           <TabsTrigger value="tech-domains">Tech Domains</TabsTrigger>
@@ -94,6 +96,9 @@ export default function Settings() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+        <TabsContent value="database">
+          <DataManagement />
         </TabsContent>
         <TabsContent value="status-colors">
           <StatusColorSettings />
