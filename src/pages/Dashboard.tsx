@@ -1,5 +1,6 @@
 import ProjectSummary from "@/components/dashboard/ProjectSummary";
 import ProjectList from "@/components/projects/ProjectList";
+import DepartmentStats from "@/components/dashboard/DepartmentStats";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +22,7 @@ export default function Dashboard() {
       </div>
       <ProjectSummary />
       <ProjectList />
+      <DepartmentStats />
     </div>
   );
 }
