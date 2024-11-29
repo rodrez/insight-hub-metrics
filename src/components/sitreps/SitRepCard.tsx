@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { StatusIcon } from "./card/StatusIcon";
 import { TeamBadges } from "./card/TeamBadges";
 import { ContactBadges } from "./card/ContactBadges";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { CompactSitRepForm } from "./CompactSitRepForm";
 
@@ -144,7 +144,12 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
       </Card>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="sm:max-w-[600px] w-[95vw] bg-[#1A1F2C] text-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold text-white">
+              Edit Sitrep
+            </DialogTitle>
+          </DialogHeader>
           <CompactSitRepForm
             initialData={sitrep}
             onSubmitSuccess={() => {
