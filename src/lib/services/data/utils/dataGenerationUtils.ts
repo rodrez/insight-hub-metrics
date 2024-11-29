@@ -5,6 +5,36 @@ export interface GenerationProgress {
   progress: number;
 }
 
+export const BATCH_SIZE = 50;
+
+export const processInBatches = async<T>(
+  items: T[],
+  processFn: (batch: T[]) => Promise<void>,
+  onProgress?: (progress: number) => void,
+  queryKey?: string[]
+) => {
+  const queryClient = useQueryClient();
+  const batches = [];
+  
+  for (let i = 0; i < items.length; i += BATCH_SIZE) {
+    batches.push(items.slice(i, i + BATCH_SIZE));
+  }
+
+  for (let i = 0; i < batches.length; i++) {
+    await processFn(batches[i]);
+    const progress = ((i + 1) / batches.length) * 100;
+    
+    onProgress?.(progress);
+    
+    if (queryKey) {
+      queryClient.setQueryData(queryKey, (old: any) => ({
+        ...old,
+        progress,
+      }));
+    }
+  }
+};
+
 export const validateDataQuantities = (
   requested: number,
   available: number,
