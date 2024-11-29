@@ -12,7 +12,7 @@ import { WorkstreamFields } from "../form/WorkstreamFields";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
-import { formSchema } from "../CollaborationFormFields";
+import { CollaborationFormSchema, formSchema } from "../CollaborationFormFields";
 
 type CollaboratorWorkstreamsProps = {
   workstreams?: Workstream[];
@@ -21,7 +21,7 @@ type CollaboratorWorkstreamsProps = {
 
 export function CollaboratorWorkstreams({ workstreams, collaboratorId }: CollaboratorWorkstreamsProps) {
   const queryClient = useQueryClient();
-  const form = useForm({
+  const form = useForm<CollaborationFormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       workstreams: []
@@ -74,12 +74,14 @@ export function CollaboratorWorkstreams({ workstreams, collaboratorId }: Collabo
     }
   };
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: CollaborationFormSchema) => {
     try {
       const collaborator = await db.getCollaborator(collaboratorId);
       if (!collaborator) return;
 
-      const updatedWorkstream = data.workstreams[0];
+      const updatedWorkstream = data.workstreams?.[0];
+      if (!updatedWorkstream) return;
+
       const updatedWorkstreams = collaborator.workstreams?.map(w => 
         w.id === updatedWorkstream.id ? updatedWorkstream : w
       ) || [];

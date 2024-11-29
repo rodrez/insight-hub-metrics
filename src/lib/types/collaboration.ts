@@ -1,5 +1,3 @@
-import { CollaborationType } from '../types';
-
 export type AgreementStatus = 'signed' | 'pending' | 'expired';
 export type AgreementType = 'NDA' | 'JTDA' | 'Both' | 'None';
 
@@ -56,3 +54,5 @@ export type Collaborator = {
   primaryContact?: ContactPerson;
   workstreams?: Workstream[];
 };
+
+export type CollaborationType = 'fortune30' | 'other' | 'sme';
