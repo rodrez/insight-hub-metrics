@@ -3,6 +3,7 @@ import { SPIForm } from "@/components/spi/SPIForm";
 import { SPIList } from "@/components/spi/SPIList";
 import { ObjectivesList } from "@/components/spi/objectives/ObjectivesList";
 import { SPIAnalytics } from "@/components/spi/analytics/SPIAnalytics";
+import { SPIStats } from "@/components/spi/SPIStats";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -36,6 +37,8 @@ export default function SPIPage() {
           </DialogContent>
         </Dialog>
       </div>
+
+      <SPIStats />
 
       <Tabs defaultValue="spis">
         <TabsList>
