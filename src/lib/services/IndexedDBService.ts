@@ -5,7 +5,7 @@ import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
 import { DatabaseConnectionService } from './db/DatabaseConnectionService';
 import { DatabaseTransactionService } from './db/DatabaseTransactionService';
-import { DB_CONFIG } from './stores';
+import { DB_CONFIG } from './db/stores';
 import { SampleDataService } from './sampleData/SampleDataService';
 
 export class IndexedDBService implements DataService {
