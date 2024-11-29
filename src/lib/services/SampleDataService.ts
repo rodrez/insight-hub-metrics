@@ -70,6 +70,11 @@ export class SampleDataService implements DataService {
     return this.indexedDBService.updateSPI(id, updates);
   }
 
+  // Adding the missing deleteSPI method
+  async deleteSPI(id: string): Promise<void> {
+    return this.indexedDBService.deleteSPI(id);
+  }
+
   async getAllObjectives(): Promise<Objective[]> {
     return this.indexedDBService.getAllObjectives();
   }
@@ -82,20 +87,8 @@ export class SampleDataService implements DataService {
     return this.indexedDBService.updateObjective(id, updates);
   }
 
-  async exportData(): Promise<void> {
-    return this.indexedDBService.exportData();
-  }
-
-  async clear(): Promise<void> {
-    return this.indexedDBService.clear();
-  }
-
   async getAllTeams(): Promise<Team[]> {
     return this.indexedDBService.getAllTeams();
-  }
-
-  async populateSampleData(quantities: SampleDataQuantities): Promise<void> {
-    await this.indexedDBService.populateSampleData(quantities);
   }
 
   async getAllSMEPartners(): Promise<Collaborator[]> {
@@ -108,5 +101,17 @@ export class SampleDataService implements DataService {
 
   async addSMEPartner(partner: Collaborator): Promise<void> {
     return this.indexedDBService.addSMEPartner(partner);
+  }
+
+  async clear(): Promise<void> {
+    return this.indexedDBService.clear();
+  }
+
+  async exportData(): Promise<void> {
+    return this.indexedDBService.exportData();
+  }
+
+  async populateSampleData(quantities: SampleDataQuantities): Promise<void> {
+    return this.indexedDBService.populateSampleData(quantities);
   }
 }
