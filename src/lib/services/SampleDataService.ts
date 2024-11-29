@@ -1,121 +1,104 @@
-import { DataService } from './DataService';
-import { IndexedDBService } from './IndexedDBService';
 import { Project, Collaborator } from '../types';
-import { SitRep } from '../types/sitrep';
-import { SPI } from '../types/spi';
-import { Objective } from '../types/objective';
-import { Team } from '../types/team';
+import { generateFortune30Partners } from './data/fortune30Partners';
+import { generateInternalPartners } from './data/internalPartners';
+import { generateSMEPartners } from './data/smePartners';
+import { generateSampleProjects } from '@/components/data/SampleData';
+import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './sampleData/spiData';
 import { SampleDataQuantities } from './DataService';
+import { toast } from "@/components/ui/use-toast";
+import { IndexedDBService } from './IndexedDBService';
 
-export class SampleDataService implements DataService {
+export class SampleDataService {
   private indexedDBService: IndexedDBService;
 
-  constructor(indexedDBService: IndexedDBService) {
-    this.indexedDBService = indexedDBService;
+  constructor() {
+    this.indexedDBService = new IndexedDBService();
   }
 
-  async init(): Promise<void> {
-    return this.indexedDBService.init();
+  private validateQuantities(available: number, requested: number, type: string): number {
+    if (requested > available) {
+      console.log(`Adjusting ${type} quantity from ${requested} to ${available} (maximum available)`);
+      toast({
+        title: "Notice",
+        description: `Requested ${requested} ${type}, but only ${available} are available. Adjusting quantity.`,
+        variant: "default",
+      });
+      return available;
+    }
+    return requested;
   }
 
-  async getAllProjects(): Promise<Project[]> {
-    return this.indexedDBService.getAllProjects();
-  }
+  async generateSampleData(quantities: SampleDataQuantities = {
+    projects: 10,
+    spis: 10,
+    objectives: 5,
+    sitreps: 10,
+    fortune30: 6,
+    internalPartners: 20,
+    smePartners: 10
+  }) {
+    try {
+      console.log('Starting sample data generation with quantities:', quantities);
+      
+      const allFortune30 = generateFortune30Partners();
+      console.log('Generated Fortune 30 partners:', allFortune30.length);
+      
+      const allInternalPartners = await generateInternalPartners();
+      console.log('Generated internal partners:', allInternalPartners.length);
+      
+      const allSMEPartners = generateSMEPartners();
+      console.log('Generated SME partners:', allSMEPartners.length);
 
-  async getProject(id: string): Promise<Project | undefined> {
-    return this.indexedDBService.getProject(id);
-  }
+      // Validate and adjust quantities
+      const fortune30Count = this.validateQuantities(allFortune30.length, quantities.fortune30, "Fortune 30 partners");
+      const internalCount = this.validateQuantities(allInternalPartners.length, quantities.internalPartners, "internal partners");
+      const smeCount = this.validateQuantities(allSMEPartners.length, quantities.smePartners, "SME partners");
 
-  async addProject(project: Project): Promise<void> {
-    return this.indexedDBService.addProject(project);
-  }
+      const fortune30Partners = allFortune30.slice(0, fortune30Count);
+      const internalPartners = allInternalPartners.slice(0, internalCount);
 
-  async updateProject(id: string, updates: Partial<Project>): Promise<void> {
-    return this.indexedDBService.updateProject(id, updates);
-  }
+      console.log('Starting project generation with validated quantities:', {
+        projects: quantities.projects,
+        spis: quantities.spis,
+        objectives: quantities.objectives,
+        sitreps: quantities.sitreps
+      });
 
-  async getAllCollaborators(): Promise<Collaborator[]> {
-    return this.indexedDBService.getAllCollaborators();
-  }
+      const { projects, spis, objectives, sitreps } = await generateSampleProjects({
+        projects: quantities.projects,
+        spis: quantities.spis,
+        objectives: quantities.objectives,
+        sitreps: quantities.sitreps
+      });
 
-  async getCollaborator(id: string): Promise<Collaborator | undefined> {
-    return this.indexedDBService.getCollaborator(id);
-  }
-
-  async addCollaborator(collaborator: Collaborator): Promise<void> {
-    return this.indexedDBService.addCollaborator(collaborator);
-  }
-
-  async getAllSitReps(): Promise<SitRep[]> {
-    return this.indexedDBService.getAllSitReps();
-  }
-
-  async addSitRep(sitrep: SitRep): Promise<void> {
-    return this.indexedDBService.addSitRep(sitrep);
-  }
-
-  async updateSitRep(id: string, updates: Partial<SitRep>): Promise<void> {
-    return this.indexedDBService.updateSitRep(id, updates);
-  }
-
-  async getAllSPIs(): Promise<SPI[]> {
-    return this.indexedDBService.getAllSPIs();
-  }
-
-  async getSPI(id: string): Promise<SPI | undefined> {
-    return this.indexedDBService.getSPI(id);
-  }
-
-  async addSPI(spi: SPI): Promise<void> {
-    return this.indexedDBService.addSPI(spi);
-  }
-
-  async updateSPI(id: string, updates: Partial<SPI>): Promise<void> {
-    return this.indexedDBService.updateSPI(id, updates);
-  }
-
-  // Adding the missing deleteSPI method
-  async deleteSPI(id: string): Promise<void> {
-    return this.indexedDBService.deleteSPI(id);
-  }
-
-  async getAllObjectives(): Promise<Objective[]> {
-    return this.indexedDBService.getAllObjectives();
-  }
-
-  async addObjective(objective: Objective): Promise<void> {
-    return this.indexedDBService.addObjective(objective);
-  }
-
-  async updateObjective(id: string, updates: Partial<Objective>): Promise<void> {
-    return this.indexedDBService.updateObjective(id, updates);
-  }
-
-  async getAllTeams(): Promise<Team[]> {
-    return this.indexedDBService.getAllTeams();
-  }
-
-  async getAllSMEPartners(): Promise<Collaborator[]> {
-    return this.indexedDBService.getAllSMEPartners();
-  }
-
-  async getSMEPartner(id: string): Promise<Collaborator | undefined> {
-    return this.indexedDBService.getSMEPartner(id);
-  }
-
-  async addSMEPartner(partner: Collaborator): Promise<void> {
-    return this.indexedDBService.addSMEPartner(partner);
-  }
-
-  async clear(): Promise<void> {
-    return this.indexedDBService.clear();
-  }
-
-  async exportData(): Promise<void> {
-    return this.indexedDBService.exportData();
-  }
-
-  async populateSampleData(quantities: SampleDataQuantities): Promise<void> {
-    return this.indexedDBService.populateSampleData(quantities);
+      console.log('Sample data generation completed with counts:', {
+        fortune30Partners: fortune30Partners.length,
+        internalPartners: internalPartners.length,
+        smePartners: allSMEPartners.slice(0, smeCount).length,
+        projects: projects.length,
+        spis: spis.length,
+        objectives: objectives.length,
+        sitreps: sitreps.length
+      });
+      
+      return {
+        fortune30Partners,
+        internalPartners,
+        smePartners: allSMEPartners.slice(0, smeCount),
+        projects: projects.slice(0, quantities.projects),
+        spis: spis.slice(0, quantities.spis),
+        objectives: objectives.slice(0, quantities.objectives),
+        sitreps: sitreps.slice(0, quantities.sitreps)
+      };
+    } catch (error) {
+      console.error('Error in sample data generation:', error);
+      console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace available');
+      toast({
+        title: "Error",
+        description: "Failed to generate sample data. Please try again.",
+        variant: "destructive",
+      });
+      throw error;
+    }
   }
 }
