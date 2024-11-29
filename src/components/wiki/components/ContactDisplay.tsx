@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Pen, Trash2 } from "lucide-react";
 import { Contact } from "../types/contact";
 
 interface ContactDisplayProps {
@@ -22,13 +22,23 @@ export function ContactDisplay({ contact, onDelete }: ContactDisplayProps) {
             </p>
           )}
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => onDelete(contact.email)}
-        >
-          <Trash2 className="h-4 w-4 text-red-500" />
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-gray-400 hover:text-green-500 transition-colors"
+          >
+            <Pen className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onDelete(contact.email)}
+            className="text-gray-400 hover:text-red-500 transition-colors"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );
