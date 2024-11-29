@@ -7,7 +7,7 @@ import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } f
 import { generateNABC } from './templates/projectTemplates';
 import { generateMilestones, generateMetrics } from './templates/metricsTemplates';
 
-interface ProjectGenerationConfig extends Omit<DataQuantities, 'internalPartners' | 'fortune30' | 'smePartners'> {
+interface ProjectGenerationInput extends DataQuantities {
   departments: Department[];
   fortune30Partners: Collaborator[];
   internalPartners: Collaborator[];
@@ -45,7 +45,7 @@ const generateBasicProject = (
   };
 };
 
-export const generateSampleProjects = async (input: ProjectGenerationConfig) => {
+export const generateSampleProjects = async (input: ProjectGenerationInput) => {
   const projects: Project[] = [];
 
   // Generate requested number of projects
