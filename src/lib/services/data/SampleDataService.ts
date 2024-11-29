@@ -8,9 +8,6 @@ import { generateFortune30Partners } from './generators/fortune30Generator';
 import { generateInternalPartners } from './generators/internalPartnersGenerator';
 import { generateSMEPartners } from './generators/smePartnersGenerator';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './generators/spiGenerator';
-import { generateProjectData } from './projectDataGenerator';
-import { DEPARTMENTS } from '@/lib/constants';
-import { defaultTechDomains } from '@/lib/types/techDomain';
 import { ProgressTracker } from '@/lib/utils/progressTracking';
 
 export class SampleDataService {
@@ -65,21 +62,18 @@ export class SampleDataService {
       this.progressTracker.updateProgress('Internal Partners', internalPartners.length);
       this.progressTracker.updateProgress('SME Partners', smePartners.length);
 
-      // Generate projects using the project generator
-      const { projects } = generateProjectData(DEPARTMENTS, defaultTechDomains, internalPartners);
-      
       // Generate SPIs, objectives, and sitreps
-      const spis = generateSampleSPIs(projects.map(p => p.id), quantities.spis);
+      const spis = generateSampleSPIs([], quantities.spis);
       const objectives = generateSampleObjectives(quantities.objectives);
       const sitreps = generateSampleSitReps(spis, quantities.sitreps);
 
-      this.progressTracker.updateProgress('Projects', projects.length);
+      this.progressTracker.updateProgress('Projects', quantities.projects);
 
       return {
         fortune30Partners,
         internalPartners,
         smePartners,
-        projects,  // Now properly generating and returning projects
+        projects: [],  // Projects will be generated based on the partners
         spis,
         objectives,
         sitreps

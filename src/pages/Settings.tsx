@@ -4,6 +4,7 @@ import { StatusColorSettings } from "@/components/settings/StatusColorSettings";
 import { DepartmentSettings } from "@/components/settings/DepartmentSettings";
 import { TechDomainSettings } from "@/components/settings/TechDomainSettings";
 import { AgreementWarningSettings } from "@/components/settings/AgreementWarningSettings";
+import DataManagement from "@/components/data/DataManagement";
 
 export default function Settings() {
   return (
@@ -11,6 +12,7 @@ export default function Settings() {
       <Tabs defaultValue="sample-data">
         <TabsList>
           <TabsTrigger value="sample-data">Sample Data</TabsTrigger>
+          <TabsTrigger value="database">Database</TabsTrigger>
           <TabsTrigger value="status-colors">Status Colors</TabsTrigger>
           <TabsTrigger value="departments">Departments</TabsTrigger>
           <TabsTrigger value="tech-domains">Tech Domains</TabsTrigger>
@@ -18,6 +20,9 @@ export default function Settings() {
         </TabsList>
         <TabsContent value="sample-data" className="space-y-6">
           <SampleDataSettings />
+        </TabsContent>
+        <TabsContent value="database">
+          <DataManagement />
         </TabsContent>
         <TabsContent value="status-colors">
           <StatusColorSettings />
