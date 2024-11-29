@@ -23,7 +23,7 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
   const [selectedFortune30, setSelectedFortune30] = useState<string>("none");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("none");
   const [selectedPartner, setSelectedPartner] = useState<string>("none");
-  const [status, setStatus] = useState<'on-track' | 'at-risk'>('on-track');
+  const [status, setStatus] = useState<'pending-review' | 'ready' | 'submitted'>('pending-review');
 
   const { data: projects } = useQuery({
     queryKey: ['projects'],
@@ -81,7 +81,7 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
       setSelectedFortune30("none");
       setSelectedDepartment("none");
       setSelectedPartner("none");
-      setStatus('on-track');
+      setStatus('pending-review');
       
       onSubmitSuccess();
     } catch (error) {

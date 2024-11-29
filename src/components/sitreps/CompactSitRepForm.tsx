@@ -66,7 +66,7 @@ export function CompactSitRepForm({ onSubmitSuccess }: CompactSitRepFormProps) {
         update: content,
         challenges: "",
         nextSteps: "",
-        status: 'on-track',
+        status: 'pending-review',
         summary: content,
         departmentId: keyTeam !== "none" ? keyTeam : "default"
       });

@@ -10,7 +10,7 @@ export function SitRepStats() {
 
   const stats = {
     total: sitreps?.length || 0,
-    pending: sitreps?.filter(s => s.status === 'pending')?.length || 0,
+    pending: sitreps?.filter(s => s.status === 'pending-review')?.length || 0,
     ready: sitreps?.filter(s => s.status === 'ready')?.length || 0,
   };
 
