@@ -61,7 +61,7 @@ export function POCEditDialog({ categoryName, contacts, onSave }: POCEditDialogP
                 <FormItem>
                   <FormLabel>Line of Business Name</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} defaultValue={categoryName} />
                   </FormControl>
                 </FormItem>
               )}
