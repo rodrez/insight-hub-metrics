@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { db } from "@/lib/db";
-import { toast } from "@/components/ui/use-toast";
 import { LoadingStep, executeWithRetry } from "@/lib/utils/loadingRetry";
 import { SampleDataService } from "@/lib/services/sampleData/SampleDataService";
 import { useQueryClient } from "@tanstack/react-query";
@@ -41,7 +40,6 @@ export function useDataPopulation() {
             const totalSteps = 7; // Total number of data types to populate
             let currentStep = 0;
 
-            // Add partners with progress tracking
             await databaseOps.addCollaboratorsInBatches(
               fortune30Partners,
               (progress) => updateProgress(progress, currentStep, totalSteps)
@@ -83,28 +81,11 @@ export function useDataPopulation() {
               (progress) => updateProgress(progress, currentStep, totalSteps)
             );
 
-            // Invalidate queries to trigger refetch
             queryClient.invalidateQueries({ queryKey: ['data-counts'] });
             
-            toast({
-              title: "Success",
-              description: "Sample data populated successfully",
-            });
-
             return true;
           } catch (error) {
-            const errorMessage = error instanceof DatabaseError 
-              ? error.message 
-              : error instanceof Error 
-                ? error.message 
-                : 'Unknown error';
-                
             console.error('Sample data population error:', error);
-            toast({
-              title: "Error",
-              description: `Failed to populate sample data: ${errorMessage}`,
-              variant: "destructive",
-            });
             return false;
           }
         }

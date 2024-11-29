@@ -4,7 +4,6 @@ import { Project, Collaborator } from "@/lib/types";
 import { SPI } from "@/lib/types/spi";
 import { Objective } from "@/lib/types/objective";
 import { SitRep } from "@/lib/types/sitrep";
-import { toast } from "@/components/ui/use-toast";
 import { validateProjectData, validateCollaborator } from "@/lib/utils/dataValidation";
 
 type EntityType = 'collaborators' | 'projects' | 'spis' | 'objectives' | 'sitreps';
@@ -17,21 +16,13 @@ export class DatabaseOperations {
     validateFunction?: (entity: T) => boolean,
     onProgress?: (progress: number) => void
   ) {
-    try {
-      await processInBatches(entities, async (batch) => {
-        const validEntities = validateFunction 
-          ? batch.filter(validateFunction)
-          : batch;
-        await Promise.all(validEntities.map(addFunction));
-      }, onProgress);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: `Failed to add ${entityType}`,
-        variant: "destructive",
-      });
-      throw error;
-    }
+    const validEntities = validateFunction 
+      ? entities.filter(validateFunction)
+      : entities;
+    
+    await processInBatches(validEntities, async (batch) => {
+      await Promise.all(batch.map(addFunction));
+    }, onProgress);
   }
 
   async addCollaboratorsInBatches(collaborators: Collaborator[], onProgress?: (progress: number) => void) {
