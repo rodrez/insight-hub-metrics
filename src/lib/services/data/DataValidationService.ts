@@ -5,12 +5,10 @@ import { db } from "@/lib/db";
 export class DataValidationService {
   private showValidationStep(step: string, count: number) {
     toast({
-      title: <div className="flex items-center gap-2">
-        <Check className="h-4 w-4 text-green-500" />
-        {step}
-      </div>,
+      title: step,
       description: `Found ${count} valid records`,
       duration: 2000,
+      icon: <Check className="h-4 w-4 text-green-500" />
     });
   }
 

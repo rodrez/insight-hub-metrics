@@ -10,12 +10,10 @@ import { db } from "@/lib/db";
 export class DataGenerationService {
   private showSuccessStep(step: string) {
     toast({
-      title: <div className="flex items-center gap-2">
-        <Check className="h-4 w-4 text-green-500" />
-        {step}
-      </div>,
+      title: step,
       description: "Completed successfully",
       duration: 2000,
+      icon: <Check className="h-4 w-4 text-green-500" />
     });
   }
 
