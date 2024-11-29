@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { format, subMonths, isAfter, isBefore, startOfMonth } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer } from "@/components/ui/chart";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart, Bar, Tooltip, Legend } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart, Bar, Tooltip, Legend, AreaChart, Area } from "recharts";
 
 export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endDate?: Date }) {
   const { data: sitreps } = useQuery({
@@ -66,53 +66,37 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
   };
 
   return (
-    <div className="space-y-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>SitRep Submission Trends</CardTitle>
+    <div className="grid grid-cols-2 gap-4">
+      <Card className="col-span-1">
+        <CardHeader className="p-4">
+          <CardTitle className="text-sm">SitRep Submission Trends</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="aspect-[2/1] w-full">
+        <CardContent className="p-4">
+          <div className="aspect-[4/3] w-full">
             <ChartContainer config={chartConfig}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={months}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                  margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                   <XAxis 
                     dataKey="month" 
                     stroke="currentColor" 
-                    fontSize={12}
+                    fontSize={10}
                     tickLine={false}
                     axisLine={false}
-                    dy={10}
                   />
                   <YAxis 
                     stroke="currentColor"
-                    fontSize={12}
+                    fontSize={10}
                     tickLine={false}
                     axisLine={false}
-                    dx={-10}
                   />
                   <Tooltip />
                   <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="total" 
-                    name="Total SitReps" 
-                    stroke="#3b82f6"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="completed" 
-                    name="Submitted SitReps" 
-                    stroke="#22c55e"
-                    strokeWidth={2}
-                    dot={false}
-                  />
+                  <Line type="monotone" dataKey="total" name="Total SitReps" stroke="#3b82f6" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="completed" name="Submitted SitReps" stroke="#22c55e" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </ChartContainer>
@@ -120,17 +104,17 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>SitRep Status Distribution</CardTitle>
+      <Card className="col-span-1">
+        <CardHeader className="p-4">
+          <CardTitle className="text-sm">Status Distribution</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="aspect-[2/1] w-full">
+        <CardContent className="p-4">
+          <div className="aspect-[4/3] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={statusData}>
+              <BarChart data={statusData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="status" />
-                <YAxis />
+                <XAxis dataKey="status" fontSize={10} />
+                <YAxis fontSize={10} />
                 <Tooltip />
                 <Bar dataKey="count" name="Number of SitReps" fill="#3b82f6" />
               </BarChart>
@@ -139,20 +123,46 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>SitRep Importance Level Distribution</CardTitle>
+      <Card className="col-span-1">
+        <CardHeader className="p-4">
+          <CardTitle className="text-sm">Importance Level Distribution</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="aspect-[2/1] w-full">
+        <CardContent className="p-4">
+          <div className="aspect-[4/3] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={importanceLevelData}>
+              <BarChart data={importanceLevelData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="level" />
-                <YAxis />
+                <XAxis dataKey="level" fontSize={10} />
+                <YAxis fontSize={10} />
                 <Tooltip />
                 <Bar dataKey="count" name="Number of SitReps" fill="#3b82f6" />
               </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="col-span-1">
+        <CardHeader className="p-4">
+          <CardTitle className="text-sm">Completion Rate Trend</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="aspect-[4/3] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={months} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                <XAxis dataKey="month" fontSize={10} />
+                <YAxis fontSize={10} />
+                <Tooltip />
+                <Area 
+                  type="monotone" 
+                  dataKey="completionRate" 
+                  name="Completion Rate %" 
+                  stroke="#8b5cf6" 
+                  fill="#8b5cf6" 
+                  fillOpacity={0.2} 
+                />
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </CardContent>
