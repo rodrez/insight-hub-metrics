@@ -69,7 +69,6 @@ export const generateSampleSPIs = (projectIds: string[], requestedCount: number)
     return [];
   }
 
-  console.log('Generating SPIs with project IDs:', projectIds);
   const spis: SPI[] = [];
 
   for (let i = 0; i < requestedCount; i++) {

@@ -2,13 +2,20 @@ import { Project, Department } from '@/lib/types';
 import { TechDomain } from '@/lib/types/techDomain';
 import { Collaborator } from '@/lib/types/collaboration';
 import { defaultTechDomains } from '@/lib/types/techDomain';
+import { DataQuantities } from '@/lib/types/data';
+import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiGenerator';
 
 const projectNames = [
   "Next-Gen AI Integration",
   "Sustainable Aviation",
   "Cloud Infrastructure Upgrade",
   "Quantum Computing Research",
-  "Green Energy Initiative"
+  "Green Energy Initiative",
+  "Digital Transformation",
+  "Smart Manufacturing",
+  "Autonomous Systems",
+  "Data Analytics Platform",
+  "Cybersecurity Enhancement"
 ];
 
 const generateNABC = (deptName: string, projectName: string) => ({
@@ -58,42 +65,41 @@ const generateMetrics = (projectId: string, spent: number, budget: number) => [
   }
 ];
 
-export const generateProjects = (
-  departments: Department[],
-  internalPartners: Collaborator[],
-  fortune30Partners: Collaborator[]
-): Project[] => {
+export const generateSampleProjects = async (quantities: DataQuantities) => {
   const projects: Project[] = [];
+  const departments = ['engineering', 'techlab', 'it', 'space', 'energy'];
 
-  departments.forEach((dept, index) => {
-    const deptPartners = internalPartners.filter(p => p.department === dept.id);
-    if (deptPartners.length < 2) return;
-
-    const budget = Math.round((dept.budget / dept.projectCount) * (0.8 + Math.random() * 0.4));
-    const spent = Math.round(budget * (0.2 + Math.random() * 0.5));
+  for (let i = 0; i < quantities.projects; i++) {
+    const deptId = departments[i % departments.length];
+    const budget = 1000000 * (Math.random() * 0.5 + 0.75);
+    const spent = budget * (Math.random() * 0.7 + 0.1);
 
     const project: Project = {
-      id: `${dept.id}-project-${index + 1}`,
-      name: projectNames[index % projectNames.length],
-      departmentId: dept.id,
-      poc: deptPartners[0].name,
-      pocDepartment: dept.id,
-      techLead: deptPartners[1].name,
-      techLeadDepartment: dept.id,
+      id: `${deptId}-project-${i + 1}`,
+      name: projectNames[i % projectNames.length],
+      departmentId: deptId,
+      poc: `Sample POC ${i + 1}`,
+      pocDepartment: deptId,
+      techLead: `Sample Tech Lead ${i + 1}`,
+      techLeadDepartment: deptId,
       budget,
       spent,
       status: "active",
-      collaborators: [fortune30Partners[index % fortune30Partners.length]],
-      internalPartners: deptPartners.slice(2),
-      techDomainId: defaultTechDomains[index % defaultTechDomains.length].id,
-      nabc: generateNABC(dept.name, projectNames[index % projectNames.length]),
-      milestones: generateMilestones(`${dept.id}-project-${index + 1}`),
-      metrics: generateMetrics(`${dept.id}-project-${index + 1}`, spent, budget),
+      collaborators: [],
+      internalPartners: [],
+      techDomainId: defaultTechDomains[i % defaultTechDomains.length].id,
+      nabc: generateNABC(deptId, projectNames[i % projectNames.length]),
+      milestones: generateMilestones(`${deptId}-project-${i + 1}`),
+      metrics: generateMetrics(`${deptId}-project-${i + 1}`, spent, budget),
       isSampleData: true
     };
 
     projects.push(project);
-  });
+  }
 
-  return projects;
+  const spis = generateSampleSPIs(projects.map(p => p.id), quantities.spis);
+  const objectives = generateSampleObjectives(quantities.objectives);
+  const sitreps = generateSampleSitReps(spis, quantities.sitreps);
+
+  return { projects, spis, objectives, sitreps };
 };
