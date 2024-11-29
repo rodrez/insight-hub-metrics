@@ -10,6 +10,8 @@ export interface ProgressStep {
 export class ProgressTracker {
   private steps: Map<string, ProgressStep>;
   private updateInterval: number | null = null;
+  private lastToastTime: number = 0;
+  private readonly TOAST_THROTTLE = 1000; // Minimum time between toasts in ms
 
   constructor() {
     this.steps = new Map();
@@ -46,7 +48,7 @@ export class ProgressTracker {
     if (this.updateInterval === null) {
       this.updateInterval = window.setInterval(() => {
         this.showProgress();
-      }, 1000) as unknown as number;
+      }, 2000) as unknown as number; // Increased interval to 2 seconds
     }
   }
 
@@ -57,7 +59,20 @@ export class ProgressTracker {
     }
   }
 
+  private shouldShowToast(): boolean {
+    const now = Date.now();
+    if (now - this.lastToastTime >= this.TOAST_THROTTLE) {
+      this.lastToastTime = now;
+      return true;
+    }
+    return false;
+  }
+
   private showProgress() {
+    if (!this.shouldShowToast()) {
+      return;
+    }
+
     const progressLines = Array.from(this.steps.values())
       .map(step => {
         const percentage = Math.round((step.current / step.total) * 100);
@@ -85,6 +100,7 @@ export class ProgressTracker {
   reset() {
     this.steps.clear();
     this.stopProgressUpdates();
+    this.lastToastTime = 0;
   }
 }
 
