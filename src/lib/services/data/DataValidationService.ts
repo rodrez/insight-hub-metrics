@@ -1,5 +1,6 @@
 import { toast } from "@/components/ui/use-toast";
 import { Check } from "lucide-react";
+import type { ReactElement } from 'react';
 import { db } from "@/lib/db";
 
 export class DataValidationService {
@@ -8,7 +9,7 @@ export class DataValidationService {
       title: step,
       description: `Found ${count} valid records`,
       duration: 2000,
-      icon: <Check className="h-4 w-4 text-green-500" />
+      icon: Check as unknown as ReactElement
     });
   }
 

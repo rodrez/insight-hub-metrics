@@ -1,5 +1,6 @@
 import { toast } from "@/components/ui/use-toast";
 import { Check } from "lucide-react";
+import type { ReactElement } from 'react';
 import { generateFortune30Partners } from './fortune30Partners';
 import { generateInternalPartners } from './internalPartners';
 import { generateSMEPartners } from './smePartners';
@@ -13,7 +14,7 @@ export class DataGenerationService {
       title: step,
       description: "Completed successfully",
       duration: 2000,
-      icon: <Check className="h-4 w-4 text-green-500" />
+      icon: Check as unknown as ReactElement
     });
   }
 
