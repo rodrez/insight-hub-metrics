@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { ObjectiveCard } from "./ObjectiveCard";
 
 export function ObjectivesList() {
-  const { data: objectives } = useQuery({
+  const { data: objectives, refetch } = useQuery({
     queryKey: ['objectives'],
     queryFn: () => db.getAllObjectives()
   });
@@ -15,6 +15,17 @@ export function ObjectivesList() {
 
   const handleSPIsChange = async (objectiveId: string, spiIds: string[]) => {
     await db.updateObjective(objectiveId, { spiIds });
+    refetch();
+  };
+
+  const handleUpdate = async (objective: any) => {
+    await db.updateObjective(objective.id, objective);
+    refetch();
+  };
+
+  const handleDelete = async (objectiveId: string) => {
+    await db.deleteObjective(objectiveId);
+    refetch();
   };
 
   if (!objectives || !spis) return null;
@@ -27,6 +38,8 @@ export function ObjectivesList() {
           objective={objective}
           spis={spis}
           onSPIsChange={handleSPIsChange}
+          onUpdate={handleUpdate}
+          onDelete={handleDelete}
         />
       ))}
     </div>
