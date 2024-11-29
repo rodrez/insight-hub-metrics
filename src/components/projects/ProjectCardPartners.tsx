@@ -16,9 +16,6 @@ export function ProjectCardPartners({ project, getDepartmentColor }: ProjectCard
     )
   ).map(id => project.collaborators.find(collab => collab.id === id)!);
 
-  // Get SME collaborators
-  const smeCollaborators = project.collaborators.filter(collab => collab.type === 'sme');
-
   // Create a Set of already displayed people (POC and Tech Lead)
   const displayedPeople = new Set([project.poc, project.techLead]);
 
@@ -57,17 +54,19 @@ export function ProjectCardPartners({ project, getDepartmentColor }: ProjectCard
           ))}
         </div>
       </div>
-      {smeCollaborators.length > 0 && (
+      {project.collaborators.some(c => c.type === 'sme') && (
         <div>
           <div className="text-sm text-muted-foreground mb-1">Subject Matter Experts:</div>
           <div className="flex flex-wrap gap-2">
-            {smeCollaborators.map((sme) => (
-              <ProjectPartnerBadge 
-                key={`${project.id}-${sme.id}`}
-                partner={sme}
-                departmentColor={getDepartmentColor(sme.department)}
-              />
-            ))}
+            {project.collaborators
+              .filter(collab => collab.type === 'sme')
+              .map((sme) => (
+                <ProjectPartnerBadge 
+                  key={`${project.id}-${sme.id}`}
+                  partner={sme}
+                  departmentColor={getDepartmentColor(sme.department)}
+                />
+              ))}
           </div>
         </div>
       )}

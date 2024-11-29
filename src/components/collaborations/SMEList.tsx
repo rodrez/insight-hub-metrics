@@ -4,22 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Collaborator } from "@/lib/types/collaboration";
 import { WorkstreamCard } from "./shared/WorkstreamCard";
 import { ContactInfo } from "./shared/ContactInfo";
-import { useQuery } from "@tanstack/react-query";
-import { db } from "@/lib/db";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { toast } from "@/components/ui/use-toast";
 
 type SMEListProps = {
   collaborators: Collaborator[];
@@ -28,36 +18,8 @@ type SMEListProps = {
 };
 
 export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
-  const { data: projects = [] } = useQuery({
-    queryKey: ['projects'],
-    queryFn: () => db.getAllProjects(),
-  });
-
-  const handleProjectAssociation = async (smeId: string, projectId: string) => {
-    try {
-      const project = projects.find(p => p.id === projectId);
-      if (!project) return;
-
-      const sme = collaborators.find(c => c.id === smeId);
-      if (!sme) return;
-
-      const updatedProject = {
-        ...project,
-        collaborators: [...(project.collaborators || []), { ...sme, type: 'sme' }]
-      };
-
-      await db.addProject(updatedProject);
-      toast({
-        title: "Success",
-        description: "SME associated with project successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to associate SME with project",
-        variant: "destructive",
-      });
-    }
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString();
   };
 
   return (
@@ -120,39 +82,22 @@ export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
                 ) : (
                   <p className="text-sm text-muted-foreground">No primary contact set</p>
                 )}
-
-                <div className="mt-4">
-                  <h4 className="font-medium mb-2">Associate with Project</h4>
-                  <Select
-                    onValueChange={(value) => handleProjectAssociation(collaborator.id, value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a project" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {projects.map((project) => (
-                        <SelectItem key={project.id} value={project.id}>
-                          {project.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
 
               <div>
-                <h4 className="font-medium mb-4">Associated Projects</h4>
-                {collaborator.projects && collaborator.projects.length > 0 ? (
-                  <div className="space-y-2">
-                    {collaborator.projects.map((project) => (
-                      <div key={project.id} className="p-3 border rounded-lg">
-                        <p className="font-medium">{project.name}</p>
-                        <p className="text-sm text-muted-foreground">{project.description}</p>
-                      </div>
+                <h4 className="font-medium mb-4">Workstreams</h4>
+                {collaborator.workstreams && collaborator.workstreams.length > 0 ? (
+                  <div className="space-y-4">
+                    {collaborator.workstreams.map((workstream) => (
+                      <WorkstreamCard
+                        key={workstream.id}
+                        workstream={workstream}
+                        formatDate={formatDate}
+                      />
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">No projects associated</p>
+                  <p className="text-sm text-muted-foreground">No workstreams defined</p>
                 )}
               </div>
             </div>
