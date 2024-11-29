@@ -8,11 +8,11 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
 import { toast } from "../ui/use-toast";
 
 interface LOBCardProps {
@@ -24,6 +24,7 @@ interface LOBCardProps {
 export function LOBCard({ lob, category, onUpdate }: LOBCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(lob.name);
+  const [editedDescription, setEditedDescription] = useState(category.detailedDescription || '');
   const deptColor = DEPARTMENTS.find(d => d.id === lob.department)?.color;
 
   const handleSave = () => {
@@ -62,25 +63,25 @@ export function LOBCard({ lob, category, onUpdate }: LOBCardProps) {
           >
             <div className="flex items-center justify-between">
               <span className="text-sm">{lob.name}</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setIsEditing(true);
-                }}
-              >
-                <Edit2 className="h-4 w-4" />
-              </Button>
+              <Info className="h-4 w-4 text-muted-foreground" />
             </div>
           </div>
         </HoverCardTrigger>
         <HoverCardContent className="w-96">
           <div className="space-y-4">
-            <div>
-              <h4 className="font-medium">{lob.name}</h4>
-              <p className="text-sm text-muted-foreground mt-2">{category.detailedDescription}</p>
+            <div className="flex items-start justify-between">
+              <div>
+                <h4 className="font-medium">{lob.name}</h4>
+                <p className="text-sm text-muted-foreground mt-2">{category.detailedDescription}</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={() => setIsEditing(true)}
+              >
+                <Edit2 className="h-4 w-4" />
+              </Button>
             </div>
             <div>
               <h5 className="font-medium mb-2">Contacts</h5>
@@ -105,7 +106,7 @@ export function LOBCard({ lob, category, onUpdate }: LOBCardProps) {
       <Dialog open={isEditing} onOpenChange={setIsEditing}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit LOB</DialogTitle>
+            <DialogTitle>Edit LOB Details</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -116,11 +117,21 @@ export function LOBCard({ lob, category, onUpdate }: LOBCardProps) {
                 onChange={(e) => setEditedName(e.target.value)}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={editedDescription}
+                onChange={(e) => setEditedDescription(e.target.value)}
+                className="min-h-[100px]"
+              />
+            </div>
             <div className="flex justify-end space-x-2">
               <Button
                 variant="outline"
                 onClick={() => {
                   setEditedName(lob.name);
+                  setEditedDescription(category.detailedDescription || '');
                   setIsEditing(false);
                 }}
               >
