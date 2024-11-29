@@ -1,9 +1,10 @@
 import { format } from "date-fns";
-import { Pen, Trash2, CheckCircle } from "lucide-react";
+import { Pen, Trash2, CheckCircle, AlertCircle, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SitRep } from "@/lib/types/sitrep";
+import { toast } from "@/components/ui/use-toast";
 
 interface SitRepCardProps {
   sitrep: SitRep;
@@ -16,8 +17,25 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
     switch (sitrep.status) {
       case 'submitted':
         return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'pending-review':
+        return <Clock className="h-5 w-5 text-yellow-500" />;
+      case 'ready':
+        return <AlertCircle className="h-5 w-5 text-blue-500" />;
       default:
         return null;
+    }
+  };
+
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case 'submitted':
+        return 'bg-green-500/10 text-green-500 border-green-500/20';
+      case 'pending-review':
+        return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
+      case 'ready':
+        return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
+      default:
+        return 'bg-gray-500/10 text-gray-500 border-gray-500/20';
     }
   };
 
@@ -36,7 +54,18 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
     }
   };
 
-  const wordCount = sitrep.summary.split(/\s+/).length;
+  const wordCount = sitrep.summary.split(/\s+/).filter(word => word.length > 0).length;
+  const isWordCountWarning = wordCount > 100;
+
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete(sitrep.id);
+      toast({
+        title: "SitRep deleted",
+        description: "The SitRep has been successfully deleted.",
+      });
+    }
+  };
 
   return (
     <Card className="bg-[#1A1F2C] text-white mb-4">
@@ -45,6 +74,9 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-2">
               <h3 className="text-xl font-semibold">{sitrep.title}</h3>
+              <Badge variant="outline" className={getStatusBadgeColor(sitrep.status)}>
+                {sitrep.status.replace('-', ' ').toUpperCase()}
+              </Badge>
               {sitrep.level && (
                 <Badge variant="outline" className="ml-2">
                   {sitrep.level} Level
@@ -67,7 +99,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => onDelete(sitrep.id)}
+                  onClick={handleDelete}
                   className="text-gray-400 hover:text-red-500"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -81,7 +113,9 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
           <div className="flex items-center gap-4 text-sm text-gray-400">
             <span>{format(new Date(sitrep.date), "MM/dd/yyyy")}</span>
             <span>{sitrep.level}</span>
-            <span>{wordCount} words</span>
+            <span className={isWordCountWarning ? "text-yellow-500" : ""}>
+              {wordCount} words {isWordCountWarning && "(exceeds 100 word limit)"}
+            </span>
           </div>
 
           {(sitrep.pointsOfContact?.length > 0 || sitrep.teams?.length > 0) && (
