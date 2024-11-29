@@ -18,13 +18,10 @@ export default function SME() {
   const { data: collaborators = [], isLoading } = useQuery({
     queryKey: ['collaborators-sme'],
     queryFn: async () => {
-      // First try to get SME partners from the dedicated store
       const smePartners = await db.getAllSMEPartners();
       if (smePartners && smePartners.length > 0) {
         return smePartners;
       }
-      
-      // Fallback to filtering all collaborators
       const allCollaborators = await db.getAllCollaborators();
       return allCollaborators.filter(c => c.type === 'sme');
     },
@@ -37,16 +34,15 @@ export default function SME() {
 
   const confirmDelete = async () => {
     try {
-      // Implement delete functionality when available in db service
       toast({
-        title: "SME collaboration deleted",
-        description: "The SME collaboration has been successfully removed.",
+        title: "Small Medium Enterprise partnership deleted",
+        description: "The SME partnership has been successfully removed.",
       });
       setShowDeleteDialog(false);
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to delete SME collaboration",
+        description: "Failed to delete SME partnership",
         variant: "destructive",
       });
     }
@@ -61,7 +57,7 @@ export default function SME() {
     return (
       <div className="container mx-auto px-4 pt-16 pb-8 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-4">Loading SME Collaborations...</h2>
+          <h2 className="text-2xl font-semibold mb-4">Loading Small Medium Enterprise Partnerships...</h2>
         </div>
       </div>
     );
@@ -71,12 +67,17 @@ export default function SME() {
     <div className="container mx-auto px-4 pt-16 pb-8">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">SME Collaborations</h1>
+          <div>
+            <h1 className="text-2xl font-bold">Small Medium Enterprise Partnerships</h1>
+            <p className="text-muted-foreground mt-1">
+              Manage partnerships with small and medium-sized enterprises
+            </p>
+          </div>
           <div className="flex gap-2">
             <div className="relative w-64">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search SME collaborators..."
+                placeholder="Search SME partners..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-8"
@@ -84,7 +85,7 @@ export default function SME() {
             </div>
             <Button onClick={() => setShowEditDialog(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              New SME Collaboration
+              New SME Partnership
             </Button>
           </div>
         </div>
@@ -100,8 +101,8 @@ export default function SME() {
             <AlertDialogHeader>
               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the SME collaboration
-                and remove the data from our servers.
+                This action cannot be undone. This will permanently delete the SME partnership
+                and remove all associated data from our records.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

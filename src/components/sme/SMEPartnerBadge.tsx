@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { BadgeCheck } from "lucide-react";
+import { Building2 } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -23,7 +23,7 @@ export function SMEPartnerBadge({ partner, departmentColor }: SMEPartnerBadgePro
             style={{ backgroundColor: departmentColor || partner.color || '#333' }}
             className="flex items-center gap-1 text-white"
           >
-            <BadgeCheck className="h-3 w-3" />
+            <Building2 className="h-3 w-3" />
             {partner.name}
           </Badge>
         </TooltipTrigger>

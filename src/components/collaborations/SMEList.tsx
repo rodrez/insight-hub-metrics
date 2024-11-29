@@ -7,7 +7,6 @@ import { ContactInfo } from "./shared/ContactInfo";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { useNavigate } from "react-router-dom";
-import { scrollToProject } from "@/utils/scrollUtils";
 import {
   Tooltip,
   TooltipContent,
@@ -53,7 +52,7 @@ export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
                 <h1 className="text-4xl font-bold mb-2">
                   {collaborator.name}
                 </h1>
-                <CardDescription className="text-lg">{collaborator.role}</CardDescription>
+                <CardDescription className="text-lg">Small Medium Enterprise Partner</CardDescription>
               </div>
               <div className="flex gap-2">
                 <TooltipProvider>
@@ -69,7 +68,7 @@ export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Edit collaborator</p>
+                      <p>Edit partnership details</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -87,7 +86,7 @@ export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Delete collaborator</p>
+                      <p>Delete partnership</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -98,11 +97,11 @@ export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-6">
                 <div>
-                  <h4 className="font-medium mb-2">Primary Contact</h4>
+                  <h4 className="font-medium mb-2">Business Contact</h4>
                   {collaborator.primaryContact ? (
                     <ContactInfo contact={collaborator.primaryContact} />
                   ) : (
-                    <p className="text-sm text-muted-foreground">No primary contact set</p>
+                    <p className="text-sm text-muted-foreground">No business contact set</p>
                   )}
                 </div>
 
@@ -126,7 +125,7 @@ export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
               </div>
 
               <div>
-                <h4 className="font-medium mb-4">Workstreams</h4>
+                <h4 className="font-medium mb-4">Partnership Activities</h4>
                 {collaborator.workstreams && collaborator.workstreams.length > 0 ? (
                   <div className="space-y-4">
                     {collaborator.workstreams.map((workstream) => (
@@ -138,7 +137,7 @@ export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">No workstreams defined</p>
+                  <p className="text-sm text-muted-foreground">No active partnership activities</p>
                 )}
               </div>
             </div>

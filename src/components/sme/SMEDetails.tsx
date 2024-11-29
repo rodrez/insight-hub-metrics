@@ -1,5 +1,5 @@
 import { TooltipContent } from "@/components/ui/tooltip";
-import { Info } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { Collaborator } from "@/lib/types";
 import { Separator } from "@/components/ui/separator";
 
@@ -14,16 +14,16 @@ export function SMEDetails({ partner }: SMEDetailsProps) {
         <div className="flex items-start justify-between">
           <div>
             <h4 className="font-medium">{partner.name}</h4>
-            <p className="text-sm text-muted-foreground">{partner.role}</p>
+            <p className="text-sm text-muted-foreground">Small Medium Enterprise</p>
           </div>
-          <Info className="h-4 w-4 text-muted-foreground" />
+          <Building2 className="h-4 w-4 text-muted-foreground" />
         </div>
 
         {partner.primaryContact && (
           <>
             <Separator />
             <div>
-              <p className="text-sm font-medium mb-1">Primary Contact</p>
+              <p className="text-sm font-medium mb-1">Business Contact</p>
               <p className="text-sm">{partner.primaryContact.name}</p>
               <p className="text-sm text-muted-foreground">{partner.primaryContact.email}</p>
             </div>
