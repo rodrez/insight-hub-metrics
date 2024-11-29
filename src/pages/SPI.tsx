@@ -1,53 +1,21 @@
-import { useState } from "react";
-import { SPIForm } from "@/components/spi/SPIForm";
-import { SPIList } from "@/components/spi/SPIList";
-import { ObjectivesList } from "@/components/spi/objectives/ObjectivesList";
-import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SPIList } from "@/components/spi/SPIList";
+import { SPIProgressCharts } from "@/components/spi/SPIProgressCharts";
 
-export default function SPIPage() {
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const queryClient = useQueryClient();
-
-  const handleFormSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['spis'] });
-    setIsFormOpen(false);
-  };
-
+export default function SPI() {
   return (
-    <div className="container mx-auto py-8 space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Schedule Performance Index</h1>
-        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="icon">
-              <Plus className="h-4 w-4" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Add New SPI</DialogTitle>
-            </DialogHeader>
-            <SPIForm onSubmitSuccess={handleFormSuccess} />
-          </DialogContent>
-        </Dialog>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Strategic Program Initiatives</h1>
+        <Button className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
+          Add SPI
+        </Button>
       </div>
-
-      <Tabs defaultValue="spis">
-        <TabsList>
-          <TabsTrigger value="spis">SPIs</TabsTrigger>
-          <TabsTrigger value="objectives">Objectives</TabsTrigger>
-        </TabsList>
-        <TabsContent value="spis">
-          <SPIList />
-        </TabsContent>
-        <TabsContent value="objectives">
-          <ObjectivesList />
-        </TabsContent>
-      </Tabs>
+      
+      <SPIProgressCharts />
+      <SPIList />
     </div>
   );
 }
