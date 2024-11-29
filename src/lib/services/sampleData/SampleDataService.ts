@@ -2,7 +2,7 @@ import { Project, Collaborator } from '@/lib/types';
 import { generateFortune30Partners } from '@/lib/services/data/fortune30Partners';
 import { generateInternalPartners } from '@/lib/services/data/internalPartners';
 import { generateSMEPartners } from '@/lib/services/data/smePartners';
-import { generateSampleProjects } from '@/components/data/SampleData';
+import { generateSampleProjects } from './projectBuilder';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiData';
 import { SampleDataQuantities } from '../DataService';
 import { toast } from "@/components/ui/use-toast";
@@ -30,15 +30,6 @@ export class SampleDataService {
     smePartners: 10
   }) {
     try {
-      const progress = (step: string) => {
-        toast({
-          title: "Generating Data",
-          description: `Step: ${step}`,
-          variant: "default",
-        });
-      };
-
-      progress("Generating partners...");
       const allFortune30 = generateFortune30Partners();
       const allInternalPartners = await generateInternalPartners();
       const allSMEPartners = generateSMEPartners();
@@ -48,19 +39,15 @@ export class SampleDataService {
       const internalCount = this.validateQuantities(allInternalPartners.length, quantities.internalPartners, "internal partners");
       const smeCount = this.validateQuantities(allSMEPartners.length, quantities.smePartners, "SME partners");
 
-      progress("Generating projects and related data...");
-      const { projects, spis, objectives, sitreps } = await generateSampleProjects({
-        projects: quantities.projects,
-        spis: quantities.spis,
-        objectives: quantities.objectives,
-        sitreps: quantities.sitreps
-      });
+      const fortune30Partners = allFortune30.slice(0, fortune30Count);
+      const internalPartners = allInternalPartners.slice(0, internalCount);
 
-      progress("Finalizing data generation...");
+      // Generate projects using the selected partners
+      const { projects, spis, objectives, sitreps } = await generateSampleProjects(fortune30Partners, internalPartners);
       
       return {
-        fortune30Partners: allFortune30.slice(0, fortune30Count),
-        internalPartners: allInternalPartners.slice(0, internalCount),
+        fortune30Partners,
+        internalPartners,
         smePartners: allSMEPartners.slice(0, smeCount),
         projects: projects.slice(0, quantities.projects),
         spis: spis.slice(0, quantities.spis),

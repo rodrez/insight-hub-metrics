@@ -5,15 +5,18 @@ import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
 import { DatabaseConnectionService } from './db/DatabaseConnectionService';
 import { DatabaseTransactionService } from './db/DatabaseTransactionService';
-import { DB_CONFIG } from './db/stores';
+import { DB_CONFIG } from './stores';
+import { SampleDataService } from './sampleData/SampleDataService';
 
 export class IndexedDBService implements DataService {
   private connectionService: DatabaseConnectionService;
   private transactionService: DatabaseTransactionService;
+  private sampleDataService: SampleDataService;
 
   constructor() {
     this.connectionService = new DatabaseConnectionService();
     this.transactionService = new DatabaseTransactionService(null);
+    this.sampleDataService = new SampleDataService();
   }
 
   async init(): Promise<void> {
@@ -115,6 +118,52 @@ export class IndexedDBService implements DataService {
     await this.transactionService.performTransaction('smePartners', 'readwrite', store => store.put(partner));
   }
 
+  async populateSampleData(quantities: SampleDataQuantities): Promise<void> {
+    try {
+      const {
+        fortune30Partners,
+        internalPartners,
+        smePartners,
+        projects,
+        spis,
+        objectives,
+        sitreps
+      } = await this.sampleDataService.generateSampleData(quantities);
+
+      // Add all data in sequence
+      for (const partner of fortune30Partners) {
+        await this.addCollaborator(partner);
+      }
+
+      for (const partner of internalPartners) {
+        await this.addCollaborator(partner);
+      }
+
+      for (const partner of smePartners) {
+        await this.addSMEPartner(partner);
+      }
+
+      for (const project of projects) {
+        await this.addProject(project);
+      }
+
+      for (const spi of spis) {
+        await this.addSPI(spi);
+      }
+
+      for (const objective of objectives) {
+        await this.addObjective(objective);
+      }
+
+      for (const sitrep of sitreps) {
+        await this.addSitRep(sitrep);
+      }
+    } catch (error) {
+      console.error('Error populating sample data:', error);
+      throw error;
+    }
+  }
+
   async clear(): Promise<void> {
     this.connectionService.close();
     const request = indexedDB.deleteDatabase(DB_CONFIG.name);
@@ -143,9 +192,5 @@ export class IndexedDBService implements DataService {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }
-
-  async populateSampleData(quantities: SampleDataQuantities): Promise<void> {
-    console.log('Sample data population not implemented yet');
   }
 }
