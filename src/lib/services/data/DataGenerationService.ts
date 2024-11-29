@@ -13,8 +13,7 @@ export class DataGenerationService {
     toast({
       title: step,
       description: "Completed successfully",
-      duration: 2000,
-      icon: Check as unknown as ReactElement
+      duration: 2000
     });
   }
 

@@ -8,8 +8,7 @@ export class DataValidationService {
     toast({
       title: step,
       description: `Found ${count} valid records`,
-      duration: 2000,
-      icon: Check as unknown as ReactElement
+      duration: 2000
     });
   }
 
