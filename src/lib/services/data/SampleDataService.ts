@@ -39,13 +39,16 @@ export class SampleDataService {
       const internalPartners = await generateInternalPartners();
       const smePartners = generateSMEPartners();
 
+      // Convert readonly array to mutable array
+      const departments = [...DEPARTMENTS];
+
       // Generate projects using the partners
       const { projects, spis, objectives, sitreps } = await generateSampleProjects({
         ...quantities,
-        departments: DEPARTMENTS,
-        fortune30Partners,
-        internalPartners,
-        smePartners
+        departments,
+        fortune30Partners: fortune30Partners.slice(0, quantities.fortune30),
+        internalPartners: internalPartners.slice(0, quantities.internalPartners),
+        smePartners: smePartners.slice(0, quantities.smePartners)
       });
 
       this.progressTracker.updateProgress('Fortune 30 Partners', fortune30Partners.length);
