@@ -4,14 +4,14 @@ import { CollaborationType } from "@/lib/types";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
-import { formSchema, type CollaborationFormSchema } from "./CollaborationFormFields";
+import { collaborationFormSchema, type CollaborationFormSchema } from "./CollaborationFormFields";
 
 export interface CollaborationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   collaboratorId?: string | null;
   departmentId?: string;
-  collaborationType?: CollaborationType;
+  collaborationType?: "fortune30" | "sme";
 }
 
 export function CollaborationDialog({ 
@@ -22,7 +22,7 @@ export function CollaborationDialog({
   collaborationType = 'fortune30'
 }: CollaborationDialogProps) {
   const form = useForm<CollaborationFormSchema>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(collaborationFormSchema),
     defaultValues: {
       name: "",
       email: "",

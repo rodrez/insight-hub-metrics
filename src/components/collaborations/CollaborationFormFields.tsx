@@ -13,16 +13,40 @@ import { db } from "@/lib/db";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormField, FormItem, FormLabel } from "@/components/ui/form";
 
-const collaborationFormSchema = z.object({
+export const collaborationFormSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   email: z.string().email({ message: "Invalid email address" }),
   type: z.enum(["fortune30", "sme"]),
   department: z.string().optional(),
   associatedProjects: z.array(z.string()).optional(),
-  // Add other fields as necessary
+  role: z.string().optional(),
+  agreementType: z.enum(["None", "NDA", "JTDA", "Both"]).optional(),
+  signedDate: z.string().optional(),
+  expiryDate: z.string().optional(),
+  primaryContact: z.object({
+    name: z.string().optional(),
+    role: z.string().optional(),
+    email: z.string().email().optional(),
+    phone: z.string().optional()
+  }).optional(),
+  workstreams: z.array(z.object({
+    id: z.string(),
+    title: z.string(),
+    objectives: z.string(),
+    nextSteps: z.string(),
+    keyContacts: z.array(z.object({
+      name: z.string(),
+      role: z.string(),
+      email: z.string(),
+      phone: z.string().optional()
+    })),
+    status: z.enum(["active", "completed", "on-hold"]),
+    startDate: z.string(),
+    lastUpdated: z.string()
+  })).optional()
 });
 
-type CollaborationFormSchema = z.infer<typeof collaborationFormSchema>;
+export type CollaborationFormSchema = z.infer<typeof collaborationFormSchema>;
 
 type CollaborationFormFieldsProps = {
   onSubmit: (data: CollaborationFormSchema) => void;
@@ -39,9 +63,10 @@ export function CollaborationFormFields({
 }: CollaborationFormFieldsProps) {
   const form = useForm<CollaborationFormSchema>({
     resolver: zodResolver(collaborationFormSchema),
-    defaultValues: initialData || {
+    defaultValues: {
       type: collaborationType,
       department: departmentId || '',
+      ...initialData
     }
   });
 
@@ -69,8 +94,8 @@ export function CollaborationFormFields({
               <FormItem>
                 <FormLabel>Associated Projects</FormLabel>
                 <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => field.onChange([value])}
+                  value={field.value?.[0]}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a project" />
