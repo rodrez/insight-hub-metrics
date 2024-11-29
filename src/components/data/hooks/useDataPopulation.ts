@@ -6,7 +6,6 @@ import { SampleDataService } from "@/lib/services/sampleData/SampleDataService";
 import { useQueryClient } from "@tanstack/react-query";
 import { DatabaseError } from "@/lib/utils/errorHandling";
 import { DatabaseOperations } from "../operations/DatabaseOperations";
-import { trackGenerationProgress } from "@/lib/services/data/utils/dataGenerationUtils";
 
 export function useDataPopulation() {
   const [isPopulating, setIsPopulating] = useState(false);
@@ -35,38 +34,52 @@ export function useDataPopulation() {
             // Add partners with progress tracking
             await databaseOps.addCollaboratorsInBatches(
               fortune30Partners,
-              (progress) => trackGenerationProgress("Fortune 30 Partners", progress)
+              (progress) => {
+                queryClient.setQueryData(['data-generation', 'fortune30'], { progress });
+              }
             );
 
             await databaseOps.addCollaboratorsInBatches(
               internalPartners,
-              (progress) => trackGenerationProgress("Internal Partners", progress)
+              (progress) => {
+                queryClient.setQueryData(['data-generation', 'internal'], { progress });
+              }
             );
 
             await databaseOps.addCollaboratorsInBatches(
               smePartners,
-              (progress) => trackGenerationProgress("SME Partners", progress)
+              (progress) => {
+                queryClient.setQueryData(['data-generation', 'sme'], { progress });
+              }
             );
 
             // Add projects and related data with progress tracking
             await databaseOps.addProjectsInBatches(
               projects,
-              (progress) => trackGenerationProgress("Projects", progress)
+              (progress) => {
+                queryClient.setQueryData(['data-generation', 'projects'], { progress });
+              }
             );
 
             await databaseOps.addSPIsInBatches(
               spis,
-              (progress) => trackGenerationProgress("SPIs", progress)
+              (progress) => {
+                queryClient.setQueryData(['data-generation', 'spis'], { progress });
+              }
             );
 
             await databaseOps.addObjectivesInBatches(
               objectives,
-              (progress) => trackGenerationProgress("Objectives", progress)
+              (progress) => {
+                queryClient.setQueryData(['data-generation', 'objectives'], { progress });
+              }
             );
 
             await databaseOps.addSitRepsInBatches(
               sitreps,
-              (progress) => trackGenerationProgress("SitReps", progress)
+              (progress) => {
+                queryClient.setQueryData(['data-generation', 'sitreps'], { progress });
+              }
             );
 
             // Invalidate queries to trigger refetch
