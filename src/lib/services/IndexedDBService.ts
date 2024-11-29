@@ -118,50 +118,23 @@ export class IndexedDBService implements DataService {
     await this.transactionService.performTransaction('smePartners', 'readwrite', store => store.put(partner));
   }
 
-  async populateSampleData(quantities: SampleDataQuantities): Promise<void> {
-    try {
-      const {
-        fortune30Partners,
-        internalPartners,
-        smePartners,
-        projects,
-        spis,
-        objectives,
-        sitreps
-      } = await this.sampleDataService.generateSampleData(quantities);
+  async updateSitRep(id: string, updates: Partial<SitRep>): Promise<void> {
+    const existingSitRep = await this.transactionService.performTransaction(
+      'sitreps',
+      'readonly',
+      store => store.get(id)
+    );
 
-      // Add all data in sequence
-      for (const partner of fortune30Partners) {
-        await this.addCollaborator(partner);
-      }
-
-      for (const partner of internalPartners) {
-        await this.addCollaborator(partner);
-      }
-
-      for (const partner of smePartners) {
-        await this.addSMEPartner(partner);
-      }
-
-      for (const project of projects) {
-        await this.addProject(project);
-      }
-
-      for (const spi of spis) {
-        await this.addSPI(spi);
-      }
-
-      for (const objective of objectives) {
-        await this.addObjective(objective);
-      }
-
-      for (const sitrep of sitreps) {
-        await this.addSitRep(sitrep);
-      }
-    } catch (error) {
-      console.error('Error populating sample data:', error);
-      throw error;
+    if (!existingSitRep) {
+      throw new Error('SitRep not found');
     }
+
+    const updatedSitRep = { ...existingSitRep, ...updates };
+    await this.transactionService.performTransaction(
+      'sitreps',
+      'readwrite',
+      store => store.put(updatedSitRep)
+    );
   }
 
   async clear(): Promise<void> {

@@ -17,4 +17,23 @@ export class SitRepService extends BaseDBService {
       store => store.put(sitrep)
     );
   }
+
+  async updateSitRep(id: string, updates: Partial<SitRep>): Promise<void> {
+    const existingSitRep = await this.performTransaction<SitRep | undefined>(
+      'sitreps',
+      'readonly',
+      store => store.get(id)
+    );
+
+    if (!existingSitRep) {
+      throw new Error('SitRep not found');
+    }
+
+    const updatedSitRep = { ...existingSitRep, ...updates };
+    await this.performTransaction(
+      'sitreps',
+      'readwrite',
+      store => store.put(updatedSitRep)
+    );
+  }
 }

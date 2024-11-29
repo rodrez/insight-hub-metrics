@@ -54,6 +54,10 @@ export class SampleDataService implements DataService {
     return this.indexedDBService.addSitRep(sitrep);
   }
 
+  async updateSitRep(id: string, updates: Partial<SitRep>): Promise<void> {
+    return this.indexedDBService.updateSitRep(id, updates);
+  }
+
   async getAllSPIs(): Promise<SPI[]> {
     return this.indexedDBService.getAllSPIs();
   }
