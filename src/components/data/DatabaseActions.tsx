@@ -1,11 +1,9 @@
-import { Button } from "@/components/ui/button";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Trash2, Database, Loader2 } from "lucide-react";
+import { errorHandler } from "@/lib/services/error/ErrorHandlingService";
+import { toast } from "@/components/ui/use-toast";
+import { ClearDatabaseAction } from "./actions/ClearDatabaseAction";
+import { PopulateDataAction } from "./actions/PopulateDataAction";
 import { ExportActions } from "./actions/ExportActions";
 import { BackupActions } from "./actions/BackupActions";
-import { toast } from "@/components/ui/use-toast";
-import { DatabaseOperations } from "./operations/DatabaseOperations";
-import { errorHandler } from "@/lib/services/error/ErrorHandlingService";
 
 interface DatabaseActionsProps {
   isInitialized: boolean;
@@ -22,8 +20,6 @@ export function DatabaseActions({
   onClear,
   onPopulate
 }: DatabaseActionsProps) {
-  const databaseOps = new DatabaseOperations();
-
   const handleClear = async () => {
     try {
       await onClear();
@@ -58,49 +54,17 @@ export function DatabaseActions({
     <div className="space-y-4">
       <div className="flex flex-col gap-4">
         <div className="flex gap-4">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button 
-                variant="destructive" 
-                disabled={!isInitialized || isClearing}
-                className="relative"
-              >
-                {isClearing ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Trash2 className="h-4 w-4 mr-2" />
-                )}
-                Clear Database
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action will clear all data from the database. This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleClear}>Continue</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-
-          <Button 
-            onClick={handlePopulate} 
-            disabled={!isInitialized || isPopulating}
-            className="flex items-center gap-2 relative"
-          >
-            {isPopulating ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Database className="h-4 w-4" />
-            )}
-            {isPopulating ? "Generating..." : "Generate Sample Data"}
-          </Button>
+          <ClearDatabaseAction 
+            isInitialized={isInitialized}
+            isClearing={isClearing}
+            onClear={handleClear}
+          />
+          <PopulateDataAction
+            isInitialized={isInitialized}
+            isPopulating={isPopulating}
+            onPopulate={handlePopulate}
+          />
         </div>
-
         <ExportActions isInitialized={isInitialized} />
         <BackupActions isInitialized={isInitialized} />
       </div>
