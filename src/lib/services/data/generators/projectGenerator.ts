@@ -1,5 +1,4 @@
-import { Project } from '@/lib/types';
-import { Department } from '@/lib/types';
+import { Project, Department } from '@/lib/types';
 import { Collaborator } from '@/lib/types/collaboration';
 import { defaultTechDomains } from '@/lib/types/techDomain';
 import { DataQuantities } from '@/lib/types/data';
@@ -7,7 +6,7 @@ import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } f
 import { generateNABC } from './templates/projectTemplates';
 import { generateMilestones, generateMetrics } from './templates/metricsTemplates';
 
-interface ProjectGenerationInput extends Omit<DataQuantities, 'internalPartners'> {
+interface ProjectGenerationInput extends Omit<DataQuantities, 'internalPartners' | 'smePartners'> {
   departments: Department[];
   fortune30Partners: Collaborator[];
   internalPartners: Collaborator[];
