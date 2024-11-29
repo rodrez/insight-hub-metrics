@@ -2,6 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Target } from "lucide-react";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
+import { scrollToProject } from "@/utils/scrollUtils";
 import {
   Tooltip,
   TooltipContent,
@@ -15,6 +17,8 @@ interface RelatedSPIsProps {
 }
 
 export function RelatedSPIs({ spis, projectId }: RelatedSPIsProps) {
+  const navigate = useNavigate();
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
@@ -30,6 +34,16 @@ export function RelatedSPIs({ spis, projectId }: RelatedSPIsProps) {
     }
   };
 
+  const handleSPIClick = (spiId: string) => {
+    navigate('/spi');
+    setTimeout(() => {
+      const element = document.getElementById(`spi-${spiId}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -41,7 +55,11 @@ export function RelatedSPIs({ spis, projectId }: RelatedSPIsProps) {
       <CardContent className="space-y-4">
         <TooltipProvider>
           {spis?.filter(spi => spi.projectId === projectId).map(spi => (
-            <div key={spi.id} className="flex items-center justify-between p-2 border rounded">
+            <div 
+              key={spi.id} 
+              className="flex items-center justify-between p-2 border rounded cursor-pointer hover:bg-accent/50 transition-colors"
+              onClick={() => handleSPIClick(spi.id)}
+            >
               <div className="flex items-center gap-2">
                 <Badge className={getStatusColor(spi.status)}>{spi.status}</Badge>
                 <Tooltip>

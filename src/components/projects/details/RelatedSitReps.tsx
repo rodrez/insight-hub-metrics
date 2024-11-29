@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileText } from "lucide-react";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 import {
   Tooltip,
   TooltipContent,
@@ -15,6 +16,8 @@ interface RelatedSitRepsProps {
 }
 
 export function RelatedSitReps({ sitreps, projectId }: RelatedSitRepsProps) {
+  const navigate = useNavigate();
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
@@ -30,6 +33,16 @@ export function RelatedSitReps({ sitreps, projectId }: RelatedSitRepsProps) {
     }
   };
 
+  const handleSitRepClick = (sitrepId: string) => {
+    navigate('/sitreps');
+    setTimeout(() => {
+      const element = document.getElementById(`sitrep-${sitrepId}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -43,7 +56,11 @@ export function RelatedSitReps({ sitreps, projectId }: RelatedSitRepsProps) {
           {sitreps?.filter(sitrep => sitrep.projectId === projectId)
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
             .map(sitrep => (
-              <div key={sitrep.id} className="flex items-center justify-between p-2 border rounded">
+              <div 
+                key={sitrep.id} 
+                className="flex items-center justify-between p-2 border rounded cursor-pointer hover:bg-accent/50 transition-colors"
+                onClick={() => handleSitRepClick(sitrep.id)}
+              >
                 <div className="flex items-center gap-2">
                   <Badge className={getStatusColor(sitrep.status)}>{sitrep.status}</Badge>
                   <Tooltip>
