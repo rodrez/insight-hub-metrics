@@ -6,15 +6,21 @@ import { SampleDataService } from "@/lib/services/sampleData/SampleDataService";
 import { useQueryClient } from "@tanstack/react-query";
 import { DatabaseError } from "@/lib/utils/errorHandling";
 import { DatabaseOperations } from "../operations/DatabaseOperations";
-import { trackGenerationProgress } from "@/lib/services/data/utils/dataGenerationUtils";
 
 export function useDataPopulation() {
   const [isPopulating, setIsPopulating] = useState(false);
+  const [progress, setProgress] = useState(0);
   const queryClient = useQueryClient();
   const databaseOps = new DatabaseOperations();
 
+  const updateProgress = (stepProgress: number, stepIndex: number, totalSteps: number) => {
+    const overallProgress = ((stepIndex + (stepProgress / 100)) / totalSteps) * 100;
+    setProgress(overallProgress);
+  };
+
   const populateSampleData = async () => {
     setIsPopulating(true);
+    setProgress(0);
     
     try {
       const populateStep: LoadingStep = {
@@ -32,41 +38,49 @@ export function useDataPopulation() {
               sitreps
             } = await sampleDataService.generateSampleData();
 
+            const totalSteps = 7; // Total number of data types to populate
+            let currentStep = 0;
+
             // Add partners with progress tracking
             await databaseOps.addCollaboratorsInBatches(
               fortune30Partners,
-              (progress) => trackGenerationProgress("Fortune 30 Partners", progress)
+              (progress) => updateProgress(progress, currentStep, totalSteps)
             );
+            currentStep++;
 
             await databaseOps.addCollaboratorsInBatches(
               internalPartners,
-              (progress) => trackGenerationProgress("Internal Partners", progress)
+              (progress) => updateProgress(progress, currentStep, totalSteps)
             );
+            currentStep++;
 
             await databaseOps.addCollaboratorsInBatches(
               smePartners,
-              (progress) => trackGenerationProgress("SME Partners", progress)
+              (progress) => updateProgress(progress, currentStep, totalSteps)
             );
+            currentStep++;
 
-            // Add projects and related data with progress tracking
             await databaseOps.addProjectsInBatches(
               projects,
-              (progress) => trackGenerationProgress("Projects", progress)
+              (progress) => updateProgress(progress, currentStep, totalSteps)
             );
+            currentStep++;
 
             await databaseOps.addSPIsInBatches(
               spis,
-              (progress) => trackGenerationProgress("SPIs", progress)
+              (progress) => updateProgress(progress, currentStep, totalSteps)
             );
+            currentStep++;
 
             await databaseOps.addObjectivesInBatches(
               objectives,
-              (progress) => trackGenerationProgress("Objectives", progress)
+              (progress) => updateProgress(progress, currentStep, totalSteps)
             );
+            currentStep++;
 
             await databaseOps.addSitRepsInBatches(
               sitreps,
-              (progress) => trackGenerationProgress("SitReps", progress)
+              (progress) => updateProgress(progress, currentStep, totalSteps)
             );
 
             // Invalidate queries to trigger refetch
@@ -99,8 +113,9 @@ export function useDataPopulation() {
       await executeWithRetry(populateStep);
     } finally {
       setIsPopulating(false);
+      setProgress(0);
     }
   };
 
-  return { isPopulating, populateSampleData };
+  return { isPopulating, populateSampleData, progress };
 }

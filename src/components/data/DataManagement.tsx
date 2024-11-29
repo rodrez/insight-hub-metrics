@@ -6,11 +6,12 @@ import { useDataClearing } from "./hooks/useDataClearing";
 import { useDataPopulation } from "./hooks/useDataPopulation";
 import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { Progress } from "@/components/ui/progress";
 
 export default function DataManagement() {
   const { isInitialized } = useDataInitialization();
   const { isClearing, clearDatabase } = useDataClearing();
-  const { isPopulating, populateSampleData } = useDataPopulation();
+  const { isPopulating, populateSampleData, progress } = useDataPopulation();
   const { dataCounts, updateDataCounts } = useDataCounts(isInitialized);
   const queryClient = useQueryClient();
 
@@ -34,6 +35,15 @@ export default function DataManagement() {
         onClear={handleClear}
         onPopulate={handlePopulate}
       />
+      {isPopulating && (
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span>Populating database...</span>
+            <span>{Math.round(progress)}%</span>
+          </div>
+          <Progress value={progress} className="w-full" />
+        </div>
+      )}
       <DataStats dataCounts={dataCounts} />
     </div>
   );
