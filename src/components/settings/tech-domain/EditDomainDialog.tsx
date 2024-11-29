@@ -10,43 +10,47 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
-type EditDomainDialogProps = {
+interface EditDomainDialogProps {
   domain: TechDomain | null;
   onClose: () => void;
   onUpdate: (domain: TechDomain) => void;
-};
+}
 
 export function EditDomainDialog({ domain, onClose, onUpdate }: EditDomainDialogProps) {
   if (!domain) return null;
 
   return (
     <Dialog open={!!domain} onOpenChange={() => onClose()}>
-      <DialogContent>
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Edit Tech Domain</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <Input
-            placeholder="Domain Name"
-            value={domain.name}
-            onChange={e => onUpdate({ ...domain, name: e.target.value })}
-          />
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-4">
             <Input
-              type="color"
-              value={domain.color}
-              onChange={e => onUpdate({ ...domain, color: e.target.value })}
-              className="w-20 h-10"
+              placeholder="Domain Name"
+              value={domain.name}
+              onChange={e => onUpdate({ ...domain, name: e.target.value })}
+              className="flex-1"
             />
-            <div
-              className="w-10 h-10 rounded border"
-              style={{ backgroundColor: domain.color }}
-            />
+            <div className="flex items-center gap-2">
+              <Input
+                type="color"
+                value={domain.color}
+                onChange={e => onUpdate({ ...domain, color: e.target.value })}
+                className="w-20 h-10"
+              />
+              <div
+                className="w-10 h-10 rounded border"
+                style={{ backgroundColor: domain.color }}
+              />
+            </div>
           </div>
           <Textarea
             placeholder="Description"
             value={domain.description}
             onChange={e => onUpdate({ ...domain, description: e.target.value })}
+            className="h-20"
           />
         </div>
         <DialogFooter>

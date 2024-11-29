@@ -22,6 +22,10 @@ export function TechDomainSettings() {
 
   const handleAdd = (newDomain: TechDomain) => {
     setDomains([...domains, newDomain]);
+    toast({
+      title: "Success",
+      description: "Tech domain added successfully",
+    });
   };
 
   const handleDelete = (id: string) => {
