@@ -6,7 +6,7 @@ export class DatabaseTransactionService {
   async performTransaction<T>(
     storeName: string,
     mode: IDBTransactionMode,
-    operation: (store: IDBObjectStore) => IDBRequest
+    operation: (store: IDBObjectStore) => IDBRequest<T>
   ): Promise<T> {
     if (!this.db) {
       throw new DatabaseError('Database not initialized');
