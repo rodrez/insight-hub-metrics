@@ -124,14 +124,15 @@ export const generateSampleProjects = async (quantities: DataQuantities): Promis
     const objectives = generateSampleObjectives();
     console.log('Generated objectives:', objectives.length);
     
-    const sitreps = generateSampleSitReps(spis);
+    // Ensure we generate at least some sitreps even if no SPIs exist
+    const sitreps = generateSampleSitReps(spis, Math.max(quantities.sitreps, 5));
     console.log('Generated sitreps:', sitreps.length);
 
     const generatedData = {
       projects,
       spis: spis.slice(0, quantities.spis),
       objectives: objectives.slice(0, quantities.objectives),
-      sitreps: sitreps.slice(0, quantities.sitreps)
+      sitreps: sitreps.slice(0, Math.max(quantities.sitreps, 5))
     };
 
     console.log('Final data quantities:', {
@@ -141,7 +142,6 @@ export const generateSampleProjects = async (quantities: DataQuantities): Promis
       sitreps: generatedData.sitreps.length
     });
 
-    // Validate data relationships before returning
     if (!validateDataRelationships(generatedData)) {
       console.error('Data validation failed. Dumping first few records of each type for debugging:');
       console.log('Sample Projects:', generatedData.projects.slice(0, 2));

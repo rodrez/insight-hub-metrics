@@ -112,17 +112,29 @@ export const generateSampleSPIs = (projectIds: string[] = [], requestedCount?: n
 export const generateSampleSitReps = (spis: SPI[], requestedCount?: number): SitRep[] => {
   if (spis.length === 0) {
     console.warn('No SPIs provided for SitRep generation');
-    return [];
+    // Generate at least one sample SitRep even without SPIs
+    return [{
+      id: 'sitrep-sample-1',
+      title: 'Sample SitRep',
+      date: new Date().toISOString(),
+      spiId: 'sample-spi',
+      update: 'Initial project update',
+      challenges: 'No major challenges identified',
+      nextSteps: 'Continue with planned implementation',
+      status: 'pending-review',
+      summary: 'This is a sample situation report to demonstrate the functionality.',
+      departmentId: 'engineering'
+    }];
   }
 
   const sitreps: SitRep[] = [];
-  const count = requestedCount || spis.length;
+  const count = requestedCount || Math.max(spis.length, 5); // Ensure at least 5 SitReps
 
   for (let i = 0; i < count; i++) {
     const spi = spis[i % spis.length];
     const date = subDays(new Date(), i * 3).toISOString();
     const title = `${spi.name}: Progress Report ${i + 1}`;
-    const summary = generateOptimalLengthSummary(spi.name);
+    const summary = `Progress update for ${spi.name} showing significant advancement in implementation phases. Key stakeholders report positive outcomes across multiple metrics.`;
     
     const sitrep: SitRep = {
       id: `sitrep-${i + 1}`,
@@ -130,12 +142,14 @@ export const generateSampleSitReps = (spis: SPI[], requestedCount?: number): Sit
       date,
       spiId: spi.id,
       projectId: spi.projectId,
-      update: `Detailed progress update for ${spi.name}`,
-      challenges: "Currently addressing resource allocation and technical complexity challenges",
-      nextSteps: "Proceeding with planned milestone implementation and scheduled reviews",
-      status: 'pending-review',
+      update: `Detailed progress update for ${spi.name}. Team has made substantial progress on key deliverables.`,
+      challenges: "Currently addressing resource allocation and technical complexity challenges. Team is working on mitigation strategies.",
+      nextSteps: "Proceeding with planned milestone implementation and scheduled reviews. Next phase includes stakeholder alignment and technical validation.",
+      status: ['pending-review', 'ready', 'submitted'][Math.floor(Math.random() * 3)] as 'pending-review' | 'ready' | 'submitted',
       summary,
-      departmentId: spi.departmentId
+      departmentId: spi.departmentId,
+      level: ['CEO', 'SVP', 'CTO'][Math.floor(Math.random() * 3)] as 'CEO' | 'SVP' | 'CTO',
+      teams: ['Engineering', 'Product', 'Design'].slice(0, Math.floor(Math.random() * 3) + 1)
     };
     
     sitreps.push(sitrep);
