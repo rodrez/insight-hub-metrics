@@ -60,7 +60,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
   };
 
   const wordCount = sitrep.summary.split(/\s+/).filter(word => word.length > 0).length;
-  const isWordCountValid = wordCount >= 90 && wordCount <= 100;
+  const isWordCountValid = wordCount >= 100;
 
   const handleDelete = () => {
     if (onDelete) {
@@ -143,7 +143,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
             <span>{format(new Date(sitrep.date), "MM/dd/yyyy")}</span>
             <span>{sitrep.level}</span>
             <span className={!isWordCountValid ? "text-yellow-500" : ""}>
-              {wordCount} words {!isWordCountValid && "(should be 90-100 words)"}
+              {wordCount} words {!isWordCountValid && "(minimum 100 words required)"}
             </span>
           </div>
 

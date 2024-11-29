@@ -48,10 +48,21 @@ export function CompactSitRepForm({ onSubmitSuccess }: CompactSitRepFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
+    
     if (!title || !content) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (wordCount < 100) {
+      toast({
+        title: "Error",
+        description: "Content must be at least 100 words",
         variant: "destructive"
       });
       return;
