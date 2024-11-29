@@ -9,12 +9,14 @@ import { globalProgressTracker } from "@/lib/utils/progressTracking";
 
 export function useDataPopulation() {
   const [isPopulating, setIsPopulating] = useState(false);
+  const [progress, setProgress] = useState(0);
   const queryClient = useQueryClient();
   const databaseOps = new DatabaseOperations();
   const sampleDataService = new SampleDataService();
 
   const populateSampleData = async () => {
     setIsPopulating(true);
+    setProgress(0);
     
     try {
       const populateStep: LoadingStep = {
@@ -31,14 +33,44 @@ export function useDataPopulation() {
               sitreps
             } = await sampleDataService.generateSampleData();
 
-            // Add data to database in sequence
-            await databaseOps.addCollaboratorsInBatches(fortune30Partners);
-            await databaseOps.addCollaboratorsInBatches(internalPartners);
-            await databaseOps.addCollaboratorsInBatches(smePartners);
-            await databaseOps.addProjectsInBatches(projects);
-            await databaseOps.addSPIsInBatches(spis);
-            await databaseOps.addObjectivesInBatches(objectives);
-            await databaseOps.addSitRepsInBatches(sitreps);
+            // Add data to database in sequence with progress updates
+            const totalSteps = 7;
+            let currentStep = 0;
+
+            await databaseOps.addCollaboratorsInBatches(fortune30Partners, () => {
+              currentStep++;
+              setProgress((currentStep / totalSteps) * 100);
+            });
+
+            await databaseOps.addCollaboratorsInBatches(internalPartners, () => {
+              currentStep++;
+              setProgress((currentStep / totalSteps) * 100);
+            });
+
+            await databaseOps.addCollaboratorsInBatches(smePartners, () => {
+              currentStep++;
+              setProgress((currentStep / totalSteps) * 100);
+            });
+
+            await databaseOps.addProjectsInBatches(projects, () => {
+              currentStep++;
+              setProgress((currentStep / totalSteps) * 100);
+            });
+
+            await databaseOps.addSPIsInBatches(spis, () => {
+              currentStep++;
+              setProgress((currentStep / totalSteps) * 100);
+            });
+
+            await databaseOps.addObjectivesInBatches(objectives, () => {
+              currentStep++;
+              setProgress((currentStep / totalSteps) * 100);
+            });
+
+            await databaseOps.addSitRepsInBatches(sitreps, () => {
+              currentStep++;
+              setProgress((currentStep / totalSteps) * 100);
+            });
 
             queryClient.invalidateQueries({ queryKey: ['data-counts'] });
             
@@ -53,8 +85,9 @@ export function useDataPopulation() {
       await executeWithRetry(populateStep);
     } finally {
       setIsPopulating(false);
+      setProgress(0);
     }
   };
 
-  return { isPopulating, populateSampleData };
+  return { isPopulating, populateSampleData, progress };
 }

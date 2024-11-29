@@ -6,7 +6,7 @@ import { DataService } from './DataService';
 import { DataQuantities } from '../types/data';
 import { DatabaseTransactionService } from './db/DatabaseTransactionService';
 import { DatabaseConnectionService } from './db/DatabaseConnectionService';
-import { SampleDataService } from './sampleData/SampleDataService';
+import { SampleDataService } from './data/SampleDataService';
 
 export class IndexedDBService implements DataService {
   private connectionService: DatabaseConnectionService;
