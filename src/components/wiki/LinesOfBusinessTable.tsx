@@ -78,26 +78,10 @@ const businessCategories = [
 
 export function LinesOfBusinessTable() {
   return (
-    <Card className="p-6">
+    <Card className="p-6 relative">
       <div className="space-y-6">
         <div>
           <h2 className="text-2xl font-semibold mb-6">Lines of Business (LOB)</h2>
-          
-          {/* Color Key */}
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-            <h3 className="text-sm font-medium mb-3">Department Color Key</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {DEPARTMENTS.map((dept) => (
-                <div key={dept.id} className="flex items-center gap-2">
-                  <div 
-                    className="w-4 h-4 rounded"
-                    style={{ backgroundColor: dept.color }}
-                  />
-                  <span className="text-sm">{dept.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-6">
@@ -135,6 +119,23 @@ export function LinesOfBusinessTable() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Updated color key styling */}
+        <div className="absolute bottom-4 right-4">
+          <div className="bg-card/80 backdrop-blur-sm p-3 rounded-lg shadow-sm border">
+            <div className="grid grid-cols-3 gap-x-4 gap-y-2">
+              {DEPARTMENTS.map((dept) => (
+                <div key={dept.id} className="flex items-center gap-1.5">
+                  <div 
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={{ backgroundColor: dept.color }}
+                  />
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">{dept.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </Card>
