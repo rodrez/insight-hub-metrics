@@ -10,10 +10,8 @@ export const BATCH_SIZE = 50;
 export const processInBatches = async<T>(
   items: T[],
   processFn: (batch: T[]) => Promise<void>,
-  onProgress?: (progress: number) => void,
-  queryKey?: string[]
+  onProgress?: (progress: number) => void
 ) => {
-  const queryClient = useQueryClient();
   const batches = [];
   
   for (let i = 0; i < items.length; i += BATCH_SIZE) {
@@ -23,15 +21,7 @@ export const processInBatches = async<T>(
   for (let i = 0; i < batches.length; i++) {
     await processFn(batches[i]);
     const progress = ((i + 1) / batches.length) * 100;
-    
     onProgress?.(progress);
-    
-    if (queryKey) {
-      queryClient.setQueryData(queryKey, (old: any) => ({
-        ...old,
-        progress,
-      }));
-    }
   }
 };
 
@@ -49,22 +39,12 @@ export const validateDataQuantities = (
 
 export const generateDataWithProgress = async<T>(
   generatorFn: () => Promise<T>,
-  step: string,
-  queryKey?: string[]
+  step: string
 ): Promise<T> => {
-  const queryClient = useQueryClient();
-  
   try {
-    if (queryKey) {
-      queryClient.setQueryData(queryKey, { step, progress: 0 });
-    }
-    
+    console.log(`Starting ${step}...`);
     const result = await generatorFn();
-    
-    if (queryKey) {
-      queryClient.setQueryData(queryKey, { step, progress: 100 });
-    }
-    
+    console.log(`Completed ${step}`);
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -74,8 +54,7 @@ export const generateDataWithProgress = async<T>(
 };
 
 export const trackGenerationProgress = (step: string, progress: number) => {
-  const queryClient = useQueryClient();
-  queryClient.setQueryData(['generation-progress'], { step, progress });
+  console.log(`Progress for ${step}: ${progress}%`);
 };
 
 export const validateDataConsistency = <T extends { id: string }>(
