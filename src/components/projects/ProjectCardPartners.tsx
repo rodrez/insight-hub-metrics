@@ -1,5 +1,6 @@
 import { Project } from '@/lib/types';
 import { ProjectPartnerBadge } from './ProjectPartnerBadge';
+import { CollaboratorType } from '@/lib/types/collaboration';
 
 interface ProjectCardPartnersProps {
   project: Project;
@@ -38,7 +39,7 @@ export function ProjectCardPartners({ project, getDepartmentColor }: ProjectCard
               partner={{
                 id: collab.id,
                 name: collab.name,
-                type: collab.type,
+                type: collab.type as CollaboratorType,
                 department: collab.department
               }}
               departmentColor={getDepartmentColor(collab.department)}
@@ -55,7 +56,7 @@ export function ProjectCardPartners({ project, getDepartmentColor }: ProjectCard
               partner={{
                 id: partner.id,
                 name: partner.name,
-                type: partner.type,
+                type: partner.type as CollaboratorType,
                 department: partner.department
               }}
               departmentColor={getDepartmentColor(partner.department)}
@@ -73,7 +74,7 @@ export function ProjectCardPartners({ project, getDepartmentColor }: ProjectCard
                 partner={{
                   id: sme.id,
                   name: sme.name,
-                  type: sme.type,
+                  type: sme.type as CollaboratorType,
                   department: sme.department
                 }}
                 departmentColor={getDepartmentColor(sme.department)}

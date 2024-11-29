@@ -70,7 +70,7 @@ export function SampleDataSettings() {
         objectives: (await db.getAllObjectives()).length,
         sitreps: (await db.getAllSitReps()).length,
         fortune30: (await db.getAllCollaborators()).filter(c => c.type === 'fortune30').length,
-        internalPartners: (await db.getAllCollaborators()).filter(c => c.type === 'other').length,
+        internalPartners: (await db.getAllCollaborators()).filter(c => c.type === 'internal').length,
         smePartners: (await db.getAllSMEPartners()).length
       };
 

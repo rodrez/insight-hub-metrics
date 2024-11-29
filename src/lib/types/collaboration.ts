@@ -30,7 +30,14 @@ export type Workstream = {
   lastUpdated: string;
 };
 
-export type CollaborationType = 'fortune30' | 'sme' | 'internal';
+export type CollaboratorType = 'fortune30' | 'internal' | 'sme';
+
+export type CollaboratorStats = {
+  fortune30Count: number;
+  internalCount: number;
+  smeCount: number;
+  total: number;
+};
 
 export type CollaboratorProject = {
   id: string;
@@ -50,7 +57,7 @@ export type Collaborator = {
   department: string;
   projects: CollaboratorProject[];
   lastActive: string;
-  type: CollaborationType;
+  type: CollaboratorType;
   color?: string;
   agreements?: CollaboratorAgreements;
   primaryContact?: ContactPerson;
