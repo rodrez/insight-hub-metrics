@@ -87,7 +87,7 @@ export const CollaborationFormFields = ({
           email: '',
           phone: ''
         },
-        workstreams: existingCollaborator.workstreams || [],
+        workstreams: [],
         agreementType: 'None',
         signedDate: '',
         expiryDate: '',
@@ -104,4 +104,4 @@ export const CollaborationFormFields = ({
       <WorkstreamFields form={form} />
     </div>
   );
-};
+}
