@@ -20,6 +20,8 @@ export interface DataQuantities {
   spis: number;
   objectives: number;
   sitreps: number;
+  fortune30: number;
+  internalPartners: number;
 }
 
 export const sampleFortune30: Collaborator[] = generateFortune30Partners();
@@ -110,13 +112,13 @@ export const generateSampleProjects = async (quantities: DataQuantities): Promis
     const projects = result.projects.slice(0, quantities.projects);
     console.log('Generated and filtered projects:', projects.length);
     
-    const spis = generateSampleSPIs(projects.map(p => p.id), quantities.spis).slice(0, quantities.spis);
+    const spis = generateSampleSPIs(projects.map(p => p.id), quantities.spis);
     console.log('Generated and filtered SPIs:', spis.length);
     
-    const objectives = generateSampleObjectives(quantities.objectives).slice(0, quantities.objectives);
+    const objectives = generateSampleObjectives(quantities.objectives);
     console.log('Generated and filtered objectives:', objectives.length);
     
-    const sitreps = generateSampleSitReps(spis, quantities.sitreps).slice(0, quantities.sitreps);
+    const sitreps = generateSampleSitReps(spis, quantities.sitreps);
     console.log('Generated and filtered sitreps:', sitreps.length);
 
     const generatedData = {
