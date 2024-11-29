@@ -13,41 +13,24 @@ import { Form } from "../ui/form";
 import { ContactPerson } from "@/lib/types/collaboration";
 import { FormField, FormItem, FormLabel, FormControl } from "../ui/form";
 import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
 
 type POCEditDialogProps = {
   categoryName: string;
-  description: string;
-  detailedDescription: string;
   contacts: ContactPerson[];
-  onSave: (data: { 
-    description: string; 
-    detailedDescription: string; 
-    contacts: ContactPerson[]; 
-  }) => void;
+  onSave: (contacts: ContactPerson[]) => void;
 };
 
 type FormValues = {
   lobName: string;
-  description: string;
-  detailedDescription: string;
   contacts: {
     primaryContact: ContactPerson;
   }[];
 };
 
-export function POCEditDialog({ 
-  categoryName, 
-  description,
-  detailedDescription,
-  contacts, 
-  onSave 
-}: POCEditDialogProps) {
+export function POCEditDialog({ categoryName, contacts, onSave }: POCEditDialogProps) {
   const form = useForm<FormValues>({
     defaultValues: {
       lobName: categoryName,
-      description: description,
-      detailedDescription: detailedDescription,
       contacts: contacts.map(contact => ({
         primaryContact: contact
       }))
@@ -55,11 +38,7 @@ export function POCEditDialog({
   });
 
   const onSubmit = (data: FormValues) => {
-    onSave({
-      description: data.description,
-      detailedDescription: data.detailedDescription,
-      contacts: data.contacts.map(c => c.primaryContact)
-    });
+    onSave(data.contacts.map(c => c.primaryContact));
   };
 
   return (
@@ -77,24 +56,12 @@ export function POCEditDialog({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="description"
+              name="lobName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Brief Description</FormLabel>
+                  <FormLabel>Line of Business Name</FormLabel>
                   <FormControl>
-                    <Textarea {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="detailedDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Detailed Description</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} className="min-h-[100px]" />
+                    <Input {...field} defaultValue={categoryName} />
                   </FormControl>
                 </FormItem>
               )}

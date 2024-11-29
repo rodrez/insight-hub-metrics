@@ -1,34 +1,18 @@
 import { Card } from "@/components/ui/card";
 import { DEPARTMENTS } from "@/lib/constants";
-import { Info } from "lucide-react";
 import { useState } from "react";
-import { POCEditDialog } from "./POCEditDialog";
-import { LOBCard } from "./LOBCard";
-import { businessCategories as initialCategories } from "./data/businessCategories";
-import { toast } from "../ui/use-toast";
+import { CategoryCard } from "./lob/CategoryCard";
+import { businessCategories } from "./lob/businessCategories";
 
 export function LinesOfBusinessTable() {
-  const [categories, setCategories] = useState(initialCategories);
+  const [categories, setCategories] = useState(businessCategories);
 
-  const handleUpdate = (categoryIndex: number, data: { 
-    description: string; 
-    detailedDescription: string; 
-    contacts: any[]; 
-  }) => {
+  const handleContactsUpdate = (categoryIndex: number, newContacts: any[]) => {
     setCategories(prev => prev.map((category, index) => 
       index === categoryIndex 
-        ? { 
-            ...category, 
-            description: data.description,
-            detailedDescription: data.detailedDescription,
-            contacts: data.contacts 
-          }
+        ? { ...category, contacts: newContacts }
         : category
     ));
-    toast({
-      title: "Success",
-      description: "Category information updated successfully",
-    });
   };
 
   return (
@@ -40,30 +24,11 @@ export function LinesOfBusinessTable() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-6">
           {categories.map((category, categoryIndex) => (
-            <div key={category.name} className="space-y-3">
-              <h3 className="font-medium text-lg border-b pb-2 flex items-center justify-between">
-                <span className="flex items-center gap-2">
-                  {category.name}
-                  <Info className="h-4 w-4 text-muted-foreground" />
-                </span>
-                <POCEditDialog
-                  categoryName={category.name}
-                  description={category.description}
-                  detailedDescription={category.detailedDescription || ""}
-                  contacts={category.contacts}
-                  onSave={(data) => handleUpdate(categoryIndex, data)}
-                />
-              </h3>
-              <div className="space-y-2">
-                {category.lobs.map((lob) => (
-                  <LOBCard 
-                    key={lob.name}
-                    lob={lob}
-                    category={category}
-                  />
-                ))}
-              </div>
-            </div>
+            <CategoryCard
+              key={category.name}
+              category={category}
+              onContactsUpdate={(newContacts) => handleContactsUpdate(categoryIndex, newContacts)}
+            />
           ))}
         </div>
 
@@ -77,9 +42,7 @@ export function LinesOfBusinessTable() {
                     className="w-2.5 h-2.5 rounded-full"
                     style={{ backgroundColor: dept.color }}
                   />
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">
-                    {dept.name}
-                  </span>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">{dept.name}</span>
                 </div>
               ))}
             </div>
