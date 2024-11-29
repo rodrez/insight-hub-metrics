@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { SitRep } from "@/lib/types/sitrep";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { BasicInfoFields } from "./form/BasicInfoFields";
 import { RelationshipFields } from "./form/RelationshipFields";
 import { ContentFields } from "./form/ContentFields";
@@ -103,41 +104,45 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid gap-6 md:grid-cols-2">
-        <BasicInfoFields
-          selectedDate={selectedDate}
-          setSelectedDate={setSelectedDate}
-          title={title}
-          setTitle={setTitle}
-          status={status}
-          setStatus={setStatus}
-        />
-        
-        <RelationshipFields
-          selectedProject={selectedProject}
-          setSelectedProject={setSelectedProject}
-          selectedFortune30={selectedFortune30}
-          setSelectedFortune30={setSelectedFortune30}
-          selectedDepartment={selectedDepartment}
-          setSelectedDepartment={setSelectedDepartment}
-          selectedPartner={selectedPartner}
-          setSelectedPartner={setSelectedPartner}
-          projects={projects || []}
-          fortune30Partners={fortune30Partners}
-          filteredInternalPartners={filteredInternalPartners}
-        />
-      </div>
+      <ScrollArea className="h-[calc(85vh-120px)] pr-4">
+        <div className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <BasicInfoFields
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
+              title={title}
+              setTitle={setTitle}
+              status={status}
+              setStatus={setStatus}
+            />
+            
+            <RelationshipFields
+              selectedProject={selectedProject}
+              setSelectedProject={setSelectedProject}
+              selectedFortune30={selectedFortune30}
+              setSelectedFortune30={setSelectedFortune30}
+              selectedDepartment={selectedDepartment}
+              setSelectedDepartment={setSelectedDepartment}
+              selectedPartner={selectedPartner}
+              setSelectedPartner={setSelectedPartner}
+              projects={projects || []}
+              fortune30Partners={fortune30Partners}
+              filteredInternalPartners={filteredInternalPartners}
+            />
+          </div>
 
-      <ContentFields
-        summary={summary}
-        setSummary={setSummary}
-        update={update}
-        setUpdate={setUpdate}
-        challenges={challenges}
-        setChallenges={setChallenges}
-        nextSteps={nextSteps}
-        setNextSteps={setNextSteps}
-      />
+          <ContentFields
+            summary={summary}
+            setSummary={setSummary}
+            update={update}
+            setUpdate={setUpdate}
+            challenges={challenges}
+            setChallenges={setChallenges}
+            nextSteps={nextSteps}
+            setNextSteps={setNextSteps}
+          />
+        </div>
+      </ScrollArea>
 
       <Button type="submit" className="w-full bg-white text-black hover:bg-gray-100">
         {initialData ? "Update Sitrep" : "Create Sitrep"}
@@ -154,10 +159,10 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
             <Plus className="h-4 w-4" />
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[600px] w-[95vw] bg-[#1A1F2C] text-white">
+        <DialogContent className="sm:max-w-[600px] w-[95vw] max-h-[90vh] p-6 bg-[#1A1F2C] text-white">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-white">
-              Create New Sitrep
+              {initialData ? "Edit Sitrep" : "Create New Sitrep"}
             </DialogTitle>
           </DialogHeader>
           {formContent}

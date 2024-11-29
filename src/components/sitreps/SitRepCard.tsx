@@ -144,7 +144,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
       </Card>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] w-[95vw] bg-[#1A1F2C] text-white">
+        <DialogContent className="sm:max-w-[600px] w-[95vw] max-h-[90vh] p-6 bg-[#1A1F2C] text-white">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-white">
               Edit Sitrep
