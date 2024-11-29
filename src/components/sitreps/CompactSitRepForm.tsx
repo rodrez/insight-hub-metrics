@@ -19,31 +19,33 @@ import { Plus } from "lucide-react";
 import { DEPARTMENTS } from "@/lib/constants";
 import { SupportingTeamsSelect } from "./SupportingTeamsSelect";
 import { PointsOfContactForm } from "./PointsOfContactForm";
+import { SitRep } from "@/lib/types/sitrep";
 
 interface CompactSitRepFormProps {
   onSubmitSuccess: () => void;
+  initialData?: SitRep;
 }
 
-interface PointOfContact {
-  name: string;
-  email: string;
-  title: string;
-  department: string;
-}
-
-export function CompactSitRepForm({ onSubmitSuccess }: CompactSitRepFormProps) {
+export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRepFormProps) {
   const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [importanceLevel, setImportanceLevel] = useState<"cto" | "svp" | "ceo">("cto");
-  const [keyTeam, setKeyTeam] = useState<string>("none");
-  const [supportingTeams, setSupportingTeams] = useState<string[]>([]);
-  const [pointsOfContact, setPointsOfContact] = useState<PointOfContact[]>([]);
-
-  const { data: teams } = useQuery({
-    queryKey: ['teams'],
-    queryFn: () => db.getAllTeams()
-  });
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [content, setContent] = useState(initialData?.update || "");
+  const [importanceLevel, setImportanceLevel] = useState<"cto" | "svp" | "ceo">(
+    (initialData?.level?.toLowerCase() as "cto" | "svp" | "ceo") || "cto"
+  );
+  const [keyTeam, setKeyTeam] = useState<string>(initialData?.departmentId || "none");
+  const [supportingTeams, setSupportingTeams] = useState<string[]>(initialData?.teams || []);
+  const [pointsOfContact, setPointsOfContact] = useState<PointOfContact[]>(
+    initialData?.pointsOfContact?.map(poc => {
+      const [name, title] = poc.split(" (");
+      return {
+        name,
+        title: title?.replace(")", "") || "",
+        email: "",
+        department: ""
+      };
+    }) || []
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,7 +72,7 @@ export function CompactSitRepForm({ onSubmitSuccess }: CompactSitRepFormProps) {
 
     try {
       await db.addSitRep({
-        id: `sitrep-${Date.now()}`,
+        id: initialData ? initialData.id : `sitrep-${Date.now()}`,
         date: new Date().toISOString(),
         spiId: "temp-spi-id",
         title,
@@ -108,15 +110,19 @@ export function CompactSitRepForm({ onSubmitSuccess }: CompactSitRepFormProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Plus className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
+    <Dialog open={!initialData && open} onOpenChange={setOpen}>
+      {!initialData ? (
+        <DialogTrigger asChild>
+          <Button variant="outline" size="icon">
+            <Plus className="h-4 w-4" />
+          </Button>
+        </DialogTrigger>
+      ) : null}
       <DialogContent className="sm:max-w-[600px] bg-[#1A1F2C] text-white">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-white">Create New Sitrep</DialogTitle>
+          <DialogTitle className="text-xl font-semibold text-white">
+            {initialData ? "Edit Sitrep" : "Create New Sitrep"}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
@@ -191,7 +197,7 @@ export function CompactSitRepForm({ onSubmitSuccess }: CompactSitRepFormProps) {
           </div>
 
           <Button type="submit" className="w-full bg-white text-black hover:bg-gray-100">
-            Create Sitrep
+            {initialData ? "Update Sitrep" : "Create Sitrep"}
           </Button>
         </form>
       </DialogContent>

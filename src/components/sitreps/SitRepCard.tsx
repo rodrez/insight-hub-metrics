@@ -13,7 +13,7 @@ import { TeamBadges } from "./card/TeamBadges";
 import { ContactBadges } from "./card/ContactBadges";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useState } from "react";
-import { SitRepForm } from "./SitRepForm";
+import { CompactSitRepForm } from "./CompactSitRepForm";
 
 interface SitRepCardProps {
   sitrep: SitRep;
@@ -45,7 +45,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
     }
   };
 
-  const handleStatusChange = async (newStatus: string) => {
+  const handleStatusChange = async (newStatus: 'pending-review' | 'ready' | 'submitted') => {
     try {
       await db.updateSitRep(sitrep.id, { ...sitrep, status: newStatus });
       queryClient.invalidateQueries({ queryKey: ['sitreps'] });
@@ -122,15 +122,32 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
                 )}
               </div>
             )}
+
+            <div className="pt-2 space-y-2">
+              <div className="text-sm">
+                <span className="text-gray-400">Importance Level: </span>
+                <span className="text-white">{sitrep.level}</span>
+              </div>
+              <div className="text-sm">
+                <span className="text-gray-400">Key Team: </span>
+                <span className="text-white">{sitrep.departmentId}</span>
+              </div>
+              {sitrep.teams && sitrep.teams.length > 0 && (
+                <div className="text-sm">
+                  <span className="text-gray-400">Supporting Teams: </span>
+                  <span className="text-white">{sitrep.teams.join(", ")}</span>
+                </div>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-3xl">
-          <SitRepForm
+        <DialogContent className="max-w-3xl bg-[#1A1F2C] text-white">
+          <CompactSitRepForm
             initialData={sitrep}
-            onSubmit={() => {
+            onSubmitSuccess={() => {
               setIsEditDialogOpen(false);
               queryClient.invalidateQueries({ queryKey: ['sitreps'] });
             }}
