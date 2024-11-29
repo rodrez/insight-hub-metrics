@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { format, subMonths, isAfter, isBefore, startOfMonth } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, AreaChart, Area, Tooltip, Legend, BarChart, Bar } from "recharts";
+import { ChartContainer } from "@/components/ui/chart";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart, Bar, Tooltip, Legend } from "recharts";
 
 export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endDate?: Date }) {
   const { data: sitreps } = useQuery({
@@ -54,6 +54,17 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
     { level: 'CTO', count: filteredSitreps.filter(s => s.level === 'CTO').length },
   ];
 
+  const chartConfig = {
+    total: {
+      label: "Total SitReps",
+      color: "#3b82f6"
+    },
+    completed: {
+      label: "Submitted SitReps",
+      color: "#22c55e"
+    }
+  };
+
   return (
     <div className="space-y-8">
       <Card>
@@ -62,7 +73,7 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
         </CardHeader>
         <CardContent>
           <div className="aspect-[2/1] w-full">
-            <ChartContainer>
+            <ChartContainer config={chartConfig}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={months}

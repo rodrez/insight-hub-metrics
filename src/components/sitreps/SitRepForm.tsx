@@ -13,7 +13,7 @@ interface SitRepFormProps {
 }
 
 export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [update, setUpdate] = useState("");
@@ -24,6 +24,7 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
   const [selectedDepartment, setSelectedDepartment] = useState<string>("none");
   const [selectedPartner, setSelectedPartner] = useState<string>("none");
   const [status, setStatus] = useState<'pending-review' | 'ready' | 'submitted'>('pending-review');
+  const [level, setLevel] = useState<"CEO" | "SVP" | "CTO">("SVP");
 
   const { data: projects } = useQuery({
     queryKey: ['projects'],
@@ -61,6 +62,7 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
         challenges,
         nextSteps,
         status,
+        level,
         summary,
         projectId: selectedProject !== "none" ? selectedProject : undefined,
         departmentId: selectedDepartment !== "none" ? selectedDepartment : "default"
@@ -82,6 +84,7 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
       setSelectedDepartment("none");
       setSelectedPartner("none");
       setStatus('pending-review');
+      setLevel("SVP");
       
       onSubmitSuccess();
     } catch (error) {
@@ -103,6 +106,8 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
           setTitle={setTitle}
           status={status}
           setStatus={setStatus}
+          level={level}
+          setLevel={setLevel}
         />
         
         <RelationshipFields
