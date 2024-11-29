@@ -10,25 +10,25 @@ import { GeneratedCounts } from "./sample-data/GeneratedCounts";
 
 interface DataCounts {
   projects: number;
-  spis: number;
-  objectives: number;
-  sitreps: number;
   fortune30: number;
   internalPartners: number;
   smePartners: number;
+  spis: number;
+  objectives: number;
+  sitreps: number;
 }
 
 export function SampleDataSettings() {
   const [isClearing, setIsClearing] = useState(false);
   const [isPopulating, setIsPopulating] = useState(false);
   const [quantities, setQuantities] = useState({
-    projects: 10,
-    spis: 10,
-    objectives: 5,
-    sitreps: 10,
-    fortune30: 6,
+    projects: 5,
+    fortune30: 5,
     internalPartners: 20,
-    smePartners: 10
+    smePartners: 10,
+    spis: 5,
+    objectives: 3,
+    sitreps: 5
   });
   const [generatedCounts, setGeneratedCounts] = useState<DataCounts | null>(null);
 
