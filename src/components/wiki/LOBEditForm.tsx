@@ -20,7 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { ContactPerson } from "@/lib/types/pointOfContact";
+import { PointOfContact } from "@/lib/types/pointOfContact";
 
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required"),

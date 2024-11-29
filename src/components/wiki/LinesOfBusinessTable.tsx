@@ -10,7 +10,7 @@ import {
 import { LOBEditForm } from "./LOBEditForm";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { ContactPerson } from "@/lib/types/pointOfContact";
+import { PointOfContact } from "@/lib/types/pointOfContact";
 
 type LOB = {
   name: string;
@@ -21,7 +21,7 @@ type BusinessCategory = {
   name: string;
   description: string;
   lobs: LOB[];
-  contacts: ContactPerson[];
+  contacts: PointOfContact[];
 };
 
 // Initial business categories data
@@ -36,9 +36,9 @@ const initialBusinessCategories: BusinessCategory[] = [
       { name: "UAV Systems", department: "helicopters" }
     ],
     contacts: [
-      { name: "John Doe", role: "Project Manager", email: "john.doe@example.com", phone: "123-456-7890" },
-      { name: "Jane Smith", role: "Lead Engineer", email: "jane.smith@example.com", phone: "098-765-4321" },
-      { name: "Alice Johnson", role: "Quality Assurance", email: "alice.johnson@example.com", phone: "456-123-7890" }
+      { name: "John Doe", title: "Project Manager", email: "john.doe@example.com", department: "Engineering" },
+      { name: "Jane Smith", title: "Lead Engineer", email: "jane.smith@example.com", department: "R&D" },
+      { name: "Alice Johnson", title: "Quality Assurance", email: "alice.johnson@example.com", department: "QA" }
     ]
   },
   {
@@ -50,9 +50,9 @@ const initialBusinessCategories: BusinessCategory[] = [
       { name: "Port Solutions", department: "energy" }
     ],
     contacts: [
-      { name: "Robert Brown", role: "Naval Architect", email: "robert.brown@example.com", phone: "321-654-0987" },
-      { name: "Emily Davis", role: "Operations Manager", email: "emily.davis@example.com", phone: "654-321-9870" },
-      { name: "Michael Taylor", role: "Research Scientist", email: "michael.taylor@example.com", phone: "789-123-4560" }
+      { name: "Robert Brown", title: "Naval Architect", email: "robert.brown@example.com", department: "Naval" },
+      { name: "Emily Davis", title: "Operations Manager", email: "emily.davis@example.com", department: "Operations" },
+      { name: "Michael Taylor", title: "Research Scientist", email: "michael.taylor@example.com", department: "Research" }
     ]
   }
 ];
@@ -115,7 +115,7 @@ export function LinesOfBusinessTable() {
                             <p className="font-medium">Points of Contact:</p>
                             {category.contacts.map((contact, i) => (
                               <div key={i} className="text-sm">
-                                <p>{contact.name} - {contact.role}</p>
+                                <p>{contact.name} - {contact.title}</p>
                                 <p className="text-xs text-muted-foreground">{contact.email}</p>
                               </div>
                             ))}
