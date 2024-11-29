@@ -68,33 +68,47 @@ const generateOptimalLengthSummary = (topic: string): string => {
 };
 
 export const generateSampleSPIs = (projectIds: string[] = []): SPI[] => {
+  if (projectIds.length === 0) {
+    console.warn('No project IDs provided for SPI generation');
+    return [];
+  }
+
+  console.log('Generating SPIs with project IDs:', projectIds);
   const spis: SPI[] = [];
 
-  for (let i = 0; i < spiNames.length; i++) {
-    const isProjectLinked = i < projectIds.length;
+  // Generate one SPI per project, ensuring valid project references
+  projectIds.forEach((projectId, index) => {
+    if (index >= spiNames.length) return; // Don't exceed available SPI names
+
     const completionDate = addDays(new Date(), 30 + Math.floor(Math.random() * 180));
     const status = Math.random() > 0.7 ? 'delayed' : 'on-track';
     const isCompleted = Math.random() > 0.8;
 
     spis.push({
-      id: `spi-${i + 1}`,
-      name: spiNames[i],
-      deliverable: spiDeliverables[i],
-      details: `Detailed implementation plan for ${spiNames[i].toLowerCase()}`,
+      id: `spi-${index + 1}`,
+      name: spiNames[index],
+      deliverable: spiDeliverables[index],
+      details: `Detailed implementation plan for ${spiNames[index].toLowerCase()}`,
       expectedCompletionDate: completionDate.toISOString(),
       actualCompletionDate: isCompleted ? subDays(completionDate, Math.floor(Math.random() * 30)).toISOString() : undefined,
       status: isCompleted ? 'completed' : status,
-      projectId: isProjectLinked ? projectIds[i] : undefined,
+      projectId: projectId, // Use the actual project ID
       departmentId: ['engineering', 'techlab', 'it', 'space', 'energy'][Math.floor(Math.random() * 5)],
       sitrepIds: [],
       createdAt: subDays(new Date(), Math.floor(Math.random() * 60)).toISOString()
     });
-  }
+  });
 
+  console.log('Generated SPIs:', spis.map(spi => ({ id: spi.id, projectId: spi.projectId })));
   return spis;
 };
 
 export const generateSampleSitReps = (spis: SPI[]): SitRep[] => {
+  if (spis.length === 0) {
+    console.warn('No SPIs provided for SitRep generation');
+    return [];
+  }
+
   const sitreps: SitRep[] = [];
   const sitrepTitles = [
     "2024 Cloud Migration Strategy: Key Milestones and Implementation Timeline",
@@ -109,14 +123,15 @@ export const generateSampleSitReps = (spis: SPI[]): SitRep[] => {
     "Performance Optimization Initiative: Technical Deep Dive and Metrics"
   ];
 
-  for (let i = 0; i < 10; i++) {
-    const spi = spis[i % spis.length];
-    const date = subDays(new Date(), i * 3).toISOString();
-    const title = sitrepTitles[i];
+  spis.forEach((spi, index) => {
+    if (index >= sitrepTitles.length) return; // Don't exceed available titles
+
+    const date = subDays(new Date(), index * 3).toISOString();
+    const title = sitrepTitles[index];
     const summary = generateOptimalLengthSummary(title.split(':')[0]);
     
     const sitrep: SitRep = {
-      id: `sitrep-${i + 1}`,
+      id: `sitrep-${index + 1}`,
       title,
       date,
       spiId: spi.id,
@@ -130,7 +145,8 @@ export const generateSampleSitReps = (spis: SPI[]): SitRep[] => {
     };
     
     sitreps.push(sitrep);
-  }
+  });
 
+  console.log('Generated SitReps:', sitreps.map(sitrep => ({ id: sitrep.id, spiId: sitrep.spiId })));
   return sitreps;
 };
