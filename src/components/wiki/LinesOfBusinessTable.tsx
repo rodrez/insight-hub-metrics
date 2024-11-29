@@ -6,8 +6,9 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { POCEditDialog } from "./POCEditDialog";
+import { useState } from "react";
 
-// Define POC information for each business category
 const businessCategories = [
   {
     name: "Aircraft",
@@ -111,6 +112,16 @@ const businessCategories = [
 ];
 
 export function LinesOfBusinessTable() {
+  const [categories, setCategories] = useState(businessCategories);
+
+  const handleContactsUpdate = (categoryIndex: number, newContacts: any[]) => {
+    setCategories(prev => prev.map((category, index) => 
+      index === categoryIndex 
+        ? { ...category, contacts: newContacts }
+        : category
+    ));
+  };
+
   return (
     <Card className="p-6 relative">
       <div className="space-y-6">
@@ -119,11 +130,18 @@ export function LinesOfBusinessTable() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-6">
-          {businessCategories.map((category) => (
+          {categories.map((category, categoryIndex) => (
             <div key={category.name} className="space-y-3">
-              <h3 className="font-medium text-lg border-b pb-2 flex items-center gap-2">
-                {category.name}
-                <Info className="h-4 w-4 text-muted-foreground" />
+              <h3 className="font-medium text-lg border-b pb-2 flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  {category.name}
+                  <Info className="h-4 w-4 text-muted-foreground" />
+                </span>
+                <POCEditDialog
+                  categoryName={category.name}
+                  contacts={category.contacts}
+                  onSave={(newContacts) => handleContactsUpdate(categoryIndex, newContacts)}
+                />
               </h3>
               <div className="space-y-2">
                 {category.lobs.map((lob) => {
