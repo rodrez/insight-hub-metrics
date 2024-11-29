@@ -1,101 +1,37 @@
-import { Project, Department } from '@/lib/types';
-import { TechDomain } from '@/lib/types/techDomain';
-import { Collaborator } from '@/lib/types/collaboration';
+import { Project } from '@/lib/types';
 import { defaultTechDomains } from '@/lib/types/techDomain';
-import { DataQuantities } from '@/lib/types/data';
+import { DataQuantities } from '@/components/data/SampleData';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiGenerator';
 
-const projectNames = [
-  "Next-Gen AI Integration",
-  "Sustainable Aviation",
-  "Cloud Infrastructure Upgrade",
-  "Quantum Computing Research",
-  "Green Energy Initiative",
-  "Digital Transformation",
-  "Smart Manufacturing",
-  "Autonomous Systems",
-  "Data Analytics Platform",
-  "Cybersecurity Enhancement"
-];
-
-const generateNABC = (deptName: string, projectName: string) => ({
-  needs: `Addressing critical business needs in ${deptName.toLowerCase()} through ${projectName.toLowerCase()} implementation.`,
-  approach: "Implementing cutting-edge technologies and innovative solutions.",
-  benefits: "20% reduction in operational costs, 15% decrease in maintenance costs.",
-  competition: "Leading the industry with our integrated approach."
+const generateBasicProject = (index: number, deptId: string): Project => ({
+  id: `${deptId}-project-${index + 1}`,
+  name: `Project ${index + 1}`,
+  departmentId: deptId,
+  poc: `POC ${index + 1}`,
+  pocDepartment: deptId,
+  techLead: `Tech Lead ${index + 1}`,
+  techLeadDepartment: deptId,
+  budget: 1000000,
+  spent: 500000,
+  status: "active",
+  collaborators: [],
+  internalPartners: [],
+  techDomainId: defaultTechDomains[0].id,
+  nabc: {
+    needs: `Needs for Project ${index + 1}`,
+    approach: `Approach for Project ${index + 1}`,
+    benefits: `Benefits for Project ${index + 1}`,
+    competition: `Competition analysis for Project ${index + 1}`
+  },
+  milestones: [],
+  metrics: [],
+  isSampleData: true
 });
 
-const generateMilestones = (projectId: string) => [
-  {
-    id: `${projectId}-m1`,
-    title: "Requirements & Planning",
-    description: "Define technical specifications and project scope",
-    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-    status: "completed" as const,
-    progress: 100
-  },
-  {
-    id: `${projectId}-m2`,
-    title: "Implementation",
-    description: "Development and integration of core systems",
-    dueDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
-    status: "pending" as const,
-    progress: 0
-  }
-];
-
-const generateMetrics = (projectId: string, spent: number, budget: number) => [
-  {
-    id: `${projectId}-metric-1`,
-    name: "Development Progress",
-    value: Math.round(Math.random() * 100),
-    target: 100,
-    unit: "%",
-    trend: "up" as const,
-    description: "Overall project completion status"
-  },
-  {
-    id: `${projectId}-metric-2`,
-    name: "Budget Utilization",
-    value: Math.round((spent / budget) * 100),
-    target: 100,
-    unit: "%",
-    trend: "stable" as const,
-    description: "Current budget consumption vs allocation"
-  }
-];
-
 export const generateSampleProjects = async (quantities: DataQuantities) => {
-  const projects: Project[] = [];
-  const departments = ['engineering', 'techlab', 'it', 'space', 'energy'];
-
-  for (let i = 0; i < quantities.projects; i++) {
-    const deptId = departments[i % departments.length];
-    const budget = 1000000 * (Math.random() * 0.5 + 0.75);
-    const spent = budget * (Math.random() * 0.7 + 0.1);
-
-    const project: Project = {
-      id: `${deptId}-project-${i + 1}`,
-      name: projectNames[i % projectNames.length],
-      departmentId: deptId,
-      poc: `Sample POC ${i + 1}`,
-      pocDepartment: deptId,
-      techLead: `Sample Tech Lead ${i + 1}`,
-      techLeadDepartment: deptId,
-      budget,
-      spent,
-      status: "active",
-      collaborators: [],
-      internalPartners: [],
-      techDomainId: defaultTechDomains[i % defaultTechDomains.length].id,
-      nabc: generateNABC(deptId, projectNames[i % projectNames.length]),
-      milestones: generateMilestones(`${deptId}-project-${i + 1}`),
-      metrics: generateMetrics(`${deptId}-project-${i + 1}`, spent, budget),
-      isSampleData: true
-    };
-
-    projects.push(project);
-  }
+  const projects = Array.from({ length: quantities.projects }, (_, i) => 
+    generateBasicProject(i, ['engineering', 'techlab', 'it'][i % 3])
+  );
 
   const spis = generateSampleSPIs(projects.map(p => p.id), quantities.spis);
   const objectives = generateSampleObjectives(quantities.objectives);

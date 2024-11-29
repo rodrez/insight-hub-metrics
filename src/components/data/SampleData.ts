@@ -1,13 +1,20 @@
-import { generateFortune30Partners } from '@/lib/services/data/fortune30Partners';
-import { generateInternalPartners } from '@/lib/services/data/internalPartners';
+import { generateFortune30Partners } from '@/lib/services/data/generators/fortune30Generator';
+import { generateInternalPartners } from '@/lib/services/data/generators/internalPartnersGenerator';
 import { Project, Collaborator } from '@/lib/types';
 import { SPI } from '@/lib/types/spi';
 import { Objective } from '@/lib/types/objective';
 import { SitRep } from '@/lib/types/sitrep';
-import { DataQuantities } from '@/lib/types/data';
-import { generateSampleProjects as generateProjects } from '@/lib/services/sampleData/sampleProjectGenerator';
-import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from '@/lib/services/sampleData/spiData';
 import { validateDataQuantities, generateDataWithProgress } from '@/lib/services/data/utils/dataGenerationUtils';
+
+export interface DataQuantities {
+  projects: number;
+  spis: number;
+  objectives: number;
+  sitreps: number;
+  fortune30: number;
+  internalPartners: number;
+  smePartners: number;
+}
 
 export interface GeneratedData {
   projects: Project[];
@@ -100,7 +107,7 @@ export const generateSampleProjects = async (quantities: DataQuantities): Promis
     const internalPartners = allInternalPartners.slice(0, quantities.internalPartners);
     console.log('Generated internal partners:', internalPartners.length);
     
-    const result = await generateProjects(quantities);
+    const result = await generateSampleProjects(quantities);
     const projects = result.projects.slice(0, quantities.projects);
     console.log('Generated and filtered projects:', projects.length);
     
@@ -127,4 +134,3 @@ export const generateSampleProjects = async (quantities: DataQuantities): Promis
     return generatedData;
   }, "Sample Projects");
 };
-
