@@ -6,6 +6,8 @@ import { WorkstreamCard } from "./shared/WorkstreamCard";
 import { ContactInfo } from "./shared/ContactInfo";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
+import { useNavigate } from "react-router-dom";
+import { scrollToProject } from "@/utils/scrollUtils";
 import {
   Tooltip,
   TooltipContent,
@@ -20,6 +22,8 @@ type SMEListProps = {
 };
 
 export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
+  const navigate = useNavigate();
+  
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString();
   };
@@ -33,6 +37,10 @@ export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
     return allProjects.filter(project => 
       project.collaborators?.some(c => c.id === collaborator.id && c.type === 'sme')
     );
+  };
+
+  const handleProjectClick = (projectId: string) => {
+    navigate('/', { state: { scrollToProject: projectId } });
   };
 
   return (
@@ -102,7 +110,11 @@ export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
                   <h4 className="font-medium mb-2">Associated Projects</h4>
                   <div className="space-y-2">
                     {getAssociatedProjects(collaborator).map(project => (
-                      <div key={project.id} className="p-2 border rounded-lg">
+                      <div 
+                        key={project.id} 
+                        className="p-2 border rounded-lg cursor-pointer hover:bg-accent transition-colors"
+                        onClick={() => handleProjectClick(project.id)}
+                      >
                         <p className="font-medium">{project.name}</p>
                         <p className="text-sm text-muted-foreground">
                           {project.nabc?.needs || "No description available"}
