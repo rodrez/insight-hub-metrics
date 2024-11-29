@@ -1,6 +1,6 @@
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Button } from "@/components/ui/button";
-import { Edit2, Info, Plus, Trash2 } from "lucide-react";
+import { Edit2, Info, Plus } from "lucide-react";
 import { DEPARTMENTS } from "@/lib/constants";
 import {
   Dialog,
@@ -13,7 +13,9 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { toast } from "../ui/use-toast";
-import { Contact } from "./data/businessCategories";
+import { Contact } from "./types/contact";
+import { ContactForm } from "./components/ContactForm";
+import { ContactDisplay } from "./components/ContactDisplay";
 
 interface LOBCardProps {
   lob: { name: string; department: string; };
@@ -34,7 +36,8 @@ export function LOBCard({ lob, category, onUpdate }: LOBCardProps) {
     name: '',
     role: '',
     email: '',
-    phone: ''
+    phone: '',
+    notes: ''
   });
   
   const deptColor = DEPARTMENTS.find(d => d.id === lob.department)?.color;
@@ -77,7 +80,8 @@ export function LOBCard({ lob, category, onUpdate }: LOBCardProps) {
       name: '',
       role: '',
       email: '',
-      phone: ''
+      phone: '',
+      notes: ''
     });
   };
 
@@ -120,7 +124,7 @@ export function LOBCard({ lob, category, onUpdate }: LOBCardProps) {
             </div>
             <div>
               <h5 className="font-medium mb-2">Contacts</h5>
-              {contacts.map((contact, index) => (
+              {contacts.map((contact) => (
                 <div key={contact.email} className="space-y-1">
                   <p className="font-medium text-sm">{contact.name}</p>
                   <p className="text-sm text-muted-foreground">{contact.role}</p>
@@ -130,7 +134,9 @@ export function LOBCard({ lob, category, onUpdate }: LOBCardProps) {
                     </a>
                   </div>
                   <p className="text-sm text-muted-foreground">{contact.phone}</p>
-                  {index < contacts.length - 1 && <hr className="my-2" />}
+                  {contact.notes && (
+                    <p className="text-sm text-muted-foreground italic mt-1">{contact.notes}</p>
+                  )}
                 </div>
               ))}
             </div>
@@ -178,62 +184,19 @@ export function LOBCard({ lob, category, onUpdate }: LOBCardProps) {
               </div>
 
               <div className="space-y-4">
-                {contacts.map((contact, index) => (
-                  <div key={contact.email} className="p-4 border rounded-lg space-y-2">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1">
-                        <p className="font-medium">{contact.name}</p>
-                        <p className="text-sm text-muted-foreground">{contact.role}</p>
-                        <p className="text-sm">{contact.email}</p>
-                        {contact.phone && <p className="text-sm text-muted-foreground">{contact.phone}</p>}
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteContact(contact.email)}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </div>
+                {contacts.map((contact) => (
+                  <ContactDisplay
+                    key={contact.email}
+                    contact={contact}
+                    onDelete={handleDeleteContact}
+                  />
                 ))}
 
                 <div className="border-t pt-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="newContactName">Name</Label>
-                      <Input
-                        id="newContactName"
-                        value={newContact.name}
-                        onChange={(e) => setNewContact({ ...newContact, name: e.target.value })}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="newContactRole">Role</Label>
-                      <Input
-                        id="newContactRole"
-                        value={newContact.role}
-                        onChange={(e) => setNewContact({ ...newContact, role: e.target.value })}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="newContactEmail">Email</Label>
-                      <Input
-                        id="newContactEmail"
-                        type="email"
-                        value={newContact.email}
-                        onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="newContactPhone">Phone</Label>
-                      <Input
-                        id="newContactPhone"
-                        value={newContact.phone}
-                        onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
-                      />
-                    </div>
-                  </div>
+                  <ContactForm
+                    contact={newContact}
+                    onChange={setNewContact}
+                  />
                 </div>
               </div>
             </div>
