@@ -1,6 +1,5 @@
 import { CompactSitRepForm } from "@/components/sitreps/CompactSitRepForm";
 import { SitRepList } from "@/components/sitreps/SitRepList";
-import { SitRepStats } from "@/components/sitreps/SitRepStats";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
 import { useState } from "react";
@@ -23,8 +22,6 @@ export default function SitReps() {
           <CompactSitRepForm onSubmitSuccess={() => {}} />
         </div>
       </div>
-
-      <SitRepStats />
 
       <div>
         <h2 className="text-2xl font-semibold mb-4">Recent Sitreps</h2>
