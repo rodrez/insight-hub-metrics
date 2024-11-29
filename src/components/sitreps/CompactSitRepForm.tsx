@@ -21,7 +21,7 @@ interface CompactSitRepFormProps {
 
 export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRepFormProps) {
   const [open, setOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+  const [selectedDate, setSelectedDate] = useState<Date>(
     initialData?.date ? new Date(initialData.date) : new Date()
   );
   const [title, setTitle] = useState(initialData?.title || "");
@@ -35,18 +35,20 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
   const [selectedDepartment, setSelectedDepartment] = useState<string>(initialData?.departmentId || "none");
   const [supportingTeams, setSupportingTeams] = useState<string[]>(initialData?.teams || []);
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [status, setStatus] = useState<'pending-review' | 'ready' | 'submitted'>(initialData?.status || 'pending-review');
+  const [level, setLevel] = useState<"CEO" | "SVP" | "CTO">(initialData?.level || "SVP");
 
-  const { data: projects } = useQuery({
+  const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
     queryFn: () => db.getAllProjects()
   });
 
-  const { data: collaborators } = useQuery({
+  const { data: collaborators = [] } = useQuery({
     queryKey: ['collaborators'],
     queryFn: () => db.getAllCollaborators()
   });
 
-  const fortune30Partners = collaborators?.filter(c => c.type === 'fortune30') || [];
+  const fortune30Partners = collaborators.filter(c => c.type === 'fortune30') || [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,8 +71,8 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
         update,
         challenges,
         nextSteps,
-        status: initialData?.status || 'pending-review',
-        level: initialData?.level || "SVP",
+        status,
+        level,
         summary,
         projectId: selectedProject !== "none" ? selectedProject : undefined,
         departmentId: selectedDepartment !== "none" ? selectedDepartment : undefined,
@@ -116,6 +118,10 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
             setSelectedDate={setSelectedDate}
             title={title}
             setTitle={setTitle}
+            status={status}
+            setStatus={setStatus}
+            level={level}
+            setLevel={setLevel}
           />
           
           <DepartmentFields
@@ -132,7 +138,7 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
             setSelectedFortune30={setSelectedFortune30}
             selectedSME={selectedSME}
             setSelectedSME={setSelectedSME}
-            projects={projects || []}
+            projects={projects}
             fortune30Partners={fortune30Partners}
           />
 
