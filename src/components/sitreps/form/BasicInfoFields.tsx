@@ -13,8 +13,8 @@ interface BasicInfoFieldsProps {
   setSelectedDate: (date: Date | undefined) => void;
   title: string;
   setTitle: (title: string) => void;
-  status: 'on-track' | 'at-risk';
-  setStatus: (status: 'on-track' | 'at-risk') => void;
+  status: 'pending-review' | 'ready' | 'submitted';
+  setStatus: (status: 'pending-review' | 'ready' | 'submitted') => void;
 }
 
 export function BasicInfoFields({
@@ -48,13 +48,14 @@ export function BasicInfoFields({
       </div>
       <div>
         <label className="block text-sm font-medium mb-2">Status</label>
-        <Select value={status} onValueChange={(value: 'on-track' | 'at-risk') => setStatus(value)}>
+        <Select value={status} onValueChange={(value: 'pending-review' | 'ready' | 'submitted') => setStatus(value)}>
           <SelectTrigger>
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="on-track">On Track</SelectItem>
-            <SelectItem value="at-risk">At Risk</SelectItem>
+            <SelectItem value="pending-review">Pending Review</SelectItem>
+            <SelectItem value="ready">Ready</SelectItem>
+            <SelectItem value="submitted">Submitted</SelectItem>
           </SelectContent>
         </Select>
       </div>
