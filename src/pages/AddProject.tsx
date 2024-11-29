@@ -14,9 +14,9 @@ export default function AddProject() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [poc, setPoc] = useState("");
-  const [pocDepartment, setPocDepartment] = useState(DEPARTMENTS[0].id);
+  const [pocDepartment, setPocDepartment] = useState("");
   const [techLead, setTechLead] = useState("");
-  const [techLeadDepartment, setTechLeadDepartment] = useState(DEPARTMENTS[0].id);
+  const [techLeadDepartment, setTechLeadDepartment] = useState("");
   const [budget, setBudget] = useState("");
   const [techDomainId, setTechDomainId] = useState("");
 
