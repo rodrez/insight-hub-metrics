@@ -2,7 +2,7 @@ import { DEPARTMENTS } from '@/lib/constants';
 import { defaultTechDomains } from '@/lib/types/techDomain';
 import { generateProjectData } from './projectDataGenerator';
 import { Collaborator } from '@/lib/types/collaboration';
-import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from '@/lib/services/sampleData/spiData';
+import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from '../sampleData/spiData';
 import { DataQuantities } from '@/lib/types/data';
 
 export const generateSampleData = async (internalPartners: Collaborator[], quantities: DataQuantities) => {
