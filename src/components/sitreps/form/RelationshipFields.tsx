@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Project } from "@/lib/types";
 import { Collaborator } from "@/lib/types/collaboration";
 
-interface RelationshipFieldsProps {
+export interface RelationshipFieldsProps {
   selectedProject: string;
   setSelectedProject: (id: string) => void;
   selectedFortune30: string;

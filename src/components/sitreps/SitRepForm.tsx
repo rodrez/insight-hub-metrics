@@ -38,9 +38,6 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
   });
 
   const fortune30Partners = collaborators?.filter(c => c.type === 'fortune30') || [];
-  const filteredInternalPartners = internalPartners.filter(
-    p => p.department === selectedDepartment
-  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,13 +118,8 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
           setSelectedFortune30={setSelectedFortune30}
           selectedSME={selectedSME}
           setSelectedSME={setSelectedSME}
-          selectedDepartment={selectedDepartment}
-          setSelectedDepartment={setSelectedDepartment}
-          selectedPartner={selectedPartner}
-          setSelectedPartner={setSelectedPartner}
           projects={projects || []}
           fortune30Partners={fortune30Partners}
-          filteredInternalPartners={filteredInternalPartners}
         />
       </div>
 
