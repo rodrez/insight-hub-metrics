@@ -6,6 +6,7 @@ import { Objective } from '@/lib/types/objective';
 import { SitRep } from '@/lib/types/sitrep';
 import { validateDataQuantities, generateDataWithProgress } from '@/lib/services/data/utils/dataGenerationUtils';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from '@/lib/services/data/generators/spiGenerator';
+import { toast } from "@/components/ui/use-toast";
 
 export interface DataQuantities {
   projects: number;
@@ -33,65 +34,60 @@ export const getSampleInternalPartners = async (): Promise<Collaborator[]> => {
   );
 };
 
+const validateProjectReferences = (data: GeneratedData): boolean => {
+  const projectIds = new Set(data.projects.map(p => p.id));
+  const invalidProjects = data.projects.filter(p => 
+    !p.departmentId || !p.poc || !p.techLead
+  );
+
+  if (invalidProjects.length > 0) {
+    console.error('Invalid projects found:', invalidProjects);
+    toast({
+      title: "Validation Error",
+      description: "Some projects are missing required fields",
+      variant: "destructive",
+    });
+    return false;
+  }
+
+  return true;
+};
+
+const validateSPIReferences = (data: GeneratedData): boolean => {
+  const projectIds = new Set(data.projects.map(p => p.id));
+  const invalidSPIs = data.spis.filter(spi => {
+    if (!spi.projectId) return false;
+    return !projectIds.has(spi.projectId);
+  });
+
+  if (invalidSPIs.length > 0) {
+    console.error('Invalid SPI references found:', invalidSPIs);
+    toast({
+      title: "Validation Error",
+      description: "Some SPIs reference non-existent projects",
+      variant: "destructive",
+    });
+    return false;
+  }
+
+  return true;
+};
+
 export const validateDataRelationships = (data: GeneratedData): boolean => {
   console.log('Starting detailed data relationship validation...');
-  console.log('Projects count:', data.projects.length);
-  console.log('SPIs count:', data.spis.length);
-  console.log('Objectives count:', data.objectives.length);
-  console.log('SitReps count:', data.sitreps.length);
   
-  const projectIds = new Set(data.projects.map(p => p.id));
-  const spiIds = new Set(data.spis.map(s => s.id));
+  const validations = [
+    validateProjectReferences(data),
+    validateSPIReferences(data),
+  ];
+
+  const isValid = validations.every(result => result === true);
   
-  console.log('\nValidating Project-SPI relationships...');
-  const invalidSPIs = data.spis.filter(spi => {
-    if (!spi.projectId) return false; // Skip if projectId is undefined (valid case)
-    const hasValidProject = projectIds.has(spi.projectId);
-    if (!hasValidProject) {
-      console.error(`SPI ${spi.id} references non-existent project: ${spi.projectId}`);
-      console.log('Available project IDs:', Array.from(projectIds));
-    }
-    return !hasValidProject;
-  });
-
-  console.log('\nValidating SPI-SitRep relationships...');
-  const invalidSitReps = data.sitreps.filter(sitrep => {
-    const hasValidSPI = spiIds.has(sitrep.spiId);
-    if (!hasValidSPI) {
-      console.error(`SitRep ${sitrep.id} references non-existent SPI: ${sitrep.spiId}`);
-      console.log('Available SPI IDs:', Array.from(spiIds));
-    }
-    return !hasValidSPI;
-  });
-
-  console.log('\nValidating objectives...');
-  const invalidObjectives = data.objectives.filter(objective => {
-    const isValid = objective.id && objective.initiative && objective.desiredOutcome;
-    if (!isValid) {
-      console.error('Invalid objective found:', objective);
-    }
-    return !isValid;
-  });
-
-  const validationResults = {
-    validSPIs: invalidSPIs.length === 0,
-    validSitReps: invalidSitReps.length === 0,
-    validObjectives: invalidObjectives.length === 0
-  };
-
-  console.log('\nValidation Results:', validationResults);
-  console.log('Invalid SPIs count:', invalidSPIs.length);
-  console.log('Invalid SitReps count:', invalidSitReps.length);
-  console.log('Invalid Objectives count:', invalidObjectives.length);
-
-  const isValid = Object.values(validationResults).every(result => result === true);
-  
-  if (!isValid) {
-    console.error('\nValidation failed. Sample data dump:');
-    console.log('First project:', data.projects[0]);
-    console.log('First SPI:', data.spis[0]);
-    console.log('First objective:', data.objectives[0]);
-    console.log('First sitRep:', data.sitreps[0]);
+  if (isValid) {
+    toast({
+      title: "Success",
+      description: "Data validation passed successfully",
+    });
   }
 
   return isValid;
@@ -102,24 +98,14 @@ export const generateSampleProjects = async (quantities: DataQuantities): Promis
     console.log('Starting sample project generation with quantities:', quantities);
     
     const fortune30 = sampleFortune30.slice(0, quantities.fortune30);
-    console.log('Generated Fortune 30 partners:', fortune30.length);
-    
     const allInternalPartners = await generateInternalPartners();
     const internalPartners = allInternalPartners.slice(0, quantities.internalPartners);
-    console.log('Generated internal partners:', internalPartners.length);
     
     const result = await generateSampleProjects(quantities);
     const projects = result.projects.slice(0, quantities.projects);
-    console.log('Generated and filtered projects:', projects.length);
-    
     const spis = generateSampleSPIs(projects.map(p => p.id), quantities.spis);
-    console.log('Generated and filtered SPIs:', spis.length);
-    
     const objectives = generateSampleObjectives(quantities.objectives);
-    console.log('Generated and filtered objectives:', objectives.length);
-    
     const sitreps = generateSampleSitReps(spis, quantities.sitreps);
-    console.log('Generated and filtered sitreps:', sitreps.length);
 
     const generatedData = {
       projects,
