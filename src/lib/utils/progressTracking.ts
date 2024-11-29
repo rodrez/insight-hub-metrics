@@ -9,9 +9,6 @@ export interface ProgressStep {
 
 export class ProgressTracker {
   private steps: Map<string, ProgressStep>;
-  private updateInterval: number | null = null;
-  private lastToastTime: number = 0;
-  private readonly TOAST_THROTTLE = 1000; // Minimum time between toasts in ms
 
   constructor() {
     this.steps = new Map();
@@ -24,7 +21,13 @@ export class ProgressTracker {
       current: 0, 
       status: 'pending' 
     });
-    this.startProgressUpdates();
+    
+    // Show initial toast when starting data generation
+    toast({
+      title: "Generating Sample Data",
+      description: "Please wait while the database is being populated...",
+      duration: 5000,
+    });
   }
 
   updateProgress(stepName: string, current: number) {
@@ -32,7 +35,18 @@ export class ProgressTracker {
     if (step) {
       step.current = current;
       step.status = current === step.total ? 'completed' : 'in-progress';
-      this.showProgress();
+      
+      // Check if all steps are completed
+      const allCompleted = Array.from(this.steps.values())
+        .every(step => step.status === 'completed' || step.status === 'error');
+        
+      if (allCompleted) {
+        toast({
+          title: "Success",
+          description: "Sample data generation completed",
+          duration: 3000,
+        });
+      }
     }
   }
 
@@ -40,67 +54,16 @@ export class ProgressTracker {
     const step = this.steps.get(stepName);
     if (step) {
       step.status = 'error';
-      this.showProgress();
-    }
-  }
-
-  private startProgressUpdates() {
-    if (this.updateInterval === null) {
-      this.updateInterval = window.setInterval(() => {
-        this.showProgress();
-      }, 2000) as unknown as number; // Increased interval to 2 seconds
-    }
-  }
-
-  private stopProgressUpdates() {
-    if (this.updateInterval !== null) {
-      window.clearInterval(this.updateInterval);
-      this.updateInterval = null;
-    }
-  }
-
-  private shouldShowToast(): boolean {
-    const now = Date.now();
-    if (now - this.lastToastTime >= this.TOAST_THROTTLE) {
-      this.lastToastTime = now;
-      return true;
-    }
-    return false;
-  }
-
-  private showProgress() {
-    if (!this.shouldShowToast()) {
-      return;
-    }
-
-    const progressLines = Array.from(this.steps.values())
-      .map(step => {
-        const percentage = Math.round((step.current / step.total) * 100);
-        const status = step.status === 'error' ? '❌' : 
-                      step.status === 'completed' ? '✅' : 
-                      step.status === 'in-progress' ? '⏳' : '⏳';
-        return `${status} ${step.name}: ${percentage}%`;
-      })
-      .join('\n');
-
-    const allCompleted = Array.from(this.steps.values())
-      .every(step => step.status === 'completed' || step.status === 'error');
-
-    toast({
-      title: "Generating Sample Data",
-      description: progressLines,
-      duration: allCompleted ? 3000 : 5000,
-    });
-
-    if (allCompleted) {
-      this.stopProgressUpdates();
+      toast({
+        title: "Error",
+        description: `Error generating ${stepName}`,
+        variant: "destructive",
+      });
     }
   }
 
   reset() {
     this.steps.clear();
-    this.stopProgressUpdates();
-    this.lastToastTime = 0;
   }
 }
 
