@@ -80,7 +80,7 @@ export function CollaborationFormFields({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <BasicInfoFields form={form} departmentId={departmentId} />
-        <ContactFields form={form} />
+        <ContactFields form={form} index={0} />
         
         {collaborationType === 'fortune30' && (
           <AgreementFields form={form} />
