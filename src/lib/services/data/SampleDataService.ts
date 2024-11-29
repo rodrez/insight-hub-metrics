@@ -1,11 +1,13 @@
 import { Project, Collaborator } from '@/lib/types';
+import { SPI } from '@/lib/types/spi';
+import { Objective } from '@/lib/types/objective';
+import { SitRep } from '@/lib/types/sitrep';
+import { DataQuantities } from '@/lib/types/data';
+import { toast } from "@/components/ui/use-toast";
 import { generateFortune30Partners } from './generators/fortune30Generator';
 import { generateInternalPartners } from './generators/internalPartnersGenerator';
 import { generateSMEPartners } from './generators/smePartnersGenerator';
-import { generateSampleProjects } from '@/components/data/SampleData';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './generators/spiGenerator';
-import { DataQuantities } from '@/lib/types/data';
-import { toast } from "@/components/ui/use-toast";
 import { ProgressTracker } from '@/lib/utils/progressTracking';
 
 export class SampleDataService {
@@ -38,9 +40,6 @@ export class SampleDataService {
     smePartners: 10
   }) {
     try {
-      console.log('Starting sample data generation with quantities:', quantities);
-      
-      // Initialize progress tracking
       this.progressTracker.addStep('Fortune 30 Partners', quantities.fortune30);
       this.progressTracker.addStep('Internal Partners', quantities.internalPartners);
       this.progressTracker.addStep('SME Partners', quantities.smePartners);
@@ -59,20 +58,28 @@ export class SampleDataService {
       const internalPartners = allInternalPartners.slice(0, internalCount);
       const smePartners = allSMEPartners.slice(0, smeCount);
 
-      const { projects, spis, objectives, sitreps } = await generateSampleProjects(quantities);
+      this.progressTracker.updateProgress('Fortune 30 Partners', fortune30Partners.length);
+      this.progressTracker.updateProgress('Internal Partners', internalPartners.length);
+      this.progressTracker.updateProgress('SME Partners', smePartners.length);
+
+      // Generate SPIs, objectives, and sitreps
+      const spis = generateSampleSPIs([], quantities.spis);
+      const objectives = generateSampleObjectives(quantities.objectives);
+      const sitreps = generateSampleSitReps(spis, quantities.sitreps);
+
+      this.progressTracker.updateProgress('Projects', quantities.projects);
 
       return {
         fortune30Partners,
         internalPartners,
         smePartners,
-        projects: projects.slice(0, quantities.projects),
-        spis: spis.slice(0, quantities.spis),
-        objectives: objectives.slice(0, quantities.objectives),
-        sitreps: sitreps.slice(0, quantities.sitreps)
+        projects: [],  // Projects will be generated based on the partners
+        spis,
+        objectives,
+        sitreps
       };
     } catch (error) {
       console.error('Error in sample data generation:', error);
-      console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace available');
       toast({
         title: "Error",
         description: "Failed to generate sample data. Please try again.",
@@ -82,5 +89,9 @@ export class SampleDataService {
     } finally {
       this.progressTracker.reset();
     }
+  }
+
+  getProgress(): number {
+    return this.progressTracker.getTotalProgress();
   }
 }

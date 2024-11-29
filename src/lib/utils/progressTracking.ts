@@ -21,13 +21,6 @@ export class ProgressTracker {
       current: 0, 
       status: 'pending' 
     });
-    
-    // Show initial toast when starting data generation
-    toast({
-      title: "Generating Sample Data",
-      description: "Please wait while the database is being populated...",
-      duration: 5000,
-    });
   }
 
   updateProgress(stepName: string, current: number) {
@@ -36,18 +29,27 @@ export class ProgressTracker {
       step.current = current;
       step.status = current === step.total ? 'completed' : 'in-progress';
       
-      // Check if all steps are completed
-      const allCompleted = Array.from(this.steps.values())
-        .every(step => step.status === 'completed' || step.status === 'error');
-        
-      if (allCompleted) {
-        toast({
-          title: "Success",
-          description: "Sample data generation completed",
-          duration: 3000,
-        });
-      }
+      // Show progress toast
+      toast({
+        title: `Generating ${stepName}`,
+        description: `Progress: ${Math.round((current / step.total) * 100)}%`,
+        duration: 1000,
+      });
     }
+  }
+
+  getTotalProgress(): number {
+    if (this.steps.size === 0) return 0;
+    
+    let totalProgress = 0;
+    let totalSteps = 0;
+    
+    this.steps.forEach(step => {
+      totalProgress += (step.current / step.total) * 100;
+      totalSteps++;
+    });
+    
+    return Math.round(totalProgress / totalSteps);
   }
 
   setStepError(stepName: string) {

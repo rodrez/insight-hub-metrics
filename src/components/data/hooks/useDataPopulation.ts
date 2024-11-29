@@ -5,7 +5,6 @@ import { SampleDataService } from "@/lib/services/data/SampleDataService";
 import { useQueryClient } from "@tanstack/react-query";
 import { DatabaseError } from "@/lib/utils/errorHandling";
 import { DatabaseOperations } from "../operations/DatabaseOperations";
-import { globalProgressTracker } from "@/lib/utils/progressTracking";
 
 export function useDataPopulation() {
   const [isPopulating, setIsPopulating] = useState(false);
