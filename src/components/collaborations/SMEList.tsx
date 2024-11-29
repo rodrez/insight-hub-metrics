@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
-import { Pen, Trash2 } from "lucide-react";
+import { Pen, Trash2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collaborator } from "@/lib/types/collaboration";
 import { WorkstreamCard } from "./shared/WorkstreamCard";
@@ -52,7 +52,21 @@ export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
                 <h1 className="text-4xl font-bold mb-2">
                   {collaborator.name}
                 </h1>
-                <CardDescription className="text-lg">Small Medium Enterprise Partner</CardDescription>
+                <CardDescription className="text-lg">
+                  <span className="flex items-center gap-2">
+                    Small Medium Enterprise Partner
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Info className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Partnership details and collaboration status</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </span>
+                </CardDescription>
               </div>
               <div className="flex gap-2">
                 <TooltipProvider>
@@ -97,7 +111,19 @@ export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-6">
                 <div>
-                  <h4 className="font-medium mb-2">Business Contact</h4>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h4 className="font-medium">Business Contact</h4>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Info className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Primary contact information for this SME partnership</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   {collaborator.primaryContact ? (
                     <ContactInfo contact={collaborator.primaryContact} />
                   ) : (
@@ -106,7 +132,19 @@ export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
                 </div>
 
                 <div>
-                  <h4 className="font-medium mb-2">Associated Projects</h4>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h4 className="font-medium">Associated Projects</h4>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Info className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Projects currently in collaboration with this SME</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <div className="space-y-2">
                     {getAssociatedProjects(collaborator).map(project => (
                       <div 
@@ -125,7 +163,19 @@ export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
               </div>
 
               <div>
-                <h4 className="font-medium mb-4">Partnership Activities</h4>
+                <div className="flex items-center gap-2 mb-4">
+                  <h4 className="font-medium">Partnership Activities</h4>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="h-4 w-4" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Current activities and workstreams with this SME partner</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 {collaborator.workstreams && collaborator.workstreams.length > 0 ? (
                   <div className="space-y-4">
                     {collaborator.workstreams.map((workstream) => (
