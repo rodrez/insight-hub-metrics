@@ -20,6 +20,9 @@ export function useDataCounts(isInitialized: boolean) {
     }
     
     try {
+      // Initialize database if not already initialized
+      await db.init();
+      
       const [
         projects,
         spis,
@@ -56,7 +59,7 @@ export function useDataCounts(isInitialized: boolean) {
       console.error('Error fetching data counts:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch data counts",
+        description: "Failed to fetch data counts. Please ensure the database is properly initialized.",
         variant: "destructive",
       });
       throw error;
@@ -71,7 +74,7 @@ export function useDataCounts(isInitialized: boolean) {
     fortune30: 0,
     internalPartners: 0,
     smePartners: 0
-  }} = useQuery({
+  }, refetch } = useQuery({
     queryKey: ['data-counts'],
     queryFn: fetchDataCounts,
     enabled: isInitialized,
@@ -81,6 +84,7 @@ export function useDataCounts(isInitialized: boolean) {
 
   const updateDataCounts = async () => {
     await queryClient.invalidateQueries({ queryKey: ['data-counts'] });
+    await refetch();
   };
 
   return { dataCounts, updateDataCounts };
