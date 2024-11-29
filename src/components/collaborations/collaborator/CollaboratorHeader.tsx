@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react";
+import { Pen, Trash2 } from "lucide-react";
 import { Collaborator } from "@/lib/types/collaboration";
 
 type CollaboratorHeaderProps = {
@@ -18,10 +18,20 @@ export function CollaboratorHeader({ collaborator, onEdit, onDelete }: Collabora
         <p className="text-lg text-muted-foreground">{collaborator.role}</p>
       </div>
       <div className="flex gap-2">
-        <Button variant="outline" size="icon" onClick={() => onEdit(collaborator.id)}>
-          <Edit className="h-4 w-4" />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onEdit(collaborator.id)}
+          className="text-gray-400 hover:text-green-500 transition-colors"
+        >
+          <Pen className="h-4 w-4" />
         </Button>
-        <Button variant="outline" size="icon" onClick={() => onDelete(collaborator.id)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onDelete(collaborator.id)}
+          className="text-gray-400 hover:text-red-500 transition-colors"
+        >
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
