@@ -58,24 +58,76 @@ export const generateSampleSPIs = (projectIds: string[] = []): SPI[] => {
 
 export const generateSampleSitReps = (spis: SPI[]): SitRep[] => {
   const sitrepTitles = [
-    "Weekly Progress Update",
-    "Technical Implementation Status",
-    "Resource Allocation Review",
-    "Risk Assessment Report",
-    "Milestone Achievement Report",
-    "Integration Status Update",
-    "Performance Metrics Review",
-    "Stakeholder Feedback Summary",
-    "Quality Assurance Report",
-    "Team Velocity Update"
+    "Critical System Migration Update",
+    "Cloud Infrastructure Progress Report",
+    "Security Implementation Status",
+    "Performance Optimization Results",
+    "Integration Milestone Review",
+    "Resource Allocation Assessment",
+    "Technical Debt Resolution Update",
+    "Stakeholder Feedback Analysis",
+    "Quality Metrics Evaluation",
+    "Team Velocity Report"
+  ];
+
+  const summaries = [
+    "Successfully completed phase 1 of system migration with minimal downtime",
+    "Cloud infrastructure deployment progressing ahead of schedule",
+    "Security protocols implementation at 75% completion",
+    "Performance improvements showing 40% reduction in response time",
+    "Integration testing revealed minor issues requiring attention",
+    "Resource allocation optimized for Q2 objectives",
+    "Technical debt reduced by 30% through targeted refactoring",
+    "Positive stakeholder feedback on recent deliverables",
+    "Quality metrics showing steady improvement across all KPIs",
+    "Team velocity increased by 25% after process improvements"
+  ];
+
+  const updates = [
+    "Completed database migration and validation",
+    "Deployed new cloud services in staging environment",
+    "Implemented enhanced security measures",
+    "Optimized critical system components",
+    "Resolved integration conflicts with legacy systems",
+    "Reallocated resources to high-priority tasks",
+    "Completed major refactoring initiatives",
+    "Incorporated stakeholder feedback into roadmap",
+    "Improved test coverage and documentation",
+    "Streamlined sprint planning and execution"
+  ];
+
+  const challenges = [
+    "Legacy system compatibility issues requiring additional testing",
+    "Resource constraints impacting deployment timeline",
+    "Complex security requirements needing specialized expertise",
+    "Performance bottlenecks in specific modules",
+    "Integration complexity with third-party systems",
+    "Skill gap in emerging technologies",
+    "Technical debt in critical components",
+    "Stakeholder alignment on priorities",
+    "Quality assurance resource limitations",
+    "Team coordination across time zones"
+  ];
+
+  const nextSteps = [
+    "Schedule final migration validation",
+    "Prepare production deployment plan",
+    "Complete security audit and certification",
+    "Implement remaining optimization measures",
+    "Finalize integration testing and documentation",
+    "Conduct resource planning for next quarter",
+    "Continue systematic code improvement",
+    "Plan next stakeholder review session",
+    "Expand automated testing coverage",
+    "Review and adjust team processes"
   ];
 
   const sitreps: SitRep[] = [];
 
-  for (let i = 0; i < sitrepTitles.length; i++) {
+  for (let i = 0; i < 10; i++) {
     const spi = spis[i % spis.length];
-    const date = subDays(new Date(), i * 7).toISOString();
-    const status: SitRep['status'] = Math.random() > 0.7 ? 'at-risk' : 'on-track';
+    const date = subDays(new Date(), i * 3).toISOString();
+    const status: SitRep['status'] = ['on-track', 'at-risk', 'blocked', 'pending', 'ready'][Math.floor(Math.random() * 5)];
     
     const sitrep: SitRep = {
       id: `sitrep-${i + 1}`,
@@ -83,11 +135,11 @@ export const generateSampleSitReps = (spis: SPI[]): SitRep[] => {
       date,
       spiId: spi.id,
       projectId: spi.projectId,
-      update: `Progress update for ${spi.name}: Implementation phase ${Math.floor(Math.random() * 100)}% complete`,
-      challenges: "Resource allocation and technical complexity being addressed",
-      nextSteps: "Continue with planned milestones and weekly reviews",
+      update: updates[i],
+      challenges: challenges[i],
+      nextSteps: nextSteps[i],
       status,
-      summary: `Status report for ${spi.name} implementation progress`,
+      summary: summaries[i],
       departmentId: spi.departmentId
     };
     
