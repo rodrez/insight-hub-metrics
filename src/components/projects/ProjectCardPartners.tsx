@@ -8,80 +8,62 @@ interface ProjectCardPartnersProps {
 }
 
 export function ProjectCardPartners({ project, getDepartmentColor }: ProjectCardPartnersProps) {
-  const uniqueCollaborators = Array.from(
-    new Set(
-      project.collaborators
-        .filter(collab => collab.type === 'fortune30')
-        .map(collab => collab.id)
-    )
-  ).map(id => project.collaborators.find(collab => collab.id === id)!);
+  // Get unique Fortune 30 partners
+  const fortune30Partners = project.collaborators.filter(
+    collab => collab.type === 'fortune30'
+  );
 
-  const smeCollaborators = project.collaborators.filter(collab => collab.type === 'sme');
+  // Get unique internal partners
+  const internalPartners = (project.internalPartners || []).filter(
+    partner => partner.type === 'internal'
+  );
 
-  const displayedPeople = new Set([project.poc, project.techLead]);
+  // Get SME partners
+  const smePartners = project.collaborators.filter(
+    collab => collab.type === 'sme'
+  );
 
-  const uniqueInternalPartners = Array.from(
-    new Set(
-      (project.internalPartners || [])
-        .filter(partner => !displayedPeople.has(partner.name) && partner.type === 'internal')
-        .map(partner => partner.id)
-    )
-  ).map(id => project.internalPartners?.find(partner => partner.id === id)!);
+  const renderPartnerSection = (
+    title: string,
+    partners: Array<{ id: string; name: string; type: CollaboratorType; department: string }>,
+    emptyMessage: string
+  ) => (
+    <div>
+      <div className="text-sm text-muted-foreground mb-1">{title}:</div>
+      <div className="flex flex-wrap gap-2">
+        {partners.length > 0 ? (
+          partners.map((partner) => (
+            <ProjectPartnerBadge 
+              key={`${project.id}-${partner.id}`}
+              partner={partner}
+              departmentColor={getDepartmentColor(partner.department)}
+            />
+          ))
+        ) : (
+          <span className="text-sm text-muted-foreground">{emptyMessage}</span>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-2">
-      <div>
-        <div className="text-sm text-muted-foreground mb-1">Fortune 30 Partners:</div>
-        <div className="flex flex-wrap gap-2">
-          {uniqueCollaborators.map((collab) => (
-            <ProjectPartnerBadge 
-              key={`${project.id}-${collab.id}`}
-              partner={{
-                id: collab.id,
-                name: collab.name,
-                type: collab.type,
-                department: collab.department
-              }}
-              departmentColor={getDepartmentColor(collab.department)}
-            />
-          ))}
-        </div>
-      </div>
-      <div>
-        <div className="text-sm text-muted-foreground mb-1">Internal Partners:</div>
-        <div className="flex flex-wrap gap-2">
-          {uniqueInternalPartners.map((partner) => (
-            <ProjectPartnerBadge 
-              key={`${project.id}-${partner.id}`}
-              partner={{
-                id: partner.id,
-                name: partner.name,
-                type: partner.type,
-                department: partner.department
-              }}
-              departmentColor={getDepartmentColor(partner.department)}
-            />
-          ))}
-        </div>
-      </div>
-      {smeCollaborators.length > 0 && (
-        <div>
-          <div className="text-sm text-muted-foreground mb-1">Subject Matter Experts:</div>
-          <div className="flex flex-wrap gap-2">
-            {smeCollaborators.map((sme) => (
-              <ProjectPartnerBadge 
-                key={`${project.id}-${sme.id}`}
-                partner={{
-                  id: sme.id,
-                  name: sme.name,
-                  type: sme.type,
-                  department: sme.department
-                }}
-                departmentColor={getDepartmentColor(sme.department)}
-              />
-            ))}
-          </div>
-        </div>
+      {renderPartnerSection(
+        'Fortune 30 Partners',
+        fortune30Partners,
+        'No Fortune 30 partners assigned'
+      )}
+      
+      {renderPartnerSection(
+        'Internal Partners',
+        internalPartners,
+        'No internal partners assigned'
+      )}
+      
+      {renderPartnerSection(
+        'Subject Matter Experts',
+        smePartners,
+        'No SME partners assigned'
       )}
     </div>
   );
