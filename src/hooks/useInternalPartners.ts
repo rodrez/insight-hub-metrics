@@ -21,7 +21,7 @@ export function useInternalPartners(
       department: selectedDepartment,
       projects: [],
       lastActive: new Date().toISOString(),
-      type: "other",
+      type: "internal",
       color: department?.color
     };
 

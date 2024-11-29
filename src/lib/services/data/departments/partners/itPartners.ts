@@ -16,7 +16,7 @@ export const generateITPartners = (): Collaborator[] => [
       }
     ],
     lastActive: new Date().toISOString(),
-    type: "other"
+    type: "internal"
   },
   {
     id: "it-2",
@@ -33,7 +33,7 @@ export const generateITPartners = (): Collaborator[] => [
       }
     ],
     lastActive: new Date().toISOString(),
-    type: "other"
+    type: "internal"
   },
   {
     id: "it-3",
@@ -50,7 +50,7 @@ export const generateITPartners = (): Collaborator[] => [
       }
     ],
     lastActive: new Date().toISOString(),
-    type: "other"
+    type: "internal"
   },
   {
     id: "it-4",
@@ -67,6 +67,6 @@ export const generateITPartners = (): Collaborator[] => [
       }
     ],
     lastActive: new Date().toISOString(),
-    type: "other"
+    type: "internal"
   }
 ];

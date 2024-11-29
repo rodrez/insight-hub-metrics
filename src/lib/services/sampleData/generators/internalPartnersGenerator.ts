@@ -40,9 +40,9 @@ const generateInternalPartner = (
     role,
     department: departmentId,
     lastActive: new Date().toISOString(),
-    type: "other",
+    type: "internal",
     color: department.color,
-    projects: [] // Add empty projects array to satisfy Collaborator type
+    projects: []
   };
 };
 

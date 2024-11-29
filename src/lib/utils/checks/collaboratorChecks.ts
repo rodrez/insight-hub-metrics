@@ -8,7 +8,7 @@ export const checkCollaborators = async (): Promise<{
 }> => {
   const collaborators = await db.getAllCollaborators();
   const fortune30 = collaborators.filter(c => c.type === 'fortune30');
-  const internal = collaborators.filter(c => c.type === 'other');
+  const internal = collaborators.filter(c => c.type === 'internal');
   return {
     fortune30: fortune30.length > 0,
     internal: internal.length > 0

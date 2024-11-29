@@ -16,7 +16,7 @@ export const helicoptersPartners: Collaborator[] = [
       }
     ],
     lastActive: new Date().toISOString(),
-    type: "other"
+    type: "internal"
   },
   {
     id: "helicopters-2",
@@ -33,7 +33,7 @@ export const helicoptersPartners: Collaborator[] = [
       }
     ],
     lastActive: new Date().toISOString(),
-    type: "other"
+    type: "internal"
   },
   {
     id: "helicopters-3",
@@ -50,7 +50,7 @@ export const helicoptersPartners: Collaborator[] = [
       }
     ],
     lastActive: new Date().toISOString(),
-    type: "other"
+    type: "internal"
   },
   {
     id: "helicopters-4",
@@ -67,6 +67,6 @@ export const helicoptersPartners: Collaborator[] = [
       }
     ],
     lastActive: new Date().toISOString(),
-    type: "other"
+    type: "internal"
   }
 ];

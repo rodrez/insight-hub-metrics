@@ -16,7 +16,7 @@ export const techlabPartners: Collaborator[] = [
       }
     ],
     lastActive: new Date().toISOString(),
-    type: "other"
+    type: "internal"
   },
   {
     id: "techlab-2",
@@ -33,7 +33,7 @@ export const techlabPartners: Collaborator[] = [
       }
     ],
     lastActive: new Date().toISOString(),
-    type: "other"
+    type: "internal"
   },
   {
     id: "techlab-3",
@@ -50,7 +50,7 @@ export const techlabPartners: Collaborator[] = [
       }
     ],
     lastActive: new Date().toISOString(),
-    type: "other"
+    type: "internal"
   },
   {
     id: "techlab-4",
@@ -67,6 +67,6 @@ export const techlabPartners: Collaborator[] = [
       }
     ],
     lastActive: new Date().toISOString(),
-    type: "other"
+    type: "internal"
   }
 ];

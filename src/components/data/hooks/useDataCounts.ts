@@ -20,7 +20,6 @@ export function useDataCounts(isInitialized: boolean) {
     }
     
     try {
-      // Initialize database if not already initialized
       await db.init();
       
       const [
@@ -45,11 +44,10 @@ export function useDataCounts(isInitialized: boolean) {
         objectives: objectives?.length || 0,
         sitreps: sitreps?.length || 0,
         fortune30: collaborators?.filter(c => c.type === 'fortune30')?.length || 0,
-        internalPartners: collaborators?.filter(c => c.type === 'other')?.length || 0,
+        internalPartners: collaborators?.filter(c => c.type === 'internal')?.length || 0,
         smePartners: smePartners?.length || 0
       };
 
-      // Pre-cache individual counts
       Object.entries(counts).forEach(([key, value]) => {
         queryClient.setQueryData(['data-count', key], value);
       });
@@ -78,8 +76,8 @@ export function useDataCounts(isInitialized: boolean) {
     queryKey: ['data-counts'],
     queryFn: fetchDataCounts,
     enabled: isInitialized,
-    staleTime: 1000 * 60 * 5, // Consider data fresh for 5 minutes
-    gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
   });
 
   const updateDataCounts = async () => {

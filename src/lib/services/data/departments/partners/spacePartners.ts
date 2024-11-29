@@ -16,7 +16,7 @@ export const spacePartners: Collaborator[] = [
       }
     ],
     lastActive: new Date().toISOString(),
-    type: "other"
+    type: "internal"
   },
   {
     id: "space-2",
@@ -33,7 +33,7 @@ export const spacePartners: Collaborator[] = [
       }
     ],
     lastActive: new Date().toISOString(),
-    type: "other"
+    type: "internal"
   },
   {
     id: "space-3",
@@ -50,7 +50,7 @@ export const spacePartners: Collaborator[] = [
       }
     ],
     lastActive: new Date().toISOString(),
-    type: "other"
+    type: "internal"
   },
   {
     id: "space-4",
@@ -67,6 +67,6 @@ export const spacePartners: Collaborator[] = [
       }
     ],
     lastActive: new Date().toISOString(),
-    type: "other"
+    type: "internal"
   }
 ];

@@ -7,7 +7,6 @@ interface ProjectCardPartnersProps {
 }
 
 export function ProjectCardPartners({ project, getDepartmentColor }: ProjectCardPartnersProps) {
-  // Get unique collaborators
   const uniqueCollaborators = Array.from(
     new Set(
       project.collaborators
@@ -16,13 +15,10 @@ export function ProjectCardPartners({ project, getDepartmentColor }: ProjectCard
     )
   ).map(id => project.collaborators.find(collab => collab.id === id)!);
 
-  // Get SME collaborators
   const smeCollaborators = project.collaborators.filter(collab => collab.type === 'sme');
 
-  // Create a Set of already displayed people (POC and Tech Lead)
   const displayedPeople = new Set([project.poc, project.techLead]);
 
-  // Filter internal partners to exclude POC and Tech Lead
   const uniqueInternalPartners = Array.from(
     new Set(
       (project.internalPartners || [])
@@ -39,7 +35,12 @@ export function ProjectCardPartners({ project, getDepartmentColor }: ProjectCard
           {uniqueCollaborators.map((collab) => (
             <ProjectPartnerBadge 
               key={`${project.id}-${collab.id}`}
-              partner={collab}
+              partner={{
+                id: collab.id,
+                name: collab.name,
+                type: collab.type,
+                department: collab.department
+              }}
               departmentColor={getDepartmentColor(collab.department)}
             />
           ))}
@@ -51,7 +52,12 @@ export function ProjectCardPartners({ project, getDepartmentColor }: ProjectCard
           {uniqueInternalPartners.map((partner) => (
             <ProjectPartnerBadge 
               key={`${project.id}-${partner.id}`}
-              partner={partner}
+              partner={{
+                id: partner.id,
+                name: partner.name,
+                type: partner.type,
+                department: partner.department
+              }}
               departmentColor={getDepartmentColor(partner.department)}
             />
           ))}
@@ -64,7 +70,12 @@ export function ProjectCardPartners({ project, getDepartmentColor }: ProjectCard
             {smeCollaborators.map((sme) => (
               <ProjectPartnerBadge 
                 key={`${project.id}-${sme.id}`}
-                partner={sme}
+                partner={{
+                  id: sme.id,
+                  name: sme.name,
+                  type: sme.type,
+                  department: sme.department
+                }}
                 departmentColor={getDepartmentColor(sme.department)}
               />
             ))}
