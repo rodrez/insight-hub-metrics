@@ -10,4 +10,7 @@ export type SitRep = {
   status: 'pending-review' | 'ready' | 'submitted';
   summary: string;
   departmentId: string;
+  level?: 'CEO' | 'SVP' | 'CTO';
+  pointsOfContact?: string[];
+  teams?: string[];
 };
