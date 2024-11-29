@@ -43,6 +43,19 @@ export function LinesOfBusinessTable() {
     ));
   };
 
+  const handleLOBDelete = (categoryIndex: number, lobToDelete: LOB) => {
+    setCategories(prev => prev.map((category, cIndex) => 
+      cIndex === categoryIndex
+        ? {
+            ...category,
+            lobs: category.lobs.filter(lob => 
+              lob.name !== lobToDelete.name || lob.department !== lobToDelete.department
+            )
+          }
+        : category
+    ));
+  };
+
   return (
     <Card className="p-6 relative">
       <div className="space-y-6">
@@ -71,6 +84,7 @@ export function LinesOfBusinessTable() {
                     lob={lob}
                     category={category}
                     onUpdate={(updatedLob) => handleLOBUpdate(categoryIndex, lobIndex, updatedLob)}
+                    onDelete={(lobToDelete) => handleLOBDelete(categoryIndex, lobToDelete)}
                   />
                 ))}
               </div>
