@@ -42,17 +42,17 @@ export function SPIAnalytics() {
 
   return (
     <div className="space-y-8">
-      <Card className="p-6">
-        <CardHeader className="px-0 pt-0">
+      <Card>
+        <CardHeader>
           <CardTitle>SPI Progress Over Time</CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
-          <div className="h-[400px] w-full">
+        <CardContent>
+          <div className="aspect-[2/1] w-full">
             <ChartContainer config={chartConfig}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={months}
-                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                   <XAxis 
@@ -60,12 +60,15 @@ export function SPIAnalytics() {
                     stroke="currentColor" 
                     fontSize={12}
                     tickLine={false}
+                    axisLine={false}
+                    dy={10}
                   />
                   <YAxis 
                     stroke="currentColor"
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
+                    dx={-10}
                   />
                   <ChartTooltip />
                   <Line 
@@ -93,17 +96,17 @@ export function SPIAnalytics() {
         </CardContent>
       </Card>
 
-      <Card className="p-6">
-        <CardHeader className="px-0 pt-0">
+      <Card>
+        <CardHeader>
           <CardTitle>Monthly Completion Rate (%)</CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
-          <div className="h-[400px] w-full">
+        <CardContent>
+          <div className="aspect-[2/1] w-full">
             <ChartContainer config={chartConfig}>
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={months}
-                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                   <XAxis 
@@ -111,12 +114,15 @@ export function SPIAnalytics() {
                     stroke="currentColor"
                     fontSize={12}
                     tickLine={false}
+                    axisLine={false}
+                    dy={10}
                   />
                   <YAxis 
                     stroke="currentColor"
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
+                    dx={-10}
                   />
                   <ChartTooltip />
                   <Area
