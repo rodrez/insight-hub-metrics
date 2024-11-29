@@ -13,24 +13,41 @@ import { Form } from "../ui/form";
 import { ContactPerson } from "@/lib/types/collaboration";
 import { FormField, FormItem, FormLabel, FormControl } from "../ui/form";
 import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 
 type POCEditDialogProps = {
   categoryName: string;
+  description: string;
+  detailedDescription: string;
   contacts: ContactPerson[];
-  onSave: (contacts: ContactPerson[]) => void;
+  onSave: (data: { 
+    description: string; 
+    detailedDescription: string; 
+    contacts: ContactPerson[]; 
+  }) => void;
 };
 
 type FormValues = {
   lobName: string;
+  description: string;
+  detailedDescription: string;
   contacts: {
     primaryContact: ContactPerson;
   }[];
 };
 
-export function POCEditDialog({ categoryName, contacts, onSave }: POCEditDialogProps) {
+export function POCEditDialog({ 
+  categoryName, 
+  description,
+  detailedDescription,
+  contacts, 
+  onSave 
+}: POCEditDialogProps) {
   const form = useForm<FormValues>({
     defaultValues: {
       lobName: categoryName,
+      description: description,
+      detailedDescription: detailedDescription,
       contacts: contacts.map(contact => ({
         primaryContact: contact
       }))
@@ -38,7 +55,11 @@ export function POCEditDialog({ categoryName, contacts, onSave }: POCEditDialogP
   });
 
   const onSubmit = (data: FormValues) => {
-    onSave(data.contacts.map(c => c.primaryContact));
+    onSave({
+      description: data.description,
+      detailedDescription: data.detailedDescription,
+      contacts: data.contacts.map(c => c.primaryContact)
+    });
   };
 
   return (
@@ -56,12 +77,24 @@ export function POCEditDialog({ categoryName, contacts, onSave }: POCEditDialogP
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="lobName"
+              name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Line of Business Name</FormLabel>
+                  <FormLabel>Brief Description</FormLabel>
                   <FormControl>
-                    <Input {...field} defaultValue={categoryName} />
+                    <Textarea {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="detailedDescription"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Detailed Description</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} className="min-h-[100px]" />
                   </FormControl>
                 </FormItem>
               )}
