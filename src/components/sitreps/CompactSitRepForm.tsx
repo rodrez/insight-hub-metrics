@@ -33,6 +33,9 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
   const [status, setStatus] = useState<'pending-review' | 'ready' | 'submitted'>(
     initialData?.status || 'pending-review'
   );
+  const [level, setLevel] = useState<"CEO" | "SVP" | "CTO">(
+    initialData?.level || "SVP"
+  );
 
   const { data: projects } = useQuery({
     queryKey: ['projects'],
@@ -69,6 +72,7 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
         challenges,
         nextSteps,
         status,
+        level,
         summary,
         projectId: selectedProject !== "none" ? selectedProject : undefined,
         departmentId: selectedDepartment !== "none" ? selectedDepartment : undefined,
@@ -114,6 +118,8 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
               setTitle={setTitle}
               status={status}
               setStatus={setStatus}
+              level={level}
+              setLevel={setLevel}
             />
             
             <RelationshipFields

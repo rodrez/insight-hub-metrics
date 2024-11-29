@@ -15,6 +15,8 @@ interface BasicInfoFieldsProps {
   setTitle: (title: string) => void;
   status: 'pending-review' | 'ready' | 'submitted';
   setStatus: (status: 'pending-review' | 'ready' | 'submitted') => void;
+  level: "CEO" | "SVP" | "CTO" | undefined;
+  setLevel: (level: "CEO" | "SVP" | "CTO") => void;
 }
 
 export function BasicInfoFields({
@@ -23,7 +25,9 @@ export function BasicInfoFields({
   title,
   setTitle,
   status,
-  setStatus
+  setStatus,
+  level,
+  setLevel
 }: BasicInfoFieldsProps) {
   return (
     <div className="space-y-4">
@@ -56,6 +60,19 @@ export function BasicInfoFields({
             <SelectItem value="pending-review">Pending Review</SelectItem>
             <SelectItem value="ready">Ready</SelectItem>
             <SelectItem value="submitted">Submitted</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <label className="block text-sm font-medium mb-2">Importance Level</label>
+        <Select value={level} onValueChange={(value: "CEO" | "SVP" | "CTO") => setLevel(value)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select importance level" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="CEO">CEO Level</SelectItem>
+            <SelectItem value="SVP">SVP Level</SelectItem>
+            <SelectItem value="CTO">CTO Level</SelectItem>
           </SelectContent>
         </Select>
       </div>
