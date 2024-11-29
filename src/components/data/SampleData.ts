@@ -109,30 +109,34 @@ export const generateSampleProjects = async (quantities: DataQuantities): Promis
     const internalPartners = await generateInternalPartners();
     console.log('Generated internal partners:', internalPartners.length);
     
+    // Generate exactly the requested number of projects
     const maxProjects = validateDataQuantities(quantities.projects, 50, "Projects");
     console.log('Validated max projects:', maxProjects);
     
     const result = await generateProjects(fortune30, internalPartners);
-    console.log('Generated projects:', result.projects.length);
-    
     const projects = result.projects.slice(0, maxProjects);
-    console.log('Filtered projects to:', projects.length);
+    console.log('Generated and filtered projects:', projects.length);
     
-    const spis = generateSampleSPIs(projects.map(p => p.id));
-    console.log('Generated SPIs:', spis.length);
+    // Generate exactly the requested number of SPIs
+    const allSpis = generateSampleSPIs(projects.map(p => p.id), quantities.spis);
+    const spis = allSpis.slice(0, quantities.spis);
+    console.log('Generated and filtered SPIs:', spis.length);
     
-    const objectives = generateSampleObjectives();
-    console.log('Generated objectives:', objectives.length);
+    // Generate exactly the requested number of objectives
+    const allObjectives = generateSampleObjectives(quantities.objectives);
+    const objectives = allObjectives.slice(0, quantities.objectives);
+    console.log('Generated and filtered objectives:', objectives.length);
     
-    // Ensure we generate at least some sitreps even if no SPIs exist
-    const sitreps = generateSampleSitReps(spis, Math.max(quantities.sitreps, 5));
-    console.log('Generated sitreps:', sitreps.length);
+    // Generate exactly the requested number of sitreps
+    const allSitreps = generateSampleSitReps(spis, quantities.sitreps);
+    const sitreps = allSitreps.slice(0, quantities.sitreps);
+    console.log('Generated and filtered sitreps:', sitreps.length);
 
     const generatedData = {
       projects,
-      spis: spis.slice(0, quantities.spis),
-      objectives: objectives.slice(0, quantities.objectives),
-      sitreps: sitreps.slice(0, Math.max(quantities.sitreps, 5))
+      spis,
+      objectives,
+      sitreps
     };
 
     console.log('Final data quantities:', {

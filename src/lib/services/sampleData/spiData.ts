@@ -63,16 +63,6 @@ export const generateSampleObjectives = (count: number = 5) => {
   return objectives;
 };
 
-const generateOptimalLengthSummary = (topic: string): string => {
-  const summaryTemplates = [
-    `Comprehensive analysis of ${topic} reveals significant progress in implementation phases. Key stakeholders report positive outcomes across multiple metrics.`,
-    `Strategic implementation of ${topic} showcases measurable improvements in system performance. Cross-functional team coordination enables efficient resource utilization.`,
-    `Detailed evaluation of ${topic} indicates successful completion of critical phases. Stakeholder feedback validates approach effectiveness.`
-  ];
-  
-  return summaryTemplates[Math.floor(Math.random() * summaryTemplates.length)];
-};
-
 export const generateSampleSPIs = (projectIds: string[] = [], requestedCount?: number): SPI[] => {
   if (projectIds.length === 0) {
     console.warn('No project IDs provided for SPI generation');
@@ -105,38 +95,38 @@ export const generateSampleSPIs = (projectIds: string[] = [], requestedCount?: n
     });
   }
 
-  console.log('Generated SPIs:', spis.map(spi => ({ id: spi.id, projectId: spi.projectId })));
   return spis;
 };
 
 export const generateSampleSitReps = (spis: SPI[], requestedCount?: number): SitRep[] => {
-  if (spis.length === 0) {
-    console.warn('No SPIs provided for SitRep generation');
-    // Generate at least one sample SitRep even without SPIs
-    return [{
-      id: 'sitrep-sample-1',
-      title: 'Sample SitRep',
-      date: new Date().toISOString(),
-      spiId: 'sample-spi',
-      update: 'Initial project update',
-      challenges: 'No major challenges identified',
-      nextSteps: 'Continue with planned implementation',
-      status: 'pending-review',
-      summary: 'This is a sample situation report to demonstrate the functionality.',
-      departmentId: 'engineering'
-    }];
-  }
-
+  const count = requestedCount || 10; // Default to 10 sitreps if no count specified
   const sitreps: SitRep[] = [];
-  const count = requestedCount || Math.max(spis.length, 5); // Ensure at least 5 SitReps
 
   for (let i = 0; i < count; i++) {
+    // If we have no SPIs, generate a standalone sitrep
+    if (spis.length === 0) {
+      sitreps.push({
+        id: `sitrep-${i + 1}`,
+        title: `Sample SitRep ${i + 1}`,
+        date: new Date().toISOString(),
+        spiId: 'sample-spi',
+        update: 'Initial project update',
+        challenges: 'No major challenges identified',
+        nextSteps: 'Continue with planned implementation',
+        status: 'pending-review',
+        summary: 'This is a sample situation report to demonstrate the functionality.',
+        departmentId: 'engineering',
+        level: ['CEO', 'SVP', 'CTO'][Math.floor(Math.random() * 3)] as 'CEO' | 'SVP' | 'CTO',
+        teams: ['Engineering', 'Product', 'Design'].slice(0, Math.floor(Math.random() * 3) + 1)
+      });
+      continue;
+    }
+
     const spi = spis[i % spis.length];
     const date = subDays(new Date(), i * 3).toISOString();
     const title = `${spi.name}: Progress Report ${i + 1}`;
-    const summary = `Progress update for ${spi.name} showing significant advancement in implementation phases. Key stakeholders report positive outcomes across multiple metrics.`;
     
-    const sitrep: SitRep = {
+    sitreps.push({
       id: `sitrep-${i + 1}`,
       title,
       date,
@@ -146,15 +136,12 @@ export const generateSampleSitReps = (spis: SPI[], requestedCount?: number): Sit
       challenges: "Currently addressing resource allocation and technical complexity challenges. Team is working on mitigation strategies.",
       nextSteps: "Proceeding with planned milestone implementation and scheduled reviews. Next phase includes stakeholder alignment and technical validation.",
       status: ['pending-review', 'ready', 'submitted'][Math.floor(Math.random() * 3)] as 'pending-review' | 'ready' | 'submitted',
-      summary,
+      summary: `Progress update for ${spi.name} showing significant advancement in implementation phases. Key stakeholders report positive outcomes across multiple metrics.`,
       departmentId: spi.departmentId,
       level: ['CEO', 'SVP', 'CTO'][Math.floor(Math.random() * 3)] as 'CEO' | 'SVP' | 'CTO',
       teams: ['Engineering', 'Product', 'Design'].slice(0, Math.floor(Math.random() * 3) + 1)
-    };
-    
-    sitreps.push(sitrep);
+    });
   }
 
-  console.log('Generated SitReps:', sitreps.map(sitrep => ({ id: sitrep.id, spiId: sitrep.spiId })));
   return sitreps;
 };
