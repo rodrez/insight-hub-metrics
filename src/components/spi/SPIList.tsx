@@ -79,10 +79,20 @@ export function SPIList() {
                 <p className="text-sm text-muted-foreground mt-1">{spi.deliverable}</p>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="icon" onClick={() => setSelectedSPI(spi)}>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={() => setSelectedSPI(spi)}
+                  className="text-gray-400 hover:text-green-500 hover:border-green-500 transition-colors"
+                >
                   <Edit2 className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="icon" onClick={() => handleDelete(spi.id)}>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={() => handleDelete(spi.id)}
+                  className="text-gray-400 hover:text-red-500 hover:border-red-500 transition-colors"
+                >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
