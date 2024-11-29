@@ -30,7 +30,7 @@ export type Workstream = {
   lastUpdated: string;
 };
 
-export type CollaborationType = 'fortune30' | 'sme';
+export type CollaborationType = 'fortune30' | 'sme' | 'internal';
 
 export type CollaboratorProject = {
   id: string;

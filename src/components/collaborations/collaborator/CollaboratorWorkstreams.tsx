@@ -7,7 +7,7 @@ import { db } from "@/lib/db";
 import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CollaborationFormSchema, formSchema } from "../CollaborationFormFields";
+import { CollaborationFormSchema, collaborationFormSchema } from "../CollaborationFormFields";
 import { WorkstreamActions } from "../workstream/WorkstreamActions";
 
 type CollaboratorWorkstreamsProps = {
@@ -18,7 +18,7 @@ type CollaboratorWorkstreamsProps = {
 export function CollaboratorWorkstreams({ workstreams, collaboratorId }: CollaboratorWorkstreamsProps) {
   const queryClient = useQueryClient();
   const form = useForm<CollaborationFormSchema>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(collaborationFormSchema),
     defaultValues: {
       workstreams: []
     }

@@ -33,23 +33,12 @@ export function BasicInfoFields({ form, departmentId }: BasicInfoFieldsProps) {
 
       <FormField
         control={form.control}
-        name="color"
+        name="email"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Brand Color</FormLabel>
+            <FormLabel>Email</FormLabel>
             <FormControl>
-              <div className="flex gap-4 items-center">
-                <Input 
-                  type="color" 
-                  {...field} 
-                  value={field.value || "#000000"}
-                  className="w-20 h-10 p-1"
-                />
-                <div 
-                  className="w-10 h-10 rounded border"
-                  style={{ backgroundColor: field.value || "#000000" }}
-                />
-              </div>
+              <Input placeholder="Enter email" type="email" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

@@ -28,6 +28,7 @@ export function CollaborationDialog({
       email: "",
       role: "",
       department: departmentId || "",
+      type: collaborationType,
       agreementType: "None",
       primaryContact: {
         name: "",
@@ -41,13 +42,14 @@ export function CollaborationDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <Form {...form}>
-          <CollaborationFormFields
-            form={form}
-            collaboratorId={collaboratorId}
-            departmentId={departmentId}
-            collaborationType={collaborationType}
-            onSuccess={() => onOpenChange(false)}
-          />
+          <form onSubmit={form.handleSubmit(() => {})}>
+            <CollaborationFormFields
+              onSubmit={() => onOpenChange(false)}
+              initialData={null}
+              collaborationType={collaborationType}
+              departmentId={departmentId}
+            />
+          </form>
         </Form>
       </DialogContent>
     </Dialog>
