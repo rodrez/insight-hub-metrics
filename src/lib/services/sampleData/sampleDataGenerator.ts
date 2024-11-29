@@ -5,29 +5,26 @@ import { Collaborator } from '@/lib/types/collaboration';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from '@/lib/services/sampleData/spiData';
 import { generateSMEPartners } from '../data/smePartners';
 import { SampleDataQuantities } from '@/lib/services/DataService';
+import { DataQuantities } from '@/components/data/SampleData';
 
-export const generateSampleData = async (internalPartners: Collaborator[]) => {
+export const generateSampleData = async (quantities: DataQuantities, internalPartners: Collaborator[]) => {
   const departments = [...DEPARTMENTS];
   const { projects } = generateProjectData(departments, defaultTechDomains, internalPartners);
   
   // Generate SPIs first, passing project IDs for linking some SPIs to projects
-  const spis = generateSampleSPIs(projects.map(p => p.id));
+  const spis = generateSampleSPIs(projects.map(p => p.id), quantities.spis);
   
   // Generate objectives that reference the SPIs
-  const objectives = generateSampleObjectives();
+  const objectives = generateSampleObjectives(quantities.objectives);
   
   // Generate sitreps that reference the SPIs and inherit project links
-  const sitreps = generateSampleSitReps(spis);
-
-  // Generate SME partners
-  const smePartners = generateSMEPartners();
+  const sitreps = generateSampleSitReps(spis, quantities.sitreps);
   
   return { 
     projects, 
     internalPartners,
     spis,
     objectives,
-    sitreps,
-    smePartners
+    sitreps
   };
 };

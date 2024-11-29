@@ -108,7 +108,7 @@ export const generateSampleProjects = async (quantities: DataQuantities): Promis
     const internalPartners = allInternalPartners.slice(0, quantities.internalPartners);
     console.log('Generated internal partners:', internalPartners.length);
     
-    const result = await generateProjects(fortune30, internalPartners);
+    const result = await generateProjects(quantities);
     const projects = result.projects.slice(0, quantities.projects);
     console.log('Generated and filtered projects:', projects.length);
     
@@ -127,13 +127,6 @@ export const generateSampleProjects = async (quantities: DataQuantities): Promis
       objectives,
       sitreps
     };
-
-    console.log('Final data quantities:', {
-      projects: generatedData.projects.length,
-      spis: generatedData.spis.length,
-      objectives: generatedData.objectives.length,
-      sitreps: generatedData.sitreps.length
-    });
 
     if (!validateDataRelationships(generatedData)) {
       throw new Error("Generated data failed relationship validation");
