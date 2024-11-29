@@ -25,6 +25,7 @@ export interface DataService {
   getAllObjectives(): Promise<Objective[]>;
   addObjective(objective: Objective): Promise<void>;
   updateObjective(id: string, updates: Partial<Objective>): Promise<void>;
+  deleteObjective(id: string): Promise<void>;
   exportData(): Promise<void>;
   getAllTeams(): Promise<Team[]>;
   populateSampleData(quantities: DataQuantities): Promise<void>;

@@ -116,6 +116,10 @@ export class IndexedDBService implements DataService {
       store.put({ ...objective, ...updates }));
   }
 
+  async deleteObjective(id: string): Promise<void> {
+    await this.transactionService.performTransaction('objectives', 'readwrite', store => store.delete(id));
+  }
+
   async exportData(): Promise<void> {
     // Implementation for data export
     console.log('Data export not implemented');
