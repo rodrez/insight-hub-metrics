@@ -29,6 +29,7 @@ export interface DataService {
   getSPI(id: string): Promise<SPI | undefined>;
   addSPI(spi: SPI): Promise<void>;
   updateSPI(id: string, updates: Partial<SPI>): Promise<void>;
+  deleteSPI(id: string): Promise<void>;
   getAllObjectives(): Promise<Objective[]>;
   addObjective(objective: Objective): Promise<void>;
   updateObjective(id: string, updates: Partial<Objective>): Promise<void>;

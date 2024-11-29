@@ -30,7 +30,7 @@ export class IndexedDBService implements DataService {
   }
 
   async addProject(project: Project): Promise<void> {
-    await this.transactionService.performTransaction('projects', 'readwrite', store => store.put(project));
+    return this.transactionService.performTransaction('projects', 'readwrite', store => store.put(project));
   }
 
   async updateProject(id: string, updates: Partial<Project>): Promise<void> {
@@ -75,6 +75,10 @@ export class IndexedDBService implements DataService {
     const spi = await this.getSPI(id);
     if (!spi) throw new Error('SPI not found');
     await this.addSPI({ ...spi, ...updates });
+  }
+
+  async deleteSPI(id: string): Promise<void> {
+    await this.transactionService.performTransaction('spis', 'readwrite', store => store.delete(id));
   }
 
   async getAllObjectives(): Promise<Objective[]> {
