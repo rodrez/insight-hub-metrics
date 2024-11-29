@@ -6,15 +6,8 @@ import { generateSampleProjects } from '@/components/data/SampleData';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './sampleData/spiData';
 import { SampleDataQuantities } from './DataService';
 import { toast } from "@/components/ui/use-toast";
-import { IndexedDBService } from './IndexedDBService';
 
 export class SampleDataService {
-  private indexedDBService: IndexedDBService;
-
-  constructor() {
-    this.indexedDBService = new IndexedDBService();
-  }
-
   private validateQuantities(available: number, requested: number, type: string): number {
     if (requested > available) {
       console.log(`Adjusting ${type} quantity from ${requested} to ${available} (maximum available)`);
@@ -57,30 +50,15 @@ export class SampleDataService {
       const fortune30Partners = allFortune30.slice(0, fortune30Count);
       const internalPartners = allInternalPartners.slice(0, internalCount);
 
-      console.log('Starting project generation with validated quantities:', {
-        projects: quantities.projects,
-        spis: quantities.spis,
-        objectives: quantities.objectives,
-        sitreps: quantities.sitreps
-      });
-
       const { projects, spis, objectives, sitreps } = await generateSampleProjects({
         projects: quantities.projects,
         spis: quantities.spis,
         objectives: quantities.objectives,
-        sitreps: quantities.sitreps
+        sitreps: quantities.sitreps,
+        fortune30: quantities.fortune30,
+        internalPartners: quantities.internalPartners
       });
 
-      console.log('Sample data generation completed with counts:', {
-        fortune30Partners: fortune30Partners.length,
-        internalPartners: internalPartners.length,
-        smePartners: allSMEPartners.slice(0, smeCount).length,
-        projects: projects.length,
-        spis: spis.length,
-        objectives: objectives.length,
-        sitreps: sitreps.length
-      });
-      
       return {
         fortune30Partners,
         internalPartners,

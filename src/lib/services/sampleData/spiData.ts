@@ -63,7 +63,7 @@ export const generateSampleObjectives = (count: number = 5) => {
   return objectives;
 };
 
-export const generateSampleSPIs = (projectIds: string[] = [], requestedCount: number): SPI[] => {
+export const generateSampleSPIs = (projectIds: string[], requestedCount: number): SPI[] => {
   if (projectIds.length === 0) {
     console.warn('No project IDs provided for SPI generation');
     return [];
@@ -101,7 +101,6 @@ export const generateSampleSitReps = (spis: SPI[], requestedCount: number): SitR
   const sitreps: SitRep[] = [];
 
   for (let i = 0; i < requestedCount; i++) {
-    // If we have no SPIs, generate a standalone sitrep
     if (spis.length === 0) {
       sitreps.push({
         id: `sitrep-${i + 1}`,

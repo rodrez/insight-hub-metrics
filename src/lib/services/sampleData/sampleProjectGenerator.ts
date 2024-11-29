@@ -5,10 +5,10 @@ import { DEPARTMENTS } from '@/lib/constants';
 import { defaultTechDomains } from '@/lib/types/techDomain';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiData';
 import { clearUsedNames } from './collaboratorAssignment';
+import { DataQuantities } from '@/components/data/SampleData';
 
 export const generateSampleProjects = async (
-  fortune30: Collaborator[], 
-  internalPartners: Collaborator[]
+  quantities: DataQuantities
 ): Promise<{
   projects: Project[];
   spis: any[];
@@ -19,23 +19,23 @@ export const generateSampleProjects = async (
     const projects: Project[] = [];
     clearUsedNames();
     
-    // Generate exactly 10 projects
-    for (let i = 0; i < 10; i++) {
+    // Generate exactly the requested number of projects
+    for (let i = 0; i < quantities.projects; i++) {
       const dept = DEPARTMENTS[i % DEPARTMENTS.length];
-      const project = buildProject(i, dept, defaultTechDomains, internalPartners, fortune30);
+      const project = buildProject(i, dept, defaultTechDomains, [], []);
       
       if (project) {
         projects.push(project);
       }
     }
 
-    // Generate related data
-    const spis = generateSampleSPIs(projects.map(p => p.id));
-    const objectives = generateSampleObjectives();
-    const sitreps = generateSampleSitReps(spis);
+    // Generate related data with specified quantities
+    const spis = generateSampleSPIs(projects.map(p => p.id), quantities.spis);
+    const objectives = generateSampleObjectives(quantities.objectives);
+    const sitreps = generateSampleSitReps(spis, quantities.sitreps);
     
     return { 
-      projects: projects.length > 0 ? projects : [generateFallbackProject(fortune30, internalPartners)],
+      projects: projects.length > 0 ? projects : [generateFallbackProject([], [])],
       spis,
       objectives,
       sitreps
@@ -43,7 +43,7 @@ export const generateSampleProjects = async (
   } catch (error) {
     console.error('Error generating sample projects:', error);
     return {
-      projects: [generateFallbackProject(fortune30, internalPartners)],
+      projects: [generateFallbackProject([], [])],
       spis: [],
       objectives: [],
       sitreps: []
