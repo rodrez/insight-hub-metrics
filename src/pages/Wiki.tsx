@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { SearchBar } from '@/components/wiki/SearchBar';
 import { WikiContent } from '@/components/wiki/WikiContent';
+import { LinesOfBusinessTable } from '@/components/wiki/LinesOfBusinessTable';
 
 const DEFAULT_WIKI_SECTIONS = [
   {
@@ -173,8 +174,8 @@ export default function Wiki() {
 
   return (
     <div className="container mx-auto px-4 pt-24 pb-12">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col items-start gap-2 mb-8">
+      <div className="max-w-6xl mx-auto space-y-8">
+        <div className="flex flex-col items-start gap-2">
           <h1 className="text-4xl font-bold tracking-tight">Wiki</h1>
           <p className="text-muted-foreground">
             Documentation, guidelines, and compliance information for our projects
@@ -182,6 +183,8 @@ export default function Wiki() {
         </div>
         
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        
+        <LinesOfBusinessTable />
         
         <WikiContent 
           sections={filteredSections}
