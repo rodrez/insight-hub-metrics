@@ -5,6 +5,7 @@ import { SPI } from '@/lib/types/spi';
 import { Objective } from '@/lib/types/objective';
 import { SitRep } from '@/lib/types/sitrep';
 import { validateDataQuantities, generateDataWithProgress } from '@/lib/services/data/utils/dataGenerationUtils';
+import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from '@/lib/services/data/generators/spiGenerator';
 
 export interface DataQuantities {
   projects: number;

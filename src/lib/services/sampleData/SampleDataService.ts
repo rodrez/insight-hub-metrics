@@ -1,10 +1,10 @@
 import { Project, Collaborator } from '@/lib/types';
-import { generateFortune30Partners } from '@/lib/services/data/fortune30Partners';
-import { generateInternalPartners } from '@/lib/services/data/internalPartners';
-import { generateSMEPartners } from '@/lib/services/data/smePartners';
+import { generateFortune30Partners } from '@/lib/services/data/generators/fortune30Generator';
+import { generateInternalPartners } from '@/lib/services/data/generators/internalPartnersGenerator';
+import { generateSMEPartners } from '@/lib/services/data/generators/smePartnersGenerator';
 import { generateSampleProjects } from '@/components/data/SampleData';
-import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiData';
-import { DataQuantities } from '@/components/data/SampleData';
+import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from '@/lib/services/data/generators/spiGenerator';
+import { DataQuantities } from '@/lib/types/data';
 import { toast } from "@/components/ui/use-toast";
 
 export class SampleDataService {
@@ -27,7 +27,8 @@ export class SampleDataService {
     objectives: 5,
     sitreps: 10,
     fortune30: 6,
-    internalPartners: 20
+    internalPartners: 20,
+    smePartners: 10
   }) {
     try {
       console.log('Starting sample data generation with quantities:', quantities);
