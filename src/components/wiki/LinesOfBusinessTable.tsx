@@ -6,9 +6,22 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { POCManagementDialog } from "./POCManagementDialog";
+import { useState } from "react";
+import { ContactPerson } from "@/lib/types/collaboration";
 
-// Define POC information for each business category
-const businessCategories = [
+type BusinessCategory = {
+  name: string;
+  description: string;
+  contacts: ContactPerson[];
+  lobs: Array<{
+    name: string;
+    department: string;
+  }>;
+};
+
+// Initial business categories data
+const initialBusinessCategories: BusinessCategory[] = [
   {
     name: "Aircraft",
     description: "Development and manufacturing of commercial and military aircraft, including rotorcraft and unmanned aerial systems",
@@ -51,80 +64,43 @@ const businessCategories = [
       { name: "Cybersecurity", department: "it" },
       { name: "Cloud Services", department: "techlab" }
     ]
-  },
-  {
-    name: "Space",
-    description: "Space exploration technologies, satellite systems, and launch vehicle development",
-    contacts: [
-      { name: "Kevin Turner", role: "Program Manager", email: "k.turner@company.com", phone: "555-0401" },
-      { name: "Nancy Green", role: "Spacecraft Engineer", email: "n.green@company.com", phone: "555-0402" },
-      { name: "Chris Evans", role: "Launch Coordinator", email: "c.evans@company.com", phone: "555-0403" }
-    ],
-    lobs: [
-      { name: "Satellite Systems", department: "space" },
-      { name: "Launch Vehicles", department: "space" },
-      { name: "Space Exploration", department: "space" }
-    ]
-  },
-  {
-    name: "Energy",
-    description: "Sustainable energy solutions, power systems, and grid infrastructure development",
-    contacts: [
-      { name: "Diana Lane", role: "Energy Project Lead", email: "d.lane@company.com", phone: "555-0501" },
-      { name: "Mark Smith", role: "Grid Systems Engineer", email: "m.smith@company.com", phone: "555-0502" },
-      { name: "Laura Hill", role: "Renewable Energy Analyst", email: "l.hill@company.com", phone: "555-0503" }
-    ],
-    lobs: [
-      { name: "Renewable Energy", department: "energy" },
-      { name: "Power Systems", department: "energy" },
-      { name: "Grid Solutions", department: "energy" }
-    ]
-  },
-  {
-    name: "Defense",
-    description: "Defense systems and electronics, including missile systems and combat technologies",
-    contacts: [
-      { name: "Henry Adams", role: "Defense Systems Director", email: "h.adams@company.com", phone: "555-0601" },
-      { name: "Sophia Carter", role: "Combat Systems Engineer", email: "s.carter@company.com", phone: "555-0602" },
-      { name: "Oliver James", role: "Missile Systems Analyst", email: "o.james@company.com", phone: "555-0603" }
-    ],
-    lobs: [
-      { name: "Missile Systems", department: "space" },
-      { name: "Defense Electronics", department: "techlab" },
-      { name: "Combat Systems", department: "airplanes" }
-    ]
-  },
-  {
-    name: "Research",
-    description: "Advanced research and development in materials, AI, robotics, and emerging technologies",
-    contacts: [
-      { name: "Ella Johnson", role: "R&D Lead", email: "e.johnson@company.com", phone: "555-0701" },
-      { name: "Jake Brown", role: "AI Researcher", email: "j.brown@company.com", phone: "555-0702" },
-      { name: "Emily Davis", role: "Robotics Engineer", email: "e.davis@company.com", phone: "555-0703" }
-    ],
-    lobs: [
-      { name: "Advanced Materials", department: "techlab" },
-      { name: "AI & Robotics", department: "techlab" },
-      { name: "Future Tech", department: "techlab" }
-    ]
   }
 ];
 
 export function LinesOfBusinessTable() {
+  const [businessCategories, setBusinessCategories] = useState<BusinessCategory[]>(initialBusinessCategories);
+
+  const handleUpdateContacts = (categoryName: string, newContacts: ContactPerson[]) => {
+    setBusinessCategories(categories =>
+      categories.map(category =>
+        category.name === categoryName
+          ? { ...category, contacts: newContacts }
+          : category
+      )
+    );
+  };
+
   return (
     <Card className="p-6 relative">
       <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-semibold mb-6">Lines of Business (LOB)</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-semibold">Lines of Business (LOB)</h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-7 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {businessCategories.map((category) => (
             <div key={category.name} className="space-y-3">
-              <h3 className="font-medium text-lg border-b pb-2 flex items-center gap-2">
-                {category.name}
-                <Info className="h-4 w-4 text-muted-foreground" />
-              </h3>
+              <div className="flex items-center justify-between border-b pb-2">
+                <h3 className="font-medium text-lg flex items-center gap-2">
+                  {category.name}
+                  <Info className="h-4 w-4 text-muted-foreground" />
+                </h3>
+                <POCManagementDialog
+                  categoryName={category.name}
+                  contacts={category.contacts}
+                  onSave={(contacts) => handleUpdateContacts(category.name, contacts)}
+                />
+              </div>
               <div className="space-y-2">
                 {category.lobs.map((lob) => {
                   const deptColor = DEPARTMENTS.find(d => d.id === lob.department)?.color;
