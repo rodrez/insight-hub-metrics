@@ -6,6 +6,7 @@ import { POCEditDialog } from "./POCEditDialog";
 import { LOBCard } from "./LOBCard";
 import { businessCategories as initialCategories } from "./data/businessCategories";
 import { toast } from "../ui/use-toast";
+import { LOB } from "./data/businessCategories";
 
 export function LinesOfBusinessTable() {
   const [categories, setCategories] = useState(initialCategories);
@@ -29,6 +30,19 @@ export function LinesOfBusinessTable() {
       title: "Success",
       description: "Category information updated successfully",
     });
+  };
+
+  const handleLOBUpdate = (categoryIndex: number, lobIndex: number, updatedLob: LOB) => {
+    setCategories(prev => prev.map((category, cIndex) => 
+      cIndex === categoryIndex
+        ? {
+            ...category,
+            lobs: category.lobs.map((lob, lIndex) =>
+              lIndex === lobIndex ? updatedLob : lob
+            )
+          }
+        : category
+    ));
   };
 
   return (
@@ -55,11 +69,12 @@ export function LinesOfBusinessTable() {
                 />
               </h3>
               <div className="space-y-2">
-                {category.lobs.map((lob) => (
+                {category.lobs.map((lob, lobIndex) => (
                   <LOBCard 
                     key={lob.name}
                     lob={lob}
                     category={category}
+                    onUpdate={(updatedLob) => handleLOBUpdate(categoryIndex, lobIndex, updatedLob)}
                   />
                 ))}
               </div>
@@ -67,7 +82,6 @@ export function LinesOfBusinessTable() {
           ))}
         </div>
 
-        {/* Color key */}
         <div className="absolute bottom-4 right-4">
           <div className="bg-card/80 backdrop-blur-sm p-3 rounded-lg shadow-sm border">
             <div className="grid grid-cols-3 gap-x-4 gap-y-2">
