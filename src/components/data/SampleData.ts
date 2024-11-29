@@ -38,13 +38,18 @@ export const validateDataRelationships = (data: GeneratedData): boolean => {
   console.log('Objectives count:', data.objectives.length);
   console.log('SitReps count:', data.sitreps.length);
   
+  // Create sets of valid IDs for faster lookup
+  const projectIds = new Set(data.projects.map(p => p.id));
+  const spiIds = new Set(data.spis.map(s => s.id));
+  
   // Validate project-SPI relationships
   console.log('\nValidating Project-SPI relationships...');
   const invalidSPIs = data.spis.filter(spi => {
-    const hasValidProject = data.projects.some(project => project.id === spi.projectId);
+    if (!spi.projectId) return false; // Skip if projectId is undefined (valid case)
+    const hasValidProject = projectIds.has(spi.projectId);
     if (!hasValidProject) {
       console.error(`SPI ${spi.id} references non-existent project: ${spi.projectId}`);
-      console.log('Available project IDs:', data.projects.map(p => p.id));
+      console.log('Available project IDs:', Array.from(projectIds));
     }
     return !hasValidProject;
   });
@@ -52,10 +57,10 @@ export const validateDataRelationships = (data: GeneratedData): boolean => {
   // Validate SPI-SitRep relationships
   console.log('\nValidating SPI-SitRep relationships...');
   const invalidSitReps = data.sitreps.filter(sitrep => {
-    const hasValidSPI = data.spis.some(spi => spi.id === sitrep.spiId);
+    const hasValidSPI = spiIds.has(sitrep.spiId);
     if (!hasValidSPI) {
       console.error(`SitRep ${sitrep.id} references non-existent SPI: ${sitrep.spiId}`);
-      console.log('Available SPI IDs:', data.spis.map(s => s.id));
+      console.log('Available SPI IDs:', Array.from(spiIds));
     }
     return !hasValidSPI;
   });
