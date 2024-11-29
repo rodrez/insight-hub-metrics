@@ -26,7 +26,7 @@ export function ProjectCardPartners({ project, getDepartmentColor }: ProjectCard
   const uniqueInternalPartners = Array.from(
     new Set(
       (project.internalPartners || [])
-        .filter(partner => !displayedPeople.has(partner.name))
+        .filter(partner => !displayedPeople.has(partner.name) && partner.type === 'internal')
         .map(partner => partner.id)
     )
   ).map(id => project.internalPartners?.find(partner => partner.id === id)!);

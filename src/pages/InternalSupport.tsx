@@ -26,7 +26,7 @@ export default function InternalSupport() {
       const allCollaborators = await db.getAllCollaborators();
       return allCollaborators.filter(c => {
         const matchesDepartment = !departmentId || c.department === departmentId;
-        return c.type === 'other' && matchesDepartment;
+        return c.type === 'internal' && matchesDepartment;
       });
     },
   });

@@ -1,5 +1,6 @@
 import { Collaborator } from "@/lib/types";
 import { generateId } from "../utils/dataGenerationUtils";
+import { DEPARTMENTS } from "@/lib/constants";
 
 export function generateInternalPartner(
   name: string,
@@ -17,4 +18,19 @@ export function generateInternalPartner(
     projects: [],
     lastActive: new Date().toISOString(),
   };
+}
+
+export function generateInternalPartners(): Collaborator[] {
+  const partners: Collaborator[] = [];
+  
+  DEPARTMENTS.forEach((dept, index) => {
+    partners.push(generateInternalPartner(
+      `${dept.name} Lead`,
+      `${dept.id}.lead@company.com`,
+      'Department Lead',
+      dept.id
+    ));
+  });
+
+  return partners;
 }

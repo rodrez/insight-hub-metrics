@@ -16,7 +16,7 @@ import { FormField, FormItem, FormLabel } from "@/components/ui/form";
 export const collaborationFormSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   email: z.string().email({ message: "Invalid email address" }),
-  type: z.enum(["fortune30", "sme"]),
+  type: z.enum(["fortune30", "sme", "internal"]),
   department: z.string().optional(),
   associatedProjects: z.array(z.string()).optional(),
   role: z.string().optional(),

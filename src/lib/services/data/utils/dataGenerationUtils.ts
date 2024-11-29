@@ -7,6 +7,10 @@ export interface GenerationProgress {
 
 export const BATCH_SIZE = 50;
 
+export const generateId = () => {
+  return `id-${Math.random().toString(36).substr(2, 9)}`;
+};
+
 export const processInBatches = async<T>(
   items: T[],
   processFn: (batch: T[]) => Promise<void>,
