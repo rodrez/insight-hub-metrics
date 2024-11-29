@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
-import { Edit, Trash2 } from "lucide-react";
+import { Pen, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collaborator } from "@/lib/types/collaboration";
 import { WorkstreamCard } from "./shared/WorkstreamCard";
@@ -29,11 +29,21 @@ export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
                 <CardDescription className="text-lg">{collaborator.role}</CardDescription>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="icon" onClick={() => onEdit(collaborator.id)}>
-                  <Edit className="h-4 w-4" />
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={() => onEdit(collaborator.id)}
+                  className="group"
+                >
+                  <Pen className="h-4 w-4 group-hover:text-green-500 transition-colors" />
                 </Button>
-                <Button variant="outline" size="icon" onClick={() => onDelete(collaborator.id)}>
-                  <Trash2 className="h-4 w-4" />
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={() => onDelete(collaborator.id)}
+                  className="group"
+                >
+                  <Trash2 className="h-4 w-4 group-hover:text-red-500 transition-colors" />
                 </Button>
               </div>
             </div>

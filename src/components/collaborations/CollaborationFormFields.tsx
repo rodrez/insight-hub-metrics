@@ -6,6 +6,9 @@ import { AgreementFields } from "./form/AgreementFields";
 import { WorkstreamFields } from "./form/WorkstreamFields";
 import { CollaborationType } from "@/lib/types";
 import { validateEmail } from "@/lib/utils/validation";
+import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/db';
+import { useEffect } from 'react';
 
 const contactPersonSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -56,6 +59,43 @@ export const CollaborationFormFields = ({
   collaborationType = 'fortune30',
   onSuccess 
 }: CollaborationFormFieldsProps) => {
+  // Fetch existing collaborator data if collaboratorId is provided
+  const { data: existingCollaborator } = useQuery({
+    queryKey: ['collaborator', collaboratorId],
+    queryFn: async () => {
+      if (!collaboratorId) return null;
+      if (collaborationType === 'sme') {
+        return await db.getSMEPartner(collaboratorId);
+      }
+      return await db.getCollaborator(collaboratorId);
+    },
+    enabled: !!collaboratorId
+  });
+
+  // Populate form with existing data when available
+  useEffect(() => {
+    if (existingCollaborator) {
+      form.reset({
+        name: existingCollaborator.name,
+        email: existingCollaborator.email,
+        role: existingCollaborator.role,
+        department: existingCollaborator.department,
+        color: existingCollaborator.color,
+        primaryContact: existingCollaborator.primaryContact || {
+          name: '',
+          role: '',
+          email: '',
+          phone: ''
+        },
+        workstreams: existingCollaborator.workstreams || [],
+        agreementType: 'None',
+        signedDate: '',
+        expiryDate: '',
+        details: ''
+      });
+    }
+  }, [existingCollaborator, form]);
+
   return (
     <div className="space-y-8">
       <BasicInfoFields form={form} departmentId={departmentId} />
