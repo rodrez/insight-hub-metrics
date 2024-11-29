@@ -4,7 +4,7 @@ import { generateInternalPartners } from './data/internalPartners';
 import { generateSMEPartners } from './data/smePartners';
 import { generateSampleProjects } from '@/components/data/SampleData';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './sampleData/spiData';
-import { SampleDataQuantities } from './DataService';
+import { DataQuantities } from '../types/data';
 import { toast } from "@/components/ui/use-toast";
 
 export class SampleDataService {
@@ -21,7 +21,7 @@ export class SampleDataService {
     return requested;
   }
 
-  async generateSampleData(quantities: SampleDataQuantities = {
+  async generateSampleData(quantities: DataQuantities = {
     projects: 10,
     spis: 10,
     objectives: 5,

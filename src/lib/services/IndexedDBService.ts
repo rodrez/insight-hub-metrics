@@ -2,7 +2,8 @@ import { Project, Collaborator, Team } from '../types';
 import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
-import { DataService, SampleDataQuantities } from './DataService';
+import { DataService } from './DataService';
+import { DataQuantities } from '../types/data';
 import { DatabaseTransactionService } from './db/DatabaseTransactionService';
 import { DatabaseConnectionService } from './db/DatabaseConnectionService';
 import { SampleDataService } from './sampleData/SampleDataService';
@@ -136,7 +137,7 @@ export class IndexedDBService implements DataService {
     await this.transactionService.performTransaction('smePartners', 'readwrite', store => store.put(partner));
   }
 
-  async populateSampleData(quantities: SampleDataQuantities): Promise<void> {
+  async populateSampleData(quantities: DataQuantities): Promise<void> {
     const sampleData = await this.sampleDataService.generateSampleData(quantities);
     
     // Add all data in sequence

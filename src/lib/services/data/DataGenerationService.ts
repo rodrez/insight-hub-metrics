@@ -5,7 +5,7 @@ import { generateFortune30Partners } from './fortune30Partners';
 import { generateInternalPartners } from './internalPartners';
 import { generateSMEPartners } from './smePartners';
 import { generateSampleProjects } from '@/components/data/SampleData';
-import { SampleDataQuantities } from '../DataService';
+import { DataQuantities } from '../../types/data';
 import { db } from "@/lib/db";
 
 export class DataGenerationService {
@@ -17,8 +17,7 @@ export class DataGenerationService {
     });
   }
 
-  private async generatePartners(quantities: SampleDataQuantities) {
-    // Generate partners
+  private async generatePartners(quantities: DataQuantities) {
     const fortune30Partners = generateFortune30Partners().slice(0, quantities.fortune30);
     this.showSuccessStep(`Generated ${fortune30Partners.length} Fortune 30 partners`);
 
@@ -36,7 +35,7 @@ export class DataGenerationService {
     };
   }
 
-  private async generateProjectData(quantities: SampleDataQuantities) {
+  private async generateProjectData(quantities: DataQuantities) {
     const { projects, spis, objectives, sitreps } = await generateSampleProjects(quantities);
     
     this.showSuccessStep(`Generated ${projects.length} projects`);
@@ -82,7 +81,7 @@ export class DataGenerationService {
     });
   }
 
-  async generateAndSaveData(quantities: SampleDataQuantities) {
+  async generateAndSaveData(quantities: DataQuantities) {
     try {
       // Initialize database
       await db.init();

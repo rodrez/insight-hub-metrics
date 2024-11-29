@@ -5,7 +5,7 @@ import { DEPARTMENTS } from '@/lib/constants';
 import { defaultTechDomains } from '@/lib/types/techDomain';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiData';
 import { clearUsedNames } from './collaboratorAssignment';
-import { DataQuantities } from '@/components/data/SampleData';
+import { DataQuantities } from '@/lib/types/data';
 
 export const generateSampleProjects = async (
   quantities: DataQuantities
