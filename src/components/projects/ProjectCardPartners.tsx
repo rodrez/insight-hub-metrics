@@ -61,7 +61,7 @@ export function ProjectCardPartners({ project, getDepartmentColor }: ProjectCard
       )}
       
       {renderPartnerSection(
-        'Subject Matter Experts',
+        'Small Medium Enterprises',
         smePartners,
         'No SME partners assigned'
       )}

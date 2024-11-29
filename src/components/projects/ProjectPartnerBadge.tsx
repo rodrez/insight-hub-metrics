@@ -45,7 +45,7 @@ export function ProjectPartnerBadge({ partner, departmentColor }: ProjectPartner
           </Badge>
         </TooltipTrigger>
         <TooltipContent>
-          <p>{partner.type === 'sme' ? 'Subject Matter Expert' : 
+          <p>{partner.type === 'sme' ? 'Small Medium Enterprise' : 
              partner.type === 'fortune30' ? 'Fortune 30 Partner' : 
              'Internal Partner'}</p>
           <p>Department: {partner.department}</p>
