@@ -4,3 +4,5 @@ export interface PointOfContact {
   email: string;
   department: string;
 }
+
+export type Contact = PointOfContact;

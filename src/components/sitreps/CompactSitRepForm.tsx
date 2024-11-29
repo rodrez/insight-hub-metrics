@@ -12,7 +12,7 @@ import { RelationshipFields } from "./form/RelationshipFields";
 import { ContentFields } from "./form/ContentFields";
 import { DepartmentFields } from "./form/DepartmentFields";
 import { POCFields } from "./form/POCFields";
-import { Contact } from "@/components/wiki/types/contact";
+import { Contact } from "@/lib/types/pointOfContact";
 
 interface CompactSitRepFormProps {
   onSubmitSuccess: () => void;
@@ -33,22 +33,8 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
   const [selectedFortune30, setSelectedFortune30] = useState<string>(initialData?.fortune30PartnerId || "none");
   const [selectedSME, setSelectedSME] = useState<string>(initialData?.smePartnerId || "none");
   const [selectedDepartment, setSelectedDepartment] = useState<string>(initialData?.departmentId || "none");
-  const [selectedPartner, setSelectedPartner] = useState<string>("none");
-  const [status, setStatus] = useState<'pending-review' | 'ready' | 'submitted'>(
-    initialData?.status || 'pending-review'
-  );
-  const [level, setLevel] = useState<"CEO" | "SVP" | "CTO">(
-    initialData?.level || "SVP"
-  );
   const [supportingTeams, setSupportingTeams] = useState<string[]>(initialData?.teams || []);
-  const [contacts, setContacts] = useState<Contact[]>(
-    initialData?.pointsOfContact?.map(poc => ({
-      name: poc,
-      role: "",
-      email: "",
-      phone: "",
-    })) || []
-  );
+  const [contacts, setContacts] = useState<Contact[]>([]);
 
   const { data: projects } = useQuery({
     queryKey: ['projects'],
@@ -61,7 +47,6 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
   });
 
   const fortune30Partners = collaborators?.filter(c => c.type === 'fortune30') || [];
-  const filteredInternalPartners = [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,8 +69,8 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
         update,
         challenges,
         nextSteps,
-        status,
-        level,
+        status: initialData?.status || 'pending-review',
+        level: initialData?.level || "SVP",
         summary,
         projectId: selectedProject !== "none" ? selectedProject : undefined,
         departmentId: selectedDepartment !== "none" ? selectedDepartment : undefined,
@@ -126,40 +111,29 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
     <form onSubmit={handleSubmit} className="space-y-6">
       <ScrollArea className="h-[calc(85vh-120px)] pr-4">
         <div className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <BasicInfoFields
-              selectedDate={selectedDate}
-              setSelectedDate={setSelectedDate}
-              title={title}
-              setTitle={setTitle}
-              status={status}
-              setStatus={setStatus}
-              level={level}
-              setLevel={setLevel}
-            />
-            
-            <RelationshipFields
-              selectedProject={selectedProject}
-              setSelectedProject={setSelectedProject}
-              selectedFortune30={selectedFortune30}
-              setSelectedFortune30={setSelectedFortune30}
-              selectedSME={selectedSME}
-              setSelectedSME={setSelectedSME}
-              selectedDepartment={selectedDepartment}
-              setSelectedDepartment={setSelectedDepartment}
-              selectedPartner={selectedPartner}
-              setSelectedPartner={setSelectedPartner}
-              projects={projects || []}
-              fortune30Partners={fortune30Partners}
-              filteredInternalPartners={filteredInternalPartners}
-            />
-          </div>
-
+          <BasicInfoFields
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            title={title}
+            setTitle={setTitle}
+          />
+          
           <DepartmentFields
             selectedDepartment={selectedDepartment}
             setSelectedDepartment={setSelectedDepartment}
             supportingTeams={supportingTeams}
             setSupportingTeams={setSupportingTeams}
+          />
+
+          <RelationshipFields
+            selectedProject={selectedProject}
+            setSelectedProject={setSelectedProject}
+            selectedFortune30={selectedFortune30}
+            setSelectedFortune30={setSelectedFortune30}
+            selectedSME={selectedSME}
+            setSelectedSME={setSelectedSME}
+            projects={projects || []}
+            fortune30Partners={fortune30Partners}
           />
 
           <POCFields
@@ -180,7 +154,7 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
         </div>
       </ScrollArea>
 
-      <Button type="submit" className="w-full bg-white text-black hover:bg-gray-100">
+      <Button type="submit" className="w-full">
         {initialData ? "Update Sitrep" : "Create Sitrep"}
       </Button>
     </form>
@@ -190,13 +164,13 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="icon" className="h-8 w-8 sm:h-10 sm:w-10">
+          <Button variant="outline" size="icon">
             <Plus className="h-4 w-4" />
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[600px] w-[95vw] max-h-[90vh] p-6 bg-[#1A1F2C] text-white">
+        <DialogContent className="sm:max-w-[600px] w-[95vw] max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-white">
+            <DialogTitle>
               {initialData ? "Edit Sitrep" : "Create New Sitrep"}
             </DialogTitle>
           </DialogHeader>
