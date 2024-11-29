@@ -73,6 +73,31 @@ export type ContactPerson = {
   phone?: string;
 };
 
+export type AgreementStatus = 'signed' | 'pending' | 'expired';
+export type AgreementType = 'NDA' | 'JTDA' | 'Both' | 'None';
+
+export type Agreement = {
+  signedDate: string;
+  expiryDate: string;
+  status: AgreementStatus;
+};
+
+export type CollaboratorAgreements = {
+  nda?: Agreement;
+  jtda?: Agreement;
+};
+
+export type Workstream = {
+  id: string;
+  title: string;
+  objectives: string;
+  nextSteps: string;
+  keyContacts: ContactPerson[];
+  status: 'active' | 'completed' | 'on-hold';
+  startDate: string;
+  lastUpdated: string;
+};
+
 export type Collaborator = {
   id: string;
   name: string;
@@ -83,20 +108,9 @@ export type Collaborator = {
   lastActive: string;
   type: CollaborationType;
   color?: string;
-  agreements?: {
-    nda?: Agreement;
-    jtda?: Agreement;
-  };
+  agreements?: CollaboratorAgreements;
   primaryContact?: ContactPerson;
-};
-
-export type AgreementStatus = 'signed' | 'pending' | 'expired';
-export type AgreementType = 'NDA' | 'JTDA' | 'Both' | 'None';
-
-export type Agreement = {
-  signedDate: string;
-  expiryDate: string;
-  status: AgreementStatus;
+  workstreams?: Workstream[];
 };
 
 export type Team = {

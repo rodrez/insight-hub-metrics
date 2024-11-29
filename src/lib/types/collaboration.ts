@@ -30,29 +30,4 @@ export type Workstream = {
   lastUpdated: string;
 };
 
-export type CollaboratorProject = {
-  id: string;
-  name: string;
-  description?: string;
-  status?: 'active' | 'completed' | 'delayed' | 'action-needed';
-  nabc?: {
-    needs: string;
-  };
-};
-
-export type Collaborator = {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  department: string;
-  projects: CollaboratorProject[];
-  lastActive: string;
-  type: CollaborationType;
-  color?: string;
-  agreements?: CollaboratorAgreements;
-  primaryContact?: ContactPerson;
-  workstreams?: Workstream[];
-};
-
 export type CollaborationType = 'fortune30' | 'other' | 'sme';
