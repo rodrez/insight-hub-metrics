@@ -20,6 +20,7 @@ import { DEPARTMENTS } from "@/lib/constants";
 import { SupportingTeamsSelect } from "./SupportingTeamsSelect";
 import { PointsOfContactForm } from "./PointsOfContactForm";
 import { SitRep } from "@/lib/types/sitrep";
+import { PointOfContact } from "@/lib/types/pointOfContact";
 
 interface CompactSitRepFormProps {
   onSubmitSuccess: () => void;
@@ -71,39 +72,39 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
     }
 
     try {
-      await db.addSitRep({
-        id: initialData ? initialData.id : `sitrep-${Date.now()}`,
-        date: new Date().toISOString(),
-        spiId: "temp-spi-id",
+      const sitrepData = {
+        id: initialData?.id || `sitrep-${Date.now()}`,
+        date: initialData?.date || new Date().toISOString(),
+        spiId: initialData?.spiId || "temp-spi-id",
         title,
         update: content,
-        challenges: "",
-        nextSteps: "",
-        status: 'pending-review',
+        challenges: initialData?.challenges || "",
+        nextSteps: initialData?.nextSteps || "",
+        status: initialData?.status || 'pending-review',
         summary: content,
         departmentId: keyTeam !== "none" ? keyTeam : "default",
         level: importanceLevel.toUpperCase() as "CEO" | "SVP" | "CTO",
         teams: supportingTeams,
         pointsOfContact: pointsOfContact.map(poc => `${poc.name} (${poc.title})`)
-      });
+      };
+
+      if (initialData) {
+        await db.updateSitRep(initialData.id, sitrepData);
+      } else {
+        await db.addSitRep(sitrepData);
+      }
       
       toast({
         title: "Success",
-        description: "SitRep added successfully"
+        description: initialData ? "SitRep updated successfully" : "SitRep added successfully"
       });
       
       setOpen(false);
-      setTitle("");
-      setContent("");
-      setKeyTeam("none");
-      setSupportingTeams([]);
-      setPointsOfContact([]);
-      
       onSubmitSuccess();
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to add SitRep",
+        description: initialData ? "Failed to update SitRep" : "Failed to add SitRep",
         variant: "destructive"
       });
     }
