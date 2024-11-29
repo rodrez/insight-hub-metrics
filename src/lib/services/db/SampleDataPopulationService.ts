@@ -22,16 +22,28 @@ export class SampleDataPopulationService extends BaseDBService {
       const store = transaction.objectStore(storeName);
       let completed = 0;
 
-      data.forEach(item => {
-        const request = store.put(item);
-        request.onsuccess = () => {
-          completed++;
-          if (completed === data.length) resolve();
-        };
-        request.onerror = () => reject(request.error);
-      });
+      // Clear existing data first
+      const clearRequest = store.clear();
+      clearRequest.onerror = () => reject(clearRequest.error);
+      clearRequest.onsuccess = () => {
+        // After clearing, add new data
+        if (data.length === 0) {
+          resolve();
+          return;
+        }
 
-      if (data.length === 0) resolve();
+        data.forEach(item => {
+          const request = store.put(item);
+          request.onsuccess = () => {
+            completed++;
+            if (completed === data.length) resolve();
+          };
+          request.onerror = () => {
+            console.error(`Error adding item to ${storeName}:`, request.error);
+            reject(request.error);
+          };
+        });
+      };
     });
   }
 
@@ -39,16 +51,26 @@ export class SampleDataPopulationService extends BaseDBService {
     let transaction: IDBTransaction | null = null;
 
     try {
-      console.log('Starting sample data population...');
+      console.log('Starting sample data population with quantities:', quantities);
       
       // Generate all sample data first
       const fortune30Partners = generateFortune30Partners().slice(0, quantities.fortune30);
+      console.log('Generated Fortune 30 partners:', fortune30Partners.length);
+      
       const internalPartners = (await generateInternalPartners()).slice(0, quantities.internalPartners);
+      console.log('Generated internal partners:', internalPartners.length);
+      
       const smePartners = generateSMEPartners().slice(0, quantities.smePartners);
+      console.log('Generated SME partners:', smePartners.length);
       
       const { projects, spis, objectives, sitreps } = await generateSampleProjects(quantities);
+      console.log('Generated projects:', projects.length);
+      console.log('Generated SPIs:', spis.length);
+      console.log('Generated objectives:', objectives.length);
+      console.log('Generated sitreps:', sitreps.length);
 
       // Start transaction
+      await this.ensureInitialized();
       transaction = await this.beginTransaction();
 
       // Set up transaction event handlers
@@ -58,8 +80,7 @@ export class SampleDataPopulationService extends BaseDBService {
 
       // Populate all stores within the same transaction
       await Promise.all([
-        this.populateStore(transaction, 'collaborators', fortune30Partners),
-        this.populateStore(transaction, 'collaborators', internalPartners),
+        this.populateStore(transaction, 'collaborators', [...fortune30Partners, ...internalPartners]),
         this.populateStore(transaction, 'smePartners', smePartners),
         this.populateStore(transaction, 'projects', projects),
         this.populateStore(transaction, 'spis', spis),
@@ -67,6 +88,7 @@ export class SampleDataPopulationService extends BaseDBService {
         this.populateStore(transaction, 'sitreps', sitreps),
       ]);
 
+      console.log('Successfully populated all stores');
       toast({
         title: "Success",
         description: "Sample data populated successfully",
@@ -81,7 +103,7 @@ export class SampleDataPopulationService extends BaseDBService {
 
       toast({
         title: "Error",
-        description: "Failed to populate sample data",
+        description: "Failed to populate sample data. Check console for details.",
         variant: "destructive",
       });
       throw error;
