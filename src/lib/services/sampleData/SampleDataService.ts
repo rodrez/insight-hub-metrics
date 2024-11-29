@@ -10,6 +10,7 @@ import { toast } from "@/components/ui/use-toast";
 export class SampleDataService {
   private validateQuantities(available: number, requested: number, type: string): number {
     if (requested > available) {
+      console.log(`Adjusting ${type} quantity from ${requested} to ${available} (maximum available)`);
       toast({
         title: "Notice",
         description: `Requested ${requested} ${type}, but only ${available} are available. Adjusting quantity.`,
@@ -30,9 +31,16 @@ export class SampleDataService {
     smePartners: 10
   }) {
     try {
+      console.log('Starting sample data generation with quantities:', quantities);
+      
       const allFortune30 = generateFortune30Partners();
+      console.log('Generated Fortune 30 partners:', allFortune30.length);
+      
       const allInternalPartners = await generateInternalPartners();
+      console.log('Generated internal partners:', allInternalPartners.length);
+      
       const allSMEPartners = generateSMEPartners();
+      console.log('Generated SME partners:', allSMEPartners.length);
 
       // Validate and adjust quantities
       const fortune30Count = this.validateQuantities(allFortune30.length, quantities.fortune30, "Fortune 30 partners");
@@ -42,12 +50,29 @@ export class SampleDataService {
       const fortune30Partners = allFortune30.slice(0, fortune30Count);
       const internalPartners = allInternalPartners.slice(0, internalCount);
 
+      console.log('Starting project generation with validated quantities:', {
+        projects: quantities.projects,
+        spis: quantities.spis,
+        objectives: quantities.objectives,
+        sitreps: quantities.sitreps
+      });
+
       // Generate projects using the selected partners
       const { projects, spis, objectives, sitreps } = await generateSampleProjects({
         projects: quantities.projects,
         spis: quantities.spis,
         objectives: quantities.objectives,
         sitreps: quantities.sitreps
+      });
+
+      console.log('Sample data generation completed with counts:', {
+        fortune30Partners: fortune30Partners.length,
+        internalPartners: internalPartners.length,
+        smePartners: allSMEPartners.slice(0, smeCount).length,
+        projects: projects.length,
+        spis: spis.length,
+        objectives: objectives.length,
+        sitreps: sitreps.length
       });
       
       return {
@@ -61,6 +86,7 @@ export class SampleDataService {
       };
     } catch (error) {
       console.error('Error in sample data generation:', error);
+      console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace available');
       toast({
         title: "Error",
         description: "Failed to generate sample data. Please try again.",
