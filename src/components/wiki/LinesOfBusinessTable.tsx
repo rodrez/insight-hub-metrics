@@ -12,17 +12,15 @@ export function LinesOfBusinessTable() {
   const [categories, setCategories] = useState(initialCategories);
 
   const handleUpdate = (categoryIndex: number, data: { 
-    description: string; 
-    detailedDescription: string; 
-    contacts: any[]; 
+    name: string;
+    description: string;
   }) => {
     setCategories(prev => prev.map((category, index) => 
       index === categoryIndex 
         ? { 
             ...category, 
+            name: data.name,
             description: data.description,
-            detailedDescription: data.detailedDescription,
-            contacts: data.contacts 
           }
         : category
     ));
@@ -63,8 +61,6 @@ export function LinesOfBusinessTable() {
                 <POCEditDialog
                   categoryName={category.name}
                   description={category.description}
-                  detailedDescription={category.detailedDescription || ""}
-                  contacts={category.contacts}
                   onSave={(data) => handleUpdate(categoryIndex, data)}
                 />
               </h3>
