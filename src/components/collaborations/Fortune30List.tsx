@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
-import { Mail, Edit, Trash2, Info, Phone } from "lucide-react";
+import { Mail, Pen, Trash2, Info, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collaborator } from "@/lib/types/collaboration";
 import {

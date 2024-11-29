@@ -4,6 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Collaborator } from "@/lib/types/collaboration";
 import { WorkstreamCard } from "./shared/WorkstreamCard";
 import { ContactInfo } from "./shared/ContactInfo";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type SMEListProps = {
   collaborators: Collaborator[];
@@ -29,22 +35,41 @@ export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
                 <CardDescription className="text-lg">{collaborator.role}</CardDescription>
               </div>
               <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  onClick={() => onEdit(collaborator.id)}
-                  className="group"
-                >
-                  <Pen className="h-4 w-4 group-hover:text-green-500 transition-colors" />
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  onClick={() => onDelete(collaborator.id)}
-                  className="group"
-                >
-                  <Trash2 className="h-4 w-4 group-hover:text-red-500 transition-colors" />
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => onEdit(collaborator.id)}
+                        className="text-gray-400 hover:text-green-500 transition-colors"
+                      >
+                        <Pen className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Edit collaborator</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => onDelete(collaborator.id)}
+                        className="text-gray-400 hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Delete collaborator</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
           </CardHeader>
