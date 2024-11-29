@@ -41,6 +41,7 @@ export function POCEditDialog({
 
   const onSubmit = (data: FormValues) => {
     onSave(data);
+    form.reset({ name: data.name, description: data.description });
   };
 
   return (
