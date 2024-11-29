@@ -9,6 +9,7 @@ import { toast } from "@/components/ui/use-toast";
 import { DEPARTMENTS } from "@/lib/constants";
 import { db } from "@/lib/db";
 import { TechDomainSelect } from "@/components/projects/TechDomainSelect";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function AddProject() {
   const navigate = useNavigate();
@@ -19,6 +20,12 @@ export default function AddProject() {
   const [techLeadDepartment, setTechLeadDepartment] = useState("");
   const [budget, setBudget] = useState("");
   const [techDomainId, setTechDomainId] = useState("");
+  
+  // NABC fields
+  const [needs, setNeeds] = useState("");
+  const [approach, setApproach] = useState("");
+  const [benefits, setBenefits] = useState("");
+  const [competition, setCompetition] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +44,12 @@ export default function AddProject() {
         departmentId: pocDepartment,
         collaborators: [],
         techDomainId,
+        nabc: {
+          needs,
+          approach,
+          benefits,
+          competition
+        }
       };
 
       await db.addProject(newProject);
@@ -143,6 +156,58 @@ export default function AddProject() {
                 value={techDomainId}
                 onValueChange={setTechDomainId}
               />
+            </div>
+
+            <div className="space-y-4">
+              <CardTitle className="text-lg">NABC Analysis</CardTitle>
+              
+              <div>
+                <Label htmlFor="needs">Needs</Label>
+                <Textarea
+                  id="needs"
+                  placeholder="What customer and market needs are being addressed?"
+                  value={needs}
+                  onChange={(e) => setNeeds(e.target.value)}
+                  className="h-24"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="approach">Approach</Label>
+                <Textarea
+                  id="approach"
+                  placeholder="How will these needs be met?"
+                  value={approach}
+                  onChange={(e) => setApproach(e.target.value)}
+                  className="h-24"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="benefits">Benefits</Label>
+                <Textarea
+                  id="benefits"
+                  placeholder="What are the quantifiable benefits?"
+                  value={benefits}
+                  onChange={(e) => setBenefits(e.target.value)}
+                  className="h-24"
+                  required
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="competition">Competition</Label>
+                <Textarea
+                  id="competition"
+                  placeholder="How does this compare to competitive approaches?"
+                  value={competition}
+                  onChange={(e) => setCompetition(e.target.value)}
+                  className="h-24"
+                  required
+                />
+              </div>
             </div>
 
             <div className="flex gap-4">
