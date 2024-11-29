@@ -1,10 +1,10 @@
-import { Project, Collaborator } from '../types';
+import { Project, Collaborator } from '@/lib/types';
 import { generateFortune30Partners } from './data/fortune30Partners';
 import { generateInternalPartners } from './data/internalPartners';
 import { generateSMEPartners } from './data/smePartners';
 import { generateSampleProjects } from '@/components/data/SampleData';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './sampleData/spiData';
-import { DataQuantities } from '../types/data';
+import { DataQuantities } from '@/lib/types/data';
 import { toast } from "@/components/ui/use-toast";
 
 export class SampleDataService {
@@ -50,14 +50,7 @@ export class SampleDataService {
       const fortune30Partners = allFortune30.slice(0, fortune30Count);
       const internalPartners = allInternalPartners.slice(0, internalCount);
 
-      const { projects, spis, objectives, sitreps } = await generateSampleProjects({
-        projects: quantities.projects,
-        spis: quantities.spis,
-        objectives: quantities.objectives,
-        sitreps: quantities.sitreps,
-        fortune30: quantities.fortune30,
-        internalPartners: quantities.internalPartners
-      });
+      const { projects, spis, objectives, sitreps } = await generateSampleProjects(quantities);
 
       return {
         fortune30Partners,
