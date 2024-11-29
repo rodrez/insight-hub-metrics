@@ -7,6 +7,12 @@ import { Workstream } from "@/lib/types/collaboration";
 import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
 import { useQueryClient } from "@tanstack/react-query";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { WorkstreamFields } from "../form/WorkstreamFields";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "@/components/ui/form";
+import { formSchema } from "../CollaborationFormFields";
 
 type CollaboratorWorkstreamsProps = {
   workstreams?: Workstream[];
@@ -15,6 +21,12 @@ type CollaboratorWorkstreamsProps = {
 
 export function CollaboratorWorkstreams({ workstreams, collaboratorId }: CollaboratorWorkstreamsProps) {
   const queryClient = useQueryClient();
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      workstreams: []
+    }
+  });
   
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString();
@@ -25,10 +37,9 @@ export function CollaboratorWorkstreams({ workstreams, collaboratorId }: Collabo
       const collaborator = await db.getCollaborator(collaboratorId);
       if (!collaborator) return;
 
-      const updatedWorkstreams = collaborator.workstreams?.filter(w => w.id !== workstreamId) || [];
       await db.addCollaborator({
         ...collaborator,
-        workstreams: updatedWorkstreams
+        workstreams: collaborator.workstreams?.filter(w => w.id !== workstreamId) || []
       });
 
       queryClient.invalidateQueries({ queryKey: ['collaborators'] });
@@ -46,12 +57,51 @@ export function CollaboratorWorkstreams({ workstreams, collaboratorId }: Collabo
     }
   };
 
-  const handleEdit = (workstream: Workstream) => {
-    // TODO: Implement edit functionality in a separate PR
-    toast({
-      title: "Coming soon",
-      description: "Edit functionality will be implemented soon",
-    });
+  const handleEdit = async (workstream: Workstream) => {
+    try {
+      const collaborator = await db.getCollaborator(collaboratorId);
+      if (!collaborator) return;
+
+      form.reset({
+        workstreams: [workstream]
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load workstream data",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const onSubmit = async (data: any) => {
+    try {
+      const collaborator = await db.getCollaborator(collaboratorId);
+      if (!collaborator) return;
+
+      const updatedWorkstream = data.workstreams[0];
+      const updatedWorkstreams = collaborator.workstreams?.map(w => 
+        w.id === updatedWorkstream.id ? updatedWorkstream : w
+      ) || [];
+
+      await db.addCollaborator({
+        ...collaborator,
+        workstreams: updatedWorkstreams
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['collaborators'] });
+      
+      toast({
+        title: "Success",
+        description: "Workstream updated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update workstream",
+        variant: "destructive",
+      });
+    }
   };
 
   if (!workstreams?.length) {
@@ -82,14 +132,29 @@ export function CollaboratorWorkstreams({ workstreams, collaboratorId }: Collabo
                   </Badge>
                 </div>
                 <div className="flex gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleEdit(workstream)}
-                    className="text-gray-400 hover:text-green-500 transition-colors"
-                  >
-                    <Pen className="h-4 w-4" />
-                  </Button>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEdit(workstream)}
+                        className="text-gray-400 hover:text-green-500 transition-colors"
+                      >
+                        <Pen className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Edit Workstream</DialogTitle>
+                      </DialogHeader>
+                      <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                          <WorkstreamFields form={form} />
+                          <Button type="submit">Save Changes</Button>
+                        </form>
+                      </Form>
+                    </DialogContent>
+                  </Dialog>
                   <Button
                     variant="ghost"
                     size="icon"

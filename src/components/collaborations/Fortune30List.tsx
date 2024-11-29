@@ -68,7 +68,10 @@ export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30List
                     warningSettings={warningSettings}
                   />
                 </div>
-                <CollaboratorWorkstreams workstreams={collaborator.workstreams} />
+                <CollaboratorWorkstreams 
+                  workstreams={collaborator.workstreams} 
+                  collaboratorId={collaborator.id}
+                />
               </div>
             </CardContent>
           </Card>
