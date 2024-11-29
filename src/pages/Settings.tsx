@@ -1,85 +1,113 @@
-import { useState } from "react";
-import DataManagement from "@/components/data/DataManagement";
-import { TechDomainSettings } from "@/components/settings/TechDomainSettings";
-import { DepartmentSettings } from "@/components/settings/DepartmentSettings";
-import { AgreementWarningSettings } from "@/components/settings/AgreementWarningSettings";
-import { StatusColorSettings } from "@/components/settings/StatusColorSettings";
-import { SampleDataSettings } from "@/components/settings/SampleDataSettings";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SampleDataSettings } from "@/components/settings/SampleDataSettings";
+import { StatusColorSettings } from "@/components/settings/StatusColorSettings";
+import { DepartmentSettings } from "@/components/settings/DepartmentSettings";
+import { TechDomainSettings } from "@/components/settings/TechDomainSettings";
+import { AgreementWarningSettings } from "@/components/settings/AgreementWarningSettings";
+import { useQuery } from "@tanstack/react-query";
+import { db } from "@/lib/db";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function Settings() {
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: () => db.getAllProjects()
+  });
+
+  const { data: collaborators = [] } = useQuery({
+    queryKey: ['collaborators'],
+    queryFn: () => db.getAllCollaborators()
+  });
+
+  const { data: spis = [] } = useQuery({
+    queryKey: ['spis'],
+    queryFn: () => db.getAllSPIs()
+  });
+
+  const { data: objectives = [] } = useQuery({
+    queryKey: ['objectives'],
+    queryFn: () => db.getAllObjectives()
+  });
+
+  const { data: sitreps = [] } = useQuery({
+    queryKey: ['sitreps'],
+    queryFn: () => db.getAllSitReps()
+  });
+
+  const { data: smePartners = [] } = useQuery({
+    queryKey: ['smePartners'],
+    queryFn: () => db.getAllSMEPartners()
+  });
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Settings</h1>
-      
-      <div className="grid gap-8">
-        <Tabs defaultValue="colors">
-          <TabsList>
-            <TabsTrigger value="colors">Status Colors</TabsTrigger>
-            <TabsTrigger value="departments">Departments</TabsTrigger>
-            <TabsTrigger value="tech-domains">Tech Domains</TabsTrigger>
-            <TabsTrigger value="sample-data">Sample Data</TabsTrigger>
-            <TabsTrigger value="data">Data Management</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="colors">
-            <Card>
-              <CardHeader>
-                <CardTitle>Colors & Warnings</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-8">
-                <StatusColorSettings />
-                <AgreementWarningSettings />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="departments">
-            <Card>
-              <CardHeader>
-                <CardTitle>Departments</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <DepartmentSettings />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="tech-domains">
-            <Card>
-              <CardHeader>
-                <CardTitle>Tech Domains</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <TechDomainSettings />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="sample-data">
-            <Card>
-              <CardHeader>
-                <CardTitle>Sample Data Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <SampleDataSettings />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="data">
-            <Card>
-              <CardHeader>
-                <CardTitle>Database Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <DataManagement />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+      <Tabs defaultValue="sample-data">
+        <TabsList>
+          <TabsTrigger value="sample-data">Sample Data</TabsTrigger>
+          <TabsTrigger value="status-colors">Status Colors</TabsTrigger>
+          <TabsTrigger value="departments">Departments</TabsTrigger>
+          <TabsTrigger value="tech-domains">Tech Domains</TabsTrigger>
+          <TabsTrigger value="agreement-warnings">Agreement Warnings</TabsTrigger>
+        </TabsList>
+        <TabsContent value="sample-data" className="space-y-6">
+          <SampleDataSettings />
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Current Database Contents</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4">
+                <div className="flex justify-between items-center p-2 rounded-lg hover:bg-muted/50">
+                  <span className="font-medium">Projects</span>
+                  <Badge variant="default">{projects.length}</Badge>
+                </div>
+                <div className="flex justify-between items-center p-2 rounded-lg hover:bg-muted/50">
+                  <span className="font-medium">Fortune 30 Partners</span>
+                  <Badge variant="default">
+                    {collaborators.filter(c => c.type === 'fortune30').length}
+                  </Badge>
+                </div>
+                <div className="flex justify-between items-center p-2 rounded-lg hover:bg-muted/50">
+                  <span className="font-medium">Internal Partners</span>
+                  <Badge variant="default">
+                    {collaborators.filter(c => c.type === 'other').length}
+                  </Badge>
+                </div>
+                <div className="flex justify-between items-center p-2 rounded-lg hover:bg-muted/50">
+                  <span className="font-medium">SME Partners</span>
+                  <Badge variant="default">{smePartners.length}</Badge>
+                </div>
+                <div className="flex justify-between items-center p-2 rounded-lg hover:bg-muted/50">
+                  <span className="font-medium">SPIs</span>
+                  <Badge variant="default">{spis.length}</Badge>
+                </div>
+                <div className="flex justify-between items-center p-2 rounded-lg hover:bg-muted/50">
+                  <span className="font-medium">Objectives</span>
+                  <Badge variant="default">{objectives.length}</Badge>
+                </div>
+                <div className="flex justify-between items-center p-2 rounded-lg hover:bg-muted/50">
+                  <span className="font-medium">SitReps</span>
+                  <Badge variant="default">{sitreps.length}</Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="status-colors">
+          <StatusColorSettings />
+        </TabsContent>
+        <TabsContent value="departments">
+          <DepartmentSettings />
+        </TabsContent>
+        <TabsContent value="tech-domains">
+          <TechDomainSettings />
+        </TabsContent>
+        <TabsContent value="agreement-warnings">
+          <AgreementWarningSettings />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
