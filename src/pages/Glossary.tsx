@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { Input } from "@/components/ui/input";
-import { Search } from 'lucide-react';
+import { Search, Pen, Trash2 } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 
 type GlossaryItem = {
   id: string;
@@ -115,9 +122,44 @@ export default function Glossary() {
                       <h3 className="font-semibold">{item.term}</h3>
                       <p className="text-sm text-muted-foreground mt-1">{item.definition}</p>
                     </div>
-                    <span className="text-xs text-muted-foreground px-2 py-1 bg-muted rounded">
-                      {item.category}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-gray-400 hover:text-green-500 transition-colors"
+                            >
+                              <Pen className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Edit term</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-gray-400 hover:text-red-500 transition-colors"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Delete term</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      <span className="text-xs text-muted-foreground px-2 py-1 bg-muted rounded">
+                        {item.category}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
