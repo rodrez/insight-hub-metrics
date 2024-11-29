@@ -7,7 +7,7 @@ export type SitRep = {
   update: string;
   challenges: string;
   nextSteps: string;
-  status: 'on-track' | 'at-risk' | 'blocked' | 'pending' | 'ready';
+  status: 'pending-review' | 'ready' | 'submitted';
   summary: string;
   departmentId: string;
 };
