@@ -10,6 +10,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { BasicInfoFields } from "./form/BasicInfoFields";
 import { RelationshipFields } from "./form/RelationshipFields";
 import { ContentFields } from "./form/ContentFields";
+import { DepartmentFields } from "./form/DepartmentFields";
+import { POCFields } from "./form/POCFields";
+import { Contact } from "@/components/wiki/types/contact";
 
 interface CompactSitRepFormProps {
   onSubmitSuccess: () => void;
@@ -36,6 +39,15 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
   );
   const [level, setLevel] = useState<"CEO" | "SVP" | "CTO">(
     initialData?.level || "SVP"
+  );
+  const [supportingTeams, setSupportingTeams] = useState<string[]>(initialData?.teams || []);
+  const [contacts, setContacts] = useState<Contact[]>(
+    initialData?.pointsOfContact?.map(poc => ({
+      name: poc,
+      role: "",
+      email: "",
+      phone: "",
+    })) || []
   );
 
   const { data: projects } = useQuery({
@@ -78,7 +90,9 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
         projectId: selectedProject !== "none" ? selectedProject : undefined,
         departmentId: selectedDepartment !== "none" ? selectedDepartment : undefined,
         fortune30PartnerId: selectedFortune30 !== "none" ? selectedFortune30 : undefined,
-        smePartnerId: selectedSME !== "none" ? selectedSME : undefined
+        smePartnerId: selectedSME !== "none" ? selectedSME : undefined,
+        teams: supportingTeams,
+        pointsOfContact: contacts.map(c => c.name)
       };
 
       if (initialData) {
@@ -141,6 +155,18 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
             />
           </div>
 
+          <DepartmentFields
+            selectedDepartment={selectedDepartment}
+            setSelectedDepartment={setSelectedDepartment}
+            supportingTeams={supportingTeams}
+            setSupportingTeams={setSupportingTeams}
+          />
+
+          <POCFields
+            contacts={contacts}
+            onContactsChange={setContacts}
+          />
+
           <ContentFields
             summary={summary}
             setSummary={setSummary}
@@ -160,7 +186,6 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
     </form>
   );
 
-  // For new sitrep creation, wrap in Dialog
   if (!initialData) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
@@ -181,6 +206,5 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
     );
   }
 
-  // For editing, return just the form
   return formContent;
 }
