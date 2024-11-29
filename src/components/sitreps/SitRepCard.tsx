@@ -8,6 +8,7 @@ import { toast } from "@/components/ui/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { db } from "@/lib/db";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 interface SitRepCardProps {
   sitrep: SitRep;
@@ -17,6 +18,7 @@ interface SitRepCardProps {
 
 export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const getStatusIcon = () => {
     switch (sitrep.status) {
@@ -72,6 +74,16 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
     }
   };
 
+  const handleEdit = () => {
+    if (onEdit) {
+      onEdit(sitrep.id);
+      toast({
+        title: "Editing SitRep",
+        description: "You can now edit the SitRep.",
+      });
+    }
+  };
+
   const handleStatusChange = async (newStatus: 'pending-review' | 'ready' | 'submitted') => {
     try {
       await db.updateSitRep(sitrep.id, { ...sitrep, status: newStatus });
@@ -118,7 +130,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => onEdit(sitrep.id)}
+                  onClick={handleEdit}
                   className="text-gray-400 hover:text-white"
                 >
                   <Pen className="h-4 w-4" />
