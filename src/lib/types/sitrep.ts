@@ -3,7 +3,7 @@ export interface SitRep {
   title: string;
   date: string;
   spiId: string;
-  projectId?: string;  // Added this field as optional
+  projectId?: string;
   update: string;
   challenges?: string;
   nextSteps?: string;

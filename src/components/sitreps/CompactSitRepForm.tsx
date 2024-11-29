@@ -28,6 +28,7 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
   const [nextSteps, setNextSteps] = useState(initialData?.nextSteps || "");
   const [selectedProject, setSelectedProject] = useState<string>(initialData?.projectId || "none");
   const [selectedFortune30, setSelectedFortune30] = useState<string>(initialData?.fortune30PartnerId || "none");
+  const [selectedSME, setSelectedSME] = useState<string>(initialData?.smePartnerId || "none");
   const [selectedDepartment, setSelectedDepartment] = useState<string>(initialData?.departmentId || "none");
   const [selectedPartner, setSelectedPartner] = useState<string>("none");
   const [status, setStatus] = useState<'pending-review' | 'ready' | 'submitted'>(
@@ -76,7 +77,8 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
         summary,
         projectId: selectedProject !== "none" ? selectedProject : undefined,
         departmentId: selectedDepartment !== "none" ? selectedDepartment : undefined,
-        fortune30PartnerId: selectedFortune30 !== "none" ? selectedFortune30 : undefined
+        fortune30PartnerId: selectedFortune30 !== "none" ? selectedFortune30 : undefined,
+        smePartnerId: selectedSME !== "none" ? selectedSME : undefined
       };
 
       if (initialData) {
@@ -127,6 +129,8 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
               setSelectedProject={setSelectedProject}
               selectedFortune30={selectedFortune30}
               setSelectedFortune30={setSelectedFortune30}
+              selectedSME={selectedSME}
+              setSelectedSME={setSelectedSME}
               selectedDepartment={selectedDepartment}
               setSelectedDepartment={setSelectedDepartment}
               selectedPartner={selectedPartner}

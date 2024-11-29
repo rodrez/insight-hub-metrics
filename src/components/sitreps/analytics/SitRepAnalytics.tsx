@@ -3,12 +3,27 @@ import { db } from "@/lib/db";
 import { format, subMonths, isAfter, isBefore, startOfMonth } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer } from "@/components/ui/chart";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart, Bar, Tooltip, Legend, AreaChart, Area } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Legend, PieChart, Pie, Cell } from "recharts";
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
 export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endDate?: Date }) {
   const { data: sitreps } = useQuery({
     queryKey: ['sitreps'],
     queryFn: () => db.getAllSitReps()
+  });
+
+  const { data: fortune30Partners } = useQuery({
+    queryKey: ['collaborators-fortune30'],
+    queryFn: async () => {
+      const allCollaborators = await db.getAllCollaborators();
+      return allCollaborators.filter(c => c.type === 'fortune30');
+    }
+  });
+
+  const { data: smePartners } = useQuery({
+    queryKey: ['collaborators-sme'],
+    queryFn: () => db.getAllSMEPartners()
   });
 
   if (!sitreps) return null;
@@ -19,27 +34,6 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
     return sitrepDate >= startDate && sitrepDate <= endDate;
   });
 
-  // Generate last 6 months of data
-  const months = Array.from({ length: 6 }, (_, i) => {
-    const date = subMonths(new Date(), i);
-    const monthStart = startOfMonth(date);
-    
-    const monthSpis = filteredSitreps.filter(spi => {
-      const createdDate = new Date(spi.date);
-      return isBefore(createdDate, monthStart) || 
-             (isAfter(createdDate, monthStart) && isBefore(createdDate, startOfMonth(subMonths(date, -1))));
-    });
-
-    const completedSpis = monthSpis.filter(spi => spi.status === 'submitted');
-
-    return {
-      month: format(date, 'MMM yyyy'),
-      total: monthSpis.length,
-      completed: completedSpis.length,
-      completionRate: monthSpis.length ? (completedSpis.length / monthSpis.length) * 100 : 0
-    };
-  }).reverse();
-
   // Calculate status distribution
   const statusData = [
     { status: 'Pending Review', count: filteredSitreps.filter(s => s.status === 'pending-review').length },
@@ -47,63 +41,44 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
     { status: 'Submitted', count: filteredSitreps.filter(s => s.status === 'submitted').length },
   ];
 
-  // Calculate importance level metrics
-  const importanceLevelData = [
-    { level: 'CEO', count: filteredSitreps.filter(s => s.level === 'CEO').length },
-    { level: 'SVP', count: filteredSitreps.filter(s => s.level === 'SVP').length },
-    { level: 'CTO', count: filteredSitreps.filter(s => s.level === 'CTO').length },
-  ];
+  // Calculate department participation
+  const departmentData = Object.entries(
+    filteredSitreps.reduce((acc: Record<string, number>, sitrep) => {
+      if (sitrep.departmentId) {
+        acc[sitrep.departmentId] = (acc[sitrep.departmentId] || 0) + 1;
+      }
+      return acc;
+    }, {})
+  ).map(([name, value]) => ({ name, value }));
 
-  const chartConfig = {
-    total: {
-      label: "Total SitReps",
-      color: "#3b82f6"
-    },
-    completed: {
-      label: "Submitted SitReps",
-      color: "#22c55e"
-    }
-  };
+  // Calculate Fortune 30 participation
+  const fortune30Data = Object.entries(
+    filteredSitreps.reduce((acc: Record<string, number>, sitrep) => {
+      if (sitrep.fortune30PartnerId) {
+        const partner = fortune30Partners?.find(p => p.id === sitrep.fortune30PartnerId);
+        if (partner) {
+          acc[partner.name] = (acc[partner.name] || 0) + 1;
+        }
+      }
+      return acc;
+    }, {})
+  ).map(([name, value]) => ({ name, value }));
+
+  // Calculate SME participation
+  const smeData = Object.entries(
+    filteredSitreps.reduce((acc: Record<string, number>, sitrep) => {
+      if (sitrep.smePartnerId) {
+        const partner = smePartners?.find(p => p.id === sitrep.smePartnerId);
+        if (partner) {
+          acc[partner.name] = (acc[partner.name] || 0) + 1;
+        }
+      }
+      return acc;
+    }, {})
+  ).map(([name, value]) => ({ name, value }));
 
   return (
     <div className="grid grid-cols-2 gap-4">
-      <Card className="col-span-1">
-        <CardHeader className="p-4">
-          <CardTitle className="text-sm">SitRep Submission Trends</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4">
-          <div className="aspect-[4/3] w-full">
-            <ChartContainer config={chartConfig}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={months}
-                  margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                  <XAxis 
-                    dataKey="month" 
-                    stroke="currentColor" 
-                    fontSize={10}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <YAxis 
-                    stroke="currentColor"
-                    fontSize={10}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="total" name="Total SitReps" stroke="#3b82f6" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="completed" name="Submitted SitReps" stroke="#22c55e" strokeWidth={2} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </div>
-        </CardContent>
-      </Card>
-
       <Card className="col-span-1">
         <CardHeader className="p-4">
           <CardTitle className="text-sm">Status Distribution</CardTitle>
@@ -116,7 +91,7 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
                 <XAxis dataKey="status" fontSize={10} />
                 <YAxis fontSize={10} />
                 <Tooltip />
-                <Bar dataKey="count" name="Number of SitReps" fill="#3b82f6" />
+                <Bar dataKey="count" fill="#3b82f6" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -125,18 +100,28 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
 
       <Card className="col-span-1">
         <CardHeader className="p-4">
-          <CardTitle className="text-sm">Importance Level Distribution</CardTitle>
+          <CardTitle className="text-sm">Department Participation</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
           <div className="aspect-[4/3] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={importanceLevelData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="level" fontSize={10} />
-                <YAxis fontSize={10} />
+              <PieChart>
+                <Pie
+                  data={departmentData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  label
+                >
+                  {departmentData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
                 <Tooltip />
-                <Bar dataKey="count" name="Number of SitReps" fill="#3b82f6" />
-              </BarChart>
+                <Legend />
+              </PieChart>
             </ResponsiveContainer>
           </div>
         </CardContent>
@@ -144,25 +129,57 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
 
       <Card className="col-span-1">
         <CardHeader className="p-4">
-          <CardTitle className="text-sm">Completion Rate Trend</CardTitle>
+          <CardTitle className="text-sm">Fortune 30 Participation</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
           <div className="aspect-[4/3] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={months} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="month" fontSize={10} />
-                <YAxis fontSize={10} />
+              <PieChart>
+                <Pie
+                  data={fortune30Data}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  label
+                >
+                  {fortune30Data.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
                 <Tooltip />
-                <Area 
-                  type="monotone" 
-                  dataKey="completionRate" 
-                  name="Completion Rate %" 
-                  stroke="#8b5cf6" 
-                  fill="#8b5cf6" 
-                  fillOpacity={0.2} 
-                />
-              </AreaChart>
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="col-span-1">
+        <CardHeader className="p-4">
+          <CardTitle className="text-sm">SME Participation</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="aspect-[4/3] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={smeData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  label
+                >
+                  {smeData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
             </ResponsiveContainer>
           </div>
         </CardContent>

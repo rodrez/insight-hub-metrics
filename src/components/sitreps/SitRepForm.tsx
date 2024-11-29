@@ -21,6 +21,7 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
   const [nextSteps, setNextSteps] = useState("");
   const [selectedProject, setSelectedProject] = useState<string>("none");
   const [selectedFortune30, setSelectedFortune30] = useState<string>("none");
+  const [selectedSME, setSelectedSME] = useState<string>("none");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("none");
   const [selectedPartner, setSelectedPartner] = useState<string>("none");
   const [status, setStatus] = useState<'pending-review' | 'ready' | 'submitted'>('pending-review');
@@ -65,7 +66,9 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
         level,
         summary,
         projectId: selectedProject !== "none" ? selectedProject : undefined,
-        departmentId: selectedDepartment !== "none" ? selectedDepartment : "default"
+        departmentId: selectedDepartment !== "none" ? selectedDepartment : "default",
+        fortune30PartnerId: selectedFortune30 !== "none" ? selectedFortune30 : undefined,
+        smePartnerId: selectedSME !== "none" ? selectedSME : undefined
       });
       
       toast({
@@ -81,6 +84,7 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
       setNextSteps("");
       setSelectedProject("none");
       setSelectedFortune30("none");
+      setSelectedSME("none");
       setSelectedDepartment("none");
       setSelectedPartner("none");
       setStatus('pending-review');
@@ -115,6 +119,8 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
           setSelectedProject={setSelectedProject}
           selectedFortune30={selectedFortune30}
           setSelectedFortune30={setSelectedFortune30}
+          selectedSME={selectedSME}
+          setSelectedSME={setSelectedSME}
           selectedDepartment={selectedDepartment}
           setSelectedDepartment={setSelectedDepartment}
           selectedPartner={selectedPartner}

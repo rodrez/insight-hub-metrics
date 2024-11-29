@@ -6,6 +6,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DEPARTMENTS } from "@/lib/constants";
+import { useQuery } from "@tanstack/react-query";
+import { db } from "@/lib/db";
 
 interface RelationshipFieldsProps {
   selectedProject: string;
@@ -16,6 +18,8 @@ interface RelationshipFieldsProps {
   setSelectedDepartment: (id: string) => void;
   selectedPartner: string;
   setSelectedPartner: (id: string) => void;
+  selectedSME: string;
+  setSelectedSME: (id: string) => void;
   projects: any[];
   fortune30Partners: any[];
   filteredInternalPartners: any[];
@@ -30,10 +34,17 @@ export function RelationshipFields({
   setSelectedDepartment,
   selectedPartner,
   setSelectedPartner,
+  selectedSME,
+  setSelectedSME,
   projects,
   fortune30Partners,
   filteredInternalPartners,
 }: RelationshipFieldsProps) {
+  const { data: smePartners = [] } = useQuery({
+    queryKey: ['collaborators-sme'],
+    queryFn: () => db.getAllSMEPartners(),
+  });
+
   return (
     <div className="space-y-4">
       <div>
@@ -62,6 +73,23 @@ export function RelationshipFields({
           <SelectContent>
             <SelectItem value="none">None</SelectItem>
             {fortune30Partners.map(partner => (
+              <SelectItem key={partner.id} value={partner.id}>
+                {partner.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-2">SME Partner (Optional)</label>
+        <Select value={selectedSME} onValueChange={setSelectedSME}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select an SME partner" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">None</SelectItem>
+            {smePartners.map(partner => (
               <SelectItem key={partner.id} value={partner.id}>
                 {partner.name}
               </SelectItem>
