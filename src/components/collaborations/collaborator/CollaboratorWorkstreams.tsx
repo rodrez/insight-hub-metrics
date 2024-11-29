@@ -1,18 +1,14 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
-import { Pen, Trash2 } from "lucide-react";
 import { Workstream } from "@/lib/types/collaboration";
 import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
 import { useQueryClient } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { WorkstreamFields } from "../form/WorkstreamFields";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form } from "@/components/ui/form";
 import { CollaborationFormSchema, formSchema } from "../CollaborationFormFields";
+import { WorkstreamActions } from "../workstream/WorkstreamActions";
 
 type CollaboratorWorkstreamsProps = {
   workstreams?: Workstream[];
@@ -69,7 +65,12 @@ export function CollaboratorWorkstreams({ workstreams, collaboratorId }: Collabo
           title: workstream.title,
           objectives: workstream.objectives,
           nextSteps: workstream.nextSteps,
-          keyContacts: workstream.keyContacts,
+          keyContacts: workstream.keyContacts.map(contact => ({
+            name: contact.name,
+            email: contact.email,
+            role: contact.role,
+            phone: contact.phone || ''
+          })),
           status: workstream.status,
           startDate: workstream.startDate,
           lastUpdated: workstream.lastUpdated
@@ -97,7 +98,12 @@ export function CollaboratorWorkstreams({ workstreams, collaboratorId }: Collabo
         title: updatedWorkstream.title,
         objectives: updatedWorkstream.objectives,
         nextSteps: updatedWorkstream.nextSteps,
-        keyContacts: updatedWorkstream.keyContacts || [],
+        keyContacts: updatedWorkstream.keyContacts.map(contact => ({
+          name: contact.name,
+          email: contact.email,
+          role: contact.role,
+          phone: contact.phone || ''
+        })),
         status: updatedWorkstream.status,
         startDate: updatedWorkstream.startDate,
         lastUpdated: new Date().toISOString()
@@ -154,39 +160,13 @@ export function CollaboratorWorkstreams({ workstreams, collaboratorId }: Collabo
                     {workstream.status}
                   </Badge>
                 </div>
-                <div className="flex gap-2">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEdit(workstream)}
-                        className="text-gray-400 hover:text-green-500 transition-colors"
-                      >
-                        <Pen className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
-                      <DialogHeader>
-                        <DialogTitle>Edit Workstream</DialogTitle>
-                      </DialogHeader>
-                      <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                          <WorkstreamFields form={form} />
-                          <Button type="submit">Save Changes</Button>
-                        </form>
-                      </Form>
-                    </DialogContent>
-                  </Dialog>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDelete(workstream.id)}
-                    className="text-gray-400 hover:text-red-500 transition-colors"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+                <WorkstreamActions
+                  workstream={workstream}
+                  form={form}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onSubmit={onSubmit}
+                />
               </div>
               <div className="space-y-2 text-sm">
                 <div>
