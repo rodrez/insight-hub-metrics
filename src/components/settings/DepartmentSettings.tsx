@@ -11,8 +11,31 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/use-toast";
 import { Department } from "@/lib/types";
+import { Info, Pencil, Trash2 } from "lucide-react";
+
+const DEPARTMENT_DESCRIPTIONS = {
+  airplanes: "Focuses on commercial and military aircraft development and innovation",
+  helicopters: "Specializes in rotorcraft technology and vertical lift solutions",
+  space: "Develops space exploration and satellite technologies",
+  energy: "Works on sustainable energy solutions and power systems",
+  it: "Provides technical infrastructure and digital solutions",
+  techlab: "Conducts research and development in emerging technologies"
+};
 
 export function DepartmentSettings() {
   const [departments, setDepartments] = useState<Department[]>([
@@ -91,6 +114,30 @@ export function DepartmentSettings() {
     <div className="space-y-6">
       <div className="grid gap-4">
         <h3 className="text-lg font-medium">Business Units & Functional Areas</h3>
+        
+        {/* Color Legend */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 bg-card rounded-lg">
+          {departments.map(dept => (
+            <TooltipProvider key={dept.id}>
+              <Tooltip>
+                <TooltipTrigger>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-4 h-4 rounded"
+                      style={{ backgroundColor: dept.color }}
+                    />
+                    <span className="text-sm">{dept.name}</span>
+                    <Info className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{DEPARTMENT_DESCRIPTIONS[dept.id as keyof typeof DEPARTMENT_DESCRIPTIONS]}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ))}
+        </div>
+
         <div className="grid gap-4">
           {departments.map(dept => (
             <div key={dept.id} className="flex items-center gap-4 p-4 border rounded-lg">
@@ -112,11 +159,18 @@ export function DepartmentSettings() {
                     className="w-20 h-10"
                   />
                   <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setEditingDept(dept)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
                     variant="destructive"
-                    size="sm"
+                    size="icon"
                     onClick={() => setDeleteId(dept.id)}
                   >
-                    Delete
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
                 <div className="mt-2 text-sm text-muted-foreground">
@@ -144,6 +198,54 @@ export function DepartmentSettings() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={!!editingDept} onOpenChange={() => setEditingDept(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Department</DialogTitle>
+          </DialogHeader>
+          {editingDept && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Name</label>
+                <Input
+                  value={editingDept.name}
+                  onChange={(e) => setEditingDept({ ...editingDept, name: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Color</label>
+                <Input
+                  type="color"
+                  value={editingDept.color}
+                  onChange={(e) => setEditingDept({ ...editingDept, color: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Budget</label>
+                <Input
+                  type="number"
+                  value={editingDept.budget}
+                  onChange={(e) => setEditingDept({ ...editingDept, budget: Number(e.target.value) })}
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingDept(null)}>
+              Cancel
+            </Button>
+            <Button onClick={() => {
+              if (editingDept) {
+                handleUpdate(editingDept.id, editingDept);
+                setEditingDept(null);
+              }
+            }}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
