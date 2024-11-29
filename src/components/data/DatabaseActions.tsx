@@ -5,6 +5,7 @@ import { ExportActions } from "./actions/ExportActions";
 import { BackupActions } from "./actions/BackupActions";
 import { toast } from "@/components/ui/use-toast";
 import { DatabaseOperations } from "./operations/DatabaseOperations";
+import { errorHandler } from "@/lib/services/error/ErrorHandlingService";
 
 interface DatabaseActionsProps {
   isInitialized: boolean;
@@ -31,11 +32,9 @@ export function DatabaseActions({
         description: "Database cleared successfully",
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      toast({
-        title: "Error",
-        description: `Failed to clear database: ${errorMessage}`,
-        variant: "destructive",
+      errorHandler.handleError(error, {
+        type: 'database',
+        title: 'Failed to clear database'
       });
     }
   };
@@ -48,11 +47,9 @@ export function DatabaseActions({
         description: "Sample data populated successfully",
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      toast({
-        title: "Error",
-        description: `Failed to populate data: ${errorMessage}`,
-        variant: "destructive",
+      errorHandler.handleError(error, {
+        type: 'database',
+        title: 'Failed to populate data'
       });
     }
   };

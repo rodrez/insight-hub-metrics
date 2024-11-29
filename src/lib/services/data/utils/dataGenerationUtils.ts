@@ -1,4 +1,4 @@
-import { globalProgressTracker } from '@/lib/utils/progressTracking';
+import { useQueryClient } from '@tanstack/react-query';
 
 export interface GenerationProgress {
   step: string;
@@ -7,16 +7,15 @@ export interface GenerationProgress {
 
 export const BATCH_SIZE = 50;
 
-export const trackGenerationProgress = (step: string, progress: number) => {
-  globalProgressTracker.updateProgress(step, progress);
-};
-
 export const processInBatches = async<T>(
   items: T[],
   processFn: (batch: T[]) => Promise<void>,
-  onProgress?: (progress: number) => void
+  onProgress?: (progress: number) => void,
+  queryKey?: string[]
 ) => {
+  const queryClient = useQueryClient();
   const batches = [];
+  
   for (let i = 0; i < items.length; i += BATCH_SIZE) {
     batches.push(items.slice(i, i + BATCH_SIZE));
   }
@@ -24,10 +23,15 @@ export const processInBatches = async<T>(
   for (let i = 0; i < batches.length; i++) {
     await processFn(batches[i]);
     const progress = ((i + 1) / batches.length) * 100;
+    
     onProgress?.(progress);
     
-    // Update progress tracker
-    globalProgressTracker.updateProgress("Processing", progress);
+    if (queryKey) {
+      queryClient.setQueryData(queryKey, (old: any) => ({
+        ...old,
+        progress,
+      }));
+    }
   }
 };
 
@@ -45,15 +49,22 @@ export const validateDataQuantities = (
 
 export const generateDataWithProgress = async<T>(
   generatorFn: () => Promise<T>,
-  step: string
+  step: string,
+  queryKey?: string[]
 ): Promise<T> => {
+  const queryClient = useQueryClient();
+  
   try {
-    globalProgressTracker.addStep(step, 100);
-    globalProgressTracker.updateProgress(step, 0);
+    if (queryKey) {
+      queryClient.setQueryData(queryKey, { step, progress: 0 });
+    }
     
     const result = await generatorFn();
     
-    globalProgressTracker.updateProgress(step, 100);
+    if (queryKey) {
+      queryClient.setQueryData(queryKey, { step, progress: 100 });
+    }
+    
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
