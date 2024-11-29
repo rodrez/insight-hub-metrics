@@ -37,11 +37,12 @@ export function CollaboratorWorkstreams({ workstreams, collaboratorId }: Collabo
       const collaborator = await db.getCollaborator(collaboratorId);
       if (!collaborator) return;
 
-      await db.addCollaborator({
+      const updatedCollaborator = {
         ...collaborator,
         workstreams: collaborator.workstreams?.filter(w => w.id !== workstreamId) || []
-      });
+      };
 
+      await db.addCollaborator(updatedCollaborator);
       queryClient.invalidateQueries({ queryKey: ['collaborators'] });
       
       toast({
@@ -63,7 +64,16 @@ export function CollaboratorWorkstreams({ workstreams, collaboratorId }: Collabo
       if (!collaborator) return;
 
       form.reset({
-        workstreams: [workstream]
+        workstreams: [{
+          id: workstream.id,
+          title: workstream.title,
+          objectives: workstream.objectives,
+          nextSteps: workstream.nextSteps,
+          keyContacts: workstream.keyContacts,
+          status: workstream.status,
+          startDate: workstream.startDate,
+          lastUpdated: workstream.lastUpdated
+        }]
       });
     } catch (error) {
       toast({
@@ -82,8 +92,19 @@ export function CollaboratorWorkstreams({ workstreams, collaboratorId }: Collabo
       const updatedWorkstream = data.workstreams?.[0];
       if (!updatedWorkstream) return;
 
+      const newWorkstream: Workstream = {
+        id: updatedWorkstream.id,
+        title: updatedWorkstream.title,
+        objectives: updatedWorkstream.objectives,
+        nextSteps: updatedWorkstream.nextSteps,
+        keyContacts: updatedWorkstream.keyContacts || [],
+        status: updatedWorkstream.status,
+        startDate: updatedWorkstream.startDate,
+        lastUpdated: new Date().toISOString()
+      };
+
       const updatedWorkstreams = collaborator.workstreams?.map(w => 
-        w.id === updatedWorkstream.id ? updatedWorkstream : w
+        w.id === newWorkstream.id ? newWorkstream : w
       ) || [];
 
       await db.addCollaborator({
