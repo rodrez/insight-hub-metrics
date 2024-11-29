@@ -63,7 +63,7 @@ export const generateSampleObjectives = (count: number = 5) => {
   return objectives;
 };
 
-export const generateSampleSPIs = (projectIds: string[] = [], requestedCount?: number): SPI[] => {
+export const generateSampleSPIs = (projectIds: string[] = [], requestedCount: number): SPI[] => {
   if (projectIds.length === 0) {
     console.warn('No project IDs provided for SPI generation');
     return [];
@@ -71,9 +71,8 @@ export const generateSampleSPIs = (projectIds: string[] = [], requestedCount?: n
 
   console.log('Generating SPIs with project IDs:', projectIds);
   const spis: SPI[] = [];
-  const count = requestedCount || projectIds.length;
 
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < requestedCount; i++) {
     const projectId = projectIds[i % projectIds.length];
     const name = generateSPIName(i);
     const completionDate = addDays(new Date(), 30 + Math.floor(Math.random() * 180));
@@ -98,11 +97,10 @@ export const generateSampleSPIs = (projectIds: string[] = [], requestedCount?: n
   return spis;
 };
 
-export const generateSampleSitReps = (spis: SPI[], requestedCount?: number): SitRep[] => {
-  const count = requestedCount || 10; // Default to 10 sitreps if no count specified
+export const generateSampleSitReps = (spis: SPI[], requestedCount: number): SitRep[] => {
   const sitreps: SitRep[] = [];
 
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < requestedCount; i++) {
     // If we have no SPIs, generate a standalone sitrep
     if (spis.length === 0) {
       sitreps.push({
@@ -133,10 +131,10 @@ export const generateSampleSitReps = (spis: SPI[], requestedCount?: number): Sit
       spiId: spi.id,
       projectId: spi.projectId,
       update: `Detailed progress update for ${spi.name}. Team has made substantial progress on key deliverables.`,
-      challenges: "Currently addressing resource allocation and technical complexity challenges. Team is working on mitigation strategies.",
-      nextSteps: "Proceeding with planned milestone implementation and scheduled reviews. Next phase includes stakeholder alignment and technical validation.",
+      challenges: "Currently addressing resource allocation and technical complexity challenges.",
+      nextSteps: "Proceeding with planned milestone implementation and scheduled reviews.",
       status: ['pending-review', 'ready', 'submitted'][Math.floor(Math.random() * 3)] as 'pending-review' | 'ready' | 'submitted',
-      summary: `Progress update for ${spi.name} showing significant advancement in implementation phases. Key stakeholders report positive outcomes across multiple metrics.`,
+      summary: `Progress update for ${spi.name} showing significant advancement in implementation phases.`,
       departmentId: spi.departmentId,
       level: ['CEO', 'SVP', 'CTO'][Math.floor(Math.random() * 3)] as 'CEO' | 'SVP' | 'CTO',
       teams: ['Engineering', 'Product', 'Design'].slice(0, Math.floor(Math.random() * 3) + 1)

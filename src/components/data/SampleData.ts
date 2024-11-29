@@ -38,11 +38,9 @@ export const validateDataRelationships = (data: GeneratedData): boolean => {
   console.log('Objectives count:', data.objectives.length);
   console.log('SitReps count:', data.sitreps.length);
   
-  // Create sets of valid IDs for faster lookup
   const projectIds = new Set(data.projects.map(p => p.id));
   const spiIds = new Set(data.spis.map(s => s.id));
   
-  // Validate project-SPI relationships
   console.log('\nValidating Project-SPI relationships...');
   const invalidSPIs = data.spis.filter(spi => {
     if (!spi.projectId) return false; // Skip if projectId is undefined (valid case)
@@ -54,7 +52,6 @@ export const validateDataRelationships = (data: GeneratedData): boolean => {
     return !hasValidProject;
   });
 
-  // Validate SPI-SitRep relationships
   console.log('\nValidating SPI-SitRep relationships...');
   const invalidSitReps = data.sitreps.filter(sitrep => {
     const hasValidSPI = spiIds.has(sitrep.spiId);
@@ -65,7 +62,6 @@ export const validateDataRelationships = (data: GeneratedData): boolean => {
     return !hasValidSPI;
   });
 
-  // Validate objectives consistency
   console.log('\nValidating objectives...');
   const invalidObjectives = data.objectives.filter(objective => {
     const isValid = objective.id && objective.initiative && objective.desiredOutcome;
@@ -103,33 +99,24 @@ export const generateSampleProjects = async (quantities: DataQuantities): Promis
   return generateDataWithProgress(async () => {
     console.log('Starting sample project generation with quantities:', quantities);
     
-    const fortune30 = sampleFortune30;
+    const fortune30 = sampleFortune30.slice(0, quantities.fortune30);
     console.log('Generated Fortune 30 partners:', fortune30.length);
     
-    const internalPartners = await generateInternalPartners();
+    const allInternalPartners = await generateInternalPartners();
+    const internalPartners = allInternalPartners.slice(0, quantities.internalPartners);
     console.log('Generated internal partners:', internalPartners.length);
     
-    // Generate exactly the requested number of projects
-    const maxProjects = validateDataQuantities(quantities.projects, 50, "Projects");
-    console.log('Validated max projects:', maxProjects);
-    
     const result = await generateProjects(fortune30, internalPartners);
-    const projects = result.projects.slice(0, maxProjects);
+    const projects = result.projects.slice(0, quantities.projects);
     console.log('Generated and filtered projects:', projects.length);
     
-    // Generate exactly the requested number of SPIs
-    const allSpis = generateSampleSPIs(projects.map(p => p.id), quantities.spis);
-    const spis = allSpis.slice(0, quantities.spis);
+    const spis = generateSampleSPIs(projects.map(p => p.id), quantities.spis).slice(0, quantities.spis);
     console.log('Generated and filtered SPIs:', spis.length);
     
-    // Generate exactly the requested number of objectives
-    const allObjectives = generateSampleObjectives(quantities.objectives);
-    const objectives = allObjectives.slice(0, quantities.objectives);
+    const objectives = generateSampleObjectives(quantities.objectives).slice(0, quantities.objectives);
     console.log('Generated and filtered objectives:', objectives.length);
     
-    // Generate exactly the requested number of sitreps
-    const allSitreps = generateSampleSitReps(spis, quantities.sitreps);
-    const sitreps = allSitreps.slice(0, quantities.sitreps);
+    const sitreps = generateSampleSitReps(spis, quantities.sitreps).slice(0, quantities.sitreps);
     console.log('Generated and filtered sitreps:', sitreps.length);
 
     const generatedData = {
@@ -147,11 +134,6 @@ export const generateSampleProjects = async (quantities: DataQuantities): Promis
     });
 
     if (!validateDataRelationships(generatedData)) {
-      console.error('Data validation failed. Dumping first few records of each type for debugging:');
-      console.log('Sample Projects:', generatedData.projects.slice(0, 2));
-      console.log('Sample SPIs:', generatedData.spis.slice(0, 2));
-      console.log('Sample Objectives:', generatedData.objectives.slice(0, 2));
-      console.log('Sample SitReps:', generatedData.sitreps.slice(0, 2));
       throw new Error("Generated data failed relationship validation");
     }
 
