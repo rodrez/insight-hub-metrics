@@ -68,7 +68,10 @@ export function CompactSitRepForm({ onSubmitSuccess }: CompactSitRepFormProps) {
         nextSteps: "",
         status: 'pending-review',
         summary: content,
-        departmentId: keyTeam !== "none" ? keyTeam : "default"
+        departmentId: keyTeam !== "none" ? keyTeam : "default",
+        level: importanceLevel.toUpperCase() as "CEO" | "SVP" | "CTO",
+        teams: supportingTeams,
+        pointsOfContact: pointsOfContact.map(poc => `${poc.name} (${poc.title})`)
       });
       
       toast({
