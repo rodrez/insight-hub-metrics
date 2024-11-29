@@ -18,6 +18,13 @@ export default function SME() {
   const { data: collaborators = [], isLoading } = useQuery({
     queryKey: ['collaborators-sme'],
     queryFn: async () => {
+      // First try to get SME partners from the dedicated store
+      const smePartners = await db.getAllSMEPartners();
+      if (smePartners && smePartners.length > 0) {
+        return smePartners;
+      }
+      
+      // Fallback to filtering all collaborators
       const allCollaborators = await db.getAllCollaborators();
       return allCollaborators.filter(c => c.type === 'sme');
     },
