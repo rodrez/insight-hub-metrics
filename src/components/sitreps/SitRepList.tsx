@@ -19,19 +19,6 @@ export function SitRepList({ showDateFilter }: SitRepListProps) {
     queryFn: () => db.getAllSitReps()
   });
 
-  const { data: fortune30Partners } = useQuery({
-    queryKey: ['collaborators-fortune30'],
-    queryFn: async () => {
-      const allCollaborators = await db.getAllCollaborators();
-      return allCollaborators.filter(c => c.type === 'fortune30');
-    }
-  });
-
-  const { data: smePartners } = useQuery({
-    queryKey: ['collaborators-sme'],
-    queryFn: () => db.getAllSMEPartners()
-  });
-
   const filteredSitreps = sitreps?.filter(sitrep => {
     const matchesSearch = sitrep.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       sitrep.summary.toLowerCase().includes(searchQuery.toLowerCase());
@@ -56,27 +43,14 @@ export function SitRepList({ showDateFilter }: SitRepListProps) {
       </div>
 
       <div className="space-y-4">
-        {filteredSitreps?.map(sitrep => {
-          const fortune30Partner = fortune30Partners?.find(
-            partner => partner.id === sitrep.fortune30PartnerId
-          );
-          const smePartner = smePartners?.find(
-            partner => partner.id === sitrep.smePartnerId
-          );
-
-          return (
-            <SitRepCard
-              key={sitrep.id}
-              sitrep={{
-                ...sitrep,
-                fortune30Partner,
-                smePartner
-              }}
-              onEdit={(id) => console.log('Edit', id)}
-              onDelete={(id) => console.log('Delete', id)}
-            />
-          );
-        })}
+        {filteredSitreps?.map(sitrep => (
+          <SitRepCard
+            key={sitrep.id}
+            sitrep={sitrep}
+            onEdit={(id) => console.log('Edit', id)}
+            onDelete={(id) => console.log('Delete', id)}
+          />
+        ))}
       </div>
     </div>
   );
