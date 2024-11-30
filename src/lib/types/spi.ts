@@ -8,6 +8,7 @@ export type SPI = {
   status: 'completed' | 'delayed' | 'on-track';
   projectId?: string;
   departmentId: string;
+  smePartnerId?: string;
   sitrepIds: string[];
   createdAt: string;
 };

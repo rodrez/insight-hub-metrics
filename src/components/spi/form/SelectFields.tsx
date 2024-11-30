@@ -18,6 +18,8 @@ interface SelectFieldsProps {
   setSelectedProject: (value: string) => void;
   selectedFortune30: string;
   setSelectedFortune30: (value: string) => void;
+  selectedSME: string;
+  setSelectedSME: (value: string) => void;
   selectedDepartment: string;
   setSelectedDepartment: (value: string) => void;
   projects?: any[];
@@ -31,6 +33,8 @@ export function SelectFields({
   setSelectedProject,
   selectedFortune30,
   setSelectedFortune30,
+  selectedSME,
+  setSelectedSME,
   selectedDepartment,
   setSelectedDepartment,
   projects,
@@ -101,7 +105,7 @@ export function SelectFields({
 
       <div className="space-y-2">
         <Label htmlFor="sme">SME Partner</Label>
-        <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+        <Select value={selectedSME} onValueChange={setSelectedSME}>
           <SelectTrigger id="sme">
             <SelectValue placeholder="SME Partner" />
           </SelectTrigger>
