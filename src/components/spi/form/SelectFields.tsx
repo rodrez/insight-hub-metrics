@@ -88,12 +88,9 @@ export function SelectFields({
 
       <div className="space-y-2">
         <Label htmlFor="fortune30">Fortune 30 Partner</Label>
-        <Select 
-          value={selectedFortune30} 
-          onValueChange={setSelectedFortune30}
-        >
+        <Select value={selectedFortune30} onValueChange={setSelectedFortune30}>
           <SelectTrigger id="fortune30">
-            <SelectValue placeholder="Select Fortune 30 Partner" />
+            <SelectValue placeholder="Fortune 30 Partner" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="none">None</SelectItem>
@@ -108,12 +105,9 @@ export function SelectFields({
 
       <div className="space-y-2">
         <Label htmlFor="sme">SME Partner</Label>
-        <Select 
-          value={selectedSME} 
-          onValueChange={setSelectedSME}
-        >
+        <Select value={selectedSME} onValueChange={setSelectedSME}>
           <SelectTrigger id="sme">
-            <SelectValue placeholder="Select SME Partner" />
+            <SelectValue placeholder="SME Partner" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="none">None</SelectItem>
