@@ -150,17 +150,17 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
             <POCDisplay keyPOC={keyPOC} supportingPOCs={supportingPOCs} />
 
             {(sitrep.fortune30PartnerId || sitrep.smePartnerId) && (
-              <div className="space-y-2">
+              <div className="flex flex-wrap gap-4 text-sm">
                 {sitrep.fortune30PartnerId && (
-                  <div className="p-3 rounded-md bg-blue-500/10 border-l-2 border-blue-500">
-                    <p className="text-sm font-medium">Fortune 30 Partner</p>
-                    <p className="text-sm">{sitrep.fortune30PartnerId}</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">Fortune 30:</span>
+                    <span className="text-blue-500">{sitrep.fortune30PartnerId}</span>
                   </div>
                 )}
                 {sitrep.smePartnerId && (
-                  <div className="p-3 rounded-md bg-purple-500/10 border-l-2 border-purple-500">
-                    <p className="text-sm font-medium">SME Partner</p>
-                    <p className="text-sm">{sitrep.smePartnerId}</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">SME:</span>
+                    <span className="text-purple-500">{sitrep.smePartnerId}</span>
                   </div>
                 )}
               </div>
