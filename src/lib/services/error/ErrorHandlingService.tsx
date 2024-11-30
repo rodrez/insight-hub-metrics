@@ -1,12 +1,13 @@
 /** @jsxImportSource react */
 import { toast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
+import { ReactNode } from "react";
 
 export type ErrorConfig = {
   type: 'database' | 'network' | 'validation';
   title: string;
   retry?: () => void;
-  action?: React.ReactNode;
+  action?: ReactNode;
 };
 
 class ErrorHandler {
