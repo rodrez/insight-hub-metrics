@@ -6,7 +6,11 @@ import { generateNABC } from './templates/projectTemplates';
 import { generateMilestones, generateMetrics } from './templates/metricsTemplates';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiGenerator';
 
-export interface ProjectGenerationInput extends DataQuantities {
+export interface ProjectGenerationInput {
+  projects: number;
+  spis: number;
+  objectives: number;
+  sitreps: number;
   departments: Department[];
   fortune30Partners: Collaborator[];
   internalPartners: Collaborator[];

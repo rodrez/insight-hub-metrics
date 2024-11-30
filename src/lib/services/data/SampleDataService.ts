@@ -26,10 +26,8 @@ export class SampleDataService {
     try {
       console.log('Starting sample data generation with quantities:', quantities);
       
-      // Parse and validate quantities with defaults
       const validatedQuantities = dataQuantitiesSchema.parse(quantities);
       
-      // Generate partners synchronously
       const fortune30Partners = generateFortune30Partners().filter(validateCollaborator);
       const internalPartners = await generateInternalPartners();
       const validatedInternalPartners = internalPartners.filter(validateCollaborator);
@@ -55,24 +53,23 @@ export class SampleDataService {
 
       const projectInput = {
         ...validatedQuantities,
-        departments: DEPARTMENTS,
+        departments: [...DEPARTMENTS],
         fortune30Partners: fortune30Partners.slice(0, fortune30Count),
         internalPartners: validatedInternalPartners.slice(0, internalCount),
         smePartners: allSMEPartners.slice(0, smeCount)
       };
 
       const { projects, spis, objectives, sitreps } = await generateSampleProjects(projectInput);
-
       const validatedProjects = projects.filter(validateProject);
 
       return {
         fortune30Partners: fortune30Partners.slice(0, fortune30Count),
         internalPartners: validatedInternalPartners.slice(0, internalCount),
         smePartners: allSMEPartners.slice(0, smeCount),
-        projects: validatedProjects.slice(0, validatedQuantities.projects),
-        spis: spis.slice(0, validatedQuantities.spis),
-        objectives: objectives.slice(0, validatedQuantities.objectives),
-        sitreps: sitreps.slice(0, validatedQuantities.sitreps)
+        projects: validatedProjects,
+        spis,
+        objectives,
+        sitreps
       };
     } catch (error) {
       errorHandler.handleError(error, {
