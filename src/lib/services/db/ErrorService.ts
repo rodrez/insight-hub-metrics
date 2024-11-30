@@ -61,8 +61,13 @@ export class ErrorService extends BaseDBService {
 
   async analyzeCodebase(): Promise<void> {
     try {
-      const errors = this.codeAnalyzer.analyzeCodebase();
+      // Clear existing errors first
+      await this.clearErrors();
+      
+      // Run the analysis
+      const errors = await this.codeAnalyzer.analyzeCodebase();
 
+      // Store new errors
       await this.performTransaction(
         'errors',
         'readwrite',
@@ -75,5 +80,13 @@ export class ErrorService extends BaseDBService {
       console.error('Failed to analyze codebase:', error);
       throw error;
     }
+  }
+
+  private async clearErrors(): Promise<void> {
+    await this.performTransaction(
+      'errors',
+      'readwrite',
+      store => store.clear()
+    );
   }
 }
