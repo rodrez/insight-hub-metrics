@@ -3,10 +3,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useDataInitialization } from "../data/hooks/useDataInitialization";
 
 export function BugFixesTab() {
-  const [bugs] = useState(() => bugTracker.getAllBugs());
+  const [bugs, setBugs] = useState(() => []);
+  const { isInitialized } = useDataInitialization();
+
+  useEffect(() => {
+    if (isInitialized) {
+      setBugs(bugTracker.getAllBugs());
+    }
+  }, [isInitialized]);
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
