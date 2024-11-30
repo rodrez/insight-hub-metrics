@@ -88,7 +88,12 @@ export function SelectFields({
 
       <div className="space-y-2">
         <Label htmlFor="fortune30">Fortune 30 Partner</Label>
-        <Select value={selectedFortune30} onValueChange={setSelectedFortune30}>
+        <Select 
+          value={selectedFortune30} 
+          onValueChange={(value) => {
+            setSelectedFortune30(value);
+          }}
+        >
           <SelectTrigger id="fortune30">
             <SelectValue placeholder="Fortune 30 Partner" />
           </SelectTrigger>

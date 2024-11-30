@@ -25,8 +25,8 @@ export function RelatedEntities({
 }: RelatedEntitiesProps) {
   const { data: smePartner } = useQuery({
     queryKey: ['sme-partner', smePartnerId],
-    queryFn: () => smePartnerId ? db.getSMEPartner(smePartnerId) : null,
-    enabled: !!smePartnerId
+    queryFn: () => smePartnerId && smePartnerId !== 'none' ? db.getSMEPartner(smePartnerId) : null,
+    enabled: !!smePartnerId && smePartnerId !== 'none'
   });
 
   const getDepartmentColor = (departmentId: string) => {
@@ -51,7 +51,7 @@ export function RelatedEntities({
               {fortune30Partner.name}
             </p>
           ) : (
-            <p className="text-sm text-muted-foreground">No Fortune 30 partner selected</p>
+            <p className="text-sm text-muted-foreground">None</p>
           )}
         </div>
         <div 
@@ -67,7 +67,7 @@ export function RelatedEntities({
               {smePartner.name}
             </p>
           ) : (
-            <p className="text-sm text-muted-foreground">No SME partner selected</p>
+            <p className="text-sm text-muted-foreground">None</p>
           )}
         </div>
       </div>
