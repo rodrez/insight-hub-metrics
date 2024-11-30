@@ -37,7 +37,10 @@ export class SampleDataService {
       // Generate all partners first
       const fortune30Partners = generateFortune30Partners();
       const internalPartners = await generateInternalPartners();
-      const smePartners = generateSMEPartners();
+      const allSMEPartners = generateSMEPartners();
+      
+      // Ensure we only take the requested number of SME partners
+      const smePartners = allSMEPartners.slice(0, quantities.smePartners);
 
       // Convert readonly DEPARTMENTS to regular array for project generation
       const departments: Department[] = [...DEPARTMENTS];
@@ -56,10 +59,18 @@ export class SampleDataService {
       this.progressTracker.updateProgress('SME Partners', smePartners.length);
       this.progressTracker.updateProgress('Projects', projects.length);
 
+      // Log the counts for debugging
+      console.log('Generated data counts:', {
+        fortune30: fortune30Partners.length,
+        internal: internalPartners.length,
+        sme: smePartners.length,
+        projects: projects.length
+      });
+
       return {
         fortune30Partners: fortune30Partners.slice(0, quantities.fortune30),
         internalPartners: internalPartners.slice(0, quantities.internalPartners),
-        smePartners: smePartners.slice(0, quantities.smePartners),
+        smePartners,
         projects,
         spis,
         objectives,

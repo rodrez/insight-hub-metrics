@@ -92,25 +92,6 @@ export const generateSMEPartners = (): Collaborator[] => {
         status: "active"
       }
     ],
-    workstreams: [
-      {
-        id: `ws-sme-${index + 1}`,
-        title: `${company.expertise} Development`,
-        objectives: `Implement cutting-edge ${company.expertise.toLowerCase()} solutions`,
-        nextSteps: "Complete current phase milestones and review progress",
-        keyContacts: [
-          {
-            name: company.contact.name,
-            role: company.contact.role,
-            email: company.contact.email,
-            phone: company.contact.phone
-          }
-        ],
-        status: "active",
-        startDate: new Date(today.getTime() - (15 * 24 * 60 * 60 * 1000)).toISOString(),
-        lastUpdated: today.toISOString()
-      }
-    ],
     lastActive: today.toISOString(),
     type: "sme",
     primaryContact: company.contact,

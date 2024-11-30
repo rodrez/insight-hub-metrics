@@ -163,6 +163,7 @@ export class IndexedDBService implements DataService {
     // Ensure SME partners are added to the correct store
     for (const partner of sampleData.smePartners) {
       await this.addSMEPartner(partner);
+      console.log('Added SME partner:', partner.name); // Debug log
     }
 
     for (const project of sampleData.projects) {
@@ -180,5 +181,9 @@ export class IndexedDBService implements DataService {
     for (const sitrep of sampleData.sitreps) {
       await this.addSitRep(sitrep);
     }
+
+    // Verify SME partners were added
+    const smePartners = await this.getAllSMEPartners();
+    console.log('Total SME partners after population:', smePartners.length);
   }
 }
