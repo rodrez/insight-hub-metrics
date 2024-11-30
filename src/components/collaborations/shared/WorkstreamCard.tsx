@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Shield } from "lucide-react";
+import { Shield, Calendar } from "lucide-react";
 import { Workstream, Agreement } from "@/lib/types/collaboration";
 import {
   Tooltip,
@@ -22,7 +22,7 @@ type WorkstreamCardProps = {
 export function WorkstreamCard({ workstream, formatDate, agreements }: WorkstreamCardProps) {
   const getStatusColor = (status?: string) => {
     if (!status) return 'text-gray-400';
-    return status === 'signed' ? 'text-green-500' : 'text-red-500';
+    return status === 'signed' ? 'text-green-500' : 'text-yellow-500';
   };
 
   return (
@@ -38,6 +38,7 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
                     <Badge variant="outline" className="flex items-center gap-1">
                       <Shield className={`h-3 w-3 ${getStatusColor(agreements.nda.status)}`} />
                       NDA
+                      <Calendar className="h-3 w-3 ml-1" />
                     </Badge>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -55,6 +56,7 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
                     <Badge variant="outline" className="flex items-center gap-1">
                       <Shield className={`h-3 w-3 ${getStatusColor(agreements.jtda.status)}`} />
                       JTDA
+                      <Calendar className="h-3 w-3 ml-1" />
                     </Badge>
                   </TooltipTrigger>
                   <TooltipContent>
