@@ -106,6 +106,7 @@ export function SelectFields({
             <SelectValue placeholder="SME Partner" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="none">None</SelectItem>
             {smePartners.map(partner => (
               <SelectItem key={partner.id} value={partner.id}>
                 {partner.name}
