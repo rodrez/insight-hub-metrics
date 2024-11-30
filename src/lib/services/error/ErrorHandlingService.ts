@@ -1,3 +1,4 @@
+/** @jsxImportSource react */
 import { toast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 
@@ -16,7 +17,7 @@ class ErrorHandler {
       title: config.title,
       description: error instanceof Error ? error.message : "An unexpected error occurred",
       action: config.retry ? (
-        <ToastAction onClick={config.retry} altText="Try again">
+        <ToastAction altText="Try again" onClick={config.retry}>
           Retry
         </ToastAction>
       ) : undefined
