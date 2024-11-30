@@ -4,13 +4,17 @@ import { ClearDatabaseAction } from "./actions/ClearDatabaseAction";
 import { PopulateDataAction } from "./actions/PopulateDataAction";
 import { ExportActions } from "./actions/ExportActions";
 import { BackupActions } from "./actions/BackupActions";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useState } from "react";
+import { DataQuantityForm } from "./actions/DataQuantityForm";
+import { DataQuantities } from "./SampleData";
 
 interface DatabaseActionsProps {
   isInitialized: boolean;
   isClearing: boolean;
   isPopulating: boolean;
   onClear: () => Promise<void>;
-  onPopulate: () => Promise<void>;
+  onPopulate: (quantities: DataQuantities) => Promise<void>;
 }
 
 export function DatabaseActions({ 
@@ -20,6 +24,8 @@ export function DatabaseActions({
   onClear,
   onPopulate
 }: DatabaseActionsProps) {
+  const [showQuantityDialog, setShowQuantityDialog] = useState(false);
+
   const handleClear = async () => {
     try {
       await onClear();
@@ -35,9 +41,10 @@ export function DatabaseActions({
     }
   };
 
-  const handlePopulate = async () => {
+  const handlePopulate = async (quantities: DataQuantities) => {
     try {
-      await onPopulate();
+      await onPopulate(quantities);
+      setShowQuantityDialog(false);
       toast({
         title: "Success",
         description: "Sample data populated successfully",
@@ -62,12 +69,27 @@ export function DatabaseActions({
           <PopulateDataAction
             isInitialized={isInitialized}
             isPopulating={isPopulating}
-            onPopulate={handlePopulate}
+            onPopulate={() => setShowQuantityDialog(true)}
           />
         </div>
         <ExportActions isInitialized={isInitialized} />
         <BackupActions isInitialized={isInitialized} />
       </div>
+
+      <Dialog open={showQuantityDialog} onOpenChange={setShowQuantityDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Generate Sample Data</DialogTitle>
+            <DialogDescription>
+              Specify the quantity of data to generate for each category.
+            </DialogDescription>
+          </DialogHeader>
+          <DataQuantityForm 
+            onSubmit={handlePopulate}
+            isPopulating={isPopulating}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

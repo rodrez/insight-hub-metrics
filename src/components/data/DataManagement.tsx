@@ -7,6 +7,7 @@ import { useDataPopulation } from "./hooks/useDataPopulation";
 import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Progress } from "@/components/ui/progress";
+import { DataQuantities } from "./SampleData";
 
 export default function DataManagement() {
   const { isInitialized } = useDataInitialization();
@@ -17,11 +18,12 @@ export default function DataManagement() {
 
   const handleClear = useCallback(async () => {
     await clearDatabase();
-    queryClient.invalidateQueries({ queryKey: ['data-counts'] });
-  }, [clearDatabase, queryClient]);
+    await queryClient.invalidateQueries({ queryKey: ['data-counts'] });
+    await updateDataCounts();
+  }, [clearDatabase, queryClient, updateDataCounts]);
 
-  const handlePopulate = useCallback(async () => {
-    await populateSampleData();
+  const handlePopulate = useCallback(async (quantities: DataQuantities) => {
+    await populateSampleData(quantities);
     await updateDataCounts();
   }, [populateSampleData, updateDataCounts]);
 
