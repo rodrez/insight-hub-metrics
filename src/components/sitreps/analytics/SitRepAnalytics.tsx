@@ -1,19 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
-import { format, subMonths, isAfter, isBefore, startOfMonth } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartContainer } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Legend, PieChart, Pie, Cell } from "recharts";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
 export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endDate?: Date }) {
-  const { data: sitreps } = useQuery({
+  const { data: sitreps = [] } = useQuery({
     queryKey: ['sitreps'],
     queryFn: () => db.getAllSitReps()
   });
 
-  const { data: fortune30Partners } = useQuery({
+  const { data: fortune30Partners = [] } = useQuery({
     queryKey: ['collaborators-fortune30'],
     queryFn: async () => {
       const allCollaborators = await db.getAllCollaborators();
@@ -21,12 +19,10 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
     }
   });
 
-  const { data: smePartners } = useQuery({
+  const { data: smePartners = [] } = useQuery({
     queryKey: ['collaborators-sme'],
     queryFn: () => db.getAllSMEPartners()
   });
-
-  if (!sitreps) return null;
 
   const filteredSitreps = sitreps.filter(sitrep => {
     if (!startDate || !endDate) return true;
@@ -44,9 +40,8 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
   // Calculate department participation
   const departmentData = Object.entries(
     filteredSitreps.reduce((acc: Record<string, number>, sitrep) => {
-      if (sitrep.departmentId) {
-        acc[sitrep.departmentId] = (acc[sitrep.departmentId] || 0) + 1;
-      }
+      const dept = sitrep.departmentId || 'Unknown';
+      acc[dept] = (acc[dept] || 0) + 1;
       return acc;
     }, {})
   ).map(([name, value]) => ({ name, value }));
@@ -55,7 +50,7 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
   const fortune30Data = Object.entries(
     filteredSitreps.reduce((acc: Record<string, number>, sitrep) => {
       if (sitrep.fortune30PartnerId) {
-        const partner = fortune30Partners?.find(p => p.id === sitrep.fortune30PartnerId);
+        const partner = fortune30Partners.find(p => p.id === sitrep.fortune30PartnerId);
         if (partner) {
           acc[partner.name] = (acc[partner.name] || 0) + 1;
         }
@@ -68,7 +63,7 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
   const smeData = Object.entries(
     filteredSitreps.reduce((acc: Record<string, number>, sitrep) => {
       if (sitrep.smePartnerId) {
-        const partner = smePartners?.find(p => p.id === sitrep.smePartnerId);
+        const partner = smePartners.find(p => p.id === sitrep.smePartnerId);
         if (partner) {
           acc[partner.name] = (acc[partner.name] || 0) + 1;
         }
@@ -78,33 +73,34 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
   ).map(([name, value]) => ({ name, value }));
 
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <Card className="col-span-1">
-        <CardHeader className="p-4">
-          <CardTitle className="text-sm">Status Distribution</CardTitle>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Status Distribution</CardTitle>
         </CardHeader>
-        <CardContent className="p-4">
-          <div className="aspect-[4/3] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={statusData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+        <CardContent>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer>
+              <BarChart data={statusData}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="status" fontSize={10} />
-                <YAxis fontSize={10} />
+                <XAxis dataKey="status" />
+                <YAxis />
                 <Tooltip />
-                <Bar dataKey="count" fill="#3b82f6" />
+                <Legend />
+                <Bar dataKey="count" fill="#3b82f6" name="Count" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="col-span-1">
-        <CardHeader className="p-4">
-          <CardTitle className="text-sm">Department Participation</CardTitle>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Department Distribution</CardTitle>
         </CardHeader>
-        <CardContent className="p-4">
-          <div className="aspect-[4/3] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+        <CardContent>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer>
               <PieChart>
                 <Pie
                   data={departmentData}
@@ -112,7 +108,7 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  outerRadius={80}
+                  outerRadius={100}
                   label
                 >
                   {departmentData.map((entry, index) => (
@@ -127,13 +123,13 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
         </CardContent>
       </Card>
 
-      <Card className="col-span-1">
-        <CardHeader className="p-4">
-          <CardTitle className="text-sm">Fortune 30 Participation</CardTitle>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Fortune 30 Partner Activity</CardTitle>
         </CardHeader>
-        <CardContent className="p-4">
-          <div className="aspect-[4/3] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+        <CardContent>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer>
               <PieChart>
                 <Pie
                   data={fortune30Data}
@@ -141,7 +137,7 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  outerRadius={80}
+                  outerRadius={100}
                   label
                 >
                   {fortune30Data.map((entry, index) => (
@@ -156,13 +152,13 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
         </CardContent>
       </Card>
 
-      <Card className="col-span-1">
-        <CardHeader className="p-4">
-          <CardTitle className="text-sm">SME Participation</CardTitle>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">SME Partner Activity</CardTitle>
         </CardHeader>
-        <CardContent className="p-4">
-          <div className="aspect-[4/3] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+        <CardContent>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer>
               <PieChart>
                 <Pie
                   data={smeData}
@@ -170,7 +166,7 @@ export function SitRepAnalytics({ startDate, endDate }: { startDate?: Date; endD
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  outerRadius={80}
+                  outerRadius={100}
                   label
                 >
                   {smeData.map((entry, index) => (
