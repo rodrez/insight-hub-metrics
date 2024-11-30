@@ -45,9 +45,7 @@ export function DatabaseActions({
 
   const handlePopulate = async (quantities: Partial<DataQuantities>) => {
     try {
-      // Validate quantities before proceeding, merging with defaults if needed
       const validatedQuantities = validateDataQuantities(quantities);
-      
       await onPopulate(validatedQuantities);
       setShowQuantityDialog(false);
       toast({
