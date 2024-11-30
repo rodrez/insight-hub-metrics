@@ -12,13 +12,7 @@ import { RelationshipFields } from "./form/RelationshipFields";
 import { ContentFields } from "./form/ContentFields";
 import { DepartmentFields } from "./form/DepartmentFields";
 import { Contact } from "@/lib/types/pointOfContact";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { SupportingTeamsSelect } from "../SupportingTeamsSelect";
 
 interface CompactSitRepFormProps {
   onSubmitSuccess: () => void;
@@ -44,6 +38,8 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
   const [status, setStatus] = useState<'pending-review' | 'ready' | 'submitted'>(initialData?.status || 'pending-review');
   const [level, setLevel] = useState<"CEO" | "SVP" | "CTO">(initialData?.level || "SVP");
   const [teamPOCs, setTeamPOCs] = useState<Record<string, Contact>>({});
+  const [poc, setPoc] = useState(initialData?.poc || "");
+  const [pocDepartment, setPocDepartment] = useState(initialData?.pocDepartment || "");
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
@@ -98,6 +94,8 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
         smePartnerId: selectedSME !== "none" ? selectedSME : undefined,
         teams: supportingTeams,
         pointsOfContact: contacts.map(c => c.name),
+        poc,
+        pocDepartment,
         teamPOCs
       };
 
@@ -156,6 +154,10 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
                 }
               }
             }}
+            poc={poc}
+            setPoc={setPoc}
+            pocDepartment={pocDepartment}
+            setPocDepartment={setPocDepartment}
           />
 
           <RelationshipFields
@@ -181,32 +183,6 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
             nextSteps={nextSteps}
             setNextSteps={setNextSteps}
           />
-
-          {supportingTeams.map(teamId => (
-            <Popover key={teamId}>
-              <PopoverTrigger id={`poc-popover-${teamId}`} className="hidden" />
-              <PopoverContent className="w-80">
-                <div className="space-y-4">
-                  <h4 className="font-medium">Add POC for {teamId}</h4>
-                  <div className="space-y-2">
-                    <Label>Name</Label>
-                    <Input 
-                      placeholder="Enter POC name"
-                      onChange={(e) => {
-                        const newContact: Contact = {
-                          name: e.target.value,
-                          title: "",
-                          email: "",
-                          department: teamId
-                        };
-                        handleTeamPOCAdd(teamId, newContact);
-                      }}
-                    />
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-          ))}
         </div>
       </ScrollArea>
 

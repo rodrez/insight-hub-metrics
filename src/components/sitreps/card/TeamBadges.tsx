@@ -21,14 +21,18 @@ export function TeamBadges({ teams, keyTeam, poc, pocDepartment }: TeamBadgesPro
       {poc && pocDepartment && (
         <div>
           <p className="text-sm text-gray-400 mb-2">Point of Contact:</p>
-          <Badge
+          <div 
+            className="p-3 rounded-md"
             style={{ 
-              backgroundColor: getDepartmentColor(pocDepartment),
-              color: 'white' 
+              backgroundColor: `${getDepartmentColor(pocDepartment)}15`,
+              borderLeft: `3px solid ${getDepartmentColor(pocDepartment)}`
             }}
           >
-            {poc}
-          </Badge>
+            <p className="font-medium text-foreground">{poc}</p>
+            <p className="text-sm text-muted-foreground">
+              {DEPARTMENTS.find(d => d.id === pocDepartment)?.name}
+            </p>
+          </div>
         </div>
       )}
       
