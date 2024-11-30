@@ -62,10 +62,10 @@ export class ErrorService extends BaseDBService {
     await this.performTransaction(
       'errors',
       'readwrite',
-      async store => {
-        for (const error of mockErrors) {
-          await store.put(error);
-        }
+      store => {
+        const request = store.put(mockErrors[0]);
+        store.put(mockErrors[1]);
+        return request;
       }
     );
   }
