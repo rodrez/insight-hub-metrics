@@ -6,7 +6,6 @@ import { DataQuantities } from '../types/data';
 import { Team } from '../types/team';
 import { DatabaseTransactionService } from './db/DatabaseTransactionService';
 import { DatabaseClearingService } from './db/DatabaseClearingService';
-import { connectionManager } from './db/connectionManager';
 import { DataService } from './DataService';
 import { SampleDataService } from './data/SampleDataService';
 import { BaseIndexedDBService } from './db/base/BaseIndexedDBService';
@@ -19,17 +18,21 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   constructor() {
     super();
     this.sampleDataService = new SampleDataService();
-    this.databaseOperations = new DatabaseOperations(new DatabaseTransactionService(this.getDatabase()));
+    this.databaseOperations = new DatabaseOperations(new DatabaseTransactionService(super.getDatabase()));
   }
 
   async init(): Promise<void> {
     await this.initializeServices();
-    this.databaseOperations = new DatabaseOperations(new DatabaseTransactionService(this.getDatabase()));
+    this.databaseOperations = new DatabaseOperations(new DatabaseTransactionService(super.getDatabase()));
   }
 
   async clear(): Promise<void> {
-    if (!this.getDatabase()) throw new Error('Database not initialized');
+    if (!super.getDatabase()) throw new Error('Database not initialized');
     await this.databaseOperations.clearAllData();
+  }
+
+  async getAllTeams(): Promise<Team[]> {
+    return this.transactionService.performTransaction('teams', 'readonly', store => store.getAll());
   }
 
   async getAllProjects(): Promise<Project[]> {

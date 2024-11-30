@@ -18,4 +18,8 @@ export class BaseIndexedDBService {
     this.transactionService = new DatabaseTransactionService(this.connectionService.getDatabase());
     this.teamService = new TeamService(this.transactionService);
   }
+
+  protected getDatabase() {
+    return this.connectionService.getDatabase();
+  }
 }
