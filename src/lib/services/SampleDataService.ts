@@ -21,7 +21,7 @@ export class SampleDataService {
     return requested;
   }
 
-  async generateSampleData(quantities: DataQuantities = {
+  async generateSampleData(quantities: Partial<DataQuantities> = {
     projects: 10,
     spis: 10,
     objectives: 5,
@@ -29,45 +29,34 @@ export class SampleDataService {
     fortune30: 6,
     internalPartners: 20,
     smePartners: 10
-  }) {
+  }): Promise<any> {
     try {
       console.log('Starting sample data generation with quantities:', quantities);
       
       const fortune30Partners = await Promise.resolve(generateFortune30Partners())
-        .then(partners => partners.filter(validateCollaborator))
-        .catch(error => {
-          errorHandler.handleError(error, { type: 'database', title: 'Fortune 30 Generation Failed' });
-          return [];
-        });
+        .then(partners => partners.filter(validateCollaborator));
       
       const internalPartners = await generateInternalPartners()
-        .then(partners => partners.filter(validateCollaborator))
-        .catch(error => {
-          errorHandler.handleError(error, { type: 'database', title: 'Internal Partners Generation Failed' });
-          return [];
-        });
+        .then(partners => partners.filter(validateCollaborator));
       
       const allSMEPartners = await Promise.resolve(generateSMEPartners())
-        .then(partners => partners.filter(validateCollaborator))
-        .catch(error => {
-          errorHandler.handleError(error, { type: 'database', title: 'SME Partners Generation Failed' });
-          return [];
-        });
+        .then(partners => partners.filter(validateCollaborator));
 
-      const fortune30Count = this.validateQuantities(fortune30Partners.length, quantities.fortune30, "Fortune 30 partners");
-      const internalCount = this.validateQuantities(internalPartners.length, quantities.internalPartners, "internal partners");
-      const smeCount = this.validateQuantities(allSMEPartners.length, quantities.smePartners, "SME partners");
+      const fortune30Count = this.validateQuantities(fortune30Partners.length, quantities.fortune30 ?? 6, "Fortune 30 partners");
+      const internalCount = this.validateQuantities(internalPartners.length, quantities.internalPartners ?? 20, "internal partners");
+      const smeCount = this.validateQuantities(allSMEPartners.length, quantities.smePartners ?? 10, "SME partners");
 
-      const { projects, spis, objectives, sitreps } = await generateSampleProjects(quantities)
-        .catch(error => {
-          errorHandler.handleError(error, { type: 'database', title: 'Project Generation Failed' });
-          return {
-            projects: [],
-            spis: [],
-            objectives: [],
-            sitreps: []
-          };
-        });
+      const completeQuantities: DataQuantities = {
+        projects: quantities.projects ?? 10,
+        spis: quantities.spis ?? 10,
+        objectives: quantities.objectives ?? 5,
+        sitreps: quantities.sitreps ?? 10,
+        fortune30: quantities.fortune30 ?? 6,
+        internalPartners: quantities.internalPartners ?? 20,
+        smePartners: quantities.smePartners ?? 10
+      };
+
+      const { projects, spis, objectives, sitreps } = await generateSampleProjects(completeQuantities);
 
       const validatedProjects = projects.filter(validateProject);
 
@@ -75,10 +64,10 @@ export class SampleDataService {
         fortune30Partners: fortune30Partners.slice(0, fortune30Count),
         internalPartners: internalPartners.slice(0, internalCount),
         smePartners: allSMEPartners.slice(0, smeCount),
-        projects: validatedProjects.slice(0, quantities.projects),
-        spis: spis.slice(0, quantities.spis),
-        objectives: objectives.slice(0, quantities.objectives),
-        sitreps: sitreps.slice(0, quantities.sitreps)
+        projects: validatedProjects.slice(0, completeQuantities.projects),
+        spis: spis.slice(0, completeQuantities.spis),
+        objectives: objectives.slice(0, completeQuantities.objectives),
+        sitreps: sitreps.slice(0, completeQuantities.sitreps)
       };
     } catch (error) {
       errorHandler.handleError(error, {

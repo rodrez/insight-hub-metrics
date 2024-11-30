@@ -1,6 +1,6 @@
 import { toast } from "@/components/ui/use-toast";
 
-type ErrorType = 'database' | 'validation' | 'network' | 'general';
+export type ErrorType = 'database' | 'validation' | 'network' | 'general';
 
 interface ErrorOptions {
   type?: ErrorType;

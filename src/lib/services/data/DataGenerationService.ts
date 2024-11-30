@@ -17,7 +17,7 @@ export class DataGenerationService {
     });
   }
 
-  private async generatePartners(quantities: DataQuantities) {
+  private async generatePartners(quantities: Partial<DataQuantities>) {
     try {
       const fortune30Partners = await Promise.resolve(generateFortune30Partners())
         .then(partners => partners.filter(validateCollaborator))
@@ -56,6 +56,56 @@ export class DataGenerationService {
         title: 'Partner Generation Failed',
       });
       throw error;
+    }
+  }
+
+  async generateAndSaveData(): Promise<{ success: boolean; error?: any }> {
+    try {
+      await db.init();
+      this.showSuccessStep("Database initialized");
+
+      const quantities: DataQuantities = {
+        projects: 10,
+        spis: 10,
+        objectives: 5,
+        sitreps: 10,
+        fortune30: 6,
+        internalPartners: 20,
+        smePartners: 10
+      };
+
+      const { fortune30Partners, internalPartners, smePartners } = await this.generatePartners(quantities);
+      const { projects, spis, objectives, sitreps } = await generateSampleProjects(quantities);
+
+      const validatedProjects = projects.filter(validateProject);
+
+      const stores = ['collaborators', 'smePartners', 'projects', 'spis', 'objectives', 'sitreps'];
+      const transaction = (db as any).getDatabase().transaction(stores, 'readwrite');
+
+      transaction.onerror = () => {
+        errorHandler.handleError(transaction.error, {
+          type: 'database',
+          title: 'Transaction Failed'
+        });
+      };
+
+      await Promise.all([
+        this.saveToDatabase(transaction, 'collaborators', [...fortune30Partners, ...internalPartners]),
+        this.saveToDatabase(transaction, 'smePartners', smePartners),
+        this.saveToDatabase(transaction, 'projects', validatedProjects),
+        this.saveToDatabase(transaction, 'spis', spis),
+        this.saveToDatabase(transaction, 'objectives', objectives),
+        this.saveToDatabase(transaction, 'sitreps', sitreps),
+      ]);
+
+      this.showSuccessStep("All data saved successfully");
+      return { success: true };
+    } catch (error) {
+      errorHandler.handleError(error, {
+        type: 'database',
+        title: 'Data Generation Failed',
+      });
+      return { success: false, error };
     }
   }
 
@@ -102,64 +152,5 @@ export class DataGenerationService {
         reject(error);
       }
     });
-  }
-
-  async generateAndSaveData(): Promise<{ success: boolean; error?: any }> {
-    try {
-      await db.init();
-      this.showSuccessStep("Database initialized");
-
-      const quantities: DataQuantities = {
-        projects: 10,
-        spis: 10,
-        objectives: 5,
-        sitreps: 10,
-        fortune30: 6,
-        internalPartners: 20,
-        smePartners: 10
-      };
-
-      const { fortune30Partners, internalPartners, smePartners } = await this.generatePartners(quantities);
-      const { projects, spis, objectives, sitreps } = await generateSampleProjects(quantities)
-        .catch(error => {
-          errorHandler.handleError(error, { type: 'database', title: 'Project Generation Failed' });
-          return {
-            projects: [],
-            spis: [],
-            objectives: [],
-            sitreps: []
-          };
-        });
-
-      const validatedProjects = projects.filter(validateProject);
-
-      const stores = ['collaborators', 'smePartners', 'projects', 'spis', 'objectives', 'sitreps'];
-      const transaction = (db as any).getDatabase().transaction(stores, 'readwrite');
-
-      transaction.onerror = () => {
-        errorHandler.handleError(transaction.error, {
-          type: 'database',
-          title: 'Transaction Failed'
-        });
-      };
-
-      await Promise.all([
-        this.saveToDatabase(transaction, 'collaborators', [...fortune30Partners, ...internalPartners]),
-        this.saveToDatabase(transaction, 'smePartners', smePartners),
-        this.saveToDatabase(transaction, 'projects', validatedProjects),
-        this.saveToDatabase(transaction, 'spis', spis),
-        this.saveToDatabase(transaction, 'objectives', objectives),
-        this.saveToDatabase(transaction, 'sitreps', sitreps),
-      ]);
-
-      this.showSuccessStep("All data saved successfully");
-      return { success: true };
-    } catch (error) {
-      errorHandler.handleError(error, {
-        type: 'database',
-        title: 'Data Generation Failed',
-      });
-      return { success: false, error };
-    }
   }
 }
