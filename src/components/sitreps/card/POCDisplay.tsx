@@ -22,43 +22,27 @@ export function POCDisplay({ keyPOC, supportingPOCs }: POCDisplayProps) {
   }
 
   return (
-    <div className="space-y-3">
-      {keyPOC && (
-        <div 
-          className="p-3 rounded-md"
-          style={{ 
-            backgroundColor: `${getDepartmentColor(keyPOC.department)}15`,
-            borderLeft: `3px solid ${getDepartmentColor(keyPOC.department)}`
-          }}
-        >
-          <p className="text-sm font-medium">Key POC</p>
-          <p className="text-sm">{keyPOC.name}</p>
-          <p className="text-sm text-muted-foreground">
-            {DEPARTMENTS.find(d => d.id === keyPOC.department)?.name}
-          </p>
-        </div>
-      )}
-      
-      {supportingPOCs && supportingPOCs.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">Supporting POCs:</p>
-          {supportingPOCs.map((poc, index) => (
-            <div
-              key={`${poc.name}-${index}`}
-              className="p-2 rounded-md"
-              style={{ 
-                backgroundColor: `${getDepartmentColor(poc.department)}15`,
-                borderLeft: `3px solid ${getDepartmentColor(poc.department)}`
-              }}
-            >
-              <p className="text-sm">{poc.name}</p>
-              <p className="text-xs text-muted-foreground">
-                {DEPARTMENTS.find(d => d.id === poc.department)?.name}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="space-y-1">
+      <p className="text-sm text-muted-foreground">Points of Contact:</p>
+      <div className="flex flex-wrap gap-2 items-center">
+        {keyPOC && (
+          <span
+            style={{ color: getDepartmentColor(keyPOC.department) }}
+            className="font-medium"
+          >
+            {keyPOC.name}
+          </span>
+        )}
+        
+        {supportingPOCs && supportingPOCs.length > 0 && supportingPOCs.map((poc, index) => (
+          <span
+            key={`${poc.name}-${index}`}
+            style={{ color: getDepartmentColor(poc.department) }}
+          >
+            {poc.name}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
