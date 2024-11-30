@@ -13,6 +13,34 @@ interface ProjectGenerationInput extends Omit<DataQuantities, 'internalPartners'
   smePartners: Collaborator[];
 }
 
+const projectTypes = [
+  {
+    name: "Digital Transformation",
+    description: "Enterprise-wide digital transformation initiative focusing on modernization and efficiency",
+    objectives: ["Modernize legacy systems", "Improve operational efficiency", "Enable digital capabilities"]
+  },
+  {
+    name: "Innovation Lab",
+    description: "Research and development project exploring cutting-edge technologies",
+    objectives: ["Explore emerging technologies", "Develop proof of concepts", "Create innovation roadmap"]
+  },
+  {
+    name: "Cloud Migration",
+    description: "Strategic migration of core systems to cloud infrastructure",
+    objectives: ["Reduce infrastructure costs", "Improve scalability", "Enhance security"]
+  },
+  {
+    name: "Data Analytics Platform",
+    description: "Advanced analytics platform for business intelligence and insights",
+    objectives: ["Centralize data sources", "Enable real-time analytics", "Improve decision making"]
+  },
+  {
+    name: "Security Enhancement",
+    description: "Comprehensive security upgrade across systems and networks",
+    objectives: ["Strengthen security posture", "Implement zero trust", "Enhance monitoring"]
+  }
+];
+
 const generateBasicProject = (
   index: number,
   dept: Department,
@@ -20,13 +48,17 @@ const generateBasicProject = (
   internalPartner: Collaborator,
   techLead: Collaborator
 ): Project => {
+  const projectType = projectTypes[index % projectTypes.length];
   const budget = Math.round((dept.budget / dept.projectCount) * (0.8 + Math.random() * 0.4));
   const spent = Math.round(budget * (0.2 + Math.random() * 0.5));
+  const today = new Date();
 
   return {
     id: `${dept.id}-project-${index + 1}`,
-    name: `Project ${index + 1}`,
+    name: `${dept.name} ${projectType.name}`,
     departmentId: dept.id,
+    description: `${projectType.description} for ${dept.name}`,
+    objectives: projectType.objectives,
     poc: internalPartner.name,
     pocDepartment: internalPartner.department,
     techLead: techLead.name,
@@ -34,12 +66,15 @@ const generateBasicProject = (
     budget,
     spent,
     status: "active",
+    startDate: new Date(today.getTime() - (60 * 24 * 60 * 60 * 1000)).toISOString(),
+    endDate: new Date(today.getTime() + (305 * 24 * 60 * 60 * 1000)).toISOString(),
     collaborators: [fortune30Partner],
     internalPartners: [internalPartner],
-    techDomainId: defaultTechDomains[0].id,
-    nabc: generateNABC(dept.name, `Project ${index + 1}`),
+    techDomainId: defaultTechDomains[index % defaultTechDomains.length].id,
+    nabc: generateNABC(dept.name, projectType.name),
     milestones: generateMilestones(`${dept.id}-project-${index + 1}`),
     metrics: generateMetrics(`${dept.id}-project-${index + 1}`, spent, budget),
+    lastUpdated: today.toISOString(),
     isSampleData: true
   };
 };
@@ -47,7 +82,6 @@ const generateBasicProject = (
 export const generateSampleProjects = async (input: ProjectGenerationInput) => {
   const projects: Project[] = [];
 
-  // Generate requested number of projects
   for (let i = 0; i < input.projects; i++) {
     const dept = input.departments[i % input.departments.length];
     const fortune30Partner = input.fortune30Partners[i % input.fortune30Partners.length];
