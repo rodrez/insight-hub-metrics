@@ -13,6 +13,7 @@ import { ContactBadges } from "./card/ContactBadges";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { CompactSitRepForm } from "./CompactSitRepForm";
+import { DEPARTMENTS } from "@/lib/constants";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,6 +45,12 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
     }
   };
 
+  const getDepartmentColor = (departmentId?: string) => {
+    if (!departmentId) return '#333';
+    const department = DEPARTMENTS.find(d => d.id === departmentId);
+    return department?.color || '#333';
+  };
+
   const handleDelete = () => {
     if (onDelete) {
       onDelete(sitrep.id);
@@ -71,9 +78,6 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
         return status;
     }
   };
-
-  const wordCount = sitrep.summary.split(/\s+/).filter(word => word.length > 0).length;
-  const isWordCountValid = wordCount >= 100;
 
   return (
     <>
@@ -135,6 +139,36 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
               <span>{sitrep.level}</span>
             </div>
 
+            {sitrep.poc && (
+              <div 
+                className="p-3 rounded-md"
+                style={{ 
+                  backgroundColor: `${getDepartmentColor(sitrep.pocDepartment)}15`,
+                  borderLeft: `3px solid ${getDepartmentColor(sitrep.pocDepartment)}`
+                }}
+              >
+                <p className="text-sm font-medium">Point of Contact</p>
+                <p className="text-sm">{sitrep.poc}</p>
+              </div>
+            )}
+
+            {(sitrep.fortune30PartnerId || sitrep.smePartnerId) && (
+              <div className="space-y-2">
+                {sitrep.fortune30PartnerId && (
+                  <div className="p-3 rounded-md bg-blue-500/10 border-l-2 border-blue-500">
+                    <p className="text-sm font-medium">Fortune 30 Partner</p>
+                    <p className="text-sm">{sitrep.fortune30PartnerId}</p>
+                  </div>
+                )}
+                {sitrep.smePartnerId && (
+                  <div className="p-3 rounded-md bg-purple-500/10 border-l-2 border-purple-500">
+                    <p className="text-sm font-medium">SME Partner</p>
+                    <p className="text-sm">{sitrep.smePartnerId}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
             {(sitrep.pointsOfContact?.length > 0 || sitrep.teams?.length > 0) && (
               <div className="space-y-3 pt-2">
                 {sitrep.pointsOfContact && sitrep.pointsOfContact.length > 0 && (
@@ -150,23 +184,6 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
                 )}
               </div>
             )}
-
-            <div className="pt-2 space-y-2">
-              <div className="text-sm">
-                <span className="text-muted-foreground">Importance Level: </span>
-                <span>{sitrep.level}</span>
-              </div>
-              <div className="text-sm">
-                <span className="text-muted-foreground">Key Team: </span>
-                <span>{sitrep.departmentId}</span>
-              </div>
-              {sitrep.teams && sitrep.teams.length > 0 && (
-                <div className="text-sm">
-                  <span className="text-muted-foreground">Supporting Teams: </span>
-                  <span>{sitrep.teams.join(", ")}</span>
-                </div>
-              )}
-            </div>
           </div>
         </CardContent>
       </Card>
