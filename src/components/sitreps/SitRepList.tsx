@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { SitRepCard } from "./SitRepCard";
 import { SitRepStats } from "./SitRepStats";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface SitRepListProps {
   showDateFilter: boolean;
@@ -14,7 +15,7 @@ export function SitRepList({ showDateFilter }: SitRepListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
-  const { data: sitreps } = useQuery({
+  const { data: sitreps, isLoading } = useQuery({
     queryKey: ['sitreps'],
     queryFn: () => db.getAllSitReps()
   });
@@ -43,14 +44,24 @@ export function SitRepList({ showDateFilter }: SitRepListProps) {
       </div>
 
       <div className="space-y-4">
-        {filteredSitreps?.map(sitrep => (
-          <SitRepCard
-            key={sitrep.id}
-            sitrep={sitrep}
-            onEdit={(id) => console.log('Edit', id)}
-            onDelete={(id) => console.log('Delete', id)}
-          />
-        ))}
+        {isLoading ? (
+          [...Array(3)].map((_, index) => (
+            <div key={index} className="p-4 border rounded-lg">
+              <Skeleton className="h-6 w-3/4 mb-4" />
+              <Skeleton className="h-4 w-1/2 mb-2" />
+              <Skeleton className="h-4 w-full" />
+            </div>
+          ))
+        ) : (
+          filteredSitreps?.map(sitrep => (
+            <SitRepCard
+              key={sitrep.id}
+              sitrep={sitrep}
+              onEdit={(id) => console.log('Edit', id)}
+              onDelete={(id) => console.log('Delete', id)}
+            />
+          ))
+        )}
       </div>
     </div>
   );
