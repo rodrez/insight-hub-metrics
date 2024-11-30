@@ -6,7 +6,7 @@ import { generateNABC } from './templates/projectTemplates';
 import { generateMilestones, generateMetrics } from './templates/metricsTemplates';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiGenerator';
 
-interface ProjectGenerationInput extends Omit<DataQuantities, 'internalPartners' | 'smePartners'> {
+export interface ProjectGenerationInput extends DataQuantities {
   departments: Department[];
   fortune30Partners: Collaborator[];
   internalPartners: Collaborator[];

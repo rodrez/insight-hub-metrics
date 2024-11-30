@@ -6,6 +6,7 @@ import { DataQuantities, dataQuantitiesSchema } from '@/lib/types/data';
 import { toast } from "@/components/ui/use-toast";
 import { errorHandler } from '../error/ErrorHandlingService';
 import { validateCollaborator, validateProject } from './utils/dataGenerationUtils';
+import { DEPARTMENTS } from '@/lib/constants';
 
 export class SampleDataService {
   private validateQuantities(available: number, requested: number, type: string): number {
@@ -52,7 +53,15 @@ export class SampleDataService {
         "SME partners"
       );
 
-      const { projects, spis, objectives, sitreps } = await generateSampleProjects(validatedQuantities);
+      const projectInput = {
+        ...validatedQuantities,
+        departments: DEPARTMENTS,
+        fortune30Partners: fortune30Partners.slice(0, fortune30Count),
+        internalPartners: validatedInternalPartners.slice(0, internalCount),
+        smePartners: allSMEPartners.slice(0, smeCount)
+      };
+
+      const { projects, spis, objectives, sitreps } = await generateSampleProjects(projectInput);
 
       const validatedProjects = projects.filter(validateProject);
 
