@@ -38,6 +38,19 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
   const [teamPOCs, setTeamPOCs] = useState<Record<string, Contact>>({});
   const [status, setStatus] = useState<'pending-review' | 'ready' | 'submitted'>(initialData?.status || 'pending-review');
   const [level, setLevel] = useState<"CEO" | "SVP" | "CTO">(initialData?.level || "SVP");
+  const [contacts, setContacts] = useState<Contact[]>([]);
+
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: () => db.getAllProjects()
+  });
+
+  const { data: collaborators = [] } = useQuery({
+    queryKey: ['collaborators'],
+    queryFn: () => db.getAllCollaborators()
+  });
+
+  const fortune30Partners = collaborators?.filter(c => c.type === 'fortune30') || [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,6 +127,8 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
           <DateSelector date={selectedDate} onDateChange={(date) => date && setSelectedDate(date)} />
           
           <BasicInfoFields
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
             title={title}
             setTitle={setTitle}
             status={status}
@@ -150,6 +165,10 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
             setSelectedFortune30={setSelectedFortune30}
             selectedSME={selectedSME}
             setSelectedSME={setSelectedSME}
+            projects={projects}
+            fortune30Partners={fortune30Partners}
+            contacts={contacts}
+            onContactsChange={setContacts}
           />
 
           <ContentFields
