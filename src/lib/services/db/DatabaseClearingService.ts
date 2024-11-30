@@ -1,21 +1,15 @@
-import { toast } from "@/components/ui/use-toast";
 import { connectionManager } from './connectionManager';
 import { DatabaseCleaner } from './databaseCleaner';
-import { DB_CONFIG } from './stores';
 
 export class DatabaseClearingService {
-  private db: IDBDatabase | null;
-
-  constructor(db: IDBDatabase | null) {
-    this.db = db;
-  }
+  constructor(private db: IDBDatabase | null) {}
 
   async clearDatabase(): Promise<void> {
-    try {
-      if (!this.db) {
-        throw new Error('Database not initialized');
-      }
+    if (!this.db) {
+      throw new Error('Database not initialized');
+    }
 
+    try {
       // Close all existing connections first
       connectionManager.closeAllConnections();
       
@@ -27,64 +21,41 @@ export class DatabaseClearingService {
         return;
       }
 
-      // Create a transaction that includes all stores
-      const transaction = this.db.transaction(storeNames, 'readwrite');
-      
-      // Clear each store
-      const clearPromises = storeNames.map(storeName => 
-        new Promise<void>((resolve, reject) => {
-          try {
-            const store = transaction.objectStore(storeName);
-            const request = store.clear();
-            request.onsuccess = () => resolve();
-            request.onerror = (event) => {
-              console.error(`Error clearing store ${storeName}:`, event);
-              reject(request.error);
-            };
-          } catch (error) {
-            console.error(`Error accessing store ${storeName}:`, error);
-            reject(error);
-          }
-        })
-      );
-
-      // Wait for all stores to be cleared
-      await Promise.all(clearPromises).catch(error => {
-        console.error('Error during store clearing:', error);
-        throw error;
-      });
-
-      // Wait for transaction to complete
-      await new Promise<void>((resolve, reject) => {
-        transaction.oncomplete = () => {
-          console.log('All stores cleared successfully');
-          resolve();
-        };
-        transaction.onerror = () => {
-          console.error('Transaction error:', transaction.error);
-          reject(transaction.error);
-        };
-        transaction.onabort = () => {
-          console.error('Transaction aborted');
-          reject(new Error('Transaction aborted'));
-        };
-      });
+      // Clear each store individually to avoid transaction issues
+      for (const storeName of storeNames) {
+        await this.clearStore(storeName);
+      }
 
       // Delete and recreate the database
       await DatabaseCleaner.clearDatabase();
       
-      toast({
-        title: "Database cleared",
-        description: "All data has been successfully removed.",
-      });
+      console.log('Database cleared successfully');
     } catch (error) {
       console.error('Error clearing database:', error);
-      toast({
-        title: "Error",
-        description: "Failed to clear database",
-        variant: "destructive",
-      });
       throw error;
     }
+  }
+
+  private async clearStore(storeName: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      try {
+        const transaction = this.db!.transaction(storeName, 'readwrite');
+        const store = transaction.objectStore(storeName);
+        const request = store.clear();
+
+        transaction.oncomplete = () => {
+          console.log(`Store ${storeName} cleared successfully`);
+          resolve();
+        };
+
+        transaction.onerror = () => {
+          console.error(`Error clearing store ${storeName}:`, transaction.error);
+          reject(transaction.error);
+        };
+      } catch (error) {
+        console.error(`Error accessing store ${storeName}:`, error);
+        reject(error);
+      }
+    });
   }
 }

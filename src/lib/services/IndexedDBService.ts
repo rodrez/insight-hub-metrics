@@ -2,11 +2,12 @@ import { Project, Collaborator, Team } from '../types';
 import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
-import { DataService } from './DataService';
 import { DataQuantities } from '../types/data';
 import { DatabaseTransactionService } from './db/DatabaseTransactionService';
 import { DatabaseConnectionService } from './db/DatabaseConnectionService';
 import { SampleDataService } from './data/SampleDataService';
+import { DatabaseCleaner } from './databaseCleaner';
+import { connectionManager } from './connectionManager';
 
 export class IndexedDBService implements DataService {
   private connectionService: DatabaseConnectionService;
@@ -67,8 +68,7 @@ export class IndexedDBService implements DataService {
   async updateCollaborator(id: string, updates: Partial<Collaborator>): Promise<void> {
     const collaborator = await this.getCollaborator(id);
     if (!collaborator) throw new Error('Collaborator not found');
-    await this.transactionService.performTransaction('collaborators', 'readwrite', store => 
-      store.put({ ...collaborator, ...updates }));
+    await this.transactionService.performTransaction('collaborators', 'readwrite', store => store.put({ ...collaborator, ...updates }));
   }
 
   async getAllSitReps(): Promise<SitRep[]> {
@@ -151,39 +151,47 @@ export class IndexedDBService implements DataService {
   async populateSampleData(quantities: DataQuantities): Promise<void> {
     const sampleData = await this.sampleDataService.generateSampleData(quantities);
     
+    // Clear existing data first
+    await this.clear();
+    
     // Add all data in sequence
-    for (const partner of sampleData.fortune30Partners) {
-      await this.addCollaborator(partner);
+    const addPromises = [];
+
+    // Add Fortune 30 and internal partners to collaborators store
+    for (const partner of [...sampleData.fortune30Partners, ...sampleData.internalPartners]) {
+      addPromises.push(this.addCollaborator(partner));
     }
 
-    for (const partner of sampleData.internalPartners) {
-      await this.addCollaborator(partner);
-    }
-
-    // Ensure SME partners are added to the correct store
+    // Add SME partners to their dedicated store
     for (const partner of sampleData.smePartners) {
-      await this.addSMEPartner(partner);
-      console.log('Added SME partner:', partner.name); // Debug log
+      addPromises.push(this.addSMEPartner({
+        ...partner,
+        type: 'sme' // Ensure type is set correctly
+      }));
     }
 
+    // Add other data
     for (const project of sampleData.projects) {
-      await this.addProject(project);
+      addPromises.push(this.addProject(project));
     }
 
     for (const spi of sampleData.spis) {
-      await this.addSPI(spi);
+      addPromises.push(this.addSPI(spi));
     }
 
     for (const objective of sampleData.objectives) {
-      await this.addObjective(objective);
+      addPromises.push(this.addObjective(objective));
     }
 
     for (const sitrep of sampleData.sitreps) {
-      await this.addSitRep(sitrep);
+      addPromises.push(this.addSitRep(sitrep));
     }
 
-    // Verify SME partners were added
+    // Wait for all data to be added
+    await Promise.all(addPromises);
+
+    // Verify data was added correctly
     const smePartners = await this.getAllSMEPartners();
-    console.log('Total SME partners after population:', smePartners.length);
+    console.log('SME partners added:', smePartners.length);
   }
 }
