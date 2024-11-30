@@ -5,6 +5,7 @@ import { SampleDataService } from "@/lib/services/data/SampleDataService";
 import { useQueryClient } from "@tanstack/react-query";
 import { DatabaseError } from "@/lib/utils/errorHandling";
 import { DatabaseOperations } from "../operations/DatabaseOperations";
+import { DataQuantities } from "../SampleData";
 
 export function useDataPopulation() {
   const [isPopulating, setIsPopulating] = useState(false);
@@ -13,7 +14,7 @@ export function useDataPopulation() {
   const databaseOps = new DatabaseOperations();
   const sampleDataService = new SampleDataService();
 
-  const populateSampleData = async () => {
+  const populateSampleData = async (quantities: DataQuantities) => {
     setIsPopulating(true);
     setProgress(0);
     
@@ -30,7 +31,7 @@ export function useDataPopulation() {
               spis,
               objectives,
               sitreps
-            } = await sampleDataService.generateSampleData();
+            } = await sampleDataService.generateSampleData(quantities);
 
             // Add data to database in sequence with progress updates
             const totalSteps = 7;
