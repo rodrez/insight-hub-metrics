@@ -1,7 +1,7 @@
 import { toast } from "@/components/ui/use-toast";
-import { generateFortune30Partners } from './fortune30Partners';
-import { generateInternalPartners } from './internalPartners';
-import { generateSMEPartners } from './smePartners';
+import { generateFortune30Partners } from './generators/fortune30Generator';
+import { generateInternalPartners } from './generators/internalPartnersGenerator';
+import { generateSMEPartners } from './generators/smePartnersGenerator';
 import { generateSampleProjects } from '@/components/data/SampleData';
 import { DataQuantities } from '../../types/data';
 import { db } from "@/lib/db";
@@ -33,17 +33,6 @@ export class DataGenerationService {
     };
   }
 
-  private async generateProjectData(quantities: DataQuantities) {
-    const { projects, spis, objectives, sitreps } = await generateSampleProjects(quantities);
-    
-    this.showSuccessStep(`Generated ${projects.length} projects`);
-    this.showSuccessStep(`Generated ${spis.length} SPIs`);
-    this.showSuccessStep(`Generated ${objectives.length} objectives`);
-    this.showSuccessStep(`Generated ${sitreps.length} sitreps`);
-
-    return { projects, spis, objectives, sitreps };
-  }
-
   private async saveToDatabase(
     transaction: IDBTransaction,
     storeName: string,
@@ -52,12 +41,10 @@ export class DataGenerationService {
     return new Promise<void>((resolve, reject) => {
       const store = transaction.objectStore(storeName);
       
-      // Clear existing data
       const clearRequest = store.clear();
       clearRequest.onsuccess = () => {
         let completed = 0;
         
-        // Add new data
         data.forEach(item => {
           const request = store.put(item);
           request.onsuccess = () => {
@@ -70,7 +57,6 @@ export class DataGenerationService {
           request.onerror = () => reject(request.error);
         });
 
-        // Handle empty data case
         if (data.length === 0) {
           resolve();
         }
@@ -81,7 +67,6 @@ export class DataGenerationService {
 
   async generateAndSaveData() {
     try {
-      // Initialize database
       await db.init();
       this.showSuccessStep("Database initialized");
 
@@ -95,15 +80,12 @@ export class DataGenerationService {
         smePartners: 10
       };
 
-      // Generate all data first
       const { fortune30Partners, internalPartners, smePartners } = await this.generatePartners(quantities);
-      const { projects, spis, objectives, sitreps } = await this.generateProjectData(quantities);
+      const { projects, spis, objectives, sitreps } = await generateSampleProjects(quantities);
 
-      // Start database transaction
       const stores = ['collaborators', 'smePartners', 'projects', 'spis', 'objectives', 'sitreps'];
       const transaction = (db as any).getDatabase().transaction(stores, 'readwrite');
 
-      // Save all data
       await Promise.all([
         this.saveToDatabase(transaction, 'collaborators', [...fortune30Partners, ...internalPartners]),
         this.saveToDatabase(transaction, 'smePartners', smePartners),

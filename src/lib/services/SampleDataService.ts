@@ -1,7 +1,7 @@
 import { Project, Collaborator } from '@/lib/types';
-import { generateFortune30Partners } from './data/fortune30Partners';
-import { generateInternalPartners } from './data/internalPartners';
-import { generateSMEPartners } from './smePartners';
+import { generateFortune30Partners } from './data/generators/fortune30Generator';
+import { generateInternalPartners } from './data/generators/internalPartnersGenerator';
+import { generateSMEPartners } from './data/generators/smePartnersGenerator';
 import { generateSampleProjects } from '@/components/data/SampleData';
 import { DataQuantities } from '@/lib/types/data';
 import { toast } from "@/components/ui/use-toast";
@@ -51,7 +51,6 @@ export class SampleDataService {
       const allSMEPartners = generateSMEPartners();
       console.log('Generated SME partners:', allSMEPartners.length);
 
-      // Validate and adjust quantities
       const fortune30Count = this.validateQuantities(allFortune30.length, quantities.fortune30, "Fortune 30 partners");
       const internalCount = this.validateQuantities(allInternalPartners.length, quantities.internalPartners, "internal partners");
       const smeCount = this.validateQuantities(allSMEPartners.length, quantities.smePartners, "SME partners");
