@@ -21,6 +21,7 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
   const [status, setStatus] = useState<SPI['status']>("on-track");
   const [selectedProject, setSelectedProject] = useState<string>("none");
   const [selectedFortune30, setSelectedFortune30] = useState<string>("none");
+  const [selectedSME, setSelectedSME] = useState<string>("none");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("none");
 
   const { data: projects } = useQuery({
@@ -56,6 +57,7 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
         status: 'on-track',
         projectId: selectedProject !== "none" ? selectedProject : undefined,
         departmentId: selectedDepartment !== "none" ? selectedDepartment : "default",
+        smePartnerId: selectedSME !== "none" ? selectedSME : undefined,
         sitrepIds: [],
         createdAt: new Date().toISOString()
       };
@@ -75,6 +77,7 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
       setStatus("on-track");
       setSelectedProject("none");
       setSelectedFortune30("none");
+      setSelectedSME("none");
       setSelectedDepartment("none");
       
       onSubmitSuccess();
@@ -130,6 +133,8 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
         setSelectedProject={setSelectedProject}
         selectedFortune30={selectedFortune30}
         setSelectedFortune30={setSelectedFortune30}
+        selectedSME={selectedSME}
+        setSelectedSME={setSelectedSME}
         selectedDepartment={selectedDepartment}
         setSelectedDepartment={setSelectedDepartment}
         projects={projects}

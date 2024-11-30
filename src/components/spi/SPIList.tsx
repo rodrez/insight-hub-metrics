@@ -73,7 +73,6 @@ export function SPIList() {
         const fortune30Partner = collaborators?.find(c => 
           c.type === 'fortune30' && c.id === relatedProject?.collaborators.find(rc => rc.type === 'fortune30')?.id
         );
-        const smePartner = relatedProject?.collaborators.find(c => c.type === 'sme');
 
         return (
           <Card key={spi.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
@@ -122,7 +121,7 @@ export function SPIList() {
                 <RelatedEntities
                   relatedProject={relatedProject}
                   fortune30Partner={fortune30Partner}
-                  smePartnerId={smePartner?.id}
+                  smePartnerId={spi.smePartnerId}
                   departmentId={spi.departmentId}
                 />
               </div>
