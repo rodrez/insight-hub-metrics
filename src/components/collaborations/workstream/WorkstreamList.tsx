@@ -13,8 +13,8 @@ type WorkstreamListProps = {
   };
   form: UseFormReturn<CollaborationFormSchema>;
   formatDate: (date: string) => string;
-  onEdit: (workstream: Workstream) => Promise<void>;
-  onDelete: (workstreamId: string) => Promise<void>;
+  onEdit: (workstream: Workstream) => void;
+  onDelete: (workstreamId: string) => void;
   onSubmit: (data: CollaborationFormSchema) => Promise<void>;
 };
 
@@ -40,8 +40,8 @@ export function WorkstreamList({
             <WorkstreamActions
               workstream={workstream}
               form={form}
-              onEdit={async (ws) => await onEdit(ws)}
-              onDelete={async (id) => await onDelete(id)}
+              onEdit={onEdit}
+              onDelete={onDelete}
               onSubmit={onSubmit}
             />
           </CardContent>

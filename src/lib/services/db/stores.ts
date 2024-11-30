@@ -1,31 +1,38 @@
 export const DB_CONFIG = {
   name: 'projectManagementDB',
-  version: 2, // Incrementing version to force store creation
+  version: 1,
   stores: {
     projects: 'projects',
     collaborators: 'collaborators',
     sitreps: 'sitreps',
     spis: 'spis',
     objectives: 'objectives',
-    smePartners: 'smePartners',
-    errors: 'errors'
+    smePartners: 'smePartners'
   }
 };
 
 export const createStores = (db: IDBDatabase) => {
   // Remove existing object stores if they exist during upgrade
   Array.from(db.objectStoreNames).forEach(storeName => {
-    try {
-      db.deleteObjectStore(storeName);
-    } catch (error) {
-      console.log(`Could not delete store ${storeName}:`, error);
-    }
+    db.deleteObjectStore(storeName);
   });
 
-  // Create fresh object stores with detailed logging
-  Object.entries(DB_CONFIG.stores).forEach(([key, storeName]) => {
-    console.log(`Creating ${storeName} store`);
-    db.createObjectStore(storeName, { keyPath: 'id' });
-    console.log(`Successfully created ${storeName} store`);
-  });
+  // Create fresh object stores
+  console.log('Creating projects store');
+  db.createObjectStore(DB_CONFIG.stores.projects, { keyPath: 'id' });
+
+  console.log('Creating collaborators store');
+  db.createObjectStore(DB_CONFIG.stores.collaborators, { keyPath: 'id' });
+
+  console.log('Creating sitreps store');
+  db.createObjectStore(DB_CONFIG.stores.sitreps, { keyPath: 'id' });
+
+  console.log('Creating spis store');
+  db.createObjectStore(DB_CONFIG.stores.spis, { keyPath: 'id' });
+
+  console.log('Creating objectives store');
+  db.createObjectStore(DB_CONFIG.stores.objectives, { keyPath: 'id' });
+
+  console.log('Creating smePartners store');
+  db.createObjectStore(DB_CONFIG.stores.smePartners, { keyPath: 'id' });
 };
