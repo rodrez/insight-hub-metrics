@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SitRep } from "@/lib/types/sitrep";
 import { db } from "@/lib/db";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { StatusIcon } from "./card/StatusIcon";
 import { LevelBadge } from "./card/LevelBadge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -28,6 +28,12 @@ interface SitRepCardProps {
 export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
   const queryClient = useQueryClient();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+  const { data: smePartner } = useQuery({
+    queryKey: ['sme-partner', sitrep.smePartnerId],
+    queryFn: () => sitrep.smePartnerId ? db.getSMEPartner(sitrep.smePartnerId) : null,
+    enabled: !!sitrep.smePartnerId
+  });
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
@@ -160,7 +166,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
                 {sitrep.smePartnerId && (
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground">SME:</span>
-                    <span className="text-purple-500">{sitrep.smePartnerId}</span>
+                    <span className="text-purple-500">{smePartner?.name || 'Loading...'}</span>
                   </div>
                 )}
               </div>
