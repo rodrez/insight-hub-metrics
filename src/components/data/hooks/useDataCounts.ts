@@ -48,6 +48,7 @@ export function useDataCounts(isInitialized: boolean) {
         smePartners: smePartners?.length || 0
       };
 
+      // Update individual count queries
       Object.entries(counts).forEach(([key, value]) => {
         queryClient.setQueryData(['data-count', key], value);
       });
@@ -76,12 +77,16 @@ export function useDataCounts(isInitialized: boolean) {
     queryKey: ['data-counts'],
     queryFn: fetchDataCounts,
     enabled: isInitialized,
-    staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 30,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 30, // 30 minutes
   });
 
   const updateDataCounts = async () => {
     await queryClient.invalidateQueries({ queryKey: ['data-counts'] });
+    // Also invalidate individual count queries
+    Object.keys(dataCounts).forEach(key => {
+      queryClient.invalidateQueries({ queryKey: ['data-count', key] });
+    });
     await refetch();
   };
 

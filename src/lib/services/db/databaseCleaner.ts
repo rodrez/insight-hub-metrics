@@ -38,7 +38,7 @@ export class DatabaseCleaner {
       };
 
       // Start deletion attempt after a small delay to ensure connections are closed
-      setTimeout(attemptDeletion, 500);
+      setTimeout(attemptDeletion, 100);
     });
   }
 }

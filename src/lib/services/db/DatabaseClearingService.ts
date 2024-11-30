@@ -1,25 +1,40 @@
 import { toast } from "@/components/ui/use-toast";
 import { connectionManager } from './connectionManager';
 import { DatabaseCleaner } from './databaseCleaner';
+import { DB_CONFIG } from './stores';
 
 export class DatabaseClearingService {
-  private projectStore: any;
-  private smeStore: any;
   private db: IDBDatabase | null;
 
-  constructor(db: IDBDatabase | null, projectStore: any, smeStore: any) {
+  constructor(db: IDBDatabase | null) {
     this.db = db;
-    this.projectStore = projectStore;
-    this.smeStore = smeStore;
   }
 
   async clearDatabase(): Promise<void> {
     try {
       connectionManager.closeAllConnections();
-      await DatabaseCleaner.clearDatabase();
       
-      this.projectStore = null;
-      this.smeStore = null;
+      // Ensure all stores are cleared, including smePartners
+      if (this.db) {
+        const transaction = this.db.transaction(
+          Object.values(DB_CONFIG.stores),
+          'readwrite'
+        );
+
+        await Promise.all(
+          Object.values(DB_CONFIG.stores).map(
+            storeName => 
+              new Promise<void>((resolve, reject) => {
+                const store = transaction.objectStore(storeName);
+                const request = store.clear();
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+              })
+          )
+        );
+      }
+
+      await DatabaseCleaner.clearDatabase();
       this.db = null;
 
       toast({
