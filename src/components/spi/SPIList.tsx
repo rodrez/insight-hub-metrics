@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
-import { SPICard } from "@/components/spi/SPICard";
+import { SPICard } from "./SPICard";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function SPIList() {
