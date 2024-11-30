@@ -4,10 +4,11 @@ import { SPI } from "@/lib/types/spi";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Edit2, Trash2 } from "lucide-react";
+import { Edit2, Trash2, Calendar } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SPIEditForm } from "./SPIEditForm";
 import { toast } from "@/components/ui/use-toast";
+import { format } from "date-fns";
 import {
   Tooltip,
   TooltipContent,
@@ -86,11 +87,11 @@ export function SPIList() {
         const smePartner = relatedProject?.collaborators.find(c => c.type === 'sme');
 
         return (
-          <Card key={spi.id} className="overflow-hidden">
-            <CardHeader className="flex flex-row items-center justify-between">
+          <Card key={spi.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
+            <CardHeader className="flex flex-row items-center justify-between bg-background/50 backdrop-blur-sm">
               <div>
-                <CardTitle>{spi.name}</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">{spi.deliverable}</p>
+                <CardTitle className="text-xl font-bold">{spi.name}</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{spi.deliverable}</p>
               </div>
               <div className="flex gap-2">
                 <Button 
@@ -111,39 +112,43 @@ export function SPIList() {
                 </Button>
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <h4 className="font-medium mb-2">Status & Details</h4>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div 
-                        className="w-3 h-3 rounded-full" 
-                        style={{ backgroundColor: statusColors[spi.status] }}
-                      />
-                      <span className="capitalize">{spi.status}</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{spi.details}</p>
+            <CardContent className="pt-6">
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <div 
+                      className="w-3 h-3 rounded-full" 
+                      style={{ backgroundColor: statusColors[spi.status] }}
+                    />
+                    <span className="capitalize font-medium">{spi.status}</span>
                   </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Calendar className="h-4 w-4" />
+                    <span>Expected completion: {format(new Date(spi.expectedCompletionDate), 'PPP')}</span>
+                  </div>
+                  {spi.details && (
+                    <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">{spi.details}</p>
+                  )}
                 </div>
-                <div>
-                  <h4 className="font-medium mb-2">Related Entities</h4>
-                  <div className="space-y-2 text-sm">
+                <div className="space-y-4">
+                  <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Related Entities</h4>
+                  <div className="space-y-3">
                     {relatedProject && (
-                      <p>Project: <span className="text-muted-foreground">{relatedProject.name}</span></p>
+                      <div className="p-2 rounded-md bg-blue-500/10 border-l-2 border-blue-500">
+                        <p className="text-sm font-medium">Project</p>
+                        <p className="text-sm">{relatedProject.name}</p>
+                      </div>
                     )}
                     {fortune30Partner && (
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <p>
-                              Fortune 30: <span 
-                                className="font-medium"
-                                style={{ color: fortune30Partner.color }}
-                              >
+                            <div className="p-2 rounded-md bg-purple-500/10 border-l-2 border-purple-500">
+                              <p className="text-sm font-medium">Fortune 30 Partner</p>
+                              <p className="text-sm" style={{ color: fortune30Partner.color }}>
                                 {fortune30Partner.name}
-                              </span>
-                            </p>
+                              </p>
+                            </div>
                           </TooltipTrigger>
                           <TooltipContent>
                             <p>{fortune30Partner.role}</p>
@@ -155,7 +160,10 @@ export function SPIList() {
                       </TooltipProvider>
                     )}
                     {smePartner && (
-                      <p>SME: <span className="text-muted-foreground">{smePartner.name}</span></p>
+                      <div className="p-2 rounded-md bg-orange-500/10 border-l-2 border-orange-500">
+                        <p className="text-sm font-medium">SME Partner</p>
+                        <p className="text-sm">{smePartner.name}</p>
+                      </div>
                     )}
                     <div 
                       className="p-2 rounded-md"
@@ -164,9 +172,10 @@ export function SPIList() {
                         borderLeft: `3px solid ${getDepartmentColor(spi.departmentId)}`
                       }}
                     >
-                      <p>Department: <span className="font-medium">
+                      <p className="text-sm font-medium">Department</p>
+                      <p className="text-sm">
                         {DEPARTMENTS.find(d => d.id === spi.departmentId)?.name || spi.departmentId}
-                      </span></p>
+                      </p>
                     </div>
                   </div>
                 </div>
