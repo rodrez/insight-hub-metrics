@@ -1,6 +1,8 @@
 import { Project } from "@/lib/types";
 import { Collaborator } from "@/lib/types/collaboration";
 import { DEPARTMENTS } from "@/lib/constants";
+import { useQuery } from "@tanstack/react-query";
+import { db } from "@/lib/db";
 import {
   Tooltip,
   TooltipContent,
@@ -21,6 +23,12 @@ export function RelatedEntities({
   smePartnerId,
   departmentId
 }: RelatedEntitiesProps) {
+  const { data: smePartner } = useQuery({
+    queryKey: ['sme-partner', smePartnerId],
+    queryFn: () => smePartnerId ? db.getSMEPartner(smePartnerId) : null,
+    enabled: !!smePartnerId
+  });
+
   const getDepartmentColor = (departmentId: string) => {
     const dept = DEPARTMENTS.find(d => d.id === departmentId);
     return dept?.color || '#333';
@@ -63,9 +71,9 @@ export function RelatedEntities({
             borderLeft: `3px solid ${getDepartmentColor(departmentId)}`
           }}
         >
-          <p className="text-sm font-medium">SME</p>
+          <p className="text-sm font-medium">SME Partner</p>
           <p className="text-sm">
-            {smePartnerId || "None"}
+            {smePartner ? smePartner.name : "None"}
           </p>
         </div>
       </div>

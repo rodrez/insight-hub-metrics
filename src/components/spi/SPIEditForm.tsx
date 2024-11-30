@@ -23,6 +23,7 @@ export function SPIEditForm({ spi, onSuccess }: SPIEditFormProps) {
   const [status, setStatus] = useState<SPI['status']>(spi.status);
   const [selectedProject, setSelectedProject] = useState<string>(spi.projectId || "none");
   const [selectedFortune30, setSelectedFortune30] = useState<string>("none");
+  const [selectedSME, setSelectedSME] = useState<string>(spi.smePartnerId || "none");
   const [selectedDepartment, setSelectedDepartment] = useState<string>(spi.departmentId);
 
   const { data: projects } = useQuery({
@@ -58,6 +59,7 @@ export function SPIEditForm({ spi, onSuccess }: SPIEditFormProps) {
         status,
         projectId: selectedProject !== "none" ? selectedProject : undefined,
         departmentId: selectedDepartment !== "none" ? selectedDepartment : "default",
+        smePartnerId: selectedSME !== "none" ? selectedSME : undefined,
       };
 
       await db.updateSPI(spi.id, updatedSPI);
@@ -134,6 +136,8 @@ export function SPIEditForm({ spi, onSuccess }: SPIEditFormProps) {
         setSelectedProject={setSelectedProject}
         selectedFortune30={selectedFortune30}
         setSelectedFortune30={setSelectedFortune30}
+        selectedSME={selectedSME}
+        setSelectedSME={setSelectedSME}
         selectedDepartment={selectedDepartment}
         setSelectedDepartment={setSelectedDepartment}
         projects={projects}
