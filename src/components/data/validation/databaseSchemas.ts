@@ -9,7 +9,7 @@ export const dataQuantitiesSchema = z.object({
   fortune30: z.number().min(0),
   internalPartners: z.number().min(0),
   smePartners: z.number().min(0)
-});
+}).required();
 
 export const validateDataQuantities = (data: Partial<DataQuantities>): DataQuantities => {
   const defaultValues: DataQuantities = {
@@ -22,10 +22,9 @@ export const validateDataQuantities = (data: Partial<DataQuantities>): DataQuant
     smePartners: 0
   };
 
-  // Merge incoming data with default values
+  // Merge incoming data with default values to ensure all required properties exist
   const mergedData = { ...defaultValues, ...data };
 
   // Validate the merged data
-  const result = dataQuantitiesSchema.parse(mergedData);
-  return result;
+  return dataQuantitiesSchema.parse(mergedData);
 };

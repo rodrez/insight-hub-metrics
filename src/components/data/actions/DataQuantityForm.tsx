@@ -11,10 +11,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 
 interface DataQuantityFormProps {
   onSubmit: (quantities: DataQuantities) => Promise<void>;
-  isPopulating: boolean;
+  onCancel: () => void;
+  isLoading: boolean;
 }
 
-export function DataQuantityForm({ onSubmit, isPopulating }: DataQuantityFormProps) {
+export function DataQuantityForm({ onSubmit, onCancel, isLoading }: DataQuantityFormProps) {
   const form = useForm<DataQuantities>({
     resolver: zodResolver(dataQuantitiesSchema),
     defaultValues: {
@@ -132,8 +133,8 @@ export function DataQuantityForm({ onSubmit, isPopulating }: DataQuantityFormPro
         </div>
 
         <div className="flex justify-end">
-          <Button type="submit" disabled={isPopulating}>
-            {isPopulating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <Button type="submit" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Generate Data
           </Button>
         </div>

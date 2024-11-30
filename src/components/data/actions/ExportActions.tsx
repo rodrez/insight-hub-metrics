@@ -1,100 +1,69 @@
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
-import { FileJson, Download } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { db } from "@/lib/db";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
+import { errorHandler } from "@/lib/services/error/ErrorHandlingService";
 
-export function ExportActions({ isInitialized }: { isInitialized: boolean }) {
-  const handleExportJson = async () => {
-    try {
-      await db.exportData();
+interface ExportActionsProps {
+  isInitialized: boolean;
+  disabled: boolean;
+}
+
+export function ExportActions({ isInitialized, disabled }: ExportActionsProps) {
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = async () => {
+    if (!isInitialized) {
       toast({
-        title: "Data exported",
-        description: "Project data has been exported as JSON successfully.",
-      });
-    } catch (error) {
-      console.error('Export error:', error);
-      toast({
-        title: "Export failed",
-        description: "There was an error exporting the data.",
+        title: "Error",
+        description: "Database is not initialized",
         variant: "destructive",
       });
+      return;
     }
-  };
 
-  const handleExportCsv = async () => {
+    setIsExporting(true);
     try {
-      const projects = await db.getAllProjects();
-      const collaborators = await db.getAllCollaborators();
-      
-      const projectsCsv = projects.map(p => 
-        `${p.id},${p.name},${p.departmentId},${p.budget},${p.spent},${p.status}`
-      ).join('\n');
-      
-      const collaboratorsCsv = collaborators.map(c => 
-        `${c.id},${c.name},${c.email},${c.role},${c.department}`
-      ).join('\n');
-
-      const csvContent = `Projects\nID,Name,Department,Budget,Spent,Status\n${projectsCsv}\n\nCollaborators\nID,Name,Email,Role,Department\n${collaboratorsCsv}`;
-      
-      const blob = new Blob([csvContent], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
+      const data = await db.exportData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `project-data-${new Date().toISOString()}.csv`;
+      a.download = `database-export-${new Date().toISOString()}.json`;
       document.body.appendChild(a);
       a.click();
+      window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
+      
       toast({
-        title: "Data exported",
-        description: "Project data has been exported as CSV successfully.",
+        title: "Success",
+        description: "Data exported successfully",
       });
     } catch (error) {
-      console.error('CSV export error:', error);
-      toast({
-        title: "Export failed",
-        description: "There was an error exporting the data as CSV.",
-        variant: "destructive",
+      errorHandler.handleError(error, {
+        type: 'export',
+        title: 'Failed to export data'
       });
+    } finally {
+      setIsExporting(false);
     }
   };
 
   return (
-    <div className="flex gap-2">
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button onClick={handleExportJson} disabled={!isInitialized}>
-              <FileJson className="h-4 w-4 mr-2" />
-              Export as JSON
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Exports all data in JSON format</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button onClick={handleExportCsv} disabled={!isInitialized}>
-              <Download className="h-4 w-4 mr-2" />
-              Export as CSV
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Exports data in CSV format for spreadsheet analysis</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    </div>
+    <Button
+      variant="outline"
+      onClick={handleExport}
+      disabled={disabled || isExporting || !isInitialized}
+    >
+      {isExporting ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Exporting...
+        </>
+      ) : (
+        "Export Data"
+      )}
+    </Button>
   );
 }
