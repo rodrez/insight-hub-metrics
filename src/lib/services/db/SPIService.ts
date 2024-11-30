@@ -1,40 +1,26 @@
-import { SPI } from '../../types/spi';
-import { BaseDBService } from './base/BaseDBService';
+import { SPI } from "../../types/spi";
+import { BaseIndexedDBService } from "./base/BaseIndexedDBService";
 
-export class SPIService extends BaseDBService {
+export class SPIService extends BaseIndexedDBService {
   async getAllSPIs(): Promise<SPI[]> {
-    return this.performTransaction<SPI[]>(
-      'spis',
-      'readonly',
-      store => store.getAll()
-    );
+    return this.transactionService.performTransaction('spis', 'readonly', store => store.getAll());
   }
 
   async getSPI(id: string): Promise<SPI | undefined> {
-    return this.performTransaction<SPI | undefined>(
-      'spis',
-      'readonly',
-      store => store.get(id)
-    );
+    return this.transactionService.performTransaction('spis', 'readonly', store => store.get(id));
   }
 
   async addSPI(spi: SPI): Promise<void> {
-    await this.performTransaction(
-      'spis',
-      'readwrite',
-      store => store.put(spi)
-    );
+    await this.transactionService.performTransaction('spis', 'readwrite', store => store.put(spi));
   }
 
   async updateSPI(id: string, updates: Partial<SPI>): Promise<void> {
-    const existingSPI = await this.getSPI(id);
-    if (!existingSPI) {
-      throw new Error('SPI not found');
-    }
-    await this.performTransaction(
-      'spis',
-      'readwrite',
-      store => store.put({ ...existingSPI, ...updates })
-    );
+    const spi = await this.getSPI(id);
+    if (!spi) throw new Error('SPI not found');
+    await this.addSPI({ ...spi, ...updates });
+  }
+
+  async deleteSPI(id: string): Promise<void> {
+    await this.transactionService.performTransaction('spis', 'readwrite', store => store.delete(id));
   }
 }
