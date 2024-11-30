@@ -29,7 +29,6 @@ const queryClient = new QueryClient({
       gcTime: 1000 * 60 * 30, // Cache persists for 30 minutes
       refetchOnMount: 'always',
       refetchInterval: false,
-      suspense: false,
       networkMode: 'online',
     },
     mutations: {

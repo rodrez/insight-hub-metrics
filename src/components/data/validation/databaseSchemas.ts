@@ -13,7 +13,7 @@ export const dataQuantitiesSchema = z.object({
 
 export type ValidatedDataQuantities = z.infer<typeof dataQuantitiesSchema>;
 
-const defaultValues: DataQuantities = {
+const defaultValues: Required<DataQuantities> = {
   projects: 5,
   spis: 10,
   objectives: 5,
@@ -25,10 +25,10 @@ const defaultValues: DataQuantities = {
 
 export const validateDataQuantities = (data: Partial<DataQuantities>): DataQuantities => {
   // Create a complete DataQuantities object by merging with defaults
-  const completeData: DataQuantities = {
+  const completeData = {
     ...defaultValues,
     ...data
-  };
+  } as Required<DataQuantities>;
   
   return dataQuantitiesSchema.parse(completeData);
 };
