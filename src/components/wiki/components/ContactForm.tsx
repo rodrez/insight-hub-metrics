@@ -10,13 +10,19 @@ interface ContactFormProps {
 
 export function ContactForm({ contact, onChange }: ContactFormProps) {
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div 
+      className="grid grid-cols-2 gap-4"
+      role="form"
+      aria-label="Contact information form"
+    >
       <div>
         <Label htmlFor="newContactName">Name</Label>
         <Input
           id="newContactName"
           value={contact.name}
           onChange={(e) => onChange({ ...contact, name: e.target.value })}
+          aria-required="true"
+          aria-label="Contact name"
         />
       </div>
       <div>
@@ -25,6 +31,8 @@ export function ContactForm({ contact, onChange }: ContactFormProps) {
           id="newContactRole"
           value={contact.role}
           onChange={(e) => onChange({ ...contact, role: e.target.value })}
+          aria-required="true"
+          aria-label="Contact role"
         />
       </div>
       <div>
@@ -34,6 +42,8 @@ export function ContactForm({ contact, onChange }: ContactFormProps) {
           type="email"
           value={contact.email}
           onChange={(e) => onChange({ ...contact, email: e.target.value })}
+          aria-required="true"
+          aria-label="Contact email"
         />
       </div>
       <div>
@@ -42,6 +52,8 @@ export function ContactForm({ contact, onChange }: ContactFormProps) {
           id="newContactPhone"
           value={contact.phone}
           onChange={(e) => onChange({ ...contact, phone: e.target.value })}
+          type="tel"
+          aria-label="Contact phone number"
         />
       </div>
       <div className="col-span-2">
@@ -52,6 +64,7 @@ export function ContactForm({ contact, onChange }: ContactFormProps) {
           onChange={(e) => onChange({ ...contact, notes: e.target.value })}
           placeholder="Add any additional notes about this contact..."
           className="h-20"
+          aria-label="Additional notes about the contact"
         />
       </div>
     </div>

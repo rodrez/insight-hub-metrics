@@ -9,15 +9,39 @@ interface ContactDisplayProps {
 
 export function ContactDisplay({ contact, onDelete }: ContactDisplayProps) {
   return (
-    <div className="p-4 border rounded-lg space-y-2">
+    <div 
+      className="p-4 border rounded-lg space-y-2"
+      role="article"
+      aria-label={`Contact information for ${contact.name}`}
+    >
       <div className="flex justify-between items-start">
         <div className="space-y-1">
           <p className="font-medium">{contact.name}</p>
           <p className="text-sm text-muted-foreground">{contact.role}</p>
-          <p className="text-sm">{contact.email}</p>
-          {contact.phone && <p className="text-sm text-muted-foreground">{contact.phone}</p>}
+          <p className="text-sm">
+            <a 
+              href={`mailto:${contact.email}`}
+              className="text-blue-500 hover:underline"
+              aria-label={`Send email to ${contact.name} at ${contact.email}`}
+            >
+              {contact.email}
+            </a>
+          </p>
+          {contact.phone && (
+            <p className="text-sm text-muted-foreground">
+              <a 
+                href={`tel:${contact.phone}`}
+                aria-label={`Call ${contact.name} at ${contact.phone}`}
+              >
+                {contact.phone}
+              </a>
+            </p>
+          )}
           {contact.notes && (
-            <p className="text-sm text-muted-foreground mt-2 italic">
+            <p 
+              className="text-sm text-muted-foreground mt-2 italic"
+              aria-label="Additional notes"
+            >
               {contact.notes}
             </p>
           )}
@@ -27,6 +51,7 @@ export function ContactDisplay({ contact, onDelete }: ContactDisplayProps) {
             variant="ghost"
             size="icon"
             className="text-gray-400 hover:text-green-500 transition-colors"
+            aria-label={`Edit ${contact.name}'s information`}
           >
             <Pen className="h-4 w-4" />
           </Button>
@@ -35,6 +60,7 @@ export function ContactDisplay({ contact, onDelete }: ContactDisplayProps) {
             size="icon"
             onClick={() => onDelete(contact.email)}
             className="text-gray-400 hover:text-red-500 transition-colors"
+            aria-label={`Delete ${contact.name}'s contact information`}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
