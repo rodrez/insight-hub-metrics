@@ -68,6 +68,38 @@ export class IndexedDBService implements DataService {
     await this.transactionService.performTransaction('collaborators', 'readwrite', store => store.put(collaborator));
   }
 
+  public async updateCollaborator(id: string, updates: Partial<Collaborator>): Promise<void> {
+    const collaborator = await this.getCollaborator(id);
+    if (!collaborator) throw new Error('Collaborator not found');
+    await this.addCollaborator({ ...collaborator, ...updates });
+  }
+
+  public async updateSitRep(id: string, updates: Partial<SitRep>): Promise<void> {
+    const sitrep = await this.transactionService.performTransaction('sitreps', 'readonly', store => store.get(id));
+    if (!sitrep) throw new Error('SitRep not found');
+    await this.addSitRep({ ...sitrep, ...updates });
+  }
+
+  public async updateSPI(id: string, updates: Partial<SPI>): Promise<void> {
+    const spi = await this.getSPI(id);
+    if (!spi) throw new Error('SPI not found');
+    await this.addSPI({ ...spi, ...updates });
+  }
+
+  public async deleteSPI(id: string): Promise<void> {
+    await this.transactionService.performTransaction('spis', 'readwrite', store => store.delete(id));
+  }
+
+  public async deleteObjective(id: string): Promise<void> {
+    await this.transactionService.performTransaction('objectives', 'readwrite', store => store.delete(id));
+  }
+
+  public async updateObjective(id: string, updates: Partial<Objective>): Promise<void> {
+    const objective = await this.transactionService.performTransaction('objectives', 'readonly', store => store.get(id));
+    if (!objective) throw new Error('Objective not found');
+    await this.addObjective({ ...objective, ...updates });
+  }
+
   public async getAllSitReps(): Promise<SitRep[]> {
     return this.transactionService.performTransaction('sitreps', 'readonly', store => store.getAll());
   }
@@ -94,6 +126,10 @@ export class IndexedDBService implements DataService {
 
   public async addObjective(objective: Objective): Promise<void> {
     await this.transactionService.performTransaction('objectives', 'readwrite', store => store.put(objective));
+  }
+
+  public getDatabase(): IDBDatabase | null {
+    return this.connectionService.getDatabase();
   }
 
   public async exportData(): Promise<void> {
@@ -165,9 +201,5 @@ export class IndexedDBService implements DataService {
 
   public async addSMEPartner(partner: Collaborator): Promise<void> {
     await this.transactionService.performTransaction('smePartners', 'readwrite', store => store.put(partner));
-  }
-
-  public getDatabase(): IDBDatabase | null {
-    return this.connectionService.getDatabase();
   }
 }
