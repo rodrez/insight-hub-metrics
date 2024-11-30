@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Shield, Calendar } from "lucide-react";
 import { Workstream } from "@/lib/types/collaboration";
 import { WorkstreamCard } from "./WorkstreamCard";
+import { useAgreementStatus } from "@/hooks/useAgreementStatus";
 import {
   Tooltip,
   TooltipContent,
@@ -27,27 +28,7 @@ interface PartnerWorkstreamsProps {
 }
 
 export function PartnerWorkstreams({ workstreams, agreements }: PartnerWorkstreamsProps) {
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString();
-  };
-
-  const getDaysUntilExpiry = (expiryDate: string) => {
-    const expiry = new Date(expiryDate);
-    const today = new Date();
-    const diffTime = expiry.getTime() - today.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  };
-
-  const getExpiryWarningColor = (expiryDate: string) => {
-    const daysUntil = getDaysUntilExpiry(expiryDate);
-    if (daysUntil <= 90) { // Critical threshold
-      return 'bg-red-500/10 border-red-500';
-    }
-    if (daysUntil <= 180) { // Warning threshold
-      return 'bg-yellow-500/10 border-yellow-500';
-    }
-    return '';
-  };
+  const { warningColor, formatDate } = useAgreementStatus(agreements);
 
   return (
     <Card>
@@ -62,7 +43,7 @@ export function PartnerWorkstreams({ workstreams, agreements }: PartnerWorkstrea
                     <TooltipTrigger asChild>
                       <Badge 
                         variant="outline" 
-                        className={`flex items-center gap-1 ${getExpiryWarningColor(agreements.nda.expiryDate)}`}
+                        className={`flex items-center gap-1 ${warningColor}`}
                       >
                         <Shield className={`h-3 w-3 ${
                           agreements.nda.status === 'signed' 
@@ -77,7 +58,6 @@ export function PartnerWorkstreams({ workstreams, agreements }: PartnerWorkstrea
                       <p>Status: {agreements.nda.status}</p>
                       <p>Signed: {formatDate(agreements.nda.signedDate)}</p>
                       <p>Expires: {formatDate(agreements.nda.expiryDate)}</p>
-                      <p>Days until expiry: {getDaysUntilExpiry(agreements.nda.expiryDate)}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -88,7 +68,7 @@ export function PartnerWorkstreams({ workstreams, agreements }: PartnerWorkstrea
                     <TooltipTrigger asChild>
                       <Badge 
                         variant="outline"
-                        className={`flex items-center gap-1 ${getExpiryWarningColor(agreements.jtda.expiryDate)}`}
+                        className={`flex items-center gap-1 ${warningColor}`}
                       >
                         <Shield className={`h-3 w-3 ${
                           agreements.jtda.status === 'signed' 
@@ -103,7 +83,6 @@ export function PartnerWorkstreams({ workstreams, agreements }: PartnerWorkstrea
                       <p>Status: {agreements.jtda.status}</p>
                       <p>Signed: {formatDate(agreements.jtda.signedDate)}</p>
                       <p>Expires: {formatDate(agreements.jtda.expiryDate)}</p>
-                      <p>Days until expiry: {getDaysUntilExpiry(agreements.jtda.expiryDate)}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
