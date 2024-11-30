@@ -1,6 +1,4 @@
 import { toast } from "@/components/ui/use-toast";
-import { Check } from "lucide-react";
-import type { ReactElement } from 'react';
 import { generateFortune30Partners } from './fortune30Partners';
 import { generateInternalPartners } from './internalPartners';
 import { generateSMEPartners } from './smePartners';
@@ -81,11 +79,28 @@ export class DataGenerationService {
     });
   }
 
-  async generateAndSaveData(quantities: DataQuantities) {
+  async generateAndSaveData(partialQuantities: Partial<DataQuantities>) {
     try {
       // Initialize database
       await db.init();
       this.showSuccessStep("Database initialized");
+
+      // Ensure all required properties have default values
+      const defaultQuantities: DataQuantities = {
+        projects: 10,
+        spis: 10,
+        objectives: 5,
+        sitreps: 10,
+        fortune30: 6,
+        internalPartners: 20,
+        smePartners: 10
+      };
+
+      // Merge provided quantities with defaults
+      const quantities: DataQuantities = {
+        ...defaultQuantities,
+        ...partialQuantities
+      };
 
       // Generate all data first
       const { fortune30Partners, internalPartners, smePartners } = await this.generatePartners(quantities);
