@@ -8,21 +8,51 @@ import { DatabaseTransactionService } from './db/DatabaseTransactionService';
 import { DatabaseConnectionService } from './db/DatabaseConnectionService';
 import { SampleDataService } from './data/SampleDataService';
 import { ErrorItem } from '../types/error';
+import { ErrorService } from './db/ErrorService';
+import { ProjectService } from './db/ProjectService';
+import { SitRepService } from './db/SitRepService';
 
 export class IndexedDBService implements DataService {
   private connectionService: DatabaseConnectionService;
   private transactionService: DatabaseTransactionService;
   private sampleDataService: SampleDataService;
+  private errorService: ErrorService;
+  private projectService: ProjectService;
+  private sitRepService: SitRepService;
 
   constructor() {
     this.connectionService = new DatabaseConnectionService();
     this.transactionService = new DatabaseTransactionService(null);
     this.sampleDataService = new SampleDataService();
+    this.errorService = new ErrorService();
+    this.projectService = new ProjectService();
+    this.sitRepService = new SitRepService();
   }
 
   async init(): Promise<void> {
     await this.connectionService.init();
-    this.transactionService = new DatabaseTransactionService(this.connectionService.getDatabase());
+    const db = this.connectionService.getDatabase();
+    this.transactionService = new DatabaseTransactionService(db);
+    this.errorService = new ErrorService();
+    this.projectService = new ProjectService();
+    this.sitRepService = new SitRepService();
+  }
+
+  // Error-related methods
+  async getAllErrors(): Promise<ErrorItem[]> {
+    return this.errorService.getAllErrors();
+  }
+
+  async deleteError(id: string): Promise<void> {
+    await this.errorService.deleteError(id);
+  }
+
+  async updateErrorStatus(id: string, status: 'pending' | 'resolved'): Promise<void> {
+    await this.errorService.updateErrorStatus(id, status);
+  }
+
+  async analyzeCodebase(): Promise<void> {
+    await this.errorService.analyzeCodebase();
   }
 
   async clear(): Promise<void> {
@@ -181,22 +211,5 @@ export class IndexedDBService implements DataService {
     for (const sitrep of sampleData.sitreps) {
       await this.addSitRep(sitrep);
     }
-  }
-
-  async getAllErrors(): Promise<ErrorItem[]> {
-    return this.transactionService.performTransaction('errors', 'readonly', store => store.getAll());
-  }
-
-  async deleteError(id: string): Promise<void> {
-    await this.transactionService.performTransaction('errors', 'readwrite', store => store.delete(id));
-  }
-
-  async updateErrorStatus(id: string, status: 'pending' | 'resolved'): Promise<void> {
-    const error = await this.transactionService.performTransaction('errors', 'readonly', store => store.get(id));
-    if (!error) throw new Error('Error not found');
-    
-    await this.transactionService.performTransaction('errors', 'readwrite', store => 
-      store.put({ ...error, status })
-    );
   }
 }

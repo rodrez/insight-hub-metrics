@@ -38,4 +38,5 @@ export interface DataService {
   getAllErrors(): Promise<ErrorItem[]>;
   deleteError(id: string): Promise<void>;
   updateErrorStatus(id: string, status: 'pending' | 'resolved'): Promise<void>;
+  analyzeCodebase(): Promise<void>;
 }

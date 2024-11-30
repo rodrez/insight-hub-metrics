@@ -14,9 +14,14 @@ export function useErrorStore() {
     await db.updateErrorStatus(id, status);
   };
 
+  const analyzeCodebase = async (): Promise<void> => {
+    await db.analyzeCodebase();
+  };
+
   return {
     getAllErrors,
     deleteError,
     updateErrorStatus,
+    analyzeCodebase,
   };
 }

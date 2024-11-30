@@ -4,7 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search } from "lucide-react";
+import { Search, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useErrorStore } from "./hooks/useErrorStore";
 import { useState } from "react";
@@ -15,8 +15,9 @@ export function ErrorHandlingSettings() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedErrors, setSelectedErrors] = useState<string[]>([]);
   const [isFixDialogOpen, setIsFixDialogOpen] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const queryClient = useQueryClient();
-  const { deleteError, updateErrorStatus } = useErrorStore();
+  const { deleteError, updateErrorStatus, analyzeCodebase } = useErrorStore();
 
   const { data: errors = [] } = useQuery({
     queryKey: ['errors'],
@@ -70,16 +71,46 @@ export function ErrorHandlingSettings() {
     setIsFixDialogOpen(true);
   };
 
+  const handleAnalyzeCodebase = async () => {
+    setIsAnalyzing(true);
+    try {
+      await analyzeCodebase();
+      queryClient.invalidateQueries({ queryKey: ['errors'] });
+      toast({
+        title: "Analysis Complete",
+        description: "The codebase has been analyzed and new errors have been identified",
+      });
+    } catch (error) {
+      toast({
+        title: "Analysis Failed",
+        description: "There was a problem analyzing the codebase",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Error Handling</h2>
-        <Button
-          onClick={handleFixErrors}
-          disabled={selectedErrors.length === 0}
-        >
-          Fix Selected Errors
-        </Button>
+        <div className="flex gap-4">
+          <Button
+            onClick={handleAnalyzeCodebase}
+            disabled={isAnalyzing}
+            variant="outline"
+          >
+            <AlertCircle className="mr-2 h-4 w-4" />
+            {isAnalyzing ? "Analyzing..." : "Analyze Codebase"}
+          </Button>
+          <Button
+            onClick={handleFixErrors}
+            disabled={selectedErrors.length === 0}
+          >
+            Fix Selected Errors
+          </Button>
+        </div>
       </div>
 
       <div className="relative">
