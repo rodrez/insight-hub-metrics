@@ -39,7 +39,7 @@ export class SampleDataService {
       const internalPartners = await generateInternalPartners();
       const allSMEPartners = generateSMEPartners();
       
-      // Ensure we only take the requested number of SME partners
+      // Ensure we only take the requested number of partners
       const smePartners = allSMEPartners.slice(0, quantities.smePartners);
 
       // Convert readonly DEPARTMENTS to regular array for project generation

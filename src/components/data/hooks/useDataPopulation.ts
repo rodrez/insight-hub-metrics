@@ -47,7 +47,8 @@ export function useDataPopulation() {
               setProgress((currentStep / totalSteps) * 100);
             });
 
-            await databaseOps.addCollaboratorsInBatches(smePartners, () => {
+            // Explicitly add SME partners to their dedicated store
+            await databaseOps.addSMEPartnersInBatches(smePartners, () => {
               currentStep++;
               setProgress((currentStep / totalSteps) * 100);
             });
