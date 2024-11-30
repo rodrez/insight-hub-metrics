@@ -18,15 +18,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Collaborator } from "@/lib/types/collaboration";
-
-interface ExtendedSitRep extends SitRep {
-  fortune30Partner?: Collaborator;
-  smePartner?: Collaborator;
-}
 
 interface SitRepCardProps {
-  sitrep: ExtendedSitRep;
+  sitrep: SitRep;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
 }
@@ -85,7 +79,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
 
   const supportingPOCs = sitrep.pointsOfContact?.map(contact => ({
     name: contact,
-    department: sitrep.teams?.[0] || ''
+    department: sitrep.teams?.[0] || ''  // Using first team as department for supporting POCs
   })) || [];
 
   return (
@@ -155,22 +149,18 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
 
             <POCDisplay keyPOC={keyPOC} supportingPOCs={supportingPOCs} />
 
-            {(sitrep.fortune30Partner || sitrep.smePartner) && (
+            {(sitrep.fortune30PartnerId || sitrep.smePartnerId) && (
               <div className="flex flex-wrap gap-4 text-sm">
-                {sitrep.fortune30Partner && (
+                {sitrep.fortune30PartnerId && (
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground">Fortune 30:</span>
-                    <span style={{ color: sitrep.fortune30Partner.color }}>
-                      {sitrep.fortune30Partner.name}
-                    </span>
+                    <span className="text-blue-500">{sitrep.fortune30PartnerId}</span>
                   </div>
                 )}
-                {sitrep.smePartner && (
+                {sitrep.smePartnerId && (
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground">SME:</span>
-                    <span style={{ color: sitrep.smePartner.color }}>
-                      {sitrep.smePartner.name}
-                    </span>
+                    <span className="text-purple-500">{sitrep.smePartnerId}</span>
                   </div>
                 )}
               </div>
