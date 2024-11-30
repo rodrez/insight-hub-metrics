@@ -8,15 +8,22 @@ interface SPICardProps {
 }
 
 export function SPICard({ spi }: SPICardProps) {
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'default';
+      case 'on-track':
+        return 'secondary';
+      default:
+        return 'destructive';
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-lg">{spi.name}</CardTitle>
-        <Badge variant={
-          spi.status === 'completed' ? 'success' :
-          spi.status === 'on-track' ? 'default' :
-          'warning'
-        }>
+        <Badge variant={getStatusVariant(spi.status)}>
           {spi.status}
         </Badge>
       </CardHeader>

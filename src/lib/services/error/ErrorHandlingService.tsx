@@ -6,6 +6,7 @@ export type ErrorConfig = {
   type: 'database' | 'network' | 'validation';
   title: string;
   retry?: () => void;
+  action?: React.ReactNode;
 };
 
 class ErrorHandler {
@@ -17,10 +18,10 @@ class ErrorHandler {
       title: config.title,
       description: error instanceof Error ? error.message : "An unexpected error occurred",
       action: config.retry ? (
-        <ToastAction altText="Retry action" onClick={config.retry}>
+        <ToastAction altText="Try again" onClick={config.retry}>
           Retry
         </ToastAction>
-      ) : undefined
+      ) : config.action
     });
   }
 
