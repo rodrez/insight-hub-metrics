@@ -18,6 +18,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -64,10 +65,13 @@ export default function DataManagement() {
       <Pagination>
         <PaginationContent>
           <PaginationItem>
-            <PaginationPrevious 
+            <Button
+              variant="outline"
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-            />
+            >
+              Previous
+            </Button>
           </PaginationItem>
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <PaginationItem key={page}>
@@ -80,10 +84,13 @@ export default function DataManagement() {
             </PaginationItem>
           ))}
           <PaginationItem>
-            <PaginationNext
+            <Button
+              variant="outline"
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
-            />
+            >
+              Next
+            </Button>
           </PaginationItem>
         </PaginationContent>
       </Pagination>

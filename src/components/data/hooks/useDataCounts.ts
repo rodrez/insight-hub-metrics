@@ -73,7 +73,7 @@ export function useDataCounts(isInitialized: boolean) {
     fortune30: 0,
     internalPartners: 0,
     smePartners: 0
-  }, refetch } = useQuery({
+  }, isLoading, refetch } = useQuery({
     queryKey: ['data-counts'],
     queryFn: fetchDataCounts,
     enabled: isInitialized,
@@ -90,5 +90,5 @@ export function useDataCounts(isInitialized: boolean) {
     await refetch();
   };
 
-  return { dataCounts, updateDataCounts };
+  return { dataCounts, updateDataCounts, isLoading };
 }

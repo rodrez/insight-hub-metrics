@@ -26,7 +26,7 @@ const queryClient = new QueryClient({
       retry: false,
       refetchOnWindowFocus: false,
       staleTime: 1000 * 60 * 5, // Data remains fresh for 5 minutes
-      cacheTime: 1000 * 60 * 30, // Cache persists for 30 minutes
+      gcTime: 1000 * 60 * 30, // Cache persists for 30 minutes
       refetchOnMount: 'always',
       refetchInterval: false,
       suspense: false,
