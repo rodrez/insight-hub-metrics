@@ -122,7 +122,7 @@ export function SPIList() {
                 <RelatedEntities
                   relatedProject={relatedProject}
                   fortune30Partner={fortune30Partner}
-                  smePartner={smePartner}
+                  smePartnerId={smePartner?.id}
                   departmentId={spi.departmentId}
                 />
               </div>
