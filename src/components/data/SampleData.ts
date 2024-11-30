@@ -7,17 +7,7 @@ import { SitRep } from '@/lib/types/sitrep';
 import { validateDataQuantities, generateDataWithProgress } from '@/lib/services/data/utils/dataGenerationUtils';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from '@/lib/services/data/generators/spiGenerator';
 import { toast } from "@/components/ui/use-toast";
-
-export interface DataQuantities {
-  projects: number;
-  spis: number;
-  objectives: number;
-  sitreps: number;
-  fortune30: number;
-  internalPartners: number;
-  smePartners: number;
-  collaborators: number;
-}
+import { DataQuantities } from '@/lib/types/data';
 
 export interface GeneratedData {
   projects: Project[];
@@ -122,3 +112,4 @@ export const generateSampleProjects = async (quantities: DataQuantities): Promis
     return generatedData;
   }, "Sample Projects");
 };
+

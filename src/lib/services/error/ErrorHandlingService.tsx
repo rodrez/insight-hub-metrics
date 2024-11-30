@@ -1,42 +1,27 @@
-/** @jsxImportSource react */
 import { toast } from "@/components/ui/use-toast";
-import { ToastAction, ToastActionElement } from "@/components/ui/toast";
+import { ToastAction } from "@/components/ui/toast";
 import { ReactNode } from "react";
 
-export type ErrorConfig = {
-  type: 'database' | 'network' | 'validation';
+export interface ErrorConfig {
+  type: string;
   title: string;
   retry?: () => void;
-  action?: ToastActionElement;
-};
+  action?: ReactNode;
+}
 
-class ErrorHandler {
+class ErrorHandlingService {
   handleError(error: unknown, config: ErrorConfig) {
     console.error(`${config.type} error:`, error);
     
+    const message = error instanceof Error ? error.message : "An unexpected error occurred";
+    
     toast({
-      variant: "destructive",
       title: config.title,
-      description: error instanceof Error ? error.message : "An unexpected error occurred",
-      action: config.retry ? (
-        <ToastAction altText="Retry action" onClick={config.retry}>
-          Retry
-        </ToastAction>
-      ) : config.action
+      description: message,
+      variant: "destructive",
+      action: config.action as ToastAction
     });
-  }
-
-  async withErrorHandling<T>(
-    operation: () => Promise<T>,
-    config: ErrorConfig
-  ): Promise<T> {
-    try {
-      return await operation();
-    } catch (error) {
-      this.handleError(error, config);
-      throw error;
-    }
   }
 }
 
-export const errorHandler = new ErrorHandler();
+export const errorHandler = new ErrorHandlingService();
