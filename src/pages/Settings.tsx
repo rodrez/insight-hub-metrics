@@ -4,6 +4,8 @@ import { StatusColorSettings } from "@/components/settings/StatusColorSettings";
 import { DepartmentSettings } from "@/components/settings/DepartmentSettings";
 import { TechDomainSettings } from "@/components/settings/TechDomainSettings";
 import { AgreementWarningSettings } from "@/components/settings/AgreementWarningSettings";
+import { Fortune30Settings } from "@/components/settings/partners/Fortune30Settings";
+import { SMESettings } from "@/components/settings/partners/SMESettings";
 import DataManagement from "@/components/data/DataManagement";
 
 export default function Settings() {
@@ -16,6 +18,8 @@ export default function Settings() {
           <TabsTrigger value="status-colors">Status Colors</TabsTrigger>
           <TabsTrigger value="departments">Departments</TabsTrigger>
           <TabsTrigger value="tech-domains">Tech Domains</TabsTrigger>
+          <TabsTrigger value="fortune30">Fortune 30</TabsTrigger>
+          <TabsTrigger value="sme">SME Partners</TabsTrigger>
           <TabsTrigger value="agreement-warnings">Agreement Warnings</TabsTrigger>
         </TabsList>
         <TabsContent value="sample-data" className="space-y-6">
@@ -32,6 +36,12 @@ export default function Settings() {
         </TabsContent>
         <TabsContent value="tech-domains">
           <TechDomainSettings />
+        </TabsContent>
+        <TabsContent value="fortune30">
+          <Fortune30Settings />
+        </TabsContent>
+        <TabsContent value="sme">
+          <SMESettings />
         </TabsContent>
         <TabsContent value="agreement-warnings">
           <AgreementWarningSettings />
