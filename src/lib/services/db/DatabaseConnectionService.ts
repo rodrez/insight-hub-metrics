@@ -6,13 +6,30 @@ import { toast } from "@/components/ui/use-toast";
 export class DatabaseConnectionService {
   private db: IDBDatabase | null = null;
   private initialized: boolean = false;
+  private initializationPromise: Promise<void> | null = null;
 
   async init(): Promise<void> {
+    // If already initializing, return the existing promise
+    if (this.initializationPromise) {
+      return this.initializationPromise;
+    }
+
+    // If already initialized, return immediately
     if (this.initialized && this.db) {
       console.log('Database already initialized');
       return;
     }
+
+    this.initializationPromise = this.initializeDatabase();
     
+    try {
+      await this.initializationPromise;
+    } finally {
+      this.initializationPromise = null;
+    }
+  }
+
+  private async initializeDatabase(): Promise<void> {
     try {
       if (this.db) {
         console.log('Closing existing database connection');
@@ -44,65 +61,41 @@ export class DatabaseConnectionService {
 
   private openConnection(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
-      try {
-        const dbName = DB_CONFIG.name;
-        const dbVersion = DB_CONFIG.version;
-        console.log(`Opening IndexedDB: ${dbName} v${dbVersion}`);
+      const request = indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
+
+      request.onerror = () => {
+        const error = request.error;
+        console.error('Failed to open database:', error);
+        reject(new DatabaseError('Failed to open database', error));
+      };
+
+      request.onblocked = () => {
+        console.warn('Database opening blocked - closing other connections');
+        connectionManager.closeAllConnections();
+        reject(new DatabaseError('Database opening blocked'));
+      };
+
+      request.onsuccess = () => {
+        console.log('Database opened successfully');
+        const db = request.result;
         
-        // Delete the existing database if it's corrupted
-        const deleteRequest = indexedDB.deleteDatabase(dbName);
-        deleteRequest.onsuccess = () => {
-          const request = indexedDB.open(dbName, dbVersion);
-
-          request.onerror = (event) => {
-            const error = (event.target as IDBOpenDBRequest).error;
-            console.error('Failed to open database:', {
-              error: error?.message,
-              name: error?.name,
-              code: error?.code
-            });
-            reject(new DatabaseError('Failed to open database', error));
-          };
-
-          request.onblocked = (event) => {
-            console.warn('Database opening blocked - closing other connections');
-            connectionManager.closeAllConnections();
-            reject(new DatabaseError('Database opening blocked'));
-          };
-
-          request.onsuccess = () => {
-            console.log('Database opened successfully');
-            const db = request.result;
-            
-            db.onerror = (event) => {
-              console.error('Database error:', {
-                message: (event.target as IDBDatabase).onerror?.toString() || 'Unknown error'
-              });
-              toast({
-                title: "Database Error",
-                description: "An error occurred with the database connection",
-                variant: "destructive",
-              });
-            };
-            
-            resolve(db);
-          };
-
-          request.onupgradeneeded = (event) => {
-            console.log('Database upgrade needed');
-            const db = (event.target as IDBOpenDBRequest).result;
-            this.createStores(db);
-          };
+        db.onerror = (event) => {
+          console.error('Database error:', event);
+          toast({
+            title: "Database Error",
+            description: "An error occurred with the database connection",
+            variant: "destructive",
+          });
         };
+        
+        resolve(db);
+      };
 
-        deleteRequest.onerror = () => {
-          console.error('Failed to delete existing database');
-          reject(new DatabaseError('Failed to delete existing database'));
-        };
-      } catch (error) {
-        console.error('Error in openConnection:', error);
-        reject(new DatabaseError('Failed to initiate database opening', error));
-      }
+      request.onupgradeneeded = (event) => {
+        console.log('Database upgrade needed');
+        const db = (event.target as IDBOpenDBRequest).result;
+        this.createStores(db);
+      };
     });
   }
 
@@ -115,11 +108,7 @@ export class DatabaseConnectionService {
         }
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error('Error creating stores:', {
-        error: errorMessage,
-        stack: error instanceof Error ? error.stack : undefined
-      });
+      console.error('Error creating stores:', error);
       throw new DatabaseError('Failed to create database stores', error);
     }
   }
