@@ -3,7 +3,9 @@ import { db } from "@/lib/db";
 import { format, subMonths, isAfter, isBefore, startOfMonth } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, AreaChart, Area, Tooltip, Legend, BarChart, Bar } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, AreaChart, Area, Tooltip, Legend, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
+
+const COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 export function SPIAnalytics() {
   const { data: spis } = useQuery({
@@ -43,6 +45,18 @@ export function SPIAnalytics() {
       completionRate: monthSpis.length ? (completedSpis.length / monthSpis.length) * 100 : 0
     };
   }).reverse();
+
+  // Generate priority distribution data
+  const priorityData = spis.reduce((acc: any[], spi) => {
+    const priority = spi.priority || 'Not Set';
+    const existingPriority = acc.find(p => p.name === priority);
+    if (existingPriority) {
+      existingPriority.value++;
+    } else {
+      acc.push({ name: priority, value: 1 });
+    }
+    return acc;
+  }, []);
 
   // Generate department data
   const departmentData = spis.reduce((acc: any[], spi) => {
@@ -91,13 +105,13 @@ export function SPIAnalytics() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="grid grid-cols-2 gap-4">
       <Card>
         <CardHeader>
           <CardTitle>SPI Progress Over Time</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="aspect-[2/1] w-full">
+          <div className="aspect-[4/3] w-full">
             <ChartContainer config={chartConfig}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
@@ -150,7 +164,7 @@ export function SPIAnalytics() {
           <CardTitle>Department Performance</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="aspect-[2/1] w-full">
+          <div className="aspect-[4/3] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={departmentData}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
@@ -171,7 +185,7 @@ export function SPIAnalytics() {
           <CardTitle>Fortune 30 Partner SPIs</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="aspect-[2/1] w-full">
+          <div className="aspect-[4/3] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={partnerData}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
@@ -182,6 +196,35 @@ export function SPIAnalytics() {
                 <Bar dataKey="spiCount" name="Total SPIs" fill="#3b82f6" />
                 <Bar dataKey="completed" name="Completed" fill="#22c55e" />
               </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Priority Distribution</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="aspect-[4/3] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={priorityData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  label
+                >
+                  {priorityData.map((entry: any, index: number) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
             </ResponsiveContainer>
           </div>
         </CardContent>
