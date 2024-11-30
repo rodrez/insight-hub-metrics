@@ -50,6 +50,28 @@ export function BugFixesTab() {
     }
   };
 
+  const handleResolveBug = async (bugId: string) => {
+    try {
+      await bugTracker.updateBugStatus(bugId, 'resolved');
+      // Update the local state to reflect the change
+      setBugs(prevBugs => 
+        prevBugs.map(bug => 
+          bug.id === bugId ? { ...bug, status: 'resolved' } : bug
+        )
+      );
+      toast({
+        title: "Bug resolved",
+        description: "The bug has been marked as resolved",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to resolve the bug",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'critical':
@@ -111,8 +133,9 @@ export function BugFixesTab() {
               
               <Button
                 variant={bug.status === 'resolved' ? 'secondary' : 'outline'}
-                onClick={() => bugTracker.updateBugStatus(bug.id, 'resolved')}
+                onClick={() => handleResolveBug(bug.id)}
                 className="ml-4"
+                disabled={bug.status === 'resolved'}
               >
                 {bug.status === 'resolved' ? 'Resolved' : 'Mark as Resolved'}
               </Button>
