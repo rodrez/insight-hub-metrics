@@ -22,7 +22,7 @@ export function PartnerHeader({ collaborator, onEdit, onDelete, type }: PartnerH
       <div>
         <h1 
           className="text-4xl font-bold mb-2 group-hover:translate-x-1 transition-transform duration-200" 
-          style={type === 'fortune30' ? { color: collaborator.color } : {}}
+          style={{ color: collaborator.color }}
         >
           {collaborator.name}
         </h1>
