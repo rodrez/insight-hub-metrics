@@ -160,6 +160,7 @@ export class IndexedDBService implements DataService {
       await this.addCollaborator(partner);
     }
 
+    // Ensure SME partners are added to the correct store
     for (const partner of sampleData.smePartners) {
       await this.addSMEPartner(partner);
     }
