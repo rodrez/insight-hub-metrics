@@ -3,27 +3,28 @@ import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
 import { DataQuantities } from '../types/data';
+import { Team } from '../types/team';
 import { DatabaseTransactionService } from './db/DatabaseTransactionService';
-import { DatabaseConnectionService } from './db/DatabaseConnectionService';
-import { SampleDataService } from './data/SampleDataService';
-import { DatabaseCleaner } from './db/databaseCleaner';
+import { DatabaseClearingService } from './db/DatabaseClearingService';
 import { connectionManager } from './db/connectionManager';
 import { DataService } from './DataService';
+import { SampleDataService } from './data/SampleDataService';
+import { BaseIndexedDBService } from './db/base/BaseIndexedDBService';
 
-export class IndexedDBService implements DataService {
-  private connectionService: DatabaseConnectionService;
-  private transactionService: DatabaseTransactionService;
+export class IndexedDBService extends BaseIndexedDBService implements DataService {
   private sampleDataService: SampleDataService;
 
   constructor() {
-    this.connectionService = new DatabaseConnectionService();
-    this.transactionService = new DatabaseTransactionService(null);
+    super();
     this.sampleDataService = new SampleDataService();
   }
 
   async init(): Promise<void> {
-    await this.connectionService.init();
-    this.transactionService = new DatabaseTransactionService(this.connectionService.getDatabase());
+    await this.initializeServices();
+  }
+
+  async getAllTeams(): Promise<Team[]> {
+    return this.teamService.getAllTeams();
   }
 
   async clear(): Promise<void> {
