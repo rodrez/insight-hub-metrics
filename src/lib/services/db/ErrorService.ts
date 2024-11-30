@@ -13,6 +13,9 @@ export class ErrorService extends BaseDBService {
   async getAllErrors(): Promise<ErrorItem[]> {
     try {
       console.log('Fetching all errors from database...');
+      await this.ensureInitialized();
+      console.log('Database initialized, getting errors...');
+      
       const errors = await this.performTransaction<ErrorItem[]>(
         'errors',
         'readonly',
@@ -29,6 +32,7 @@ export class ErrorService extends BaseDBService {
   async deleteError(id: string): Promise<void> {
     try {
       console.log(`Attempting to delete error with ID: ${id}`);
+      await this.ensureInitialized();
       await this.performTransaction(
         'errors',
         'readwrite',
@@ -44,6 +48,8 @@ export class ErrorService extends BaseDBService {
   async updateErrorStatus(id: string, status: 'pending' | 'resolved'): Promise<void> {
     try {
       console.log(`Updating error status for ID ${id} to ${status}`);
+      await this.ensureInitialized();
+      
       const error = await this.performTransaction<ErrorItem | undefined>(
         'errors',
         'readonly',
@@ -70,9 +76,12 @@ export class ErrorService extends BaseDBService {
   async analyzeCodebase(): Promise<void> {
     try {
       console.log('Starting codebase analysis...');
+      await this.ensureInitialized();
+      console.log('Database initialized for analysis');
       
       console.log('Clearing existing errors...');
       await this.clearErrors();
+      console.log('Existing errors cleared successfully');
       
       console.log('Running code analysis...');
       const errors = await this.codeAnalyzer.analyzeCodebase();
@@ -83,13 +92,17 @@ export class ErrorService extends BaseDBService {
         'errors',
         'readwrite',
         store => {
-          errors.forEach(error => store.put(error));
+          errors.forEach(error => {
+            console.log(`Storing error: ${error.type} - ${error.message}`);
+            store.put(error);
+          });
           return store.put(errors[0]); // Return a single request for typing
         }
       );
       console.log('Successfully stored all errors in database');
     } catch (error) {
       console.error('Failed to analyze codebase:', error);
+      console.error('Error details:', error instanceof Error ? error.message : error);
       throw error;
     }
   }
@@ -97,6 +110,7 @@ export class ErrorService extends BaseDBService {
   private async clearErrors(): Promise<void> {
     try {
       console.log('Clearing all existing errors from database...');
+      await this.ensureInitialized();
       await this.performTransaction(
         'errors',
         'readwrite',
@@ -105,6 +119,7 @@ export class ErrorService extends BaseDBService {
       console.log('Successfully cleared all errors');
     } catch (error) {
       console.error('Failed to clear errors:', error);
+      console.error('Error details:', error instanceof Error ? error.message : error);
       throw error;
     }
   }
