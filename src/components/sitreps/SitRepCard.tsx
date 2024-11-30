@@ -6,15 +6,12 @@ import { Button } from "@/components/ui/button";
 import { SitRep } from "@/lib/types/sitrep";
 import { db } from "@/lib/db";
 import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
 import { StatusIcon } from "./card/StatusIcon";
-import { TeamBadges } from "./card/TeamBadges";
-import { ContactBadges } from "./card/ContactBadges";
 import { LevelBadge } from "./card/LevelBadge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { CompactSitRepForm } from "./CompactSitRepForm";
-import { DEPARTMENTS } from "@/lib/constants";
+import { POCDisplay } from "./card/POCDisplay";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,7 +27,6 @@ interface SitRepCardProps {
 
 export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const getStatusBadgeColor = (status: string) => {
@@ -44,12 +40,6 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
       default:
         return 'bg-gray-500/10 text-gray-500 border-gray-500/20';
     }
-  };
-
-  const getDepartmentColor = (departmentId?: string) => {
-    if (!departmentId) return '#333';
-    const department = DEPARTMENTS.find(d => d.id === departmentId);
-    return department?.color || '#333';
   };
 
   const handleDelete = () => {
@@ -81,6 +71,16 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
   };
 
   const wordCount = sitrep.summary.split(/\s+/).filter(word => word.length > 0).length;
+
+  const keyPOC = sitrep.poc && sitrep.pocDepartment ? {
+    name: sitrep.poc,
+    department: sitrep.pocDepartment
+  } : undefined;
+
+  const supportingPOCs = sitrep.pointsOfContact?.map(contact => ({
+    name: contact,
+    department: sitrep.teams?.[0] || ''  // Using first team as department for supporting POCs
+  })) || [];
 
   return (
     <>
@@ -138,25 +138,16 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
             <p className="text-muted-foreground">{sitrep.summary}</p>
 
             <div className="flex items-center gap-4 text-sm">
-              <span className="text-muted-foreground">{format(new Date(sitrep.date), "MM/dd/yyyy")}</span>
+              <span className="text-muted-foreground">
+                {format(new Date(sitrep.date), "MM/dd/yyyy")}
+              </span>
               {sitrep.level && <LevelBadge level={sitrep.level} />}
               <span className="text-xs text-muted-foreground">
                 Word count: <span className="font-medium">{wordCount}/100</span>
               </span>
             </div>
 
-            {sitrep.poc && (
-              <div 
-                className="p-3 rounded-md"
-                style={{ 
-                  backgroundColor: `${getDepartmentColor(sitrep.pocDepartment)}15`,
-                  borderLeft: `3px solid ${getDepartmentColor(sitrep.pocDepartment)}`
-                }}
-              >
-                <p className="text-sm font-medium">Point of Contact</p>
-                <p className="text-sm">{sitrep.poc}</p>
-              </div>
-            )}
+            <POCDisplay keyPOC={keyPOC} supportingPOCs={supportingPOCs} />
 
             {(sitrep.fortune30PartnerId || sitrep.smePartnerId) && (
               <div className="space-y-2">
@@ -171,22 +162,6 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
                     <p className="text-sm font-medium">SME Partner</p>
                     <p className="text-sm">{sitrep.smePartnerId}</p>
                   </div>
-                )}
-              </div>
-            )}
-
-            {(sitrep.pointsOfContact?.length > 0 || sitrep.teams?.length > 0) && (
-              <div className="space-y-3 pt-2">
-                {sitrep.pointsOfContact && sitrep.pointsOfContact.length > 0 && (
-                  <ContactBadges contacts={sitrep.pointsOfContact} />
-                )}
-                {sitrep.teams && sitrep.teams.length > 0 && (
-                  <TeamBadges 
-                    teams={sitrep.teams} 
-                    keyTeam={sitrep.departmentId}
-                    poc={sitrep.poc}
-                    pocDepartment={sitrep.pocDepartment}
-                  />
                 )}
               </div>
             )}
