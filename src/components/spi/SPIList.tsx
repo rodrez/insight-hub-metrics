@@ -8,6 +8,13 @@ import { Edit2, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SPIEditForm } from "./SPIEditForm";
 import { toast } from "@/components/ui/use-toast";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { DEPARTMENTS } from "@/lib/constants";
 
 export function SPIList() {
   const [statusColors, setStatusColors] = useState({
@@ -62,13 +69,20 @@ export function SPIList() {
     }
   };
 
+  const getDepartmentColor = (departmentId: string) => {
+    const dept = DEPARTMENTS.find(d => d.id === departmentId);
+    return dept?.color || '#333';
+  };
+
   if (!spis) return null;
 
   return (
     <div className="space-y-4">
       {spis.map(spi => {
         const relatedProject = projects?.find(p => p.id === spi.projectId);
-        const fortune30Partner = relatedProject?.collaborators.find(c => c.type === 'fortune30');
+        const fortune30Partner = collaborators?.find(c => 
+          c.type === 'fortune30' && c.id === relatedProject?.collaborators.find(rc => rc.type === 'fortune30')?.id
+        );
         const smePartner = relatedProject?.collaborators.find(c => c.type === 'sme');
 
         return (
@@ -119,12 +133,41 @@ export function SPIList() {
                       <p>Project: <span className="text-muted-foreground">{relatedProject.name}</span></p>
                     )}
                     {fortune30Partner && (
-                      <p>Fortune 30: <span className="text-muted-foreground">{fortune30Partner.name}</span></p>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <p>
+                              Fortune 30: <span 
+                                className="font-medium"
+                                style={{ color: fortune30Partner.color }}
+                              >
+                                {fortune30Partner.name}
+                              </span>
+                            </p>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{fortune30Partner.role}</p>
+                            {fortune30Partner.primaryContact && (
+                              <p>Contact: {fortune30Partner.primaryContact.name}</p>
+                            )}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     )}
                     {smePartner && (
                       <p>SME: <span className="text-muted-foreground">{smePartner.name}</span></p>
                     )}
-                    <p>Department: <span className="text-muted-foreground">{spi.departmentId}</span></p>
+                    <div 
+                      className="p-2 rounded-md"
+                      style={{ 
+                        backgroundColor: `${getDepartmentColor(spi.departmentId)}15`,
+                        borderLeft: `3px solid ${getDepartmentColor(spi.departmentId)}`
+                      }}
+                    >
+                      <p>Department: <span className="font-medium">
+                        {DEPARTMENTS.find(d => d.id === spi.departmentId)?.name || spi.departmentId}
+                      </span></p>
+                    </div>
                   </div>
                 </div>
               </div>
