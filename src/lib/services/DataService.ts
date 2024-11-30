@@ -3,6 +3,7 @@ import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
 import { DataQuantities } from '../types/data';
+import { ErrorItem } from '../types/error';
 
 export interface DataService {
   init(): Promise<void>;
@@ -33,4 +34,8 @@ export interface DataService {
   getAllSMEPartners(): Promise<Collaborator[]>;
   getSMEPartner(id: string): Promise<Collaborator | undefined>;
   addSMEPartner(partner: Collaborator): Promise<void>;
+
+  getAllErrors(): Promise<ErrorItem[]>;
+  deleteError(id: string): Promise<void>;
+  updateErrorStatus(id: string, status: 'pending' | 'resolved'): Promise<void>;
 }

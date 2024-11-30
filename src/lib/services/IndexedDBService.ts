@@ -7,6 +7,7 @@ import { DataQuantities } from '../types/data';
 import { DatabaseTransactionService } from './db/DatabaseTransactionService';
 import { DatabaseConnectionService } from './db/DatabaseConnectionService';
 import { SampleDataService } from './data/SampleDataService';
+import { ErrorItem } from '../types/error';
 
 export class IndexedDBService implements DataService {
   private connectionService: DatabaseConnectionService;
@@ -180,5 +181,22 @@ export class IndexedDBService implements DataService {
     for (const sitrep of sampleData.sitreps) {
       await this.addSitRep(sitrep);
     }
+  }
+
+  async getAllErrors(): Promise<ErrorItem[]> {
+    return this.transactionService.performTransaction('errors', 'readonly', store => store.getAll());
+  }
+
+  async deleteError(id: string): Promise<void> {
+    await this.transactionService.performTransaction('errors', 'readwrite', store => store.delete(id));
+  }
+
+  async updateErrorStatus(id: string, status: 'pending' | 'resolved'): Promise<void> {
+    const error = await this.transactionService.performTransaction('errors', 'readonly', store => store.get(id));
+    if (!error) throw new Error('Error not found');
+    
+    await this.transactionService.performTransaction('errors', 'readwrite', store => 
+      store.put({ ...error, status })
+    );
   }
 }
