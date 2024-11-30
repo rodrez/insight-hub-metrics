@@ -111,9 +111,8 @@ export function CollaborationFormFields({
 
         <ContactFields form={form} index={0} />
         
-        {collaborationType === 'fortune30' && (
-          <AgreementFields form={form} />
-        )}
+        {/* Show AgreementFields for both Fortune 30 and SME partners */}
+        <AgreementFields form={form} />
 
         {collaborationType === 'sme' && (
           <FormField

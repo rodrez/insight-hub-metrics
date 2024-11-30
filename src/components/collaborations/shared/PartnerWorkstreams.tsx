@@ -27,6 +27,10 @@ interface PartnerWorkstreamsProps {
 }
 
 export function PartnerWorkstreams({ workstreams, agreements }: PartnerWorkstreamsProps) {
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString();
+  };
+
   const getDaysUntilExpiry = (expiryDate: string) => {
     const expiry = new Date(expiryDate);
     const today = new Date();
@@ -43,10 +47,6 @@ export function PartnerWorkstreams({ workstreams, agreements }: PartnerWorkstrea
       return 'bg-yellow-500/10 border-yellow-500';
     }
     return '';
-  };
-
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString();
   };
 
   return (
@@ -114,7 +114,11 @@ export function PartnerWorkstreams({ workstreams, agreements }: PartnerWorkstrea
       </CardHeader>
       <CardContent className="space-y-4">
         {workstreams?.map((workstream) => (
-          <WorkstreamCard key={workstream.id} workstream={workstream} />
+          <WorkstreamCard 
+            key={workstream.id} 
+            workstream={workstream} 
+            formatDate={formatDate}
+          />
         ))}
         {(!workstreams || workstreams.length === 0) && (
           <p className="text-muted-foreground text-center py-4">No workstreams found</p>
