@@ -1,73 +1,47 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { DataCounts } from "../types/dataTypes";
-import { Badge } from "@/components/ui/badge";
-import { useQuery } from "@tanstack/react-query";
-import { db } from "@/lib/db";
 
 interface DataStatsProps {
   dataCounts: DataCounts;
+  currentPage: number;
+  itemsPerPage: number;
 }
 
-// Helper function to get display name
-const getDisplayName = (key: string): string => {
-  switch (key) {
-    case 'fortune30':
-      return 'Fortune 30 Partners';
-    case 'internalPartners':
-      return 'Internal Partners';
-    case 'smePartners':
-      return 'SME Partners';
-    default:
-      return key.charAt(0).toUpperCase() + key.slice(1);
-  }
-};
-
-// Define the order to match current database display
-const displayOrder = [
-  'projects',
-  'fortune30',
-  'internalPartners',
-  'smePartners',
-  'spis',
-  'objectives',
-  'sitreps'
-];
-
-export function DataStats({ dataCounts }: DataStatsProps) {
-  // Add a direct query for SME partners to ensure accurate count
-  const { data: smePartners = [] } = useQuery({
-    queryKey: ['collaborators-sme'],
-    queryFn: async () => {
-      const smePartners = await db.getAllSMEPartners();
-      if (smePartners && smePartners.length > 0) {
-        return smePartners;
-      }
-      const allCollaborators = await db.getAllCollaborators();
-      return allCollaborators.filter(c => c.type === 'sme');
-    },
-  });
-
-  // Override the SME partners count with the actual count from the query
-  const updatedCounts = {
-    ...dataCounts,
-    smePartners: smePartners.length
-  };
+export function DataStats({ dataCounts, currentPage, itemsPerPage }: DataStatsProps) {
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
 
   return (
-    <Card className="mt-6">
-      <CardContent className="pt-6">
-        <h3 className="text-lg font-semibold mb-4">Current Data Counts</h3>
-        <div className="grid gap-3">
-          {displayOrder.map((key) => (
-            <div key={key} className="flex justify-between items-center p-2 rounded-lg hover:bg-muted/50">
-              <span className="text-sm font-medium">{getDisplayName(key)}</span>
-              <Badge variant={updatedCounts[key as keyof DataCounts] > 0 ? "default" : "secondary"}>
-                {updatedCounts[key as keyof DataCounts]}
-              </Badge>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="rounded-lg border p-4">
+        <h3 className="text-sm font-medium">Projects</h3>
+        <p className="mt-2 text-2xl font-bold">
+          {`${startIndex + 1}-${Math.min(endIndex, dataCounts.projects)} of ${dataCounts.projects}`}
+        </p>
+      </div>
+      <div className="rounded-lg border p-4">
+        <h3 className="text-sm font-medium">Fortune 30 Partners</h3>
+        <p className="mt-2 text-2xl font-bold">{dataCounts.fortune30}</p>
+      </div>
+      <div className="rounded-lg border p-4">
+        <h3 className="text-sm font-medium">Internal Partners</h3>
+        <p className="mt-2 text-2xl font-bold">{dataCounts.internalPartners}</p>
+      </div>
+      <div className="rounded-lg border p-4">
+        <h3 className="text-sm font-medium">SME Partners</h3>
+        <p className="mt-2 text-2xl font-bold">{dataCounts.smePartners}</p>
+      </div>
+      <div className="rounded-lg border p-4">
+        <h3 className="text-sm font-medium">SPIs</h3>
+        <p className="mt-2 text-2xl font-bold">{dataCounts.spis}</p>
+      </div>
+      <div className="rounded-lg border p-4">
+        <h3 className="text-sm font-medium">Objectives</h3>
+        <p className="mt-2 text-2xl font-bold">{dataCounts.objectives}</p>
+      </div>
+      <div className="rounded-lg border p-4">
+        <h3 className="text-sm font-medium">SitReps</h3>
+        <p className="mt-2 text-2xl font-bold">{dataCounts.sitreps}</p>
+      </div>
+    </div>
   );
 }
