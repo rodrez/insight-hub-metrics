@@ -11,8 +11,14 @@ import { BasicInfoFields } from "./form/BasicInfoFields";
 import { RelationshipFields } from "./form/RelationshipFields";
 import { ContentFields } from "./form/ContentFields";
 import { DepartmentFields } from "./form/DepartmentFields";
-import { POCFields } from "./form/POCFields";
 import { Contact } from "@/lib/types/pointOfContact";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface CompactSitRepFormProps {
   onSubmitSuccess: () => void;
@@ -37,6 +43,7 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [status, setStatus] = useState<'pending-review' | 'ready' | 'submitted'>(initialData?.status || 'pending-review');
   const [level, setLevel] = useState<"CEO" | "SVP" | "CTO">(initialData?.level || "SVP");
+  const [teamPOCs, setTeamPOCs] = useState<Record<string, Contact>>({});
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
@@ -49,6 +56,17 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
   });
 
   const fortune30Partners = collaborators.filter(c => c.type === 'fortune30') || [];
+
+  const handleTeamPOCAdd = (teamId: string, contact: Contact) => {
+    setTeamPOCs(prev => ({
+      ...prev,
+      [teamId]: contact
+    }));
+    toast({
+      title: "POC Added",
+      description: `Added ${contact.name} as POC for team ${teamId}`
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,7 +97,8 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
         fortune30PartnerId: selectedFortune30 !== "none" ? selectedFortune30 : undefined,
         smePartnerId: selectedSME !== "none" ? selectedSME : undefined,
         teams: supportingTeams,
-        pointsOfContact: contacts.map(c => c.name)
+        pointsOfContact: contacts.map(c => c.name),
+        teamPOCs
       };
 
       if (initialData) {
@@ -129,6 +148,14 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
             setSelectedDepartment={setSelectedDepartment}
             supportingTeams={supportingTeams}
             setSupportingTeams={setSupportingTeams}
+            onTeamSelect={(teamId) => {
+              if (!teamPOCs[teamId]) {
+                const popover = document.getElementById(`poc-popover-${teamId}`);
+                if (popover) {
+                  (popover as HTMLButtonElement).click();
+                }
+              }
+            }}
           />
 
           <RelationshipFields
@@ -140,9 +167,6 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
             setSelectedSME={setSelectedSME}
             projects={projects}
             fortune30Partners={fortune30Partners}
-          />
-
-          <POCFields
             contacts={contacts}
             onContactsChange={setContacts}
           />
@@ -157,6 +181,32 @@ export function CompactSitRepForm({ onSubmitSuccess, initialData }: CompactSitRe
             nextSteps={nextSteps}
             setNextSteps={setNextSteps}
           />
+
+          {supportingTeams.map(teamId => (
+            <Popover key={teamId}>
+              <PopoverTrigger id={`poc-popover-${teamId}`} className="hidden" />
+              <PopoverContent className="w-80">
+                <div className="space-y-4">
+                  <h4 className="font-medium">Add POC for {teamId}</h4>
+                  <div className="space-y-2">
+                    <Label>Name</Label>
+                    <Input 
+                      placeholder="Enter POC name"
+                      onChange={(e) => {
+                        const newContact: Contact = {
+                          name: e.target.value,
+                          title: "",
+                          email: "",
+                          department: teamId
+                        };
+                        handleTeamPOCAdd(teamId, newContact);
+                      }}
+                    />
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          ))}
         </div>
       </ScrollArea>
 

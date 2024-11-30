@@ -14,6 +14,7 @@ interface DepartmentFieldsProps {
   setSelectedDepartment: (department: string) => void;
   supportingTeams: string[];
   setSupportingTeams: (teams: string[]) => void;
+  onTeamSelect?: (teamId: string) => void;
 }
 
 export function DepartmentFields({
@@ -21,12 +22,21 @@ export function DepartmentFields({
   setSelectedDepartment,
   supportingTeams,
   setSupportingTeams,
+  onTeamSelect
 }: DepartmentFieldsProps) {
   return (
     <div className="space-y-4">
       <div>
         <Label>Key Department</Label>
-        <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+        <Select 
+          value={selectedDepartment} 
+          onValueChange={(value) => {
+            setSelectedDepartment(value);
+            if (onTeamSelect) {
+              onTeamSelect(value);
+            }
+          }}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select department" />
           </SelectTrigger>
@@ -42,7 +52,13 @@ export function DepartmentFields({
 
       <SupportingTeamsSelect
         supportingTeams={supportingTeams}
-        setSupportingTeams={setSupportingTeams}
+        setSupportingTeams={(teams) => {
+          setSupportingTeams(teams);
+          if (onTeamSelect) {
+            const newTeams = teams.filter(t => !supportingTeams.includes(t));
+            newTeams.forEach(teamId => onTeamSelect(teamId));
+          }
+        }}
       />
     </div>
   );
