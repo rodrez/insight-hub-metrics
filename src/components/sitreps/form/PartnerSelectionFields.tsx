@@ -39,12 +39,14 @@ export function PartnerSelectionFields({
     <div className="space-y-4">
       <div>
         <Label className="text-white">Fortune 30 Partner</Label>
-        <Select value={selectedFortune30} onValueChange={setSelectedFortune30}>
+        <Select 
+          value={selectedFortune30 === 'none' ? '' : selectedFortune30} 
+          onValueChange={value => setSelectedFortune30(value || 'none')}
+        >
           <SelectTrigger className="bg-[#13151D] border-gray-700 text-white">
             <SelectValue placeholder="Select Fortune 30 partner" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none">None</SelectItem>
             {fortune30Partners.map(partner => (
               <SelectItem key={partner.id} value={partner.id}>
                 {partner.name}
@@ -56,12 +58,14 @@ export function PartnerSelectionFields({
 
       <div>
         <Label className="text-white">SME Partner</Label>
-        <Select value={selectedSME} onValueChange={setSelectedSME}>
+        <Select 
+          value={selectedSME === 'none' ? '' : selectedSME} 
+          onValueChange={value => setSelectedSME(value || 'none')}
+        >
           <SelectTrigger className="bg-[#13151D] border-gray-700 text-white">
             <SelectValue placeholder="Select SME partner" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none">None</SelectItem>
             {smePartners.map(partner => (
               <SelectItem key={partner.id} value={partner.id}>
                 {partner.name}

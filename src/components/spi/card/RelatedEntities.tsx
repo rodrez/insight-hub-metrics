@@ -44,26 +44,16 @@ export function RelatedEntities({
             <p className="text-sm">{relatedProject.name}</p>
           </div>
         )}
-        {fortune30Partner && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="p-2 rounded-md bg-purple-500/10 border-l-2 border-purple-500">
-                  <p className="text-sm font-medium">Fortune 30 Partner</p>
-                  <p className="text-sm" style={{ color: fortune30Partner.color }}>
-                    {fortune30Partner.name}
-                  </p>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{fortune30Partner.role}</p>
-                {fortune30Partner.primaryContact && (
-                  <p>Contact: {fortune30Partner.primaryContact.name}</p>
-                )}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
+        <div className="p-2 rounded-md bg-purple-500/10 border-l-2 border-purple-500">
+          <p className="text-sm font-medium">Fortune 30 Partner</p>
+          {fortune30Partner ? (
+            <p className="text-sm" style={{ color: fortune30Partner.color }}>
+              {fortune30Partner.name}
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">No Fortune 30 partner selected</p>
+          )}
+        </div>
         <div 
           className="p-2 rounded-md"
           style={{ 
@@ -72,9 +62,13 @@ export function RelatedEntities({
           }}
         >
           <p className="text-sm font-medium">SME Partner</p>
-          <p className="text-sm" style={{ color: smePartner?.color }}>
-            {smePartner ? smePartner.name : "None"}
-          </p>
+          {smePartner ? (
+            <p className="text-sm" style={{ color: smePartner.color }}>
+              {smePartner.name}
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">No SME partner selected</p>
+          )}
         </div>
       </div>
     </div>
