@@ -1,3 +1,4 @@
+import * as React from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CollaborationFormFields } from "./CollaborationFormFields";
 import { CollaboratorType } from "@/lib/types/collaboration";
