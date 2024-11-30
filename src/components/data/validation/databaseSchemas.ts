@@ -25,10 +25,10 @@ const defaultValues: Required<DataQuantities> = {
 
 export const validateDataQuantities = (data: Partial<DataQuantities>): DataQuantities => {
   // Create a complete DataQuantities object by merging with defaults
-  const completeData = {
+  const completeData: Required<DataQuantities> = {
     ...defaultValues,
     ...data
-  } as Required<DataQuantities>;
+  };
   
   return dataQuantitiesSchema.parse(completeData);
 };
