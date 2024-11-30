@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Shield, Calendar } from "lucide-react";
 import { Workstream, Agreement } from "@/lib/types/collaboration";
+import { getAgreementWarningSettings, getDaysUntilExpiry } from "@/lib/utils/agreementUtils";
 import {
   Tooltip,
   TooltipContent,
@@ -25,8 +26,36 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
     return status === 'signed' ? 'text-green-500' : 'text-yellow-500';
   };
 
+  const getWarningColor = () => {
+    if (!agreements) return '';
+
+    const settings = getAgreementWarningSettings();
+    let ndaDays, jtdaDays;
+
+    if (agreements.nda) {
+      ndaDays = getDaysUntilExpiry(agreements.nda.expiryDate);
+    }
+    if (agreements.jtda) {
+      jtdaDays = getDaysUntilExpiry(agreements.jtda.expiryDate);
+    }
+
+    // Use the most critical warning level between NDA and JTDA
+    const minDays = Math.min(
+      ndaDays !== undefined ? ndaDays : Infinity,
+      jtdaDays !== undefined ? jtdaDays : Infinity
+    );
+
+    if (minDays <= settings.criticalDays) {
+      return 'bg-red-500/10 border-red-500';
+    }
+    if (minDays <= settings.warningDays) {
+      return 'bg-yellow-500/10 border-yellow-500';
+    }
+    return '';
+  };
+
   return (
-    <Card>
+    <Card className={`${getWarningColor()}`}>
       <CardContent className="pt-6">
         <div className="flex justify-between items-start mb-2">
           <h5 className="font-medium">{workstream.title}</h5>
