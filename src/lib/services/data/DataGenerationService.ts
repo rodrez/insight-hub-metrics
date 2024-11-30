@@ -39,10 +39,9 @@ export class DataGenerationService {
 
       const projectInput = {
         ...defaultQuantities,
-        departments: [...DEPARTMENTS],
+        departments: Array.from(DEPARTMENTS),
         fortune30Partners: fortune30Partners.slice(0, defaultQuantities.fortune30),
-        collaborators: internalPartners.slice(0, defaultQuantities.internalPartners),
-        smePartners: smePartners.slice(0, defaultQuantities.smePartners)
+        collaborators: internalPartners.slice(0, defaultQuantities.internalPartners)
       };
 
       const { projects, spis, objectives, sitreps } = await generateSampleProjects(projectInput);
