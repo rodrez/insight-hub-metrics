@@ -16,8 +16,8 @@ export class DatabaseClearingService {
       // Close existing connections first
       connectionManager.closeAllConnections();
       
-      // Get all store names
-      const storeNames = Array.from(DB_CONFIG.stores);
+      // Get all store names from DB_CONFIG.stores
+      const storeNames = Object.values(DB_CONFIG.stores);
       
       if (storeNames.length === 0) {
         console.warn('No stores found in database');
@@ -25,7 +25,7 @@ export class DatabaseClearingService {
       }
 
       // Clear stores sequentially to avoid transaction conflicts
-      for (const storeName of Object.values(DB_CONFIG.stores)) {
+      for (const storeName of storeNames) {
         await this.clearStore(storeName);
       }
 
