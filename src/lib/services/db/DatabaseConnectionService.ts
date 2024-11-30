@@ -75,15 +75,12 @@ export class DatabaseConnectionService {
             const db = request.result;
             
             db.onerror = (event) => {
-              const error = (event.target as IDBDatabase).error;
               console.error('Database error:', {
-                error: error?.message,
-                name: error?.name,
-                code: error?.code
+                message: (event.target as IDBDatabase).onerror?.toString() || 'Unknown error'
               });
               toast({
                 title: "Database Error",
-                description: `An error occurred: ${error?.message || 'Unknown error'}`,
+                description: "An error occurred with the database connection",
                 variant: "destructive",
               });
             };
