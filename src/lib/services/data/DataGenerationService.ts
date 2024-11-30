@@ -79,14 +79,13 @@ export class DataGenerationService {
     });
   }
 
-  async generateAndSaveData(partialQuantities: Partial<DataQuantities>) {
+  async generateAndSaveData() {
     try {
       // Initialize database
       await db.init();
       this.showSuccessStep("Database initialized");
 
-      // Ensure all required properties have default values
-      const defaultQuantities: DataQuantities = {
+      const quantities: DataQuantities = {
         projects: 10,
         spis: 10,
         objectives: 5,
@@ -94,12 +93,6 @@ export class DataGenerationService {
         fortune30: 6,
         internalPartners: 20,
         smePartners: 10
-      };
-
-      // Merge provided quantities with defaults
-      const quantities: DataQuantities = {
-        ...defaultQuantities,
-        ...partialQuantities
       };
 
       // Generate all data first

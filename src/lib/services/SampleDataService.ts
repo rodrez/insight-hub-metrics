@@ -1,9 +1,8 @@
 import { Project, Collaborator } from '@/lib/types';
 import { generateFortune30Partners } from './data/fortune30Partners';
 import { generateInternalPartners } from './data/internalPartners';
-import { generateSMEPartners } from './data/smePartners';
+import { generateSMEPartners } from './smePartners';
 import { generateSampleProjects } from '@/components/data/SampleData';
-import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './sampleData/spiData';
 import { DataQuantities } from '@/lib/types/data';
 import { toast } from "@/components/ui/use-toast";
 
@@ -21,7 +20,7 @@ export class SampleDataService {
     return requested;
   }
 
-  async generateSampleData(quantities: Partial<DataQuantities> = {}): Promise<{
+  async generateSampleData(): Promise<{
     fortune30Partners: Collaborator[];
     internalPartners: Collaborator[];
     smePartners: Collaborator[];
@@ -31,8 +30,7 @@ export class SampleDataService {
     sitreps: any[];
   }> {
     try {
-      // Ensure all required properties have default values
-      const defaultQuantities: DataQuantities = {
+      const quantities: DataQuantities = {
         projects: 10,
         spis: 10,
         objectives: 5,
@@ -42,13 +40,7 @@ export class SampleDataService {
         smePartners: 10
       };
 
-      // Merge provided quantities with defaults
-      const finalQuantities: DataQuantities = {
-        ...defaultQuantities,
-        ...quantities
-      };
-
-      console.log('Starting sample data generation with quantities:', finalQuantities);
+      console.log('Starting sample data generation with quantities:', quantities);
       
       const allFortune30 = generateFortune30Partners();
       console.log('Generated Fortune 30 partners:', allFortune30.length);
@@ -60,23 +52,23 @@ export class SampleDataService {
       console.log('Generated SME partners:', allSMEPartners.length);
 
       // Validate and adjust quantities
-      const fortune30Count = this.validateQuantities(allFortune30.length, finalQuantities.fortune30, "Fortune 30 partners");
-      const internalCount = this.validateQuantities(allInternalPartners.length, finalQuantities.internalPartners, "internal partners");
-      const smeCount = this.validateQuantities(allSMEPartners.length, finalQuantities.smePartners, "SME partners");
+      const fortune30Count = this.validateQuantities(allFortune30.length, quantities.fortune30, "Fortune 30 partners");
+      const internalCount = this.validateQuantities(allInternalPartners.length, quantities.internalPartners, "internal partners");
+      const smeCount = this.validateQuantities(allSMEPartners.length, quantities.smePartners, "SME partners");
 
       const fortune30Partners = allFortune30.slice(0, fortune30Count);
       const internalPartners = allInternalPartners.slice(0, internalCount);
 
-      const { projects, spis, objectives, sitreps } = await generateSampleProjects(finalQuantities);
+      const { projects, spis, objectives, sitreps } = await generateSampleProjects(quantities);
 
       return {
         fortune30Partners,
         internalPartners,
         smePartners: allSMEPartners.slice(0, smeCount),
-        projects: projects.slice(0, finalQuantities.projects),
-        spis: spis.slice(0, finalQuantities.spis),
-        objectives: objectives.slice(0, finalQuantities.objectives),
-        sitreps: sitreps.slice(0, finalQuantities.sitreps)
+        projects: projects.slice(0, quantities.projects),
+        spis: spis.slice(0, quantities.spis),
+        objectives: objectives.slice(0, quantities.objectives),
+        sitreps: sitreps.slice(0, quantities.sitreps)
       };
     } catch (error) {
       console.error('Error in sample data generation:', error);
