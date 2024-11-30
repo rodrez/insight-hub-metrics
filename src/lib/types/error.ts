@@ -6,4 +6,5 @@ export interface ErrorItem {
   status: 'pending' | 'resolved';
   timestamp: number;
   priority: number;
+  details?: string;
 }

@@ -1,8 +1,15 @@
 import { ErrorItem } from '../../types/error';
 import { BaseDBService } from './base/BaseDBService';
-import { v4 as uuidv4 } from 'uuid';
+import { CodeAnalyzer } from '../error/CodeAnalyzer';
 
 export class ErrorService extends BaseDBService {
+  private codeAnalyzer: CodeAnalyzer;
+
+  constructor() {
+    super();
+    this.codeAnalyzer = new CodeAnalyzer();
+  }
+
   async getAllErrors(): Promise<ErrorItem[]> {
     try {
       return await this.performTransaction<ErrorItem[]>(
@@ -54,33 +61,14 @@ export class ErrorService extends BaseDBService {
 
   async analyzeCodebase(): Promise<void> {
     try {
-      const mockErrors: ErrorItem[] = [
-        {
-          id: uuidv4(),
-          type: 'Performance',
-          message: 'Large component not memoized causing unnecessary re-renders',
-          stackTrace: 'src/components/LargeComponent.tsx:25',
-          status: 'pending',
-          timestamp: Date.now(),
-          priority: 8
-        },
-        {
-          id: uuidv4(),
-          type: 'Security',
-          message: 'Sensitive data exposed in localStorage',
-          stackTrace: 'src/services/auth/AuthService.ts:42',
-          status: 'pending',
-          timestamp: Date.now(),
-          priority: 9
-        }
-      ];
+      const errors = this.codeAnalyzer.analyzeCodebase();
 
       await this.performTransaction(
         'errors',
         'readwrite',
         store => {
-          mockErrors.forEach(error => store.put(error));
-          return store.put(mockErrors[0]); // Return a single request for typing
+          errors.forEach(error => store.put(error));
+          return store.put(errors[0]); // Return a single request for typing
         }
       );
     } catch (error) {
