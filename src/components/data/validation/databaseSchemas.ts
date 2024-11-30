@@ -12,19 +12,17 @@ export const dataQuantitiesSchema = z.object({
 }).required();
 
 export const validateDataQuantities = (data: Partial<DataQuantities>): DataQuantities => {
-  const defaultValues: DataQuantities = {
-    projects: 0,
-    spis: 0,
-    objectives: 0,
-    sitreps: 0,
-    fortune30: 0,
-    internalPartners: 0,
-    smePartners: 0
+  // Create a complete object with default values
+  const completeData: DataQuantities = {
+    projects: data.projects ?? 0,
+    spis: data.spis ?? 0,
+    objectives: data.objectives ?? 0,
+    sitreps: data.sitreps ?? 0,
+    fortune30: data.fortune30 ?? 0,
+    internalPartners: data.internalPartners ?? 0,
+    smePartners: data.smePartners ?? 0
   };
 
-  // Merge incoming data with default values to ensure all required properties exist
-  const mergedData = { ...defaultValues, ...data };
-
-  // Validate the merged data
-  return dataQuantitiesSchema.parse(mergedData);
+  // Validate the complete data object
+  return dataQuantitiesSchema.parse(completeData);
 };
