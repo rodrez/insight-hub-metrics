@@ -89,13 +89,14 @@ export function SelectFields({
       <div className="space-y-2">
         <Label htmlFor="fortune30">Fortune 30 Partner</Label>
         <Select 
-          value={selectedFortune30 === 'none' ? '' : selectedFortune30} 
-          onValueChange={value => setSelectedFortune30(value || 'none')}
+          value={selectedFortune30} 
+          onValueChange={setSelectedFortune30}
         >
           <SelectTrigger id="fortune30">
             <SelectValue placeholder="Select Fortune 30 Partner" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="none">None</SelectItem>
             {fortune30Partners?.map(partner => (
               <SelectItem key={partner.id} value={partner.id}>
                 {partner.name}
@@ -108,13 +109,14 @@ export function SelectFields({
       <div className="space-y-2">
         <Label htmlFor="sme">SME Partner</Label>
         <Select 
-          value={selectedSME === 'none' ? '' : selectedSME} 
-          onValueChange={value => setSelectedSME(value || 'none')}
+          value={selectedSME} 
+          onValueChange={setSelectedSME}
         >
           <SelectTrigger id="sme">
             <SelectValue placeholder="Select SME Partner" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="none">None</SelectItem>
             {smePartners.map(partner => (
               <SelectItem key={partner.id} value={partner.id}>
                 {partner.name}
