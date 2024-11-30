@@ -16,6 +16,7 @@ export interface DataQuantities {
   fortune30: number;
   internalPartners: number;
   smePartners: number;
+  collaborators: number;
 }
 
 export interface GeneratedData {

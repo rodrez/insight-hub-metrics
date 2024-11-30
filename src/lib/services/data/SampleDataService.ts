@@ -26,7 +26,8 @@ export class SampleDataService {
     sitreps: 10,
     fortune30: 6,
     internalPartners: 20,
-    smePartners: 10
+    smePartners: 10,
+    collaborators: 0
   }) {
     try {
       this.progressTracker.addStep('Fortune 30 Partners', quantities.fortune30);

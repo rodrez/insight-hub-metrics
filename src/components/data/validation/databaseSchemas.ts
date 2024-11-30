@@ -1,10 +1,10 @@
 import { z } from 'zod';
-import { dataQuantitiesSchema } from '@/lib/types/data';
+import { DataQuantities, dataQuantitiesSchema } from '@/lib/types/data';
 
 export { dataQuantitiesSchema };
 
 export const validateDataQuantities = (data: Partial<DataQuantities>) => {
-  const defaultValues = {
+  const defaultValues: DataQuantities = {
     projects: 0,
     spis: 0,
     objectives: 0,
