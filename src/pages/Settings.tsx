@@ -6,6 +6,7 @@ import { TechDomainSettings } from "@/components/settings/TechDomainSettings";
 import { AgreementWarningSettings } from "@/components/settings/AgreementWarningSettings";
 import { Fortune30Settings } from "@/components/settings/partners/Fortune30Settings";
 import { SMESettings } from "@/components/settings/partners/SMESettings";
+import { ErrorHandlingSettings } from "@/components/settings/error-handling/ErrorHandlingSettings";
 import DataManagement from "@/components/data/DataManagement";
 
 export default function Settings() {
@@ -21,6 +22,7 @@ export default function Settings() {
           <TabsTrigger value="fortune30">Fortune 30</TabsTrigger>
           <TabsTrigger value="sme">SME Partners</TabsTrigger>
           <TabsTrigger value="agreement-warnings">Agreement Warnings</TabsTrigger>
+          <TabsTrigger value="bug-fixes">Bug Fixes</TabsTrigger>
         </TabsList>
         <TabsContent value="sample-data" className="space-y-6">
           <SampleDataSettings />
@@ -45,6 +47,9 @@ export default function Settings() {
         </TabsContent>
         <TabsContent value="agreement-warnings">
           <AgreementWarningSettings />
+        </TabsContent>
+        <TabsContent value="bug-fixes">
+          <ErrorHandlingSettings />
         </TabsContent>
       </Tabs>
     </div>
