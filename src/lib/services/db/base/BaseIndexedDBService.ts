@@ -10,12 +10,12 @@ export class BaseIndexedDBService {
     this.transactionService = new DatabaseTransactionService(null);
   }
 
-  protected async init(): Promise<void> {
+  public async init(): Promise<void> {
     await this.connectionService.init();
     this.transactionService = new DatabaseTransactionService(this.connectionService.getDatabase());
   }
 
-  protected getDatabase(): IDBDatabase | null {
+  public getDatabase(): IDBDatabase | null {
     return this.connectionService.getDatabase();
   }
 }

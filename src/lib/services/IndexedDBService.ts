@@ -27,7 +27,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     this.sampleDataService = new SampleDataService();
   }
 
-  async init(): Promise<void> {
+  public async init(): Promise<void> {
     await super.init();
     await Promise.all([
       this.projectService.init(),
@@ -61,6 +61,13 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   updateSPI = (id: string, updates: Partial<SPI>) => this.spiService.updateSPI(id, updates);
   deleteSPI = (id: string) => this.spiService.deleteSPI(id);
 
+  // Objective methods
+  getAllObjectives = () => this.spiService.getAllObjectives();
+  addObjective = (objective: Objective) => this.spiService.addObjective(objective);
+  updateObjective = (id: string, updates: Partial<Objective>) => this.spiService.updateObjective(id, updates);
+  deleteObjective = (id: string) => this.spiService.deleteObjective(id);
+
+  // Other methods
   async clear(): Promise<void> {
     const stores = ['projects', 'collaborators', 'sitreps', 'spis', 'objectives', 'smePartners'];
     for (const store of stores) {
@@ -99,33 +106,8 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     await this.sampleDataService.generateSampleData(quantities);
   }
 
-  async getAllObjectives(): Promise<Objective[]> {
-    return this.transactionService.performTransaction('objectives', 'readonly', store => store.getAll());
-  }
-
-  async addObjective(objective: Objective): Promise<void> {
-    await this.transactionService.performTransaction('objectives', 'readwrite', store => store.put(objective));
-  }
-
-  async updateObjective(id: string, updates: Partial<Objective>): Promise<void> {
-    const objective = await this.transactionService.performTransaction('objectives', 'readonly', store => store.get(id));
-    if (!objective) throw new Error('Objective not found');
-    await this.addObjective({ ...objective, ...updates });
-  }
-
-  async deleteObjective(id: string): Promise<void> {
-    await this.transactionService.performTransaction('objectives', 'readwrite', store => store.delete(id));
-  }
-
-  async getAllSMEPartners(): Promise<Collaborator[]> {
-    return this.transactionService.performTransaction('smePartners', 'readonly', store => store.getAll());
-  }
-
-  async getSMEPartner(id: string): Promise<Collaborator | undefined> {
-    return this.transactionService.performTransaction('smePartners', 'readonly', store => store.get(id));
-  }
-
-  async addSMEPartner(partner: Collaborator): Promise<void> {
-    await this.transactionService.performTransaction('smePartners', 'readwrite', store => store.put(partner));
-  }
+  // SME Partner methods
+  getAllSMEPartners = () => this.collaboratorService.getAllSMEPartners();
+  getSMEPartner = (id: string) => this.collaboratorService.getSMEPartner(id);
+  addSMEPartner = (partner: Collaborator) => this.collaboratorService.addSMEPartner(partner);
 }
