@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/dialog";
 import { POCFields } from "./POCFields";
 import { Contact } from "@/lib/types/pointOfContact";
+import { useQuery } from "@tanstack/react-query";
+import { db } from "@/lib/db";
 
 export interface RelationshipFieldsProps {
   selectedProject: string;
@@ -45,6 +47,12 @@ export function RelationshipFields({
   contacts,
   onContactsChange
 }: RelationshipFieldsProps) {
+  // Fetch SME partners
+  const { data: smePartners = [] } = useQuery({
+    queryKey: ['sme-partners'],
+    queryFn: () => db.getAllSMEPartners()
+  });
+
   return (
     <div className="space-y-4">
       <POCFields
@@ -105,6 +113,11 @@ export function RelationshipFields({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
+                {smePartners?.map(partner => (
+                  <SelectItem key={partner.id} value={partner.id}>
+                    {partner.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
