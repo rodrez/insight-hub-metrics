@@ -1,4 +1,4 @@
-import { Project, Collaborator, Team } from '../types';
+import { Project, Collaborator } from '../types';
 import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
@@ -133,10 +133,6 @@ export class IndexedDBService implements DataService {
     console.log('Data export not implemented');
   }
 
-  async getAllTeams(): Promise<Team[]> {
-    return this.transactionService.performTransaction('teams', 'readonly', store => store.getAll());
-  }
-
   async getAllSMEPartners(): Promise<Collaborator[]> {
     return this.transactionService.performTransaction('smePartners', 'readonly', store => store.getAll());
   }
@@ -150,49 +146,63 @@ export class IndexedDBService implements DataService {
   }
 
   async populateSampleData(quantities: DataQuantities): Promise<void> {
+    console.log('Starting sample data population...');
     const sampleData = await this.sampleDataService.generateSampleData(quantities);
     
-    // Clear existing data first
-    await this.clear();
-    
-    // Add all data in sequence
-    const addPromises = [];
+    try {
+      // Clear existing data first
+      console.log('Clearing existing data...');
+      await this.clear();
+      
+      console.log('Adding new data in sequence...');
+      // Add all data in sequence
+      const addPromises = [];
 
-    // Add Fortune 30 and internal partners to collaborators store
-    for (const partner of [...sampleData.fortune30Partners, ...sampleData.internalPartners]) {
-      addPromises.push(this.addCollaborator(partner));
+      // Add Fortune 30 and internal partners to collaborators store
+      console.log('Adding collaborators...');
+      for (const partner of [...sampleData.fortune30Partners, ...sampleData.internalPartners]) {
+        addPromises.push(this.addCollaborator(partner));
+      }
+
+      // Add SME partners to their dedicated store
+      console.log('Adding SME partners...');
+      for (const partner of sampleData.smePartners) {
+        addPromises.push(this.addSMEPartner({
+          ...partner,
+          type: 'sme'
+        }));
+      }
+
+      // Add other data
+      console.log('Adding projects...');
+      for (const project of sampleData.projects) {
+        addPromises.push(this.addProject(project));
+      }
+
+      console.log('Adding SPIs...');
+      for (const spi of sampleData.spis) {
+        addPromises.push(this.addSPI(spi));
+      }
+
+      console.log('Adding objectives...');
+      for (const objective of sampleData.objectives) {
+        addPromises.push(this.addObjective(objective));
+      }
+
+      console.log('Adding sitreps...');
+      for (const sitrep of sampleData.sitreps) {
+        addPromises.push(this.addSitRep(sitrep));
+      }
+
+      // Wait for all data to be added
+      await Promise.all(addPromises);
+
+      // Verify data was added correctly
+      const smePartners = await this.getAllSMEPartners();
+      console.log('Data population completed. SME partners added:', smePartners.length);
+    } catch (error) {
+      console.error('Error during data population:', error);
+      throw error;
     }
-
-    // Add SME partners to their dedicated store
-    for (const partner of sampleData.smePartners) {
-      addPromises.push(this.addSMEPartner({
-        ...partner,
-        type: 'sme' // Ensure type is set correctly
-      }));
-    }
-
-    // Add other data
-    for (const project of sampleData.projects) {
-      addPromises.push(this.addProject(project));
-    }
-
-    for (const spi of sampleData.spis) {
-      addPromises.push(this.addSPI(spi));
-    }
-
-    for (const objective of sampleData.objectives) {
-      addPromises.push(this.addObjective(objective));
-    }
-
-    for (const sitrep of sampleData.sitreps) {
-      addPromises.push(this.addSitRep(sitrep));
-    }
-
-    // Wait for all data to be added
-    await Promise.all(addPromises);
-
-    // Verify data was added correctly
-    const smePartners = await this.getAllSMEPartners();
-    console.log('SME partners added:', smePartners.length);
   }
 }
