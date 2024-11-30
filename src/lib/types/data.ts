@@ -1,14 +1,14 @@
 import { z } from 'zod';
 
 export const dataQuantitiesSchema = z.object({
-  projects: z.number().min(0),
-  spis: z.number().min(0),
-  objectives: z.number().min(0),
-  sitreps: z.number().min(0),
-  fortune30: z.number().min(0),
-  internalPartners: z.number().min(0),
-  smePartners: z.number().min(0)
-}).required();
+  projects: z.number().min(0).default(10),
+  spis: z.number().min(0).default(10),
+  objectives: z.number().min(0).default(5),
+  sitreps: z.number().min(0).default(10),
+  fortune30: z.number().min(0).default(6),
+  internalPartners: z.number().min(0).default(20),
+  smePartners: z.number().min(0).default(10)
+});
 
 export type DataQuantities = z.infer<typeof dataQuantitiesSchema>;
 

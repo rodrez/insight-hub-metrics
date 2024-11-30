@@ -3,7 +3,7 @@ import { generateFortune30Partners } from './generators/fortune30Generator';
 import { generateInternalPartners } from './generators/internalPartnersGenerator';
 import { generateSMEPartners } from './generators/smePartnersGenerator';
 import { generateSampleProjects } from '@/components/data/SampleData';
-import { DataQuantities } from '../../types/data';
+import { DataQuantities, dataQuantitiesSchema } from '../../types/data';
 import { db } from "@/lib/db";
 import { errorHandler } from '../error/ErrorHandlingService';
 import { validateCollaborator, validateProject } from './utils/dataGenerationUtils';
@@ -17,31 +17,19 @@ export class DataGenerationService {
     });
   }
 
-  private async generatePartners(quantities: Partial<DataQuantities>) {
+  private async generatePartners(quantities: DataQuantities) {
     try {
       const fortune30Partners = await Promise.resolve(generateFortune30Partners())
-        .then(partners => partners.filter(validateCollaborator))
-        .catch(error => {
-          errorHandler.handleError(error, { type: 'database', title: 'Fortune 30 Generation Failed' });
-          return [];
-        });
+        .then(partners => partners.filter(validateCollaborator));
       this.showSuccessStep(`Generated ${fortune30Partners.length} Fortune 30 partners`);
 
       const internalPartners = await generateInternalPartners()
-        .then(partners => partners.filter(validateCollaborator))
-        .catch(error => {
-          errorHandler.handleError(error, { type: 'database', title: 'Internal Partners Generation Failed' });
-          return [];
-        });
+        .then(partners => partners.filter(validateCollaborator));
       const selectedInternalPartners = internalPartners.slice(0, quantities.internalPartners);
       this.showSuccessStep(`Generated ${selectedInternalPartners.length} internal partners`);
 
       const smePartners = await Promise.resolve(generateSMEPartners())
-        .then(partners => partners.filter(validateCollaborator))
-        .catch(error => {
-          errorHandler.handleError(error, { type: 'database', title: 'SME Partners Generation Failed' });
-          return [];
-        });
+        .then(partners => partners.filter(validateCollaborator));
       const selectedSMEPartners = smePartners.slice(0, quantities.smePartners);
       this.showSuccessStep(`Generated ${selectedSMEPartners.length} SME partners`);
 
@@ -64,18 +52,9 @@ export class DataGenerationService {
       await db.init();
       this.showSuccessStep("Database initialized");
 
-      const quantities: DataQuantities = {
-        projects: 10,
-        spis: 10,
-        objectives: 5,
-        sitreps: 10,
-        fortune30: 6,
-        internalPartners: 20,
-        smePartners: 10
-      };
-
-      const { fortune30Partners, internalPartners, smePartners } = await this.generatePartners(quantities);
-      const { projects, spis, objectives, sitreps } = await generateSampleProjects(quantities);
+      const defaultQuantities = dataQuantitiesSchema.parse({});
+      const { fortune30Partners, internalPartners, smePartners } = await this.generatePartners(defaultQuantities);
+      const { projects, spis, objectives, sitreps } = await generateSampleProjects(defaultQuantities);
 
       const validatedProjects = projects.filter(validateProject);
 
