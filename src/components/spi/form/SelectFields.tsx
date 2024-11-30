@@ -8,6 +8,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { DEPARTMENTS } from "@/lib/constants";
 import { SPI } from "@/lib/types/spi";
+import { useQuery } from "@tanstack/react-query";
+import { db } from "@/lib/db";
 
 interface SelectFieldsProps {
   status: SPI['status'];
@@ -34,6 +36,18 @@ export function SelectFields({
   projects,
   fortune30Partners,
 }: SelectFieldsProps) {
+  const { data: smePartners = [] } = useQuery({
+    queryKey: ['collaborators-sme'],
+    queryFn: async () => {
+      const smePartners = await db.getAllSMEPartners();
+      if (smePartners && smePartners.length > 0) {
+        return smePartners;
+      }
+      const allCollaborators = await db.getAllCollaborators();
+      return allCollaborators.filter(c => c.type === 'sme');
+    },
+  });
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <div className="space-y-2">
@@ -86,16 +100,15 @@ export function SelectFields({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="department">Department</Label>
+        <Label htmlFor="sme">SME Partner</Label>
         <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-          <SelectTrigger id="department">
-            <SelectValue placeholder="Department" />
+          <SelectTrigger id="sme">
+            <SelectValue placeholder="SME Partner" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none">None</SelectItem>
-            {DEPARTMENTS.map(dept => (
-              <SelectItem key={dept.id} value={dept.id}>
-                {dept.name}
+            {smePartners.map(partner => (
+              <SelectItem key={partner.id} value={partner.id}>
+                {partner.name}
               </SelectItem>
             ))}
           </SelectContent>
