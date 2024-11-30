@@ -8,7 +8,6 @@ import { Search, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useErrorStore } from "./hooks/useErrorStore";
 import { useState } from "react";
-import { ErrorItem } from "@/lib/types/error";
 import { ErrorFixDialog } from "./ErrorFixDialog";
 
 export function ErrorHandlingSettings() {
@@ -37,7 +36,7 @@ export function ErrorHandlingSettings() {
   const handleDelete = async (errorId: string) => {
     try {
       await deleteError(errorId);
-      queryClient.invalidateQueries({ queryKey: ['errors'] });
+      await queryClient.invalidateQueries({ queryKey: ['errors'] });
       toast({
         title: "Error deleted",
         description: "The error has been removed from the list",
@@ -59,7 +58,7 @@ export function ErrorHandlingSettings() {
     );
   };
 
-  const handleFixErrors = () => {
+  const handleFixErrors = async () => {
     if (selectedErrors.length === 0) {
       toast({
         title: "No errors selected",
@@ -68,14 +67,27 @@ export function ErrorHandlingSettings() {
       });
       return;
     }
-    setIsFixDialogOpen(true);
+    
+    try {
+      for (const errorId of selectedErrors) {
+        await updateErrorStatus(errorId, 'resolved');
+      }
+      await queryClient.invalidateQueries({ queryKey: ['errors'] });
+      setIsFixDialogOpen(true);
+    } catch (error) {
+      toast({
+        title: "Error fixing issues",
+        description: "There was a problem fixing the selected errors",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleAnalyzeCodebase = async () => {
     setIsAnalyzing(true);
     try {
       await analyzeCodebase();
-      queryClient.invalidateQueries({ queryKey: ['errors'] });
+      await queryClient.invalidateQueries({ queryKey: ['errors'] });
       toast({
         title: "Analysis Complete",
         description: "The codebase has been analyzed and new errors have been identified",
