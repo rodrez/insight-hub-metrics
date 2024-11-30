@@ -1,5 +1,4 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SampleDataSettings } from "@/components/settings/SampleDataSettings";
 import { StatusColorSettings } from "@/components/settings/StatusColorSettings";
 import { DepartmentSettings } from "@/components/settings/DepartmentSettings";
 import { TechDomainSettings } from "@/components/settings/TechDomainSettings";
@@ -12,9 +11,8 @@ import DataManagement from "@/components/data/DataManagement";
 export default function Settings() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <Tabs defaultValue="sample-data">
+      <Tabs defaultValue="database">
         <TabsList>
-          <TabsTrigger value="sample-data">Sample Data</TabsTrigger>
           <TabsTrigger value="database">Database</TabsTrigger>
           <TabsTrigger value="status-colors">Status Colors</TabsTrigger>
           <TabsTrigger value="departments">Departments</TabsTrigger>
@@ -24,9 +22,6 @@ export default function Settings() {
           <TabsTrigger value="agreement-warnings">Agreement Warnings</TabsTrigger>
           <TabsTrigger value="bug-fixes">Bug Fixes</TabsTrigger>
         </TabsList>
-        <TabsContent value="sample-data" className="space-y-6">
-          <SampleDataSettings />
-        </TabsContent>
         <TabsContent value="database">
           <DataManagement />
         </TabsContent>
