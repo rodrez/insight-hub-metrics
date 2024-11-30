@@ -39,7 +39,6 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
       jtdaDays = getDaysUntilExpiry(agreements.jtda.expiryDate);
     }
 
-    // Use the most critical warning level between NDA and JTDA
     const minDays = Math.min(
       ndaDays !== undefined ? ndaDays : Infinity,
       jtdaDays !== undefined ? jtdaDays : Infinity
@@ -59,51 +58,13 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
       <CardContent className="pt-6">
         <div className="flex justify-between items-start mb-2">
           <h5 className="font-medium">{workstream.title}</h5>
-          <div className="flex gap-2">
-            {agreements?.nda && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Badge variant="outline" className="flex items-center gap-1">
-                      <Shield className={`h-3 w-3 ${getStatusColor(agreements.nda.status)}`} />
-                      NDA
-                      <Calendar className="h-3 w-3 ml-1" />
-                    </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Status: {agreements.nda.status}</p>
-                    <p>Signed: {formatDate(agreements.nda.signedDate)}</p>
-                    <p>Expires: {formatDate(agreements.nda.expiryDate)}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
-            {agreements?.jtda && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Badge variant="outline" className="flex items-center gap-1">
-                      <Shield className={`h-3 w-3 ${getStatusColor(agreements.jtda.status)}`} />
-                      JTDA
-                      <Calendar className="h-3 w-3 ml-1" />
-                    </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Status: {agreements.jtda.status}</p>
-                    <p>Signed: {formatDate(agreements.jtda.signedDate)}</p>
-                    <p>Expires: {formatDate(agreements.jtda.expiryDate)}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
-            <Badge variant={
-              workstream.status === 'active' ? 'default' :
-              workstream.status === 'completed' ? 'secondary' :
-              'outline'
-            }>
-              {workstream.status}
-            </Badge>
-          </div>
+          <Badge variant={
+            workstream.status === 'active' ? 'default' :
+            workstream.status === 'completed' ? 'secondary' :
+            'outline'
+          }>
+            {workstream.status}
+          </Badge>
         </div>
         <div className="space-y-2 text-sm">
           <div>

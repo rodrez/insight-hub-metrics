@@ -34,7 +34,10 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
             <PartnerContact contact={collaborator.primaryContact} />
             <PartnerProjects collaborator={collaborator} type={type} />
           </div>
-          <PartnerWorkstreams workstreams={collaborator.workstreams} />
+          <PartnerWorkstreams 
+            workstreams={collaborator.workstreams} 
+            agreements={collaborator.agreements}
+          />
         </div>
       </CardContent>
     </Card>
