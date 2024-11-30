@@ -1,37 +1,66 @@
 import { Badge } from "@/components/ui/badge";
+import { DEPARTMENTS } from "@/lib/constants";
 
 interface TeamBadgesProps {
   teams: string[];
+  keyTeam?: string;
+  poc?: string;
+  pocDepartment?: string;
 }
 
-export function TeamBadges({ teams }: TeamBadgesProps) {
-  const getTeamBadgeColor = (team: string) => {
-    switch (team.toLowerCase()) {
-      case 'engineering':
-        return 'bg-emerald-600 text-white';
-      case 'operations':
-        return 'bg-blue-500 text-white';
-      case 'security':
-        return 'bg-orange-500 text-white';
-      case 'product':
-        return 'bg-indigo-600 text-white';
-      default:
-        return 'bg-gray-500 text-white';
-    }
+export function TeamBadges({ teams, keyTeam, poc, pocDepartment }: TeamBadgesProps) {
+  const getDepartmentColor = (departmentId: string) => {
+    const department = DEPARTMENTS.find(d => d.id === departmentId);
+    return department?.color || '#333';
   };
 
+  const sortedTeams = teams?.filter(team => team !== keyTeam) || [];
+
   return (
-    <div>
-      <p className="text-sm text-gray-400 mb-2">Teams:</p>
-      <div className="flex flex-wrap gap-2">
-        {teams.map((team, index) => (
+    <div className="space-y-3">
+      {poc && pocDepartment && (
+        <div>
+          <p className="text-sm text-gray-400 mb-2">Point of Contact:</p>
           <Badge
-            key={index}
-            className={getTeamBadgeColor(team)}
+            style={{ 
+              backgroundColor: getDepartmentColor(pocDepartment),
+              color: 'white' 
+            }}
           >
-            {team}
+            {poc}
           </Badge>
-        ))}
+        </div>
+      )}
+      
+      <div>
+        <p className="text-sm text-gray-400 mb-2">Teams:</p>
+        <div className="flex flex-wrap gap-2">
+          {keyTeam && (
+            <Badge
+              key={keyTeam}
+              style={{ 
+                backgroundColor: getDepartmentColor(keyTeam),
+                color: 'white'
+              }}
+              className="font-medium"
+            >
+              {DEPARTMENTS.find(d => d.id === keyTeam)?.name || keyTeam}
+            </Badge>
+          )}
+          
+          {sortedTeams.map((team) => (
+            <Badge
+              key={team}
+              style={{ 
+                backgroundColor: getDepartmentColor(team),
+                opacity: 0.8,
+                color: 'white'
+              }}
+            >
+              {DEPARTMENTS.find(d => d.id === team)?.name || team}
+            </Badge>
+          ))}
+        </div>
       </div>
     </div>
   );

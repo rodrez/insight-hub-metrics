@@ -15,4 +15,6 @@ export interface SitRep {
   pointsOfContact?: string[];
   fortune30PartnerId?: string;
   smePartnerId?: string;
+  poc?: string;
+  pocDepartment?: string;
 }

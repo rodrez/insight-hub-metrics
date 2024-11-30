@@ -133,9 +133,6 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <span>{format(new Date(sitrep.date), "MM/dd/yyyy")}</span>
               <span>{sitrep.level}</span>
-              <span className={!isWordCountValid ? "text-yellow-500" : ""}>
-                {wordCount} words {!isWordCountValid && "(minimum 100 words required)"}
-              </span>
             </div>
 
             {(sitrep.pointsOfContact?.length > 0 || sitrep.teams?.length > 0) && (
@@ -144,7 +141,12 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
                   <ContactBadges contacts={sitrep.pointsOfContact} />
                 )}
                 {sitrep.teams && sitrep.teams.length > 0 && (
-                  <TeamBadges teams={sitrep.teams} />
+                  <TeamBadges 
+                    teams={sitrep.teams} 
+                    keyTeam={sitrep.departmentId}
+                    poc={sitrep.poc}
+                    pocDepartment={sitrep.pocDepartment}
+                  />
                 )}
               </div>
             )}
