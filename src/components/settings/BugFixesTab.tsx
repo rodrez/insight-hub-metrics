@@ -3,18 +3,28 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useState, useEffect } from "react";
-import { useDataInitialization } from "../data/hooks/useDataInitialization";
+import { useState } from "react";
+import { RefreshCw } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 export function BugFixesTab() {
-  const [bugs, setBugs] = useState(() => []);
-  const { isInitialized } = useDataInitialization();
+  const [bugs, setBugs] = useState<any[]>([]);
 
-  useEffect(() => {
-    if (isInitialized) {
+  const refreshBugs = () => {
+    try {
       setBugs(bugTracker.getAllBugs());
+      toast({
+        title: "Bug list refreshed",
+        description: "The bug list has been updated with the latest information",
+      });
+    } catch (error) {
+      toast({
+        title: "Error refreshing bugs",
+        description: "Failed to refresh the bug list",
+        variant: "destructive",
+      });
     }
-  }, [isInitialized]);
+  };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -34,11 +44,17 @@ export function BugFixesTab() {
   return (
     <ScrollArea className="h-[600px] pr-4">
       <div className="space-y-4">
-        <div className="flex gap-2 mb-4">
-          <Badge variant="outline">Critical: {bugs.filter(b => b.severity === 'critical').length}</Badge>
-          <Badge variant="outline">High: {bugs.filter(b => b.severity === 'high').length}</Badge>
-          <Badge variant="outline">Medium: {bugs.filter(b => b.severity === 'medium').length}</Badge>
-          <Badge variant="outline">Low: {bugs.filter(b => b.severity === 'low').length}</Badge>
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex gap-2">
+            <Badge variant="outline">Critical: {bugs.filter(b => b.severity === 'critical').length}</Badge>
+            <Badge variant="outline">High: {bugs.filter(b => b.severity === 'high').length}</Badge>
+            <Badge variant="outline">Medium: {bugs.filter(b => b.severity === 'medium').length}</Badge>
+            <Badge variant="outline">Low: {bugs.filter(b => b.severity === 'low').length}</Badge>
+          </div>
+          <Button onClick={refreshBugs} size="sm" variant="outline">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh Bugs
+          </Button>
         </div>
         
         {bugs.map((bug) => (
