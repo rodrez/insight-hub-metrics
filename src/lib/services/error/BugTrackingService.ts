@@ -16,110 +16,110 @@ interface BugReport {
 class BugTrackingService {
   private bugs: BugReport[] = [
     {
-      id: "TYPE-001",
+      id: "DB-001",
       severity: "critical",
-      title: "DataQuantities Type Mismatch",
-      description: "Type validation for DataQuantities is failing due to optional properties in validation schema not matching required interface properties",
-      location: "src/components/data/validation/databaseSchemas.ts",
-      impact: "Data validation is broken, potentially allowing invalid data to be processed",
-      stepsToReproduce: "Check TypeScript errors in build output",
-      suggestedFix: "Update validateDataQuantities function to ensure all required properties are properly handled",
+      title: "Database Initialization Race Condition",
+      description: "Multiple simultaneous database initialization attempts can cause race conditions and connection issues",
+      location: "src/lib/services/db/DatabaseConnectionService.ts",
+      impact: "Database operations may fail or become inconsistent",
+      stepsToReproduce: "Rapidly refresh the application multiple times while database is initializing",
+      suggestedFix: "Implement proper connection pooling and singleton pattern for database initialization",
       status: "open",
       dateReported: new Date().toISOString()
     },
     {
-      id: "QUERY-002",
+      id: "DATA-002",
       severity: "critical",
-      title: "Invalid Query Client Configuration",
-      description: "QueryClient configuration contains invalid 'suspense' option causing TypeScript errors",
-      location: "src/App.tsx",
-      impact: "Application may fail to properly handle data fetching and caching",
-      suggestedFix: "Remove invalid 'suspense' option and update QueryClient configuration to use correct options",
+      title: "Data Validation Type Mismatch",
+      description: "DataQuantities interface is inconsistent across different parts of the application",
+      location: "src/lib/types/data.ts and related files",
+      impact: "Type errors preventing application from building correctly",
+      suggestedFix: "Standardize DataQuantities interface and ensure consistent usage across all files",
       status: "open",
       dateReported: new Date().toISOString()
     },
     {
-      id: "STATE-003",
+      id: "PERF-003",
       severity: "high",
-      title: "Inconsistent State Management",
-      description: "State updates in components don't properly handle loading and error states",
-      location: "Multiple components including DatabaseActions.tsx",
-      impact: "Poor user experience and potential UI inconsistencies",
-      suggestedFix: "Implement proper loading states and error handling across all components",
+      title: "Memory Leak in Data Population",
+      description: "useDataPopulation hook doesn't properly cleanup resources and event listeners",
+      location: "src/components/data/hooks/useDataPopulation.ts",
+      impact: "Memory usage increases over time, potentially causing performance issues",
+      suggestedFix: "Add proper cleanup in useEffect hooks and implement proper resource disposal",
       status: "open",
       dateReported: new Date().toISOString()
     },
     {
-      id: "VALID-004",
+      id: "ERR-004",
       severity: "high",
-      title: "Missing Data Validation",
-      description: "Several components lack proper input validation before processing data",
-      location: "src/components/data/* and form components",
-      impact: "Potential data corruption and security vulnerabilities",
-      suggestedFix: "Add comprehensive validation using Zod schemas for all data inputs",
-      status: "open",
-      dateReported: new Date().toISOString()
-    },
-    {
-      id: "PERF-005",
-      severity: "high",
-      title: "Performance Issues in Settings",
-      description: "DepartmentSettings component is too large (251 lines) and needs refactoring",
-      location: "src/components/settings/DepartmentSettings.tsx",
-      impact: "Code maintainability issues and potential performance problems",
-      suggestedFix: "Split into smaller, focused components following single responsibility principle",
-      status: "open",
-      dateReported: new Date().toISOString()
-    },
-    {
-      id: "ERR-006",
-      severity: "medium",
-      title: "Incomplete Error Handling",
-      description: "Error handling is inconsistent across components",
-      location: "Multiple components",
+      title: "Inconsistent Error Handling",
+      description: "Error handling is not standardized across components and services",
+      location: "Multiple components and services",
       impact: "Unpredictable error behavior and poor user feedback",
-      suggestedFix: "Implement consistent error handling using ErrorHandlingService",
+      suggestedFix: "Implement centralized error handling using ErrorHandlingService consistently",
       status: "open",
       dateReported: new Date().toISOString()
     },
     {
-      id: "UI-007",
+      id: "TRANS-005",
+      severity: "high",
+      title: "Transaction Timeout Issues",
+      description: "Database transactions don't have proper timeout handling",
+      location: "src/lib/services/db/transactionManager.ts",
+      impact: "Long-running transactions can block other operations",
+      suggestedFix: "Implement proper transaction timeout and rollback mechanisms",
+      status: "open",
+      dateReported: new Date().toISOString()
+    },
+    {
+      id: "COMP-006",
+      severity: "medium",
+      title: "Large Component Files",
+      description: "Several components exceed recommended size and need refactoring",
+      location: "src/components/sitreps/form/SitRepFormContent.tsx and others",
+      impact: "Code maintainability and performance issues",
+      suggestedFix: "Break down large components into smaller, focused components",
+      status: "open",
+      dateReported: new Date().toISOString()
+    },
+    {
+      id: "CACHE-007",
+      severity: "medium",
+      title: "Query Cache Management",
+      description: "React Query cache invalidation is not properly handled",
+      location: "Various components using useQuery",
+      impact: "Stale data may be displayed to users",
+      suggestedFix: "Implement proper cache invalidation strategies and optimistic updates",
+      status: "open",
+      dateReported: new Date().toISOString()
+    },
+    {
+      id: "UI-008",
       severity: "medium",
       title: "Accessibility Issues",
-      description: "Missing ARIA labels and keyboard navigation support in interactive elements",
-      location: "Various UI components",
+      description: "Missing ARIA labels and keyboard navigation support",
+      location: "Multiple UI components",
       impact: "Poor accessibility for users with disabilities",
       suggestedFix: "Add proper ARIA labels and keyboard navigation support",
       status: "open",
       dateReported: new Date().toISOString()
     },
     {
-      id: "LOAD-008",
+      id: "LOAD-009",
       severity: "medium",
-      title: "Missing Loading States",
-      description: "Components don't consistently show loading indicators during data operations",
-      location: "Multiple data-fetching components",
+      title: "Inconsistent Loading States",
+      description: "Loading states are not consistently handled across components",
+      location: "Various components with data fetching",
       impact: "Poor user experience during loading operations",
-      suggestedFix: "Add consistent loading states using shadcn/ui components",
-      status: "open",
-      dateReported: new Date().toISOString()
-    },
-    {
-      id: "DEPS-009",
-      severity: "medium",
-      title: "Dependency Management Issues",
-      description: "Some components have missing or unnecessary dependencies in useEffect hooks",
-      location: "Various React components",
-      impact: "Potential memory leaks and unnecessary re-renders",
-      suggestedFix: "Review and update effect dependencies across components",
+      suggestedFix: "Implement consistent loading state handling using LoadingStep interface",
       status: "open",
       dateReported: new Date().toISOString()
     },
     {
       id: "TEST-010",
       severity: "low",
-      title: "Insufficient Test Coverage",
-      description: "Many components lack proper unit tests",
+      title: "Test Coverage Gaps",
+      description: "Insufficient test coverage for critical components",
       location: "Project-wide",
       impact: "Increased risk of regressions and bugs",
       suggestedFix: "Add comprehensive test suite using React Testing Library",
@@ -136,7 +136,7 @@ class BugTrackingService {
     return this.bugs.find(bug => bug.id === id);
   }
 
-  updateBugStatus(id: string, status: 'open' | 'in-progress' | 'resolved'): void {
+  async updateBugStatus(id: string, status: 'open' | 'in-progress' | 'resolved'): Promise<void> {
     const bugIndex = this.bugs.findIndex(bug => bug.id === id);
     if (bugIndex !== -1) {
       this.bugs[bugIndex].status = status;
