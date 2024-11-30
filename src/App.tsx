@@ -29,7 +29,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Pages that don't need a back button
 const ROOT_PAGES = ['/', '/settings', '/collaborations', '/sme', '/internal-support', 
   '/wiki', '/glossary', '/sitreps', '/spi'];
 
@@ -64,17 +63,17 @@ function AppContent() {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="light">
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+  <BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider attribute="class" defaultTheme="light">
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
           <AppContent />
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+        </TooltipProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  </BrowserRouter>
 );
 
 export default App;

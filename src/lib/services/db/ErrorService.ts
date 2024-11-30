@@ -38,8 +38,6 @@ export class ErrorService extends BaseDBService {
   }
 
   async analyzeCodebase(): Promise<void> {
-    // This is a placeholder implementation. In a real application,
-    // this would integrate with static analysis tools or other error detection mechanisms.
     const mockErrors: ErrorItem[] = [
       {
         id: uuidv4(),
@@ -64,7 +62,11 @@ export class ErrorService extends BaseDBService {
     await this.performTransaction(
       'errors',
       'readwrite',
-      store => Promise.all(mockErrors.map(error => store.put(error)))
+      async store => {
+        for (const error of mockErrors) {
+          await store.put(error);
+        }
+      }
     );
   }
 }
