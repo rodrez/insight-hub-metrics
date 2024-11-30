@@ -1,35 +1,31 @@
-import { z } from "zod";
-import { DataQuantities } from "../SampleData";
+import { z } from 'zod';
+import { DataQuantities } from '../types/dataTypes';
 
 export const dataQuantitiesSchema = z.object({
-  projects: z.number().min(0).max(100),
-  spis: z.number().min(0).max(200),
-  objectives: z.number().min(0).max(100),
-  sitreps: z.number().min(0).max(200),
-  fortune30: z.number().min(0).max(6),
-  internalPartners: z.number().min(0).max(50),
-  smePartners: z.number().min(0).max(50)
-}).required();
-
-export type ValidatedDataQuantities = z.infer<typeof dataQuantitiesSchema>;
-
-const defaultValues: DataQuantities = {
-  projects: 5,
-  spis: 10,
-  objectives: 5,
-  sitreps: 10,
-  fortune30: 6,
-  internalPartners: 20,
-  smePartners: 5
-};
+  projects: z.number().min(0),
+  spis: z.number().min(0),
+  objectives: z.number().min(0),
+  sitreps: z.number().min(0),
+  fortune30: z.number().min(0),
+  internalPartners: z.number().min(0),
+  smePartners: z.number().min(0)
+});
 
 export const validateDataQuantities = (data: Partial<DataQuantities>): DataQuantities => {
-  // Merge with defaults to ensure all required properties are present
-  const completeData = {
-    ...defaultValues,
-    ...data
+  const defaultValues: DataQuantities = {
+    projects: 0,
+    spis: 0,
+    objectives: 0,
+    sitreps: 0,
+    fortune30: 0,
+    internalPartners: 0,
+    smePartners: 0
   };
-  
-  // Validate the complete data against the schema
-  return dataQuantitiesSchema.parse(completeData);
+
+  // Merge incoming data with default values
+  const mergedData = { ...defaultValues, ...data };
+
+  // Validate the merged data
+  const result = dataQuantitiesSchema.parse(mergedData);
+  return result;
 };
