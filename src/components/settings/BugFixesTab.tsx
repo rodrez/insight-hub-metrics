@@ -3,20 +3,44 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RefreshCw } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 
 export function BugFixesTab() {
   const [bugs, setBugs] = useState<any[]>([]);
+  const [previousBugIds, setPreviousBugIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    // Initialize bugs on component mount
+    const initialBugs = bugTracker.getAllBugs();
+    setBugs(initialBugs);
+    setPreviousBugIds(new Set(initialBugs.map(bug => bug.id)));
+  }, []);
 
   const refreshBugs = () => {
     try {
-      setBugs(bugTracker.getAllBugs());
-      toast({
-        title: "Bug list refreshed",
-        description: "The bug list has been updated with the latest information",
-      });
+      const currentBugIds = new Set(bugs.map(bug => bug.id));
+      const newBugs = bugTracker.getAllBugs();
+      setBugs(newBugs);
+      
+      // Check for new bugs
+      const newBugCount = newBugs.filter(bug => !currentBugIds.has(bug.id)).length;
+      
+      if (newBugCount > 0) {
+        toast({
+          title: "New bugs found!",
+          description: `${newBugCount} new bug${newBugCount > 1 ? 's' : ''} have been detected`,
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Bug list refreshed",
+          description: "No new bugs found",
+        });
+      }
+      
+      setPreviousBugIds(currentBugIds);
     } catch (error) {
       toast({
         title: "Error refreshing bugs",
@@ -41,6 +65,10 @@ export function BugFixesTab() {
     }
   };
 
+  const isNewBug = (bugId: string) => {
+    return !previousBugIds.has(bugId);
+  };
+
   return (
     <ScrollArea className="h-[600px] pr-4">
       <div className="space-y-4">
@@ -58,12 +86,15 @@ export function BugFixesTab() {
         </div>
         
         {bugs.map((bug) => (
-          <Card key={bug.id} className="p-4">
+          <Card key={bug.id} className={`p-4 ${isNewBug(bug.id) ? 'ring-2 ring-blue-500' : ''}`}>
             <div className="flex items-start justify-between">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Badge className={getSeverityColor(bug.severity)}>{bug.severity}</Badge>
                   <span className="text-sm text-muted-foreground">{bug.id}</span>
+                  {isNewBug(bug.id) && (
+                    <Badge variant="secondary" className="bg-blue-100">New</Badge>
+                  )}
                 </div>
                 <h3 className="text-lg font-semibold">{bug.title}</h3>
                 <p className="text-sm text-muted-foreground">{bug.description}</p>
