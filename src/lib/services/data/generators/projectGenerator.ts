@@ -1,10 +1,16 @@
 import { Project, Department } from '@/lib/types';
 import { Collaborator } from '@/lib/types/collaboration';
-import { defaultTechDomains } from '@/lib/types/techDomain';
 import { DataQuantities } from '@/lib/types/data';
-import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiGenerator';
+import { defaultTechDomains } from '@/lib/types/techDomain';
 import { generateNABC } from './templates/projectTemplates';
 import { generateMilestones, generateMetrics } from './templates/metricsTemplates';
+
+interface ProjectGenerationInput extends Omit<DataQuantities, 'internalPartners' | 'smePartners'> {
+  departments: Department[];
+  fortune30Partners: Collaborator[];
+  internalPartners: Collaborator[];
+  smePartners: Collaborator[];
+}
 
 const projectTypes = [
   {
@@ -86,9 +92,5 @@ export const generateSampleProjects = async (input: ProjectGenerationInput) => {
     projects.push(project);
   }
 
-  const spis = generateSampleSPIs(projects.map(p => p.id), input.spis);
-  const objectives = generateSampleObjectives(input.objectives);
-  const sitreps = generateSampleSitReps(spis, input.sitreps);
-
-  return { projects, spis, objectives, sitreps };
+  return { projects };
 };
