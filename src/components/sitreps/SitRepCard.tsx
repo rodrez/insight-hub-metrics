@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SitRep } from "@/lib/types/sitrep";
 import { db } from "@/lib/db";
-import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { StatusIcon } from "./card/StatusIcon";
 import { LevelBadge } from "./card/LevelBadge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -18,9 +18,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Collaborator } from "@/lib/types/collaboration";
+
+interface ExtendedSitRep extends SitRep {
+  fortune30Partner?: Collaborator;
+  smePartner?: Collaborator;
+}
 
 interface SitRepCardProps {
-  sitrep: SitRep;
+  sitrep: ExtendedSitRep;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
 }
@@ -28,12 +34,6 @@ interface SitRepCardProps {
 export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
   const queryClient = useQueryClient();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-
-  const { data: smePartner } = useQuery({
-    queryKey: ['sme-partner', sitrep.smePartnerId],
-    queryFn: () => sitrep.smePartnerId ? db.getSMEPartner(sitrep.smePartnerId) : null,
-    enabled: !!sitrep.smePartnerId
-  });
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
@@ -85,7 +85,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
 
   const supportingPOCs = sitrep.pointsOfContact?.map(contact => ({
     name: contact,
-    department: sitrep.teams?.[0] || ''  // Using first team as department for supporting POCs
+    department: sitrep.teams?.[0] || ''
   })) || [];
 
   return (
@@ -155,18 +155,22 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
 
             <POCDisplay keyPOC={keyPOC} supportingPOCs={supportingPOCs} />
 
-            {(sitrep.fortune30PartnerId || sitrep.smePartnerId) && (
+            {(sitrep.fortune30Partner || sitrep.smePartner) && (
               <div className="flex flex-wrap gap-4 text-sm">
-                {sitrep.fortune30PartnerId && (
+                {sitrep.fortune30Partner && (
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground">Fortune 30:</span>
-                    <span className="text-blue-500">{sitrep.fortune30PartnerId}</span>
+                    <span style={{ color: sitrep.fortune30Partner.color }}>
+                      {sitrep.fortune30Partner.name}
+                    </span>
                   </div>
                 )}
-                {sitrep.smePartnerId && (
+                {sitrep.smePartner && (
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground">SME:</span>
-                    <span className="text-purple-500">{smePartner?.name || 'Loading...'}</span>
+                    <span style={{ color: sitrep.smePartner.color }}>
+                      {sitrep.smePartner.name}
+                    </span>
                   </div>
                 )}
               </div>
