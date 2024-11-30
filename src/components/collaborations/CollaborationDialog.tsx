@@ -29,6 +29,7 @@ export function CollaborationDialog({
       role: "",
       department: departmentId || "",
       type: collaborationType,
+      color: "#4B5563", // Default color
       agreementType: "None",
       primaryContact: {
         name: "",

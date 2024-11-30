@@ -11,7 +11,8 @@ import { Collaborator } from "@/lib/types/collaboration";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
 export const collaborationFormSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -20,6 +21,7 @@ export const collaborationFormSchema = z.object({
   department: z.string().optional(),
   associatedProjects: z.array(z.string()).optional(),
   role: z.string().optional(),
+  color: z.string().optional(),
   agreementType: z.enum(["None", "NDA", "JTDA", "Both"]).optional(),
   signedDate: z.string().optional(),
   expiryDate: z.string().optional(),
@@ -66,6 +68,7 @@ export function CollaborationFormFields({
     defaultValues: {
       type: collaborationType,
       department: departmentId || '',
+      color: initialData?.color || '#4B5563',
       ...initialData
     }
   });
@@ -80,6 +83,32 @@ export function CollaborationFormFields({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <BasicInfoFields form={form} departmentId={departmentId} />
+        
+        {collaborationType === 'fortune30' && (
+          <FormField
+            control={form.control}
+            name="color"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Brand Color</FormLabel>
+                <div className="flex gap-4 items-center">
+                  <FormControl>
+                    <Input
+                      type="color"
+                      {...field}
+                      className="w-20 h-10"
+                    />
+                  </FormControl>
+                  <div 
+                    className="w-10 h-10 rounded border"
+                    style={{ backgroundColor: field.value }}
+                  />
+                </div>
+              </FormItem>
+            )}
+          />
+        )}
+
         <ContactFields form={form} index={0} />
         
         {collaborationType === 'fortune30' && (
