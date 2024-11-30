@@ -1,4 +1,9 @@
 import { useQueryClient } from '@tanstack/react-query';
+import { z } from 'zod';
+import { toast } from "@/components/ui/use-toast";
+import { dataQuantitiesSchema } from '@/lib/types/data';
+import { Project, Collaborator } from '@/lib/types';
+import { ErrorType } from '@/lib/services/error/ErrorHandlingService';
 
 export interface GenerationProgress {
   step: string;
@@ -9,6 +14,73 @@ export const BATCH_SIZE = 50;
 
 export const generateId = () => {
   return `id-${Math.random().toString(36).substr(2, 9)}`;
+};
+
+// Base validation schemas
+export const collaboratorSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1),
+  email: z.string().email(),
+  role: z.string().min(1),
+  department: z.string().min(1),
+  type: z.enum(['fortune30', 'internal', 'sme']),
+  projects: z.array(z.any()).optional(),
+  lastActive: z.string().datetime()
+});
+
+export const projectSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1),
+  departmentId: z.string().min(1),
+  poc: z.string().min(1),
+  techLead: z.string().min(1),
+  budget: z.number().min(0),
+  spent: z.number().min(0),
+  status: z.string()
+});
+
+export const validateDataQuantities = (
+  requested: number,
+  available: number,
+  type: string
+): number => {
+  if (requested > available) {
+    console.warn(`${type} quantity limited to ${available} (requested: ${requested})`);
+    return available;
+  }
+  return requested;
+};
+
+export const validateCollaborator = (collaborator: Collaborator): boolean => {
+  try {
+    collaboratorSchema.parse(collaborator);
+    return true;
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      toast({
+        title: "Validation Error",
+        description: `Invalid collaborator data: ${error.errors[0].message}`,
+        variant: "destructive",
+      });
+    }
+    return false;
+  }
+};
+
+export const validateProject = (project: Project): boolean => {
+  try {
+    projectSchema.parse(project);
+    return true;
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      toast({
+        title: "Validation Error",
+        description: `Invalid project data: ${error.errors[0].message}`,
+        variant: "destructive",
+      });
+    }
+    return false;
+  }
 };
 
 export const processInBatches = async<T>(
@@ -27,18 +99,6 @@ export const processInBatches = async<T>(
     const progress = ((i + 1) / batches.length) * 100;
     onProgress?.(progress);
   }
-};
-
-export const validateDataQuantities = (
-  requested: number,
-  available: number,
-  type: string
-): number => {
-  if (requested > available) {
-    console.warn(`${type} quantity limited to ${available} (requested: ${requested})`);
-    return available;
-  }
-  return requested;
 };
 
 export const generateDataWithProgress = async<T>(
@@ -70,6 +130,11 @@ export const validateDataConsistency = <T extends { id: string }>(
   
   if (!isValid) {
     console.warn(`Duplicate IDs found in ${type} data`);
+    toast({
+      title: "Validation Error",
+      description: `Duplicate IDs found in ${type} data`,
+      variant: "destructive",
+    });
   }
   
   return isValid;

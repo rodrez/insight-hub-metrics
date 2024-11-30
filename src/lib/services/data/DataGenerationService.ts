@@ -6,6 +6,7 @@ import { generateSampleProjects } from '@/components/data/SampleData';
 import { DataQuantities } from '../../types/data';
 import { db } from "@/lib/db";
 import { errorHandler } from '../error/ErrorHandlingService';
+import { validateCollaborator, validateProject } from './utils/dataGenerationUtils';
 
 export class DataGenerationService {
   private showSuccessStep(step: string) {
@@ -19,23 +20,26 @@ export class DataGenerationService {
   private async generatePartners(quantities: DataQuantities) {
     try {
       const fortune30Partners = await Promise.resolve(generateFortune30Partners())
+        .then(partners => partners.filter(validateCollaborator))
         .catch(error => {
-          errorHandler.handleError(error, { type: 'data', title: 'Fortune 30 Generation Failed' });
+          errorHandler.handleError(error, { type: 'database', title: 'Fortune 30 Generation Failed' });
           return [];
         });
       this.showSuccessStep(`Generated ${fortune30Partners.length} Fortune 30 partners`);
 
       const internalPartners = await generateInternalPartners()
+        .then(partners => partners.filter(validateCollaborator))
         .catch(error => {
-          errorHandler.handleError(error, { type: 'data', title: 'Internal Partners Generation Failed' });
+          errorHandler.handleError(error, { type: 'database', title: 'Internal Partners Generation Failed' });
           return [];
         });
       const selectedInternalPartners = internalPartners.slice(0, quantities.internalPartners);
       this.showSuccessStep(`Generated ${selectedInternalPartners.length} internal partners`);
 
       const smePartners = await Promise.resolve(generateSMEPartners())
+        .then(partners => partners.filter(validateCollaborator))
         .catch(error => {
-          errorHandler.handleError(error, { type: 'data', title: 'SME Partners Generation Failed' });
+          errorHandler.handleError(error, { type: 'database', title: 'SME Partners Generation Failed' });
           return [];
         });
       const selectedSMEPartners = smePartners.slice(0, quantities.smePartners);
@@ -48,7 +52,7 @@ export class DataGenerationService {
       };
     } catch (error) {
       errorHandler.handleError(error, {
-        type: 'data',
+        type: 'database',
         title: 'Partner Generation Failed',
       });
       throw error;
@@ -118,7 +122,7 @@ export class DataGenerationService {
       const { fortune30Partners, internalPartners, smePartners } = await this.generatePartners(quantities);
       const { projects, spis, objectives, sitreps } = await generateSampleProjects(quantities)
         .catch(error => {
-          errorHandler.handleError(error, { type: 'data', title: 'Project Generation Failed' });
+          errorHandler.handleError(error, { type: 'database', title: 'Project Generation Failed' });
           return {
             projects: [],
             spis: [],
@@ -126,6 +130,8 @@ export class DataGenerationService {
             sitreps: []
           };
         });
+
+      const validatedProjects = projects.filter(validateProject);
 
       const stores = ['collaborators', 'smePartners', 'projects', 'spis', 'objectives', 'sitreps'];
       const transaction = (db as any).getDatabase().transaction(stores, 'readwrite');
@@ -140,7 +146,7 @@ export class DataGenerationService {
       await Promise.all([
         this.saveToDatabase(transaction, 'collaborators', [...fortune30Partners, ...internalPartners]),
         this.saveToDatabase(transaction, 'smePartners', smePartners),
-        this.saveToDatabase(transaction, 'projects', projects),
+        this.saveToDatabase(transaction, 'projects', validatedProjects),
         this.saveToDatabase(transaction, 'spis', spis),
         this.saveToDatabase(transaction, 'objectives', objectives),
         this.saveToDatabase(transaction, 'sitreps', sitreps),
@@ -150,7 +156,7 @@ export class DataGenerationService {
       return { success: true };
     } catch (error) {
       errorHandler.handleError(error, {
-        type: 'data',
+        type: 'database',
         title: 'Data Generation Failed',
       });
       return { success: false, error };

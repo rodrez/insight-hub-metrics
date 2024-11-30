@@ -5,6 +5,7 @@ import { generateSampleProjects } from '@/components/data/SampleData';
 import { DataQuantities } from '@/lib/types/data';
 import { toast } from "@/components/ui/use-toast";
 import { errorHandler } from '@/lib/services/error/ErrorHandlingService';
+import { validateCollaborator, validateProject } from './data/utils/dataGenerationUtils';
 
 export class SampleDataService {
   private validateQuantities(available: number, requested: number, type: string): number {
@@ -20,57 +21,46 @@ export class SampleDataService {
     return requested;
   }
 
-  async generateSampleData(): Promise<{
-    fortune30Partners: any[];
-    internalPartners: any[];
-    smePartners: any[];
-    projects: any[];
-    spis: any[];
-    objectives: any[];
-    sitreps: any[];
-  }> {
+  async generateSampleData(quantities: DataQuantities = {
+    projects: 10,
+    spis: 10,
+    objectives: 5,
+    sitreps: 10,
+    fortune30: 6,
+    internalPartners: 20,
+    smePartners: 10
+  }) {
     try {
-      const quantities: DataQuantities = {
-        projects: 10,
-        spis: 10,
-        objectives: 5,
-        sitreps: 10,
-        fortune30: 6,
-        internalPartners: 20,
-        smePartners: 10
-      };
-
       console.log('Starting sample data generation with quantities:', quantities);
       
-      const allFortune30 = await Promise.resolve(generateFortune30Partners())
+      const fortune30Partners = await Promise.resolve(generateFortune30Partners())
+        .then(partners => partners.filter(validateCollaborator))
         .catch(error => {
-          errorHandler.handleError(error, { type: 'data', title: 'Fortune 30 Generation Failed' });
+          errorHandler.handleError(error, { type: 'database', title: 'Fortune 30 Generation Failed' });
           return [];
         });
       
-      const allInternalPartners = await generateInternalPartners()
+      const internalPartners = await generateInternalPartners()
+        .then(partners => partners.filter(validateCollaborator))
         .catch(error => {
-          errorHandler.handleError(error, { type: 'data', title: 'Internal Partners Generation Failed' });
+          errorHandler.handleError(error, { type: 'database', title: 'Internal Partners Generation Failed' });
           return [];
         });
       
       const allSMEPartners = await Promise.resolve(generateSMEPartners())
+        .then(partners => partners.filter(validateCollaborator))
         .catch(error => {
-          errorHandler.handleError(error, { type: 'data', title: 'SME Partners Generation Failed' });
+          errorHandler.handleError(error, { type: 'database', title: 'SME Partners Generation Failed' });
           return [];
         });
 
-      const fortune30Count = this.validateQuantities(allFortune30.length, quantities.fortune30, "Fortune 30 partners");
-      const internalCount = this.validateQuantities(allInternalPartners.length, quantities.internalPartners, "internal partners");
+      const fortune30Count = this.validateQuantities(fortune30Partners.length, quantities.fortune30, "Fortune 30 partners");
+      const internalCount = this.validateQuantities(internalPartners.length, quantities.internalPartners, "internal partners");
       const smeCount = this.validateQuantities(allSMEPartners.length, quantities.smePartners, "SME partners");
-
-      const fortune30Partners = allFortune30.slice(0, fortune30Count);
-      const internalPartners = allInternalPartners.slice(0, internalCount);
-      const smePartners = allSMEPartners.slice(0, smeCount);
 
       const { projects, spis, objectives, sitreps } = await generateSampleProjects(quantities)
         .catch(error => {
-          errorHandler.handleError(error, { type: 'data', title: 'Project Generation Failed' });
+          errorHandler.handleError(error, { type: 'database', title: 'Project Generation Failed' });
           return {
             projects: [],
             spis: [],
@@ -79,18 +69,20 @@ export class SampleDataService {
           };
         });
 
+      const validatedProjects = projects.filter(validateProject);
+
       return {
-        fortune30Partners,
-        internalPartners,
-        smePartners,
-        projects: projects.slice(0, quantities.projects),
+        fortune30Partners: fortune30Partners.slice(0, fortune30Count),
+        internalPartners: internalPartners.slice(0, internalCount),
+        smePartners: allSMEPartners.slice(0, smeCount),
+        projects: validatedProjects.slice(0, quantities.projects),
         spis: spis.slice(0, quantities.spis),
         objectives: objectives.slice(0, quantities.objectives),
         sitreps: sitreps.slice(0, quantities.sitreps)
       };
     } catch (error) {
       errorHandler.handleError(error, {
-        type: 'data',
+        type: 'database',
         title: 'Sample Data Generation Failed',
       });
       throw error;
