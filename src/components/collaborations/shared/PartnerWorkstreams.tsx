@@ -97,6 +97,7 @@ export function PartnerWorkstreams({ workstreams, agreements }: PartnerWorkstrea
             key={workstream.id} 
             workstream={workstream} 
             formatDate={formatDate}
+            agreements={agreements}
           />
         ))}
         {(!workstreams || workstreams.length === 0) && (
