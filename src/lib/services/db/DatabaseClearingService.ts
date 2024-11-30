@@ -1,5 +1,6 @@
 import { connectionManager } from './connectionManager';
 import { DatabaseCleaner } from './databaseCleaner';
+import { toast } from "@/components/ui/use-toast";
 
 export class DatabaseClearingService {
   constructor(private db: IDBDatabase | null) {}
@@ -21,17 +22,26 @@ export class DatabaseClearingService {
         return;
       }
 
-      // Clear each store individually to avoid transaction issues
-      for (const storeName of storeNames) {
-        await this.clearStore(storeName);
-      }
+      // Clear each store individually
+      const clearPromises = storeNames.map(storeName => this.clearStore(storeName));
+      await Promise.all(clearPromises);
 
       // Delete and recreate the database
       await DatabaseCleaner.clearDatabase();
       
+      toast({
+        title: "Success",
+        description: "Database cleared successfully",
+      });
+      
       console.log('Database cleared successfully');
     } catch (error) {
       console.error('Error clearing database:', error);
+      toast({
+        title: "Error",
+        description: "Failed to clear database",
+        variant: "destructive",
+      });
       throw error;
     }
   }
@@ -43,14 +53,14 @@ export class DatabaseClearingService {
         const store = transaction.objectStore(storeName);
         const request = store.clear();
 
-        transaction.oncomplete = () => {
+        request.onsuccess = () => {
           console.log(`Store ${storeName} cleared successfully`);
           resolve();
         };
 
-        transaction.onerror = () => {
-          console.error(`Error clearing store ${storeName}:`, transaction.error);
-          reject(transaction.error);
+        request.onerror = () => {
+          console.error(`Error clearing store ${storeName}:`, request.error);
+          reject(request.error);
         };
       } catch (error) {
         console.error(`Error accessing store ${storeName}:`, error);

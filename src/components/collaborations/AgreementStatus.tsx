@@ -19,13 +19,17 @@ export function AgreementStatus({ type, agreement, formatDate }: AgreementStatus
       <Shield className={`h-4 w-4 ${
         agreement.status === 'signed' 
           ? 'text-green-500' 
-          : 'text-yellow-500'
+          : agreement.status === 'expired'
+            ? 'text-red-500'
+            : 'text-yellow-500'
       }`} />
       <span>{type.toUpperCase()}: {agreement.status}</span>
       <TooltipProvider>
         <Tooltip>
-          <TooltipTrigger>
-            <Calendar className="h-4 w-4" />
+          <TooltipTrigger asChild>
+            <div className="flex items-center cursor-help">
+              <Calendar className="h-4 w-4" />
+            </div>
           </TooltipTrigger>
           <TooltipContent>
             <p>Signed: {formatDate(agreement.signedDate)}</p>
