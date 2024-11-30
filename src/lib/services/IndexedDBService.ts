@@ -64,6 +64,13 @@ export class IndexedDBService implements DataService {
     await this.transactionService.performTransaction('collaborators', 'readwrite', store => store.put(collaborator));
   }
 
+  async updateCollaborator(id: string, updates: Partial<Collaborator>): Promise<void> {
+    const collaborator = await this.getCollaborator(id);
+    if (!collaborator) throw new Error('Collaborator not found');
+    await this.transactionService.performTransaction('collaborators', 'readwrite', store => 
+      store.put({ ...collaborator, ...updates }));
+  }
+
   async getAllSitReps(): Promise<SitRep[]> {
     return this.transactionService.performTransaction('sitreps', 'readonly', store => store.getAll());
   }
