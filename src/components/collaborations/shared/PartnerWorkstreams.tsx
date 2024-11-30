@@ -29,10 +29,7 @@ export function PartnerWorkstreams({ workstreams, agreements }: PartnerWorkstrea
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Badge 
-              variant="outline" 
-              className={`flex items-center gap-1 ${warningColor}`}
-            >
+            <div className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border ${warningColor}`}>
               <Shield className={`h-3 w-3 ${
                 agreement.status === 'signed' 
                   ? 'text-green-500' 
@@ -40,7 +37,7 @@ export function PartnerWorkstreams({ workstreams, agreements }: PartnerWorkstrea
               }`} />
               {type}
               <Calendar className="h-3 w-3 ml-1" />
-            </Badge>
+            </div>
           </TooltipTrigger>
           <TooltipContent>
             <p>Status: {agreement.status}</p>
