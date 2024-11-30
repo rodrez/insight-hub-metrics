@@ -12,11 +12,14 @@ export class ErrorService extends BaseDBService {
 
   async getAllErrors(): Promise<ErrorItem[]> {
     try {
-      return await this.performTransaction<ErrorItem[]>(
+      console.log('Fetching all errors from database...');
+      const errors = await this.performTransaction<ErrorItem[]>(
         'errors',
         'readonly',
         store => store.getAll()
       );
+      console.log(`Successfully fetched ${errors.length} errors`);
+      return errors;
     } catch (error) {
       console.error('Failed to get errors:', error);
       throw error;
@@ -25,11 +28,13 @@ export class ErrorService extends BaseDBService {
 
   async deleteError(id: string): Promise<void> {
     try {
+      console.log(`Attempting to delete error with ID: ${id}`);
       await this.performTransaction(
         'errors',
         'readwrite',
         store => store.delete(id)
       );
+      console.log('Error deleted successfully');
     } catch (error) {
       console.error('Failed to delete error:', error);
       throw error;
@@ -38,6 +43,7 @@ export class ErrorService extends BaseDBService {
 
   async updateErrorStatus(id: string, status: 'pending' | 'resolved'): Promise<void> {
     try {
+      console.log(`Updating error status for ID ${id} to ${status}`);
       const error = await this.performTransaction<ErrorItem | undefined>(
         'errors',
         'readonly',
@@ -45,6 +51,7 @@ export class ErrorService extends BaseDBService {
       );
 
       if (!error) {
+        console.error('Error not found for status update');
         throw new Error('Error not found');
       }
 
@@ -53,6 +60,7 @@ export class ErrorService extends BaseDBService {
         'readwrite',
         store => store.put({ ...error, status })
       );
+      console.log('Error status updated successfully');
     } catch (error) {
       console.error('Failed to update error status:', error);
       throw error;
@@ -61,13 +69,16 @@ export class ErrorService extends BaseDBService {
 
   async analyzeCodebase(): Promise<void> {
     try {
-      // Clear existing errors first
+      console.log('Starting codebase analysis...');
+      
+      console.log('Clearing existing errors...');
       await this.clearErrors();
       
-      // Run the analysis
+      console.log('Running code analysis...');
       const errors = await this.codeAnalyzer.analyzeCodebase();
+      console.log(`Analysis complete. Found ${errors.length} issues.`);
 
-      // Store new errors
+      console.log('Storing new errors in database...');
       await this.performTransaction(
         'errors',
         'readwrite',
@@ -76,6 +87,7 @@ export class ErrorService extends BaseDBService {
           return store.put(errors[0]); // Return a single request for typing
         }
       );
+      console.log('Successfully stored all errors in database');
     } catch (error) {
       console.error('Failed to analyze codebase:', error);
       throw error;
@@ -83,10 +95,17 @@ export class ErrorService extends BaseDBService {
   }
 
   private async clearErrors(): Promise<void> {
-    await this.performTransaction(
-      'errors',
-      'readwrite',
-      store => store.clear()
-    );
+    try {
+      console.log('Clearing all existing errors from database...');
+      await this.performTransaction(
+        'errors',
+        'readwrite',
+        store => store.clear()
+      );
+      console.log('Successfully cleared all errors');
+    } catch (error) {
+      console.error('Failed to clear errors:', error);
+      throw error;
+    }
   }
 }

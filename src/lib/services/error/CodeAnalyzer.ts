@@ -3,12 +3,26 @@ import { v4 as uuidv4 } from 'uuid';
 
 export class CodeAnalyzer {
   async analyzeCodebase(): Promise<ErrorItem[]> {
-    // Perform actual codebase analysis
-    const issues = await this.scanCodebase();
-    return this.sortBySeverity(issues);
+    console.log('Starting codebase analysis in CodeAnalyzer...');
+    try {
+      // Perform actual codebase analysis
+      console.log('Scanning codebase for issues...');
+      const issues = await this.scanCodebase();
+      console.log(`Found ${issues.length} issues during scan`);
+      
+      console.log('Sorting issues by severity...');
+      const sortedIssues = this.sortBySeverity(issues);
+      console.log('Analysis complete');
+      
+      return sortedIssues;
+    } catch (error) {
+      console.error('Error during codebase analysis:', error);
+      throw error;
+    }
   }
 
   private async scanCodebase(): Promise<ErrorItem[]> {
+    console.log('Executing scanCodebase function...');
     // This would be connected to actual static analysis tools in production
     const timestamp = Date.now();
     
@@ -117,6 +131,7 @@ export class CodeAnalyzer {
   }
 
   private sortBySeverity(issues: ErrorItem[]): ErrorItem[] {
+    console.log('Sorting issues by priority...');
     return issues.sort((a, b) => b.priority - a.priority);
   }
 }
