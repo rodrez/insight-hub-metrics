@@ -13,7 +13,6 @@ import { db } from "@/lib/db";
 import { Project } from "@/lib/types";
 import { Search } from "lucide-react";
 import { useDataInitialization } from "@/components/data/hooks/useDataInitialization";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export function GlobalSearch() {
   const [open, setOpen] = React.useState(false);
@@ -31,7 +30,7 @@ export function GlobalSearch() {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  const { data: projects, isLoading } = useQuery({
+  const { data: projects } = useQuery({
     queryKey: ["projects"],
     queryFn: () => db.getAllProjects(),
     enabled: isInitialized
@@ -54,31 +53,21 @@ export function GlobalSearch() {
         <CommandInput placeholder="Search all projects and resources..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          {isLoading ? (
-            <CommandGroup heading="Loading...">
-              {[...Array(3)].map((_, i) => (
-                <CommandItem key={i} disabled>
-                  <Skeleton className="h-4 w-full" />
+          {projects?.length ? (
+            <CommandGroup heading="Projects">
+              {projects.map((project: Project) => (
+                <CommandItem
+                  key={project.id}
+                  onSelect={() => {
+                    navigate(`/projects/${project.id}`);
+                    setOpen(false);
+                  }}
+                >
+                  {project.name}
                 </CommandItem>
               ))}
             </CommandGroup>
-          ) : (
-            projects?.length ? (
-              <CommandGroup heading="Projects">
-                {projects.map((project: Project) => (
-                  <CommandItem
-                    key={project.id}
-                    onSelect={() => {
-                      navigate(`/projects/${project.id}`);
-                      setOpen(false);
-                    }}
-                  >
-                    {project.name}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            ) : null
-          )}
+          ) : null}
           <CommandGroup heading="Quick Links">
             <CommandItem onSelect={() => {
               navigate("/wiki");

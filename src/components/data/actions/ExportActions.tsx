@@ -24,33 +24,30 @@ export function ExportActions({ isInitialized, disabled }: ExportActionsProps) {
     }
 
     setIsExporting(true);
-    
-    await errorHandler.withErrorHandling(
-      async () => {
-        const data = await db.exportData();
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `database-export-${new Date().toISOString()}.json`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-        
-        toast({
-          title: "Success",
-          description: "Data exported successfully",
-        });
-      },
-      {
+    try {
+      const data = await db.exportData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `database-export-${new Date().toISOString()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "Success",
+        description: "Data exported successfully",
+      });
+    } catch (error) {
+      errorHandler.handleError(error, {
         type: 'database',
-        title: 'Failed to export data',
-        retry: handleExport
-      }
-    );
-    
-    setIsExporting(false);
+        title: 'Failed to export data'
+      });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (

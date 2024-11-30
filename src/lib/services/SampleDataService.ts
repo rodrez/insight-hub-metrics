@@ -28,8 +28,7 @@ export class SampleDataService {
     sitreps: 10,
     fortune30: 6,
     internalPartners: 20,
-    smePartners: 10,
-    collaborators: 0
+    smePartners: 10
   }) {
     try {
       console.log('Starting sample data generation with quantities:', quantities);

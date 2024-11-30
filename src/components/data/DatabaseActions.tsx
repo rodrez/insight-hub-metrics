@@ -7,7 +7,6 @@ import { BackupActions } from "./actions/BackupActions";
 import { ExportActions } from "./actions/ExportActions";
 import { toast } from "@/components/ui/use-toast";
 import { DataQuantities } from "./types/dataTypes";
-import { errorHandler } from "@/lib/services/error/ErrorHandlingService";
 
 interface DatabaseActionsProps {
   isInitialized: boolean;
@@ -24,41 +23,46 @@ export function DatabaseActions({
   onClear,
   onPopulate,
 }: DatabaseActionsProps) {
+  const [error, setError] = useState<string | null>(null);
   const [showQuantityForm, setShowQuantityForm] = useState(false);
 
   const handleClear = async () => {
-    await errorHandler.withErrorHandling(
-      async () => {
-        await onClear();
-        toast({
-          title: "Success",
-          description: "Database cleared successfully",
-        });
-      },
-      {
-        type: 'database',
-        title: 'Failed to clear database',
-        retry: handleClear
-      }
-    );
+    try {
+      setError(null);
+      await onClear();
+      toast({
+        title: "Success",
+        description: "Database cleared successfully",
+      });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to clear database";
+      setError(errorMessage);
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
   };
 
   const handlePopulate = async (quantities: DataQuantities) => {
-    await errorHandler.withErrorHandling(
-      async () => {
-        await onPopulate(quantities);
-        setShowQuantityForm(false);
-        toast({
-          title: "Success",
-          description: "Database populated successfully",
-        });
-      },
-      {
-        type: 'database',
-        title: 'Failed to populate database',
-        retry: () => handlePopulate(quantities)
-      }
-    );
+    try {
+      setError(null);
+      await onPopulate(quantities);
+      setShowQuantityForm(false);
+      toast({
+        title: "Success",
+        description: "Database populated successfully",
+      });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to populate database";
+      setError(errorMessage);
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
   };
 
   if (!isInitialized) {
@@ -73,6 +77,12 @@ export function DatabaseActions({
 
   return (
     <div className="space-y-4">
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
       <div className="flex flex-wrap gap-4">
         <Button
           variant="destructive"

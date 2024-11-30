@@ -1,4 +1,4 @@
-import { ErrorConfig } from "../services/error/ErrorHandlingService";
+import { toast } from "@/components/ui/use-toast";
 
 export class DatabaseError extends Error {
   constructor(message: string, public originalError?: unknown) {
@@ -7,13 +7,18 @@ export class DatabaseError extends Error {
   }
 }
 
-export function handleError(error: unknown, config: Omit<ErrorConfig, 'action'>) {
-  console.error(`${config.type} error:`, error);
+export const handleDatabaseError = (error: unknown, operation: string) => {
+  console.error(`Database error during ${operation}:`, error);
   
-  return {
-    type: config.type,
-    title: config.title,
-    retry: config.retry,
-    message: error instanceof Error ? error.message : "An unexpected error occurred"
-  };
-}
+  const message = error instanceof DatabaseError 
+    ? error.message 
+    : 'An unexpected error occurred';
+
+  toast({
+    title: "Database Error",
+    description: message,
+    variant: "destructive",
+  });
+
+  throw error;
+};

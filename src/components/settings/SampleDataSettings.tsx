@@ -28,8 +28,7 @@ export function SampleDataSettings() {
     smePartners: 10,
     spis: 5,
     objectives: 3,
-    sitreps: 5,
-    collaborators: 0  // Added the missing collaborators field
+    sitreps: 5
   });
   const [generatedCounts, setGeneratedCounts] = useState<DataCounts | null>(null);
 
