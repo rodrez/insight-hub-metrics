@@ -6,17 +6,10 @@ import { generateNABC } from './templates/projectTemplates';
 import { generateMilestones, generateMetrics } from './templates/metricsTemplates';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiGenerator';
 
-export interface ProjectGenerationInput {
-  projects: number;
-  spis: number;
-  objectives: number;
-  sitreps: number;
-  fortune30: number;
-  internalPartners: number;
-  smePartners: number;
+export interface ProjectGenerationInput extends DataQuantities {
   departments: Department[];
   fortune30Partners: Collaborator[];
-  internalPartners: Collaborator[];
+  collaborators: Collaborator[];
   smePartners: Collaborator[];
 }
 
@@ -87,7 +80,7 @@ export const generateSampleProjects = async (input: ProjectGenerationInput) => {
   for (let i = 0; i < input.projects; i++) {
     const dept = input.departments[i % input.departments.length];
     const fortune30Partner = input.fortune30Partners[i % input.fortune30Partners.length];
-    const availableInternals = input.internalPartners.filter(p => !projects.some(proj => 
+    const availableInternals = input.collaborators.filter(p => !projects.some(proj => 
       proj.poc === p.name || proj.techLead === p.name
     ));
 

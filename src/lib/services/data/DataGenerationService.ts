@@ -3,10 +3,11 @@ import { generateFortune30Partners } from './generators/fortune30Generator';
 import { generateInternalPartners } from './generators/internalPartnersGenerator';
 import { generateSMEPartners } from './generators/smePartnersGenerator';
 import { generateSampleProjects } from './generators/projectGenerator';
-import { DataQuantities, dataQuantitiesSchema } from '@/lib/types/data';
+import { DataQuantities } from '@/lib/types/data';
 import { db } from "@/lib/db";
 import { errorHandler } from '../error/ErrorHandlingService';
 import { validateCollaborator, validateProject } from './utils/dataGenerationUtils';
+import { DEPARTMENTS } from '@/lib/constants';
 
 export class DataGenerationService {
   private showSuccessStep(step: string) {
@@ -17,62 +18,44 @@ export class DataGenerationService {
     });
   }
 
-  private async generatePartners(quantities: DataQuantities) {
-    try {
-      const fortune30Partners = generateFortune30Partners().filter(validateCollaborator);
-      this.showSuccessStep(`Generated ${fortune30Partners.length} Fortune 30 partners`);
-
-      const internalPartners = (await generateInternalPartners()).filter(validateCollaborator);
-      const selectedInternalPartners = internalPartners.slice(0, quantities.internalPartners);
-      this.showSuccessStep(`Generated ${selectedInternalPartners.length} internal partners`);
-
-      const smePartners = generateSMEPartners().filter(validateCollaborator);
-      const selectedSMEPartners = smePartners.slice(0, quantities.smePartners);
-      this.showSuccessStep(`Generated ${selectedSMEPartners.length} SME partners`);
-
-      return {
-        fortune30Partners: fortune30Partners.slice(0, quantities.fortune30),
-        internalPartners: selectedInternalPartners,
-        smePartners: selectedSMEPartners
-      };
-    } catch (error) {
-      errorHandler.handleError(error, {
-        type: 'database',
-        title: 'Partner Generation Failed',
-      });
-      throw error;
-    }
-  }
-
   async generateAndSaveData(): Promise<{ success: boolean; error?: any }> {
     try {
       await db.init();
       this.showSuccessStep("Database initialized");
 
-      const defaultQuantities = dataQuantitiesSchema.parse({});
-      const { fortune30Partners, internalPartners, smePartners } = await this.generatePartners(defaultQuantities);
-      const { projects, spis, objectives, sitreps } = await generateSampleProjects(defaultQuantities);
-
-      const validatedProjects = projects.filter(validateProject);
-
-      const stores = ['collaborators', 'smePartners', 'projects', 'spis', 'objectives', 'sitreps'];
-      const transaction = (db as any).getDatabase().transaction(stores, 'readwrite');
-
-      transaction.onerror = () => {
-        errorHandler.handleError(transaction.error, {
-          type: 'database',
-          title: 'Transaction Failed'
-        });
+      const defaultQuantities: DataQuantities = {
+        projects: 10,
+        spis: 10,
+        objectives: 5,
+        sitreps: 10,
+        fortune30: 6,
+        internalPartners: 20,
+        smePartners: 10
       };
 
-      await Promise.all([
-        this.saveToDatabase(transaction, 'collaborators', [...fortune30Partners, ...internalPartners]),
-        this.saveToDatabase(transaction, 'smePartners', smePartners),
-        this.saveToDatabase(transaction, 'projects', validatedProjects),
-        this.saveToDatabase(transaction, 'spis', spis),
-        this.saveToDatabase(transaction, 'objectives', objectives),
-        this.saveToDatabase(transaction, 'sitreps', sitreps),
-      ]);
+      const fortune30Partners = generateFortune30Partners().filter(validateCollaborator);
+      const internalPartners = generateInternalPartners().filter(validateCollaborator);
+      const smePartners = generateSMEPartners().filter(validateCollaborator);
+
+      const projectInput = {
+        ...defaultQuantities,
+        departments: DEPARTMENTS,
+        fortune30Partners,
+        collaborators: internalPartners,
+        smePartners
+      };
+
+      const { projects, spis, objectives, sitreps } = await generateSampleProjects(projectInput);
+
+      const stores = ['collaborators', 'smePartners', 'projects', 'spis', 'objectives', 'sitreps'];
+      const transaction = db.getDatabase().transaction(stores, 'readwrite');
+
+      await this.saveToDatabase(transaction, 'collaborators', [...fortune30Partners, ...internalPartners]);
+      await this.saveToDatabase(transaction, 'smePartners', smePartners);
+      await this.saveToDatabase(transaction, 'projects', projects);
+      await this.saveToDatabase(transaction, 'spis', spis);
+      await this.saveToDatabase(transaction, 'objectives', objectives);
+      await this.saveToDatabase(transaction, 'sitreps', sitreps);
 
       this.showSuccessStep("All data saved successfully");
       return { success: true };
