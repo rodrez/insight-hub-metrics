@@ -39,7 +39,7 @@ export class DataGenerationService {
 
       const projectInput = {
         ...defaultQuantities,
-        departments: DEPARTMENTS,
+        departments: [...DEPARTMENTS], // Create a mutable copy
         fortune30Partners,
         collaborators: internalPartners,
         smePartners

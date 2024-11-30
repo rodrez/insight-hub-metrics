@@ -1,16 +1,21 @@
 import { Project, Department } from '@/lib/types';
 import { Collaborator } from '@/lib/types/collaboration';
-import { DataQuantities } from '@/lib/types/data';
 import { defaultTechDomains } from '@/lib/types/techDomain';
 import { generateNABC } from './templates/projectTemplates';
 import { generateMilestones, generateMetrics } from './templates/metricsTemplates';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiGenerator';
 
-export interface ProjectGenerationInput extends DataQuantities {
+export interface ProjectGenerationInput {
+  projects: number;
+  spis: number;
+  objectives: number;
+  sitreps: number;
+  fortune30: number;
+  internalPartners: number;
+  smePartners: number;
   departments: Department[];
   fortune30Partners: Collaborator[];
   collaborators: Collaborator[];
-  smePartners: Collaborator[];
 }
 
 const projectTypes = [
