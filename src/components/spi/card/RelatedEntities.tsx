@@ -11,14 +11,14 @@ import {
 interface RelatedEntitiesProps {
   relatedProject?: Project;
   fortune30Partner?: Collaborator;
-  smePartner?: { id: string; name: string };
+  smePartnerId?: string;
   departmentId: string;
 }
 
 export function RelatedEntities({
   relatedProject,
   fortune30Partner,
-  smePartner,
+  smePartnerId,
   departmentId
 }: RelatedEntitiesProps) {
   const getDepartmentColor = (departmentId: string) => {
@@ -56,12 +56,6 @@ export function RelatedEntities({
             </Tooltip>
           </TooltipProvider>
         )}
-        {smePartner && (
-          <div className="p-2 rounded-md bg-orange-500/10 border-l-2 border-orange-500">
-            <p className="text-sm font-medium">SME Partner</p>
-            <p className="text-sm">{smePartner.name}</p>
-          </div>
-        )}
         <div 
           className="p-2 rounded-md"
           style={{ 
@@ -71,7 +65,7 @@ export function RelatedEntities({
         >
           <p className="text-sm font-medium">SME</p>
           <p className="text-sm">
-            {DEPARTMENTS.find(d => d.id === departmentId)?.name || departmentId}
+            {smePartnerId || "None"}
           </p>
         </div>
       </div>
