@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { StatusIcon } from "./card/StatusIcon";
 import { TeamBadges } from "./card/TeamBadges";
 import { ContactBadges } from "./card/ContactBadges";
+import { LevelBadge } from "./card/LevelBadge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { CompactSitRepForm } from "./CompactSitRepForm";
@@ -79,6 +80,8 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
     }
   };
 
+  const wordCount = sitrep.summary.split(/\s+/).filter(word => word.length > 0).length;
+
   return (
     <>
       <Card>
@@ -134,9 +137,12 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
 
             <p className="text-muted-foreground">{sitrep.summary}</p>
 
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <span>{format(new Date(sitrep.date), "MM/dd/yyyy")}</span>
-              <span>{sitrep.level}</span>
+            <div className="flex items-center gap-4 text-sm">
+              <span className="text-muted-foreground">{format(new Date(sitrep.date), "MM/dd/yyyy")}</span>
+              {sitrep.level && <LevelBadge level={sitrep.level} />}
+              <span className="text-xs text-muted-foreground">
+                Word count: <span className="font-medium">{wordCount}/100</span>
+              </span>
             </div>
 
             {sitrep.poc && (
