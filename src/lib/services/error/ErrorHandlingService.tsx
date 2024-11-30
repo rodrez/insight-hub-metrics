@@ -17,7 +17,7 @@ class ErrorHandler {
       title: config.title,
       description: error instanceof Error ? error.message : "An unexpected error occurred",
       action: config.retry ? (
-        <ToastAction altText="Try again" onClick={config.retry}>
+        <ToastAction onClick={config.retry}>
           Retry
         </ToastAction>
       ) : undefined
