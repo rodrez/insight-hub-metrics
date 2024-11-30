@@ -10,6 +10,55 @@ export class DatabaseConnectionService {
   private initializationPromise: Promise<void> | null = null;
   private maxRetries: number = 3;
   private retryDelay: number = 1000;
+  private cleanupTimeout: NodeJS.Timeout | null = null;
+  private readonly CLEANUP_INTERVAL = 300000; // 5 minutes
+
+  constructor() {
+    // Set up periodic cleanup
+    this.startCleanupInterval();
+    // Ensure cleanup on window unload
+    if (typeof window !== 'undefined') {
+      window.addEventListener('unload', () => this.cleanup());
+    }
+  }
+
+  private startCleanupInterval() {
+    if (this.cleanupTimeout) {
+      clearInterval(this.cleanupTimeout);
+    }
+    this.cleanupTimeout = setInterval(() => {
+      this.performPeriodicCleanup();
+    }, this.CLEANUP_INTERVAL);
+  }
+
+  private async performPeriodicCleanup() {
+    console.log('Performing periodic connection cleanup');
+    if (!this.initialized || !this.db) return;
+
+    const isActive = await this.checkConnectionActivity();
+    if (!isActive) {
+      await this.cleanup();
+    }
+  }
+
+  private async checkConnectionActivity(): Promise<boolean> {
+    if (!this.db) return false;
+    
+    try {
+      // Try a simple transaction to check if connection is still active
+      const transaction = this.db.transaction(['projects'], 'readonly');
+      const store = transaction.objectStore('projects');
+      await new Promise((resolve, reject) => {
+        const request = store.count();
+        request.onsuccess = () => resolve(true);
+        request.onerror = () => reject(false);
+      });
+      return true;
+    } catch (error) {
+      console.warn('Connection check failed:', error);
+      return false;
+    }
+  }
 
   async init(): Promise<void> {
     if (this.initializationPromise) {
@@ -63,11 +112,7 @@ export class DatabaseConnectionService {
     if (this.db) {
       console.log('Cleaning up existing database connection');
       try {
-        connectionManager.removeConnection(this.db);
-        this.db.close();
-        this.db = null;
-        this.initialized = false;
-        
+        await this.cleanup();
         // Give time for connections to properly close
         await new Promise(resolve => setTimeout(resolve, 100));
       } catch (error) {
@@ -75,6 +120,39 @@ export class DatabaseConnectionService {
       }
     }
     connectionManager.closeAllConnections();
+  }
+
+  private async cleanup(): Promise<void> {
+    if (this.cleanupTimeout) {
+      clearInterval(this.cleanupTimeout);
+      this.cleanupTimeout = null;
+    }
+
+    if (this.db) {
+      try {
+        console.log('Closing database connection');
+        // Abort any pending transactions
+        const stores = Array.from(this.db.objectStoreNames);
+        stores.forEach(storeName => {
+          try {
+            const transaction = this.db!.transaction(storeName, 'readwrite');
+            transaction.abort();
+          } catch (error) {
+            console.warn(`Error aborting transaction for store ${storeName}:`, error);
+          }
+        });
+
+        connectionManager.removeConnection(this.db);
+        this.db.close();
+        this.db = null;
+        this.initialized = false;
+        console.log('Database connection closed successfully');
+      } catch (error) {
+        console.error('Error during database cleanup:', error);
+        throw new DatabaseError('Failed to cleanup database connection', 
+          error instanceof Error ? error : undefined);
+      }
+    }
   }
 
   private openConnection(): Promise<IDBDatabase> {
@@ -112,9 +190,7 @@ export class DatabaseConnectionService {
         
         db.onversionchange = () => {
           console.log('Database version change detected - closing connection');
-          db.close();
-          this.initialized = false;
-          this.db = null;
+          this.cleanup().catch(console.error);
           toast({
             title: "Database Update Required",
             description: "Please reload the application",
@@ -147,17 +223,7 @@ export class DatabaseConnectionService {
     return this.initialized && this.db !== null;
   }
 
-  close(): void {
-    if (this.db) {
-      try {
-        console.log('Closing database connection');
-        connectionManager.removeConnection(this.db);
-        this.db.close();
-        this.db = null;
-        this.initialized = false;
-      } catch (error) {
-        console.error('Error closing database:', error);
-      }
-    }
+  async close(): Promise<void> {
+    await this.cleanup();
   }
 }
