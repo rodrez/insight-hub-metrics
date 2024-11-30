@@ -20,7 +20,10 @@ export function PartnerHeader({ collaborator, onEdit, onDelete, type }: PartnerH
   return (
     <div className="flex justify-between items-start">
       <div>
-        <h1 className="text-4xl font-bold mb-2" style={type === 'fortune30' ? { color: collaborator.color } : {}}>
+        <h1 
+          className="text-4xl font-bold mb-2 group-hover:translate-x-1 transition-transform duration-200" 
+          style={type === 'fortune30' ? { color: collaborator.color } : {}}
+        >
           {collaborator.name}
         </h1>
         <CardDescription className="text-lg">

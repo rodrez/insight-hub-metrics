@@ -9,7 +9,7 @@ type SMEListProps = {
 
 export function SMEList({ collaborators, onEdit, onDelete }: SMEListProps) {
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-6 animate-fade-in">
       {collaborators.map((collaborator) => (
         <PartnerCard
           key={collaborator.id}

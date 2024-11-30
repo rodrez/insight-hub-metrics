@@ -9,7 +9,7 @@ type Fortune30ListProps = {
 
 export function Fortune30List({ collaborators, onEdit, onDelete }: Fortune30ListProps) {
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-6 animate-fade-in">
       {collaborators.map((collaborator) => (
         <PartnerCard
           key={collaborator.id}

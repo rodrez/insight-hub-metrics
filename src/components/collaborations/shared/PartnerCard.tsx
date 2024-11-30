@@ -4,6 +4,7 @@ import { PartnerHeader } from "./PartnerHeader";
 import { PartnerContact } from "./PartnerContact";
 import { PartnerProjects } from "./PartnerProjects";
 import { PartnerWorkstreams } from "./PartnerWorkstreams";
+import { cn } from "@/lib/utils";
 
 type PartnerCardProps = {
   collaborator: Collaborator;
@@ -14,8 +15,12 @@ type PartnerCardProps = {
 
 export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCardProps) {
   return (
-    <Card>
-      <CardHeader>
+    <Card className={cn(
+      "overflow-hidden transition-all duration-200 hover:shadow-lg",
+      "animate-fade-in group",
+      type === 'fortune30' ? 'hover:border-blue-500/50' : 'hover:border-purple-500/50'
+    )}>
+      <CardHeader className="p-6">
         <PartnerHeader
           collaborator={collaborator}
           onEdit={onEdit}
@@ -23,7 +28,7 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
           type={type}
         />
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6 pt-0">
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-6">
             <PartnerContact contact={collaborator.primaryContact} />
