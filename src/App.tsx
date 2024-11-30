@@ -29,13 +29,13 @@ const queryClient = new QueryClient({
       gcTime: 1000 * 60 * 30, // Cache persists for 30 minutes
       refetchOnMount: 'always',
       refetchInterval: false,
-      networkMode: 'online',
+      networkMode: 'online'
     },
     mutations: {
       networkMode: 'online',
-      retry: 1,
-    },
-  },
+      retry: 1
+    }
+  }
 });
 
 // Pages that don't need a back button
