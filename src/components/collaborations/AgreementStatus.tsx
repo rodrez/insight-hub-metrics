@@ -24,16 +24,16 @@ export function AgreementStatus({ type, agreement, formatDate }: AgreementStatus
             : 'text-yellow-500'
       }`} />
       <span>{type.toUpperCase()}: {agreement.status}</span>
-      <TooltipProvider>
+      <TooltipProvider delayDuration={0}>
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="flex items-center cursor-help">
               <Calendar className="h-4 w-4" />
             </div>
           </TooltipTrigger>
-          <TooltipContent>
-            <p>Signed: {formatDate(agreement.signedDate)}</p>
-            <p>Expires: {formatDate(agreement.expiryDate)}</p>
+          <TooltipContent side="right">
+            <p className="text-sm">Signed: {formatDate(agreement.signedDate)}</p>
+            <p className="text-sm">Expires: {formatDate(agreement.expiryDate)}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

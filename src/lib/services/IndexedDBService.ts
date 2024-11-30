@@ -10,31 +10,26 @@ import { connectionManager } from './db/connectionManager';
 import { DataService } from './DataService';
 import { SampleDataService } from './data/SampleDataService';
 import { BaseIndexedDBService } from './db/base/BaseIndexedDBService';
+import { DatabaseOperations } from './db/operations/DatabaseOperations';
 
 export class IndexedDBService extends BaseIndexedDBService implements DataService {
   private sampleDataService: SampleDataService;
+  private databaseOperations: DatabaseOperations;
 
   constructor() {
     super();
     this.sampleDataService = new SampleDataService();
+    this.databaseOperations = new DatabaseOperations(new DatabaseTransactionService(this.getDatabase()));
   }
 
   async init(): Promise<void> {
     await this.initializeServices();
-  }
-
-  async getAllTeams(): Promise<Team[]> {
-    return this.teamService.getAllTeams();
+    this.databaseOperations = new DatabaseOperations(new DatabaseTransactionService(this.getDatabase()));
   }
 
   async clear(): Promise<void> {
-    const db = this.connectionService.getDatabase();
-    if (!db) throw new Error('Database not initialized');
-
-    const stores = Array.from(db.objectStoreNames);
-    await Promise.all(stores.map(storeName =>
-      this.transactionService.performTransaction(storeName, 'readwrite', store => store.clear())
-    ));
+    if (!this.getDatabase()) throw new Error('Database not initialized');
+    await this.databaseOperations.clearAllData();
   }
 
   async getAllProjects(): Promise<Project[]> {
@@ -135,15 +130,15 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   }
 
   async getAllSMEPartners(): Promise<Collaborator[]> {
-    return this.transactionService.performTransaction('smePartners', 'readonly', store => store.getAll());
+    return this.databaseOperations.getSMEOperations().getAllSMEPartners();
   }
 
   async getSMEPartner(id: string): Promise<Collaborator | undefined> {
-    return this.transactionService.performTransaction('smePartners', 'readonly', store => store.get(id));
+    return this.databaseOperations.getSMEOperations().getSMEPartner(id);
   }
 
   async addSMEPartner(partner: Collaborator): Promise<void> {
-    await this.transactionService.performTransaction('smePartners', 'readwrite', store => store.put(partner));
+    await this.databaseOperations.getSMEOperations().addSMEPartner(partner);
   }
 
   async populateSampleData(quantities: DataQuantities): Promise<void> {
@@ -152,21 +147,17 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     
     try {
       // Clear existing data first
-      console.log('Clearing existing data...');
       await this.clear();
       
-      console.log('Adding new data in sequence...');
       // Add all data in sequence
       const addPromises = [];
 
       // Add Fortune 30 and internal partners to collaborators store
-      console.log('Adding collaborators...');
       for (const partner of [...sampleData.fortune30Partners, ...sampleData.internalPartners]) {
         addPromises.push(this.addCollaborator(partner));
       }
 
       // Add SME partners to their dedicated store
-      console.log('Adding SME partners...');
       for (const partner of sampleData.smePartners) {
         addPromises.push(this.addSMEPartner({
           ...partner,
@@ -175,32 +166,25 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
       }
 
       // Add other data
-      console.log('Adding projects...');
       for (const project of sampleData.projects) {
         addPromises.push(this.addProject(project));
       }
 
-      console.log('Adding SPIs...');
       for (const spi of sampleData.spis) {
         addPromises.push(this.addSPI(spi));
       }
 
-      console.log('Adding objectives...');
       for (const objective of sampleData.objectives) {
         addPromises.push(this.addObjective(objective));
       }
 
-      console.log('Adding sitreps...');
       for (const sitrep of sampleData.sitreps) {
         addPromises.push(this.addSitRep(sitrep));
       }
 
       // Wait for all data to be added
       await Promise.all(addPromises);
-
-      // Verify data was added correctly
-      const smePartners = await this.getAllSMEPartners();
-      console.log('Data population completed. SME partners added:', smePartners.length);
+      console.log('Data population completed successfully');
     } catch (error) {
       console.error('Error during data population:', error);
       throw error;

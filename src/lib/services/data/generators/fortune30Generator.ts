@@ -45,18 +45,21 @@ export const generateFortune30Partners = (): Collaborator[] => {
   return fortune30Companies.map((company, index) => {
     const agreements: { nda?: any; jtda?: any } = {};
     
+    // Generate some agreements that are close to expiry for testing
     if (company.agreementTypes.includes('nda')) {
+      const isExpiring = index === 0 || index === 3; // Make some NDAs expire soon
       agreements.nda = {
         signedDate: new Date(today.getTime() - (90 * 24 * 60 * 60 * 1000)).toISOString(),
-        expiryDate: new Date(today.getTime() + (275 * 24 * 60 * 60 * 1000)).toISOString(),
+        expiryDate: new Date(today.getTime() + (isExpiring ? 85 : 275) * 24 * 60 * 60 * 1000).toISOString(),
         status: 'signed'
       };
     }
     
     if (company.agreementTypes.includes('jtda')) {
+      const isExpiring = index === 1 || index === 4; // Make some JTDAs expire soon
       agreements.jtda = {
         signedDate: new Date(today.getTime() - (60 * 24 * 60 * 60 * 1000)).toISOString(),
-        expiryDate: new Date(today.getTime() + (305 * 24 * 60 * 60 * 1000)).toISOString(),
+        expiryDate: new Date(today.getTime() + (isExpiring ? 45 : 305) * 24 * 60 * 60 * 1000).toISOString(),
         status: 'signed'
       };
     }
