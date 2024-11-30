@@ -9,67 +9,41 @@ import { validateCollaborator, validateProject } from './utils/dataGenerationUti
 import { DEPARTMENTS } from '@/lib/constants';
 
 export class SampleDataService {
-  private validateQuantities(available: number, requested: number, type: string): number {
-    if (requested > available) {
-      console.log(`Adjusting ${type} quantity from ${requested} to ${available} (maximum available)`);
-      toast({
-        title: "Notice",
-        description: `Requested ${requested} ${type}, but only ${available} are available. Adjusting quantity.`,
-        variant: "default",
-      });
-      return available;
-    }
-    return requested;
-  }
-
-  async generateSampleData(quantities: Partial<DataQuantities> = {}): Promise<any> {
+  async generateSampleData(quantities: Partial<DataQuantities> = {}) {
     try {
-      console.log('Starting sample data generation with quantities:', quantities);
-      
       const validatedQuantities = dataQuantitiesSchema.parse(quantities);
       
-      const fortune30Partners = generateFortune30Partners().filter(validateCollaborator);
-      const internalPartners = await generateInternalPartners();
-      const validatedInternalPartners = internalPartners.filter(validateCollaborator);
-      const allSMEPartners = generateSMEPartners().filter(validateCollaborator);
+      // Generate all partners first
+      const [fortune30Partners, internalPartners, smePartners] = await Promise.all([
+        Promise.resolve(generateFortune30Partners()),
+        generateInternalPartners(),
+        Promise.resolve(generateSMEPartners())
+      ]);
 
-      const fortune30Count = this.validateQuantities(
-        fortune30Partners.length, 
-        validatedQuantities.fortune30, 
-        "Fortune 30 partners"
-      );
-      
-      const internalCount = this.validateQuantities(
-        validatedInternalPartners.length, 
-        validatedQuantities.internalPartners, 
-        "internal partners"
-      );
-      
-      const smeCount = this.validateQuantities(
-        allSMEPartners.length, 
-        validatedQuantities.smePartners, 
-        "SME partners"
-      );
+      // Validate partners
+      const validFortune30 = fortune30Partners.filter(validateCollaborator);
+      const validInternalPartners = internalPartners.filter(validateCollaborator);
+      const validSMEPartners = smePartners.filter(validateCollaborator);
 
+      // Generate project data with validated partners
       const projectInput = {
         ...validatedQuantities,
         departments: [...DEPARTMENTS],
-        fortune30Partners: fortune30Partners.slice(0, fortune30Count),
-        internalPartners: validatedInternalPartners.slice(0, internalCount),
-        smePartners: allSMEPartners.slice(0, smeCount)
+        fortune30Partners: validFortune30.slice(0, validatedQuantities.fortune30),
+        internalPartners: validInternalPartners.slice(0, validatedQuantities.internalPartners),
+        smePartners: validSMEPartners.slice(0, validatedQuantities.smePartners)
       };
 
       const { projects, spis, objectives, sitreps } = await generateSampleProjects(projectInput);
-      const validatedProjects = projects.filter(validateProject);
 
       return {
-        fortune30Partners: fortune30Partners.slice(0, fortune30Count),
-        internalPartners: validatedInternalPartners.slice(0, internalCount),
-        smePartners: allSMEPartners.slice(0, smeCount),
-        projects: validatedProjects,
-        spis,
-        objectives,
-        sitreps
+        fortune30Partners: validFortune30.slice(0, validatedQuantities.fortune30),
+        internalPartners: validInternalPartners.slice(0, validatedQuantities.internalPartners),
+        smePartners: validSMEPartners.slice(0, validatedQuantities.smePartners),
+        projects: projects.slice(0, validatedQuantities.projects),
+        spis: spis.slice(0, validatedQuantities.spis),
+        objectives: objectives.slice(0, validatedQuantities.objectives),
+        sitreps: sitreps.slice(0, validatedQuantities.sitreps)
       };
     } catch (error) {
       errorHandler.handleError(error, {
