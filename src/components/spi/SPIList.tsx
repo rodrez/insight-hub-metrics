@@ -71,7 +71,7 @@ export function SPIList() {
       {spis.map(spi => {
         const relatedProject = projects?.find(p => p.id === spi.projectId);
         const fortune30Partner = collaborators?.find(c => 
-          c.type === 'fortune30' && c.id === relatedProject?.collaborators.find(rc => rc.type === 'fortune30')?.id
+          c.type === 'fortune30' && c.id === spi.fortune30PartnerId
         );
 
         return (

@@ -4,11 +4,11 @@ export type SPI = {
   deliverable: string;
   details?: string;
   expectedCompletionDate: string;
-  actualCompletionDate?: string;
-  status: 'completed' | 'delayed' | 'on-track';
+  status: 'on-track' | 'delayed' | 'completed';
   projectId?: string;
   departmentId: string;
   smePartnerId?: string;
+  fortune30PartnerId?: string;
   sitrepIds: string[];
   createdAt: string;
 };

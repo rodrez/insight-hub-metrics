@@ -8,7 +8,6 @@ import { SPI } from "@/lib/types/spi";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { SelectFields } from "./form/SelectFields";
-import { format } from "date-fns";
 
 interface SPIEditFormProps {
   spi: SPI;
@@ -22,7 +21,7 @@ export function SPIEditForm({ spi, onSuccess }: SPIEditFormProps) {
   const [expectedDate, setExpectedDate] = useState<Date>(new Date(spi.expectedCompletionDate));
   const [status, setStatus] = useState<SPI['status']>(spi.status);
   const [selectedProject, setSelectedProject] = useState<string>(spi.projectId || "none");
-  const [selectedFortune30, setSelectedFortune30] = useState<string>("none");
+  const [selectedFortune30, setSelectedFortune30] = useState<string>(spi.fortune30PartnerId || "none");
   const [selectedSME, setSelectedSME] = useState<string>(spi.smePartnerId || "none");
   const [selectedDepartment, setSelectedDepartment] = useState<string>(spi.departmentId);
 
@@ -60,6 +59,7 @@ export function SPIEditForm({ spi, onSuccess }: SPIEditFormProps) {
         projectId: selectedProject !== "none" ? selectedProject : undefined,
         departmentId: selectedDepartment !== "none" ? selectedDepartment : "default",
         smePartnerId: selectedSME !== "none" ? selectedSME : undefined,
+        fortune30PartnerId: selectedFortune30 !== "none" ? selectedFortune30 : undefined,
       };
 
       await db.updateSPI(spi.id, updatedSPI);
