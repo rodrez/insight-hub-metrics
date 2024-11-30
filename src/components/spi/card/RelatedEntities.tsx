@@ -72,7 +72,7 @@ export function RelatedEntities({
           }}
         >
           <p className="text-sm font-medium">SME Partner</p>
-          <p className="text-sm">
+          <p className="text-sm" style={{ color: smePartner?.color }}>
             {smePartner ? smePartner.name : "None"}
           </p>
         </div>
