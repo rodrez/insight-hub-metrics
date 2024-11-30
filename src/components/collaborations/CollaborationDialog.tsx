@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { collaborationFormSchema, type CollaborationFormSchema } from "./CollaborationFormFields";
+import { useQuery } from "@tanstack/react-query";
+import { db } from "@/lib/db";
 
 export interface CollaborationDialogProps {
   open: boolean;
@@ -21,23 +23,47 @@ export function CollaborationDialog({
   departmentId,
   collaborationType = 'fortune30'
 }: CollaborationDialogProps) {
+  const { data: collaborator } = useQuery({
+    queryKey: ['collaborator', collaboratorId],
+    queryFn: () => collaboratorId ? db.getCollaborator(collaboratorId) : null,
+    enabled: !!collaboratorId
+  });
+
   const form = useForm<CollaborationFormSchema>({
     resolver: zodResolver(collaborationFormSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      role: "",
-      department: departmentId || "",
+      name: collaborator?.name || "",
+      email: collaborator?.email || "",
+      role: collaborator?.role || "",
+      department: departmentId || collaborator?.department || "",
       type: collaborationType,
-      color: "#4B5563", // Default color
+      color: collaborator?.color || "#4B5563", // Default color
       agreementType: "None",
-      primaryContact: {
+      primaryContact: collaborator?.primaryContact || {
         name: "",
         role: "",
         email: "",
       },
     },
   });
+
+  // Update form values when collaborator data is loaded
+  React.useEffect(() => {
+    if (collaborator) {
+      form.reset({
+        name: collaborator.name,
+        email: collaborator.email,
+        role: collaborator.role,
+        department: collaborator.department,
+        type: collaborator.type,
+        color: collaborator.color,
+        agreementType: collaborator.agreements?.nda ? "NDA" : 
+                      collaborator.agreements?.jtda ? "JTDA" : 
+                      (collaborator.agreements?.nda && collaborator.agreements?.jtda) ? "Both" : "None",
+        primaryContact: collaborator.primaryContact,
+      });
+    }
+  }, [collaborator, form]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -46,7 +72,7 @@ export function CollaborationDialog({
           <form onSubmit={form.handleSubmit(() => {})}>
             <CollaborationFormFields
               onSubmit={() => onOpenChange(false)}
-              initialData={null}
+              initialData={collaborator || null}
               collaborationType={collaborationType}
               departmentId={departmentId}
             />
