@@ -12,7 +12,7 @@ import { RelationshipFields } from "./form/RelationshipFields";
 import { ContentFields } from "./form/ContentFields";
 import { DepartmentFields } from "./form/DepartmentFields";
 import { Contact } from "@/lib/types/pointOfContact";
-import { SupportingTeamsSelect } from "../SupportingTeamsSelect";
+import { SupportingTeamsSelect } from "./SupportingTeamsSelect";
 
 interface CompactSitRepFormProps {
   onSubmitSuccess: () => void;
