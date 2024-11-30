@@ -1,11 +1,12 @@
 import { toast } from "@/components/ui/use-toast";
 
-type ErrorType = 'database' | 'validation' | 'network' | 'general';
+type ErrorType = 'database' | 'validation' | 'network' | 'general' | 'form' | 'auth';
 
 interface ErrorOptions {
   type?: ErrorType;
   title?: string;
   action?: () => void;
+  retry?: () => Promise<void>;
 }
 
 class ErrorHandlingService {
@@ -14,6 +15,23 @@ class ErrorHandlingService {
       return error.message;
     }
     return String(error);
+  }
+
+  private getDefaultTitle(type?: ErrorType): string {
+    switch (type) {
+      case 'database':
+        return 'Database Error';
+      case 'validation':
+        return 'Validation Error';
+      case 'network':
+        return 'Network Error';
+      case 'form':
+        return 'Form Error';
+      case 'auth':
+        return 'Authentication Error';
+      default:
+        return 'Error';
+    }
   }
 
   handleError(error: unknown, options: ErrorOptions = {}) {
@@ -26,6 +44,10 @@ class ErrorHandlingService {
       title,
       description: message,
       variant: "destructive",
+      action: options.retry ? {
+        label: "Retry",
+        onClick: () => options.retry?.()
+      } : undefined
     });
 
     if (options.action) {
@@ -33,16 +55,15 @@ class ErrorHandlingService {
     }
   }
 
-  private getDefaultTitle(type?: ErrorType): string {
-    switch (type) {
-      case 'database':
-        return 'Database Error';
-      case 'validation':
-        return 'Validation Error';
-      case 'network':
-        return 'Network Error';
-      default:
-        return 'Error';
+  async withErrorHandling<T>(
+    operation: () => Promise<T>,
+    options: ErrorOptions = {}
+  ): Promise<T | undefined> {
+    try {
+      return await operation();
+    } catch (error) {
+      this.handleError(error, options);
+      return undefined;
     }
   }
 }
