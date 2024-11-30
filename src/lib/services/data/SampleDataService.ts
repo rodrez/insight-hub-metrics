@@ -13,33 +13,26 @@ export class SampleDataService {
     try {
       const validatedQuantities = dataQuantitiesSchema.parse(quantities);
       
-      // Generate all partners first
-      const [fortune30Partners, internalPartners, smePartners] = await Promise.all([
-        Promise.resolve(generateFortune30Partners()),
-        generateInternalPartners(),
-        Promise.resolve(generateSMEPartners())
-      ]);
-
-      // Validate partners
-      const validFortune30 = fortune30Partners.filter(validateCollaborator);
-      const validInternalPartners = internalPartners.filter(validateCollaborator);
-      const validSMEPartners = smePartners.filter(validateCollaborator);
+      // Generate partners synchronously since they don't need to be async
+      const fortune30Partners = generateFortune30Partners().filter(validateCollaborator);
+      const internalPartners = (await generateInternalPartners()).filter(validateCollaborator);
+      const smePartners = generateSMEPartners().filter(validateCollaborator);
 
       // Generate project data with validated partners
       const projectInput = {
         ...validatedQuantities,
         departments: [...DEPARTMENTS],
-        fortune30Partners: validFortune30.slice(0, validatedQuantities.fortune30),
-        internalPartners: validInternalPartners.slice(0, validatedQuantities.internalPartners),
-        smePartners: validSMEPartners.slice(0, validatedQuantities.smePartners)
+        fortune30Partners: fortune30Partners.slice(0, validatedQuantities.fortune30),
+        internalPartners: internalPartners.slice(0, validatedQuantities.internalPartners),
+        smePartners: smePartners.slice(0, validatedQuantities.smePartners)
       };
 
       const { projects, spis, objectives, sitreps } = await generateSampleProjects(projectInput);
 
       return {
-        fortune30Partners: validFortune30.slice(0, validatedQuantities.fortune30),
-        internalPartners: validInternalPartners.slice(0, validatedQuantities.internalPartners),
-        smePartners: validSMEPartners.slice(0, validatedQuantities.smePartners),
+        fortune30Partners: fortune30Partners.slice(0, validatedQuantities.fortune30),
+        internalPartners: internalPartners.slice(0, validatedQuantities.internalPartners),
+        smePartners: smePartners.slice(0, validatedQuantities.smePartners),
         projects: projects.slice(0, validatedQuantities.projects),
         spis: spis.slice(0, validatedQuantities.spis),
         objectives: objectives.slice(0, validatedQuantities.objectives),
