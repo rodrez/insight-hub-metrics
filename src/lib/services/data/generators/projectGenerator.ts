@@ -6,37 +6,30 @@ import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } f
 import { generateNABC } from './templates/projectTemplates';
 import { generateMilestones, generateMetrics } from './templates/metricsTemplates';
 
-interface ProjectGenerationInput extends Omit<DataQuantities, 'internalPartners' | 'smePartners'> {
-  departments: Department[];
-  fortune30Partners: Collaborator[];
-  internalPartners: Collaborator[];
-  smePartners: Collaborator[];
-}
-
 const projectTypes = [
   {
     name: "Digital Transformation",
-    description: "Enterprise-wide digital transformation initiative focusing on modernization and efficiency",
+    template: "Enterprise-wide digital transformation initiative focusing on modernization and efficiency",
     objectives: ["Modernize legacy systems", "Improve operational efficiency", "Enable digital capabilities"]
   },
   {
     name: "Innovation Lab",
-    description: "Research and development project exploring cutting-edge technologies",
+    template: "Research and development project exploring cutting-edge technologies",
     objectives: ["Explore emerging technologies", "Develop proof of concepts", "Create innovation roadmap"]
   },
   {
     name: "Cloud Migration",
-    description: "Strategic migration of core systems to cloud infrastructure",
+    template: "Strategic migration of core systems to cloud infrastructure",
     objectives: ["Reduce infrastructure costs", "Improve scalability", "Enhance security"]
   },
   {
     name: "Data Analytics Platform",
-    description: "Advanced analytics platform for business intelligence and insights",
+    template: "Advanced analytics platform for business intelligence and insights",
     objectives: ["Centralize data sources", "Enable real-time analytics", "Improve decision making"]
   },
   {
     name: "Security Enhancement",
-    description: "Comprehensive security upgrade across systems and networks",
+    template: "Comprehensive security upgrade across systems and networks",
     objectives: ["Strengthen security posture", "Implement zero trust", "Enhance monitoring"]
   }
 ];
@@ -57,8 +50,6 @@ const generateBasicProject = (
     id: `${dept.id}-project-${index + 1}`,
     name: `${dept.name} ${projectType.name}`,
     departmentId: dept.id,
-    description: `${projectType.description} for ${dept.name}`,
-    objectives: projectType.objectives,
     poc: internalPartner.name,
     pocDepartment: internalPartner.department,
     techLead: techLead.name,
@@ -66,15 +57,12 @@ const generateBasicProject = (
     budget,
     spent,
     status: "active",
-    startDate: new Date(today.getTime() - (60 * 24 * 60 * 60 * 1000)).toISOString(),
-    endDate: new Date(today.getTime() + (305 * 24 * 60 * 60 * 1000)).toISOString(),
     collaborators: [fortune30Partner],
     internalPartners: [internalPartner],
     techDomainId: defaultTechDomains[index % defaultTechDomains.length].id,
     nabc: generateNABC(dept.name, projectType.name),
     milestones: generateMilestones(`${dept.id}-project-${index + 1}`),
     metrics: generateMetrics(`${dept.id}-project-${index + 1}`, spent, budget),
-    lastUpdated: today.toISOString(),
     isSampleData: true
   };
 };
