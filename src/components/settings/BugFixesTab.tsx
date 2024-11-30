@@ -1,107 +1,148 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { bugTracker } from "@/lib/services/error/BugTrackingService";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useState, useEffect } from "react";
+import { RefreshCw } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 export function BugFixesTab() {
-  const bugs = [
-    {
-      id: 1,
-      title: "Fortune 30 Partner Selection Not Persisting",
-      description: "When selecting a Fortune 30 partner in the SPI edit form, the selection doesn't persist in the UI",
-      status: "open",
-      severity: "high",
-      component: "SPIEditForm"
-    },
-    {
-      id: 2,
-      title: "Edit Form Data Not Pre-populated",
-      description: "SPI edit form doesn't show existing data when opened for editing",
-      status: "open",
-      severity: "high",
-      component: "SPIEditForm"
-    },
-    {
-      id: 3,
-      title: "Missing Form Validation",
-      description: "Form submissions lack proper validation for required fields",
-      status: "open",
-      severity: "medium",
-      component: "SPIEditForm"
-    },
-    {
-      id: 4,
-      title: "Dialog Accessibility Issues",
-      description: "Dialog components missing proper ARIA labels and descriptions",
-      status: "open",
-      severity: "medium",
-      component: "Multiple"
-    },
-    {
-      id: 5,
-      title: "Inconsistent Error Handling",
-      description: "Error states aren't consistently handled across the application",
-      status: "open",
-      severity: "medium",
-      component: "Multiple"
-    }
-  ];
+  const [bugs, setBugs] = useState<any[]>([]);
+  const [previousBugIds, setPreviousBugIds] = useState<Set<string>>(new Set());
 
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case "high":
-        return "bg-red-500";
-      case "medium":
-        return "bg-yellow-500";
-      case "low":
-        return "bg-blue-500";
-      default:
-        return "bg-gray-500";
+  useEffect(() => {
+    // Initialize bugs on component mount
+    const initialBugs = bugTracker.getAllBugs();
+    setBugs(initialBugs);
+    setPreviousBugIds(new Set(initialBugs.map(bug => bug.id)));
+  }, []);
+
+  const refreshBugs = () => {
+    try {
+      const currentBugIds = new Set(bugs.map(bug => bug.id));
+      const newBugs = bugTracker.getAllBugs();
+      setBugs(newBugs);
+      
+      // Check for new bugs
+      const newBugCount = newBugs.filter(bug => !currentBugIds.has(bug.id)).length;
+      
+      if (newBugCount > 0) {
+        toast({
+          title: "New bugs found!",
+          description: `${newBugCount} new bug${newBugCount > 1 ? 's' : ''} have been detected`,
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Bug list refreshed",
+          description: "No new bugs found",
+        });
+      }
+      
+      setPreviousBugIds(currentBugIds);
+    } catch (error) {
+      toast({
+        title: "Error refreshing bugs",
+        description: "Failed to refresh the bug list",
+        variant: "destructive",
+      });
     }
   };
 
+  const handleResolveBug = async (bugId: string) => {
+    try {
+      await bugTracker.updateBugStatus(bugId, 'resolved');
+      // Update the local state to reflect the change
+      setBugs(prevBugs => 
+        prevBugs.map(bug => 
+          bug.id === bugId ? { ...bug, status: 'resolved' } : bug
+        )
+      );
+      toast({
+        title: "Bug resolved",
+        description: "The bug has been marked as resolved",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to resolve the bug",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case 'critical':
+        return 'bg-red-500';
+      case 'high':
+        return 'bg-orange-500';
+      case 'medium':
+        return 'bg-yellow-500';
+      case 'low':
+        return 'bg-blue-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  const isNewBug = (bugId: string) => {
+    return !previousBugIds.has(bugId);
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl font-bold">Known Issues</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {bugs.map((bug) => (
-            <div
-              key={bug.id}
-              className="border rounded-lg p-4 space-y-2 hover:bg-muted/50 transition-colors"
-            >
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <AlertCircle className="h-4 w-4 text-red-500" />
-                    <h3 className="font-medium">{bug.title}</h3>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {bug.description}
-                  </p>
-                </div>
+    <ScrollArea className="h-[600px] pr-4">
+      <div className="space-y-4">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex gap-2">
+            <Badge variant="outline">Critical: {bugs.filter(b => b.severity === 'critical').length}</Badge>
+            <Badge variant="outline">High: {bugs.filter(b => b.severity === 'high').length}</Badge>
+            <Badge variant="outline">Medium: {bugs.filter(b => b.severity === 'medium').length}</Badge>
+            <Badge variant="outline">Low: {bugs.filter(b => b.severity === 'low').length}</Badge>
+          </div>
+          <Button onClick={refreshBugs} size="sm" variant="outline">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh Bugs
+          </Button>
+        </div>
+        
+        {bugs.map((bug) => (
+          <Card key={bug.id} className={`p-4 ${isNewBug(bug.id) ? 'ring-2 ring-blue-500' : ''}`}>
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline" className={getSeverityColor(bug.severity) + " text-white"}>
-                    {bug.severity}
-                  </Badge>
-                  {bug.status === "resolved" && (
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <Badge className={getSeverityColor(bug.severity)}>{bug.severity}</Badge>
+                  <span className="text-sm text-muted-foreground">{bug.id}</span>
+                  {isNewBug(bug.id) && (
+                    <Badge variant="secondary" className="bg-blue-100">New</Badge>
                   )}
                 </div>
+                <h3 className="text-lg font-semibold">{bug.title}</h3>
+                <p className="text-sm text-muted-foreground">{bug.description}</p>
+                
+                <div className="space-y-1 mt-4">
+                  <p className="text-sm"><strong>Location:</strong> {bug.location}</p>
+                  <p className="text-sm"><strong>Impact:</strong> {bug.impact}</p>
+                  {bug.stepsToReproduce && (
+                    <p className="text-sm"><strong>Steps to Reproduce:</strong> {bug.stepsToReproduce}</p>
+                  )}
+                  <p className="text-sm"><strong>Suggested Fix:</strong> {bug.suggestedFix}</p>
+                </div>
               </div>
-              <div className="text-sm text-muted-foreground">
-                Component: {bug.component}
-              </div>
+              
+              <Button
+                variant={bug.status === 'resolved' ? 'secondary' : 'outline'}
+                onClick={() => handleResolveBug(bug.id)}
+                className="ml-4"
+                disabled={bug.status === 'resolved'}
+              >
+                {bug.status === 'resolved' ? 'Resolved' : 'Mark as Resolved'}
+              </Button>
             </div>
-          ))}
-          {bugs.length === 0 && (
-            <p className="text-muted-foreground text-center py-4">
-              No known issues at this time
-            </p>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+          </Card>
+        ))}
+      </div>
+    </ScrollArea>
   );
 }
