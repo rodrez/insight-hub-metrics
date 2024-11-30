@@ -1,151 +1,89 @@
-import { errorHandler } from "./ErrorHandlingService";
-
-interface BugReport {
-  id: string;
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  title: string;
-  description: string;
-  location: string;
-  impact: string;
-  stepsToReproduce?: string;
-  suggestedFix: string;
-  status: 'open' | 'in-progress' | 'resolved';
-  dateReported: string;
-}
-
-class BugTrackingService {
-  private bugs: BugReport[] = [
+class BugTracker {
+  private bugs: any[] = [
     {
-      id: "TS-001",
+      id: "BUG-001",
+      title: "Fortune 30 Partner Selection Not Persisting",
+      description: "When selecting a Fortune 30 partner in forms, the selection doesn't persist in the UI after saving",
       severity: "critical",
-      title: "Promise Handling in Data Generation",
-      description: "Incorrect Promise handling in data generation services causing TypeScript errors with Collaborator arrays",
-      location: "src/lib/services/SampleDataService.ts, DataGenerationService.ts",
-      impact: "Data generation failures and potential runtime errors",
-      stepsToReproduce: "Attempt to generate sample data with collaborators",
-      suggestedFix: "Convert array operations to proper Promise chains and async/await syntax",
-      status: "open",
-      dateReported: new Date().toISOString()
+      status: "active",
+      location: "src/components/spi/form/SelectFields.tsx",
+      impact: "Users cannot properly manage Fortune 30 partner associations",
+      stepsToReproduce: "1. Open SPI form\n2. Select a Fortune 30 partner\n3. Save the form\n4. Reopen the form",
+      suggestedFix: "Implement proper state management for partner selection and verify data persistence"
     },
     {
-      id: "TYPE-002",
-      severity: "critical",
-      title: "DataQuantities Type Mismatch",
-      description: "Type validation errors due to optional properties in DataQuantities interface",
-      location: "src/lib/types/data.ts",
-      impact: "Type safety violations and potential data inconsistencies",
-      stepsToReproduce: "Check TypeScript compilation errors in data generation services",
-      suggestedFix: "Update DataQuantities type definition to handle optional properties correctly",
-      status: "open",
-      dateReported: new Date().toISOString()
-    },
-    {
-      id: "ASYNC-003",
-      severity: "critical",
-      title: "Asynchronous Operation Handling",
-      description: "Inconsistent handling of async operations in data generation pipeline",
-      location: "src/lib/services/data/utils/dataGenerationUtils.ts",
-      impact: "Race conditions and potential data corruption",
-      stepsToReproduce: "Generate large datasets with multiple async operations",
-      suggestedFix: "Implement proper async/await patterns and Promise handling",
-      status: "open",
-      dateReported: new Date().toISOString()
-    },
-    {
-      id: "VAL-004",
+      id: "BUG-002",
+      title: "Edit Form Data Pre-population Issue",
+      description: "Form fields not showing existing data when edit dialogs are opened",
       severity: "high",
-      title: "Data Validation Gaps",
-      description: "Incomplete validation of generated data before database insertion",
-      location: "src/lib/services/data/utils/dataGenerationUtils.ts",
-      impact: "Invalid data can be stored in the database",
-      stepsToReproduce: "Generate data with edge cases or invalid values",
-      suggestedFix: "Implement comprehensive validation using Zod schemas",
-      status: "open",
-      dateReported: new Date().toISOString()
+      status: "active",
+      location: "src/components/spi/SPIEditForm.tsx",
+      impact: "Users cannot see current values before making changes",
+      stepsToReproduce: "1. Click edit on any existing item\n2. Observe form fields",
+      suggestedFix: "Initialize form fields with current data using useEffect and proper state management"
     },
     {
-      id: "PROG-005",
+      id: "BUG-003",
+      title: "Missing Form Validation",
+      description: "Forms lack proper validation before submission",
       severity: "high",
-      title: "Progress Tracking Issues",
-      description: "Inaccurate progress reporting during data generation",
-      location: "src/lib/services/data/utils/dataGenerationUtils.ts",
-      impact: "Users receive misleading feedback about operation progress",
-      stepsToReproduce: "Generate large datasets and observe progress indicators",
-      suggestedFix: "Implement accurate progress calculation with proper event handling",
-      status: "open",
-      dateReported: new Date().toISOString()
+      status: "active",
+      location: "Multiple form components",
+      impact: "Invalid or incomplete data can be submitted to the database",
+      stepsToReproduce: "1. Submit any form with invalid or missing data",
+      suggestedFix: "Implement form validation using React Hook Form with proper validation schemas"
     },
     {
-      id: "CACHE-006",
+      id: "BUG-004",
+      title: "Dialog Accessibility Issues",
+      description: "Dialog components missing proper ARIA labels and descriptions",
+      severity: "medium",
+      status: "active",
+      location: "All dialog components",
+      impact: "Reduced accessibility for screen readers and keyboard navigation",
+      stepsToReproduce: "1. Open any dialog\n2. Check console for accessibility warnings",
+      suggestedFix: "Add proper ARIA labels and descriptions to all dialog components"
+    },
+    {
+      id: "BUG-005",
+      title: "Inconsistent Error Handling",
+      description: "Error states not consistently handled across the application",
+      severity: "medium",
+      status: "active",
+      location: "Multiple components",
+      impact: "Poor user feedback when operations fail",
+      stepsToReproduce: "1. Trigger error conditions in different parts of the app\n2. Observe inconsistent error handling",
+      suggestedFix: "Implement consistent error boundary and toast notification system"
+    },
+    {
+      id: "BUG-006",
+      title: "Missing Loading States",
+      description: "No loading indicators during data operations",
+      severity: "medium",
+      status: "active",
+      location: "Components using data fetching",
+      impact: "Poor user experience during data loading",
+      stepsToReproduce: "1. Perform any data operation\n2. Observe lack of loading feedback",
+      suggestedFix: "Add loading states and skeleton loaders to all data operations"
+    },
+    {
+      id: "BUG-007",
+      title: "Database Initialization Issues",
+      description: "Multiple database initialization attempts occurring",
       severity: "high",
-      title: "Query Cache Management",
-      description: "Inefficient cache invalidation after data mutations",
-      location: "src/components/data/hooks/useDataPopulation.ts",
-      impact: "Stale data displayed to users after updates",
-      stepsToReproduce: "Perform multiple data operations and observe UI updates",
-      suggestedFix: "Implement proper cache invalidation strategies with React Query",
-      status: "open",
-      dateReported: new Date().toISOString()
-    },
-    {
-      id: "BATCH-007",
-      severity: "medium",
-      title: "Batch Processing Efficiency",
-      description: "Suboptimal batch processing of large datasets",
-      location: "src/lib/services/data/utils/dataGenerationUtils.ts",
-      impact: "Performance degradation during large data operations",
-      stepsToReproduce: "Generate large sample datasets",
-      suggestedFix: "Implement chunked processing with proper memory management",
-      status: "open",
-      dateReported: new Date().toISOString()
-    },
-    {
-      id: "ERR-008",
-      severity: "medium",
-      title: "Error Boundary Coverage",
-      description: "Incomplete error boundary implementation across components",
-      location: "Multiple React components",
-      impact: "Uncaught errors can crash the application",
-      stepsToReproduce: "Trigger errors in various components",
-      suggestedFix: "Add comprehensive error boundaries with fallback UI",
-      status: "open",
-      dateReported: new Date().toISOString()
-    },
-    {
-      id: "UI-009",
-      severity: "medium",
-      title: "Loading State Handling",
-      description: "Inconsistent loading state management across components",
-      location: "Various React components",
-      impact: "Poor user experience during data operations",
-      stepsToReproduce: "Perform operations and observe loading indicators",
-      suggestedFix: "Standardize loading state handling with proper UI feedback",
-      status: "open",
-      dateReported: new Date().toISOString()
-    },
-    {
-      id: "CLEAN-010",
-      severity: "low",
-      title: "Resource Cleanup",
-      description: "Incomplete cleanup of resources and event listeners",
-      location: "src/lib/services/db/DatabaseConnectionService.ts",
-      impact: "Potential memory leaks during extended use",
-      stepsToReproduce: "Monitor memory usage during long sessions",
-      suggestedFix: "Implement proper cleanup in useEffect hooks and connection handling",
-      status: "open",
-      dateReported: new Date().toISOString()
+      status: "active",
+      location: "src/lib/services/IndexedDBService.ts",
+      impact: "Potential performance impact and race conditions",
+      stepsToReproduce: "1. Check console logs for multiple initialization attempts",
+      suggestedFix: "Implement proper singleton pattern for database initialization"
     }
   ];
 
-  getAllBugs(): BugReport[] {
+  getAllBugs() {
     return this.bugs;
   }
 
-  getBugById(id: string): BugReport | undefined {
-    return this.bugs.find(bug => bug.id === id);
-  }
-
-  async updateBugStatus(id: string, status: 'open' | 'in-progress' | 'resolved'): Promise<void> {
+  async updateBugStatus(id: string, status: string) {
     const bugIndex = this.bugs.findIndex(bug => bug.id === id);
     if (bugIndex !== -1) {
       this.bugs[bugIndex].status = status;
@@ -153,4 +91,4 @@ class BugTrackingService {
   }
 }
 
-export const bugTracker = new BugTrackingService();
+export const bugTracker = new BugTracker();
