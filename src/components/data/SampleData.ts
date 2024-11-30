@@ -9,6 +9,8 @@ import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } f
 import { toast } from "@/components/ui/use-toast";
 import { DataQuantities } from '@/lib/types/data';
 
+export type { DataQuantities };
+
 export interface GeneratedData {
   projects: Project[];
   spis: SPI[];
@@ -112,4 +114,3 @@ export const generateSampleProjects = async (quantities: DataQuantities): Promis
     return generatedData;
   }, "Sample Projects");
 };
-

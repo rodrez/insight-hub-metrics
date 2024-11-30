@@ -1,16 +1,7 @@
 import { z } from 'zod';
-import { DataQuantities } from '@/lib/types/data';
+import { DataQuantities, dataQuantitiesSchema } from '@/lib/types/data';
 
-export const dataQuantitiesSchema = z.object({
-  projects: z.number().min(0),
-  spis: z.number().min(0),
-  objectives: z.number().min(0),
-  sitreps: z.number().min(0),
-  fortune30: z.number().min(0),
-  internalPartners: z.number().min(0),
-  smePartners: z.number().min(0),
-  collaborators: z.number().min(0)
-});
+export { dataQuantitiesSchema };
 
 export const validateDataQuantities = (data: Partial<DataQuantities>) => {
   const defaultValues: DataQuantities = {
