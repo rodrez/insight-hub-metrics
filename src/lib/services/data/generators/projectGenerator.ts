@@ -4,6 +4,7 @@ import { DataQuantities } from '@/lib/types/data';
 import { defaultTechDomains } from '@/lib/types/techDomain';
 import { generateNABC } from './templates/projectTemplates';
 import { generateMilestones, generateMetrics } from './templates/metricsTemplates';
+import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiGenerator';
 
 interface ProjectGenerationInput extends Omit<DataQuantities, 'internalPartners' | 'smePartners'> {
   departments: Department[];
@@ -92,5 +93,9 @@ export const generateSampleProjects = async (input: ProjectGenerationInput) => {
     projects.push(project);
   }
 
-  return { projects };
+  const spis = generateSampleSPIs(projects.map(p => p.id), input.spis);
+  const objectives = generateSampleObjectives(input.objectives);
+  const sitreps = generateSampleSitReps(spis, input.sitreps);
+
+  return { projects, spis, objectives, sitreps };
 };
