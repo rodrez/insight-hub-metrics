@@ -8,6 +8,7 @@ import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Progress } from "@/components/ui/progress";
 import { DataQuantities } from "./SampleData";
+import { errorHandler } from "@/lib/services/error/ErrorHandlingService";
 
 export default function DataManagement() {
   const { isInitialized } = useDataInitialization();
@@ -17,14 +18,28 @@ export default function DataManagement() {
   const queryClient = useQueryClient();
 
   const handleClear = useCallback(async () => {
-    await clearDatabase();
-    await queryClient.invalidateQueries({ queryKey: ['data-counts'] });
-    await updateDataCounts();
+    try {
+      await clearDatabase();
+      await queryClient.invalidateQueries({ queryKey: ['data-counts'] });
+      await updateDataCounts();
+    } catch (error) {
+      errorHandler.handleError(error, {
+        type: 'database',
+        title: 'Failed to clear database'
+      });
+    }
   }, [clearDatabase, queryClient, updateDataCounts]);
 
   const handlePopulate = useCallback(async (quantities: DataQuantities) => {
-    await populateSampleData(quantities);
-    await updateDataCounts();
+    try {
+      await populateSampleData(quantities);
+      await updateDataCounts();
+    } catch (error) {
+      errorHandler.handleError(error, {
+        type: 'database',
+        title: 'Failed to populate data'
+      });
+    }
   }, [populateSampleData, updateDataCounts]);
 
   return (
