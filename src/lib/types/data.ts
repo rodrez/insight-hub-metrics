@@ -21,3 +21,8 @@ export interface DataCounts {
   objectives: number;
   sitreps: number;
 }
+
+export interface GenerationResult<T> {
+  data: T[];
+  count: number;
+}
