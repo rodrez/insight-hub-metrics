@@ -113,8 +113,8 @@ export function DatabaseActions({
           )}
         </Button>
 
-        <BackupActions disabled={isClearing || isPopulating} />
-        <ExportActions disabled={isClearing || isPopulating} />
+        <BackupActions isInitialized={isInitialized} disabled={isClearing || isPopulating} />
+        <ExportActions isInitialized={isInitialized} disabled={isClearing || isPopulating} />
       </div>
 
       {showQuantityForm && (

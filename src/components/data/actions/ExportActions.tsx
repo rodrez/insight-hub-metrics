@@ -42,7 +42,7 @@ export function ExportActions({ isInitialized, disabled }: ExportActionsProps) {
       });
     } catch (error) {
       errorHandler.handleError(error, {
-        type: 'export',
+        type: 'database',
         title: 'Failed to export data'
       });
     } finally {
