@@ -7,6 +7,7 @@ import { internalPartners } from "@/components/data/internalPartners";
 import { BasicInfoFields } from "./form/BasicInfoFields";
 import { RelationshipFields } from "./form/RelationshipFields";
 import { ContentFields } from "./form/ContentFields";
+import { Contact } from "@/lib/types/pointOfContact";
 
 interface SitRepFormProps {
   onSubmitSuccess: () => void;
@@ -26,6 +27,7 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
   const [selectedPartner, setSelectedPartner] = useState<string>("none");
   const [status, setStatus] = useState<'pending-review' | 'ready' | 'submitted'>('pending-review');
   const [level, setLevel] = useState<"CEO" | "SVP" | "CTO">("SVP");
+  const [contacts, setContacts] = useState<Contact[]>([]);
 
   const { data: projects } = useQuery({
     queryKey: ['projects'],
@@ -65,7 +67,8 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
         projectId: selectedProject !== "none" ? selectedProject : undefined,
         departmentId: selectedDepartment !== "none" ? selectedDepartment : "default",
         fortune30PartnerId: selectedFortune30 !== "none" ? selectedFortune30 : undefined,
-        smePartnerId: selectedSME !== "none" ? selectedSME : undefined
+        smePartnerId: selectedSME !== "none" ? selectedSME : undefined,
+        pointsOfContact: contacts.map(c => c.name)
       });
       
       toast({
@@ -86,6 +89,7 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
       setSelectedPartner("none");
       setStatus('pending-review');
       setLevel("SVP");
+      setContacts([]);
       
       onSubmitSuccess();
     } catch (error) {
@@ -120,6 +124,8 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
           setSelectedSME={setSelectedSME}
           projects={projects || []}
           fortune30Partners={fortune30Partners}
+          contacts={contacts}
+          onContactsChange={setContacts}
         />
       </div>
 
