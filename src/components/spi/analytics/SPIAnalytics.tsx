@@ -1,234 +1,34 @@
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
-import { format, subMonths, isAfter, isBefore, startOfMonth } from "date-fns";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, AreaChart, Area, Tooltip, Legend, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
-
-const COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6'];
+import { SPIProgressChart } from "./charts/SPIProgressChart";
+import { DepartmentPerformanceChart } from "./charts/DepartmentPerformanceChart";
+import { Fortune30Chart } from "./charts/Fortune30Chart";
+import { SMEDistributionChart } from "./charts/SMEDistributionChart";
 
 export function SPIAnalytics() {
-  const { data: spis } = useQuery({
+  const { data: spis = [] } = useQuery({
     queryKey: ['spis'],
     queryFn: () => db.getAllSPIs()
   });
 
-  const { data: projects } = useQuery({
+  const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
     queryFn: () => db.getAllProjects()
   });
 
-  const { data: collaborators } = useQuery({
+  const { data: collaborators = [] } = useQuery({
     queryKey: ['collaborators'],
     queryFn: () => db.getAllCollaborators()
   });
 
   if (!spis || !projects || !collaborators) return null;
 
-  // Generate last 6 months of data
-  const months = Array.from({ length: 6 }, (_, i) => {
-    const date = subMonths(new Date(), i);
-    const monthStart = startOfMonth(date);
-    
-    const monthSpis = spis.filter(spi => {
-      const createdDate = new Date(spi.createdAt);
-      return isBefore(createdDate, monthStart) || 
-             (isAfter(createdDate, monthStart) && isBefore(createdDate, startOfMonth(subMonths(date, -1))));
-    });
-
-    const completedSpis = monthSpis.filter(spi => spi.status === 'completed');
-
-    return {
-      month: format(date, 'MMM yyyy'),
-      total: monthSpis.length,
-      completed: completedSpis.length,
-      completionRate: monthSpis.length ? (completedSpis.length / monthSpis.length) * 100 : 0
-    };
-  }).reverse();
-
-  // Generate priority distribution data
-  const priorityData = spis.reduce((acc: any[], spi) => {
-    const priority = spi.priority || 'Not Set';
-    const existingPriority = acc.find(p => p.name === priority);
-    if (existingPriority) {
-      existingPriority.value++;
-    } else {
-      acc.push({ name: priority, value: 1 });
-    }
-    return acc;
-  }, []);
-
-  // Generate department data
-  const departmentData = spis.reduce((acc: any[], spi) => {
-    const dept = acc.find(d => d.department === spi.departmentId);
-    if (dept) {
-      dept.count++;
-      if (spi.status === 'completed') dept.completed++;
-    } else {
-      acc.push({
-        department: spi.departmentId,
-        count: 1,
-        completed: spi.status === 'completed' ? 1 : 0
-      });
-    }
-    return acc;
-  }, []);
-
-  // Generate Fortune 30 partner data
-  const partnerData = projects?.reduce((acc: any[], project) => {
-    const fortune30Partner = collaborators.find(c => 
-      c.type === 'fortune30' && project.collaborators?.some(pc => pc.id === c.id)
-    );
-    
-    if (fortune30Partner) {
-      const projectSpis = spis.filter(spi => spi.projectId === project.id);
-      const partner = acc.find((p: any) => p.partner === fortune30Partner.name);
-      
-      if (partner) {
-        partner.spiCount += projectSpis.length;
-        partner.completed += projectSpis.filter(spi => spi.status === 'completed').length;
-      } else {
-        acc.push({
-          partner: fortune30Partner.name,
-          spiCount: projectSpis.length,
-          completed: projectSpis.filter(spi => spi.status === 'completed').length
-        });
-      }
-    }
-    return acc;
-  }, []);
-
-  const chartConfig = {
-    line1: { theme: { light: "#2563eb", dark: "#3b82f6" } },
-    line2: { theme: { light: "#16a34a", dark: "#22c55e" } },
-    area: { theme: { light: "#3b82f6", dark: "#60a5fa" } }
-  };
-
   return (
     <div className="grid grid-cols-2 gap-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>SPI Progress Over Time</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="aspect-[4/3] w-full">
-            <ChartContainer config={chartConfig}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={months}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                  <XAxis 
-                    dataKey="month" 
-                    stroke="currentColor" 
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    dy={10}
-                  />
-                  <YAxis 
-                    stroke="currentColor"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    dx={-10}
-                  />
-                  <Tooltip />
-                  <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="total" 
-                    name="Total SPIs" 
-                    stroke="var(--color-line1)"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="completed" 
-                    name="Completed SPIs" 
-                    stroke="var(--color-line2)"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Department Performance</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="aspect-[4/3] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={departmentData}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="department" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="count" name="Total SPIs" fill="#3b82f6" />
-                <Bar dataKey="completed" name="Completed" fill="#22c55e" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Fortune 30 Partner SPIs</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="aspect-[4/3] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={partnerData}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="partner" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="spiCount" name="Total SPIs" fill="#3b82f6" />
-                <Bar dataKey="completed" name="Completed" fill="#22c55e" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Priority Distribution</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="aspect-[4/3] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={priorityData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  label
-                >
-                  {priorityData.map((entry: any, index: number) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+      <SPIProgressChart spis={spis} />
+      <DepartmentPerformanceChart spis={spis} />
+      <Fortune30Chart spis={spis} projects={projects} collaborators={collaborators} />
+      <SMEDistributionChart spis={spis} />
     </div>
   );
 }
