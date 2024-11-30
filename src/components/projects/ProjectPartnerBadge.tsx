@@ -14,6 +14,7 @@ interface ProjectPartnerBadgeProps {
     name: string;
     type: CollaboratorType;
     department: string;
+    color?: string;
   };
   departmentColor?: string;
 }
@@ -32,12 +33,19 @@ export function ProjectPartnerBadge({ partner, departmentColor }: ProjectPartner
     }
   };
 
+  const getBadgeColor = () => {
+    if (partner.type === 'fortune30' && partner.color) {
+      return partner.color;
+    }
+    return departmentColor || '#333';
+  };
+
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger>
           <Badge
-            style={{ backgroundColor: departmentColor || '#333' }}
+            style={{ backgroundColor: getBadgeColor() }}
             className="flex items-center gap-1 text-white"
           >
             {getIcon()}
