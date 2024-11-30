@@ -18,7 +18,7 @@ export function ErrorHandlingSettings() {
   const queryClient = useQueryClient();
   const { deleteError, updateErrorStatus, analyzeCodebase } = useErrorStore();
 
-  const { data: errors = [] } = useQuery({
+  const { data: errors = [], refetch } = useQuery({
     queryKey: ['errors'],
     queryFn: async () => {
       const errorStore = useErrorStore();
@@ -36,7 +36,7 @@ export function ErrorHandlingSettings() {
   const handleDelete = async (errorId: string) => {
     try {
       await deleteError(errorId);
-      await queryClient.invalidateQueries({ queryKey: ['errors'] });
+      await refetch();
       toast({
         title: "Error deleted",
         description: "The error has been removed from the list",
@@ -72,7 +72,7 @@ export function ErrorHandlingSettings() {
       for (const errorId of selectedErrors) {
         await updateErrorStatus(errorId, 'resolved');
       }
-      await queryClient.invalidateQueries({ queryKey: ['errors'] });
+      await refetch();
       setIsFixDialogOpen(true);
     } catch (error) {
       toast({
@@ -87,12 +87,13 @@ export function ErrorHandlingSettings() {
     setIsAnalyzing(true);
     try {
       await analyzeCodebase();
-      await queryClient.invalidateQueries({ queryKey: ['errors'] });
+      await refetch();
       toast({
         title: "Analysis Complete",
         description: "The codebase has been analyzed and new errors have been identified",
       });
     } catch (error) {
+      console.error('Analysis error:', error);
       toast({
         title: "Analysis Failed",
         description: "There was a problem analyzing the codebase",
