@@ -8,6 +8,7 @@ import { Form } from "@/components/ui/form";
 import { collaborationFormSchema, type CollaborationFormSchema } from "./CollaborationFormFields";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export interface CollaborationDialogProps {
   open: boolean;
@@ -24,7 +25,7 @@ export function CollaborationDialog({
   departmentId,
   collaborationType = 'fortune30'
 }: CollaborationDialogProps) {
-  const { data: collaborator } = useQuery({
+  const { data: collaborator, isLoading } = useQuery({
     queryKey: ['collaborator', collaboratorId],
     queryFn: () => collaboratorId ? db.getCollaborator(collaboratorId) : null,
     enabled: !!collaboratorId
@@ -69,16 +70,24 @@ export function CollaborationDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(() => {})}>
-            <CollaborationFormFields
-              onSubmit={() => onOpenChange(false)}
-              initialData={collaborator || null}
-              collaborationType={collaborationType}
-              departmentId={departmentId}
-            />
-          </form>
-        </Form>
+        {isLoading ? (
+          <div className="space-y-4">
+            <Skeleton className="h-8 w-3/4" />
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-24 w-full" />
+          </div>
+        ) : (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(() => {})}>
+              <CollaborationFormFields
+                onSubmit={() => onOpenChange(false)}
+                initialData={collaborator || null}
+                collaborationType={collaborationType}
+                departmentId={departmentId}
+              />
+            </form>
+          </Form>
+        )}
       </DialogContent>
     </Dialog>
   );

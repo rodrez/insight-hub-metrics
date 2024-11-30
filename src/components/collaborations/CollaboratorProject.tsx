@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Agreement } from "@/lib/types/collaboration";
 import { AgreementStatus } from "./AgreementStatus";
 import { useNavigate } from "react-router-dom";
+import { getExpiryWarningColor, formatDate } from "@/lib/utils/agreementUtils";
 
 interface CollaboratorProjectProps {
   project: {
@@ -16,16 +17,18 @@ interface CollaboratorProjectProps {
     nda?: Agreement;
     jtda?: Agreement;
   };
-  warningColor?: string;
-  formatDate: (date: string) => string;
 }
 
-export function CollaboratorProject({ project, agreements, warningColor, formatDate }: CollaboratorProjectProps) {
+export function CollaboratorProject({ project, agreements }: CollaboratorProjectProps) {
   const navigate = useNavigate();
 
   const handleProjectClick = () => {
     navigate('/', { state: { scrollToProject: project.id } });
   };
+
+  const warningColor = agreements?.nda ? getExpiryWarningColor(agreements.nda.expiryDate) : 
+                      agreements?.jtda ? getExpiryWarningColor(agreements.jtda.expiryDate) : 
+                      undefined;
 
   return (
     <div 
