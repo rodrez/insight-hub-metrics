@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { useState } from "react";
 import { DataQuantityForm } from "./actions/DataQuantityForm";
 import { DataQuantities } from "./SampleData";
+import { validateDataQuantities } from "./validation/databaseSchemas";
+import { ZodError } from "zod";
 
 interface DatabaseActionsProps {
   isInitialized: boolean;
@@ -43,17 +45,29 @@ export function DatabaseActions({
 
   const handlePopulate = async (quantities: DataQuantities) => {
     try {
-      await onPopulate(quantities);
+      // Validate quantities before proceeding
+      const validatedQuantities = validateDataQuantities(quantities);
+      
+      await onPopulate(validatedQuantities);
       setShowQuantityDialog(false);
       toast({
         title: "Success",
         description: "Sample data populated successfully",
       });
     } catch (error) {
-      errorHandler.handleError(error, {
-        type: 'database',
-        title: 'Failed to populate data'
-      });
+      if (error instanceof ZodError) {
+        const issues = error.issues.map(issue => issue.message).join(', ');
+        toast({
+          title: "Validation Error",
+          description: `Invalid data quantities: ${issues}`,
+          variant: "destructive"
+        });
+      } else {
+        errorHandler.handleError(error, {
+          type: 'database',
+          title: 'Failed to populate data'
+        });
+      }
     }
   };
 

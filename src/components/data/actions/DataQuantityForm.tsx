@@ -4,6 +4,10 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { DataQuantities } from "../SampleData";
 import { Loader2 } from "lucide-react";
+import { dataQuantitiesSchema } from "../validation/databaseSchemas";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 interface DataQuantityFormProps {
   onSubmit: (quantities: DataQuantities) => Promise<void>;
@@ -11,107 +15,129 @@ interface DataQuantityFormProps {
 }
 
 export function DataQuantityForm({ onSubmit, isPopulating }: DataQuantityFormProps) {
-  const [quantities, setQuantities] = useState<DataQuantities>({
-    projects: 5,
-    spis: 10,
-    objectives: 5,
-    sitreps: 10,
-    fortune30: 6,
-    internalPartners: 20,
-    smePartners: 5
+  const form = useForm<DataQuantities>({
+    resolver: zodResolver(dataQuantitiesSchema),
+    defaultValues: {
+      projects: 5,
+      spis: 10,
+      objectives: 5,
+      sitreps: 10,
+      fortune30: 6,
+      internalPartners: 20,
+      smePartners: 5
+    }
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(quantities);
-  };
-
-  const handleChange = (key: keyof DataQuantities, value: string) => {
-    const numValue = parseInt(value) || 0;
-    setQuantities(prev => ({ ...prev, [key]: numValue }));
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="projects">Projects</Label>
-          <Input
-            id="projects"
-            type="number"
-            min="0"
-            value={quantities.projects}
-            onChange={(e) => handleChange('projects', e.target.value)}
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="projects"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Projects</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="fortune30"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Fortune 30 Partners</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="internalPartners"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Internal Partners</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="smePartners"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>SME Partners</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="spis"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>SPIs</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="objectives"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Objectives</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="sitreps"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Sitreps</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="fortune30">Fortune 30 Partners</Label>
-          <Input
-            id="fortune30"
-            type="number"
-            min="0"
-            max="6"
-            value={quantities.fortune30}
-            onChange={(e) => handleChange('fortune30', e.target.value)}
-          />
+
+        <div className="flex justify-end">
+          <Button type="submit" disabled={isPopulating}>
+            {isPopulating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Generate Data
+          </Button>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="internalPartners">Internal Partners</Label>
-          <Input
-            id="internalPartners"
-            type="number"
-            min="0"
-            value={quantities.internalPartners}
-            onChange={(e) => handleChange('internalPartners', e.target.value)}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="smePartners">SME Partners</Label>
-          <Input
-            id="smePartners"
-            type="number"
-            min="0"
-            value={quantities.smePartners}
-            onChange={(e) => handleChange('smePartners', e.target.value)}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="spis">SPIs</Label>
-          <Input
-            id="spis"
-            type="number"
-            min="0"
-            value={quantities.spis}
-            onChange={(e) => handleChange('spis', e.target.value)}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="objectives">Objectives</Label>
-          <Input
-            id="objectives"
-            type="number"
-            min="0"
-            value={quantities.objectives}
-            onChange={(e) => handleChange('objectives', e.target.value)}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="sitreps">Sitreps</Label>
-          <Input
-            id="sitreps"
-            type="number"
-            min="0"
-            value={quantities.sitreps}
-            onChange={(e) => handleChange('sitreps', e.target.value)}
-          />
-        </div>
-      </div>
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isPopulating}>
-          {isPopulating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Generate Data
-        </Button>
-      </div>
-    </form>
+      </form>
+    </Form>
   );
 }
