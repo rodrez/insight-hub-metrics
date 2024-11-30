@@ -1,4 +1,4 @@
-import { Project, Collaborator, Department } from '@/lib/types';
+import { Project, Collaborator } from '@/lib/types';
 import { SPI } from '@/lib/types/spi';
 import { Objective } from '@/lib/types/objective';
 import { SitRep } from '@/lib/types/sitrep';
@@ -19,57 +19,45 @@ export class SampleDataService {
     this.progressTracker = new ProgressTracker();
   }
 
-  async generateSampleData(quantities: DataQuantities = {
-    projects: 10,
-    spis: 10,
-    objectives: 5,
-    sitreps: 10,
-    fortune30: 6,
-    internalPartners: 20,
-    smePartners: 10
-  }) {
+  async generateSampleData(quantities: Partial<DataQuantities> = {}) {
     try {
-      this.progressTracker.addStep('Fortune 30 Partners', quantities.fortune30);
-      this.progressTracker.addStep('Internal Partners', quantities.internalPartners);
-      this.progressTracker.addStep('SME Partners', quantities.smePartners);
-      this.progressTracker.addStep('Projects', quantities.projects);
+      const validatedQuantities = dataQuantitiesSchema.parse(quantities);
       
-      // Generate all partners first
+      this.progressTracker.addStep('Fortune 30 Partners', validatedQuantities.fortune30);
+      this.progressTracker.addStep('Internal Partners', validatedQuantities.internalPartners);
+      this.progressTracker.addStep('SME Partners', validatedQuantities.smePartners);
+      this.progressTracker.addStep('Projects', validatedQuantities.projects);
+      
+      // Generate partners synchronously
       const fortune30Partners = generateFortune30Partners();
       const internalPartners = await generateInternalPartners();
       const allSMEPartners = generateSMEPartners();
       
-      // Ensure we only take the requested number of partners
-      const smePartners = allSMEPartners.slice(0, quantities.smePartners);
+      // Take only the requested number of partners
+      const smePartners = allSMEPartners.slice(0, validatedQuantities.smePartners);
+      const selectedFortune30 = fortune30Partners.slice(0, validatedQuantities.fortune30);
+      const selectedInternal = internalPartners.slice(0, validatedQuantities.internalPartners);
 
       // Convert readonly DEPARTMENTS to regular array for project generation
-      const departments: Department[] = [...DEPARTMENTS];
+      const departments = [...DEPARTMENTS];
 
       // Generate projects using the partners
       const { projects, spis, objectives, sitreps } = await generateSampleProjects({
-        ...quantities,
+        ...validatedQuantities,
         departments,
-        fortune30Partners,
-        internalPartners,
+        fortune30Partners: selectedFortune30,
+        internalPartners: selectedInternal,
         smePartners
       });
 
-      this.progressTracker.updateProgress('Fortune 30 Partners', fortune30Partners.length);
-      this.progressTracker.updateProgress('Internal Partners', internalPartners.length);
+      this.progressTracker.updateProgress('Fortune 30 Partners', selectedFortune30.length);
+      this.progressTracker.updateProgress('Internal Partners', selectedInternal.length);
       this.progressTracker.updateProgress('SME Partners', smePartners.length);
       this.progressTracker.updateProgress('Projects', projects.length);
 
-      // Log the counts for debugging
-      console.log('Generated data counts:', {
-        fortune30: fortune30Partners.length,
-        internal: internalPartners.length,
-        sme: smePartners.length,
-        projects: projects.length
-      });
-
       return {
-        fortune30Partners: fortune30Partners.slice(0, quantities.fortune30),
-        internalPartners: internalPartners.slice(0, quantities.internalPartners),
+        fortune30Partners: selectedFortune30,
+        internalPartners: selectedInternal,
         smePartners,
         projects,
         spis,

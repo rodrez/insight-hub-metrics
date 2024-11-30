@@ -19,17 +19,14 @@ export class DataGenerationService {
 
   private async generatePartners(quantities: DataQuantities) {
     try {
-      const fortune30Partners = await Promise.resolve(generateFortune30Partners())
-        .then(partners => partners.filter(validateCollaborator));
+      const fortune30Partners = generateFortune30Partners().filter(validateCollaborator);
       this.showSuccessStep(`Generated ${fortune30Partners.length} Fortune 30 partners`);
 
-      const internalPartners = await generateInternalPartners()
-        .then(partners => partners.filter(validateCollaborator));
+      const internalPartners = (await generateInternalPartners()).filter(validateCollaborator);
       const selectedInternalPartners = internalPartners.slice(0, quantities.internalPartners);
       this.showSuccessStep(`Generated ${selectedInternalPartners.length} internal partners`);
 
-      const smePartners = await Promise.resolve(generateSMEPartners())
-        .then(partners => partners.filter(validateCollaborator));
+      const smePartners = generateSMEPartners().filter(validateCollaborator);
       const selectedSMEPartners = smePartners.slice(0, quantities.smePartners);
       this.showSuccessStep(`Generated ${selectedSMEPartners.length} SME partners`);
 
