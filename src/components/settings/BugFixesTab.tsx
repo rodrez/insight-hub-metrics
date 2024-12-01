@@ -1,16 +1,27 @@
 import { bugTracker } from "@/lib/services/error/BugTrackingService";
+import { CodeAnalysisService, CodeIssue } from "@/lib/services/analysis/CodeAnalysisService";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState, useEffect } from "react";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, AlertTriangle } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function BugFixesTab() {
   const [bugs, setBugs] = useState<any[]>([]);
+  const [automaticIssues, setAutomaticIssues] = useState<CodeIssue[]>([]);
   const [previousBugIds, setPreviousBugIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const [issueFilter, setIssueFilter] = useState<string>("all");
+  const analysisService = new CodeAnalysisService();
 
   const sortBugsBySeverity = (bugsToSort: any[]) => {
     const severityOrder = {
@@ -28,11 +39,15 @@ export function BugFixesTab() {
 
   const loadBugs = async () => {
     try {
-      console.log('Loading bugs...');
-      const fetchedBugs = await bugTracker.getAllBugs();
-      console.log('Fetched bugs:', fetchedBugs);
+      setIsLoading(true);
+      const [fetchedBugs, detectedIssues] = await Promise.all([
+        bugTracker.getAllBugs(),
+        analysisService.detectIssues()
+      ]);
+      
       const sortedBugs = sortBugsBySeverity(fetchedBugs);
       setBugs(sortedBugs);
+      setAutomaticIssues(detectedIssues);
       setPreviousBugIds(new Set(sortedBugs.map(bug => bug.id)));
       setIsLoading(false);
     } catch (error) {
@@ -53,25 +68,31 @@ export function BugFixesTab() {
   const refreshBugs = async () => {
     try {
       const currentBugIds = new Set(bugs.map(bug => bug.id));
-      // Get fresh bugs while preserving resolved statuses
-      const newBugs = await bugTracker.getAllBugs();
-      console.log('Refreshed bugs:', newBugs);
+      
+      // Get fresh bugs and detected issues
+      const [newBugs, newIssues] = await Promise.all([
+        bugTracker.getAllBugs(),
+        analysisService.detectIssues()
+      ]);
+      
       const sortedBugs = sortBugsBySeverity(newBugs);
       setBugs(sortedBugs);
+      setAutomaticIssues(newIssues);
       
       // Check for new bugs (ones that weren't in the previous set)
       const newBugCount = newBugs.filter(bug => !currentBugIds.has(bug.id)).length;
+      const newIssueCount = newIssues.length;
       
-      if (newBugCount > 0) {
+      if (newBugCount > 0 || newIssueCount > 0) {
         toast({
-          title: "New bugs found!",
-          description: `${newBugCount} new bug${newBugCount > 1 ? 's' : ''} have been detected`,
+          title: "New issues found!",
+          description: `Found ${newBugCount} new reported bug${newBugCount !== 1 ? 's' : ''} and ${newIssueCount} code issue${newIssueCount !== 1 ? 's' : ''}`,
           variant: "default",
         });
       } else {
         toast({
-          title: "Bug list refreshed",
-          description: "No new bugs found",
+          title: "Scan complete",
+          description: "No new issues found",
         });
       }
       
@@ -126,6 +147,13 @@ export function BugFixesTab() {
     return !previousBugIds.has(bugId);
   };
 
+  const filteredIssues = [...bugs, ...automaticIssues].filter(issue => {
+    if (issueFilter === "all") return true;
+    if (issueFilter === "automatic") return 'automatic' in issue;
+    if (issueFilter === "reported") return !('automatic' in issue);
+    return true;
+  });
+
   if (isLoading) {
     return <div>Loading bugs...</div>;
   }
@@ -140,19 +168,37 @@ export function BugFixesTab() {
             <Badge variant="outline">Medium: {bugs.filter(b => b.severity === 'medium').length}</Badge>
             <Badge variant="outline">Low: {bugs.filter(b => b.severity === 'low').length}</Badge>
           </div>
-          <Button onClick={refreshBugs} size="sm" variant="outline">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh Bugs
-          </Button>
+          <div className="flex items-center gap-4">
+            <Select value={issueFilter} onValueChange={setIssueFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter issues" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Issues</SelectItem>
+                <SelectItem value="automatic">Detected Issues</SelectItem>
+                <SelectItem value="reported">Reported Bugs</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button onClick={refreshBugs} size="sm" variant="outline">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Scan for Issues
+            </Button>
+          </div>
         </div>
         
-        {bugs.map((bug) => (
+        {filteredIssues.map((bug) => (
           <Card key={bug.id} className={`p-4 ${isNewBug(bug.id) ? 'ring-2 ring-blue-500' : ''}`}>
             <div className="flex items-start justify-between">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Badge className={getSeverityColor(bug.severity)}>{bug.severity}</Badge>
                   <span className="text-sm text-muted-foreground">{bug.id}</span>
+                  {'automatic' in bug && (
+                    <Badge variant="secondary" className="bg-purple-100">
+                      <AlertTriangle className="h-3 w-3 mr-1" />
+                      Auto-detected
+                    </Badge>
+                  )}
                   {isNewBug(bug.id) && (
                     <Badge variant="secondary" className="bg-blue-100">New</Badge>
                   )}
@@ -167,17 +213,22 @@ export function BugFixesTab() {
                     <p className="text-sm"><strong>Steps to Reproduce:</strong> {bug.stepsToReproduce}</p>
                   )}
                   <p className="text-sm"><strong>Suggested Fix:</strong> {bug.suggestedFix}</p>
+                  {'detectedAt' in bug && (
+                    <p className="text-sm"><strong>Detected:</strong> {new Date(bug.detectedAt).toLocaleString()}</p>
+                  )}
                 </div>
               </div>
               
-              <Button
-                variant={bug.status === 'resolved' ? 'secondary' : 'outline'}
-                onClick={() => handleResolveBug(bug.id)}
-                className="ml-4"
-                disabled={bug.status === 'resolved'}
-              >
-                {bug.status === 'resolved' ? 'Resolved' : 'Mark as Resolved'}
-              </Button>
+              {!('automatic' in bug) && (
+                <Button
+                  variant={bug.status === 'resolved' ? 'secondary' : 'outline'}
+                  onClick={() => handleResolveBug(bug.id)}
+                  className="ml-4"
+                  disabled={bug.status === 'resolved'}
+                >
+                  {bug.status === 'resolved' ? 'Resolved' : 'Mark as Resolved'}
+                </Button>
+              )}
             </div>
           </Card>
         ))}
