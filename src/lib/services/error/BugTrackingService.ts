@@ -2,80 +2,36 @@ class BugTracker {
   private bugs: any[] = [
     {
       id: "BUG-001",
-      title: "Fortune 30 Partner Selection Not Persisting",
-      description: "When selecting a Fortune 30 partner in forms, the selection doesn't persist in the UI after saving",
-      severity: "critical",
+      title: "Data Stats Display Format Issue",
+      description: "Data stats component showing range format instead of single number",
+      severity: "medium",
       status: "active",
-      location: "src/components/spi/form/SelectFields.tsx",
-      impact: "Users cannot properly manage Fortune 30 partner associations",
-      stepsToReproduce: "1. Open SPI form\n2. Select a Fortune 30 partner\n3. Save the form\n4. Reopen the form",
-      suggestedFix: "Implement proper state management for partner selection and verify data persistence"
+      location: "src/components/data/stats/DataStats.tsx",
+      impact: "Incorrect display of data statistics",
+      stepsToReproduce: "1. Navigate to any page with data stats\n2. Observe the projects count display",
+      suggestedFix: "Update DataStats component to show single number instead of range format"
     },
     {
       id: "BUG-002",
-      title: "Edit Form Data Pre-population Issue",
-      description: "Form fields not showing existing data when edit dialogs are opened",
-      severity: "high",
-      status: "active",
-      location: "src/components/spi/SPIEditForm.tsx",
-      impact: "Users cannot see current values before making changes",
-      stepsToReproduce: "1. Click edit on any existing item\n2. Observe form fields",
-      suggestedFix: "Initialize form fields with current data using useEffect and proper state management"
-    },
-    {
-      id: "BUG-003",
-      title: "Missing Form Validation",
-      description: "Forms lack proper validation before submission",
-      severity: "high",
-      status: "active",
-      location: "Multiple form components",
-      impact: "Invalid or incomplete data can be submitted to the database",
-      stepsToReproduce: "1. Submit any form with invalid or missing data",
-      suggestedFix: "Implement form validation using React Hook Form with proper validation schemas"
-    },
-    {
-      id: "BUG-004",
-      title: "Dialog Accessibility Issues",
-      description: "Dialog components missing proper ARIA labels and descriptions",
-      severity: "medium",
-      status: "active",
-      location: "All dialog components",
-      impact: "Reduced accessibility for screen readers and keyboard navigation",
-      stepsToReproduce: "1. Open any dialog\n2. Check console for accessibility warnings",
-      suggestedFix: "Add proper ARIA labels and descriptions to all dialog components"
-    },
-    {
-      id: "BUG-005",
-      title: "Inconsistent Error Handling",
-      description: "Error states not consistently handled across the application",
-      severity: "medium",
-      status: "active",
-      location: "Multiple components",
-      impact: "Poor user feedback when operations fail",
-      stepsToReproduce: "1. Trigger error conditions in different parts of the app\n2. Observe inconsistent error handling",
-      suggestedFix: "Implement consistent error boundary and toast notification system"
-    },
-    {
-      id: "BUG-006",
-      title: "Missing Loading States",
-      description: "No loading indicators during data operations",
-      severity: "medium",
-      status: "active",
-      location: "Components using data fetching",
-      impact: "Poor user experience during data loading",
-      stepsToReproduce: "1. Perform any data operation\n2. Observe lack of loading feedback",
-      suggestedFix: "Add loading states and skeleton loaders to all data operations"
-    },
-    {
-      id: "BUG-007",
-      title: "Database Initialization Issues",
-      description: "Multiple database initialization attempts occurring",
+      title: "Database Service Type Definitions",
+      description: "TypeScript errors in database service implementation",
       severity: "high",
       status: "active",
       location: "src/lib/services/IndexedDBService.ts",
-      impact: "Potential performance impact and race conditions",
-      stepsToReproduce: "1. Check console logs for multiple initialization attempts",
-      suggestedFix: "Implement proper singleton pattern for database initialization"
+      impact: "TypeScript compilation errors and potential runtime issues",
+      stepsToReproduce: "1. Check TypeScript compilation output\n2. Observe missing interface implementations",
+      suggestedFix: "Implement missing methods and fix type definitions in IndexedDBService"
+    },
+    {
+      id: "BUG-003",
+      title: "Database Initialization Race Condition",
+      description: "Multiple database initialization attempts occurring simultaneously",
+      severity: "critical",
+      status: "active",
+      location: "src/lib/services/IndexedDBService.ts",
+      impact: "Potential data corruption and performance issues",
+      stepsToReproduce: "1. Monitor console logs during application startup\n2. Observe multiple initialization attempts",
+      suggestedFix: "Implement proper initialization state management and singleton pattern"
     }
   ];
 
