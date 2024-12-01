@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { db } from "@/lib/db";
 import { Card } from "@/components/ui/card";
 import { Edit, Info, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,12 +11,13 @@ import {
 import { useState } from "react";
 import { InitiativeEditDialog } from "./InitiativeEditDialog";
 import { toast } from "@/components/ui/use-toast";
+import { db } from "@/lib/db";
 
 interface Initiative {
   id: string;
   initiative: string;
   desiredOutcome: string;
-  objectiveIds: string[]; // Array of objective IDs this initiative aligns with
+  objectiveIds: string[];
 }
 
 interface Objective {
@@ -27,38 +27,91 @@ interface Objective {
 }
 
 export function ObjectivesList() {
-  const { data: objectives, refetch: refetchObjectives } = useQuery({
+  const { data: objectives = [], refetch: refetchObjectives } = useQuery({
     queryKey: ['objectives'],
-    queryFn: () => db.getAllObjectives()
+    queryFn: () => db.getAllObjectives(),
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
-  const { data: initiatives, refetch: refetchInitiatives } = useQuery({
+  const { data: initiatives = [], refetch: refetchInitiatives } = useQuery({
     queryKey: ['initiatives'],
-    queryFn: () => db.getAllInitiatives()
+    queryFn: () => db.getAllInitiatives(),
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const [editingInitiative, setEditingInitiative] = useState<Initiative | null>(null);
 
   const handleUpdateInitiative = async (updatedInitiative: Initiative) => {
-    await db.updateInitiative(updatedInitiative.id, updatedInitiative);
-    refetchInitiatives();
-    setEditingInitiative(null);
-    toast({
-      title: "Success",
-      description: "Initiative updated successfully",
-    });
+    try {
+      await db.updateInitiative(updatedInitiative.id, updatedInitiative);
+      await refetchInitiatives();
+      setEditingInitiative(null);
+      toast({
+        title: "Success",
+        description: "Initiative updated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update initiative",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDeleteInitiative = async (initiativeId: string) => {
-    await db.deleteInitiative(initiativeId);
-    refetchInitiatives();
-    toast({
-      title: "Success",
-      description: "Initiative deleted successfully",
-    });
+    try {
+      await db.deleteInitiative(initiativeId);
+      await refetchInitiatives();
+      toast({
+        title: "Success",
+        description: "Initiative deleted successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete initiative",
+        variant: "destructive",
+      });
+    }
   };
 
-  if (!objectives || !initiatives) return null;
+  // Add sample data if none exists
+  const addSampleData = async () => {
+    if (objectives.length === 0) {
+      const sampleObjectives = [
+        {
+          id: '1',
+          title: 'Improve Customer Experience',
+          desiredOutcome: 'Increase customer satisfaction score by 20%'
+        },
+        {
+          id: '2',
+          title: 'Digital Transformation',
+          desiredOutcome: 'Modernize 80% of legacy systems'
+        },
+        {
+          id: '3',
+          title: 'Operational Excellence',
+          desiredOutcome: 'Reduce operational costs by 15%'
+        }
+      ];
+
+      for (const objective of sampleObjectives) {
+        await db.addObjective(objective);
+      }
+      refetchObjectives();
+      toast({
+        title: "Success",
+        description: "Sample objectives added successfully",
+      });
+    }
+  };
+
+  // Call addSampleData when component mounts if no data exists
+  if (objectives.length === 0) {
+    addSampleData();
+  }
 
   return (
     <div className="space-y-8">
