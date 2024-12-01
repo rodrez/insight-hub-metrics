@@ -33,7 +33,6 @@ export function ExportActions({ isInitialized, disabled }: ExportActionsProps) {
     setIsExporting(true);
     try {
       const data = await db.exportData();
-      console.log('Exported data:', data); // Debug log
       
       if (!data) {
         throw new Error('No data received from database');
@@ -47,11 +46,11 @@ export function ExportActions({ isInitialized, disabled }: ExportActionsProps) {
         filename = `database-export-${new Date().toISOString()}.json`;
       } else {
         const csv = CSVExportService.convertToCSV(data);
-        console.log('Generated CSV:', csv); // Debug log
         blob = new Blob([csv], { type: 'text/csv' });
         filename = `database-export-${new Date().toISOString()}.csv`;
       }
 
+      // Create and trigger download
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -66,7 +65,7 @@ export function ExportActions({ isInitialized, disabled }: ExportActionsProps) {
         description: `Data exported successfully as ${format.toUpperCase()}`,
       });
     } catch (error) {
-      console.error('Export error:', error); // Debug log
+      console.error('Export error:', error);
       errorHandler.handleError(error, {
         type: 'database',
         title: 'Failed to export data'

@@ -1,8 +1,8 @@
 import { DataService } from './DataService';
 import { Project, Collaborator, Team } from '../types';
+import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
-import { SitRep } from '../types/sitrep';
 import { DataQuantities } from '../types/data';
 import { ProjectService } from './db/ProjectService';
 import { CollaboratorService } from './db/CollaboratorService';
@@ -107,7 +107,29 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   addSMEPartner = (partner: Collaborator) => this.collaboratorService.addSMEPartner(partner);
 
   // Data operations
-  exportData = () => this.dataExportService.exportData();
+  exportData = async (): Promise<any> => {
+    try {
+      const data = {
+        projects: await this.getAllProjects(),
+        collaborators: await this.getAllCollaborators(),
+        sitreps: await this.getAllSitReps(),
+        spis: await this.getAllSPIs(),
+        objectives: await this.getAllObjectives(),
+        smePartners: await this.getAllSMEPartners()
+      };
+
+      // Verify we have at least some data
+      if (Object.values(data).every(arr => !arr?.length)) {
+        throw new Error('No data available in database');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      throw error;
+    }
+  };
+  
   clear = () => this.databaseClearingService.clearDatabase();
 
   async populateSampleData(quantities: DataQuantities): Promise<void> {
