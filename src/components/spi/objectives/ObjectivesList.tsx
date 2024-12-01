@@ -2,8 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
 import { ObjectiveCard } from "./ObjectiveCard";
+import { InitiativesList } from "./InitiativesList";
 import { useState } from "react";
 import { Objective } from "@/lib/types/objective";
+import { Separator } from "@/components/ui/separator";
 
 export function ObjectivesList() {
   const { data: objectives = [], refetch } = useQuery({
@@ -13,7 +15,6 @@ export function ObjectivesList() {
   });
 
   const handleEdit = async (objective: Objective) => {
-    // This will be implemented in a future update with a dialog
     toast({
       title: "Edit functionality coming soon",
       description: "The ability to edit objectives will be added in a future update.",
@@ -84,9 +85,8 @@ export function ObjectivesList() {
   }
 
   return (
-    <div className="space-y-8">
-      <h2 className="text-2xl font-bold mb-4">Strategic Objectives</h2>
-      <div className="grid grid-cols-1 gap-4">
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-2">
         {objectives.map((objective) => (
           <ObjectiveCard
             key={objective.id}
@@ -96,6 +96,8 @@ export function ObjectivesList() {
           />
         ))}
       </div>
+      <Separator className="my-6" />
+      <InitiativesList objectives={objectives} />
     </div>
   );
 }
