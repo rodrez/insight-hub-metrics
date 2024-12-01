@@ -103,6 +103,21 @@ const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Pr
             onUpdate={(partners) => updateProject({ internalPartners: partners })}
             isEditing={isEditing}
           />
+
+          {currentProject.collaborators?.some(c => c.type === 'sme') && (
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">SME Partners</h3>
+              <div className="space-y-2">
+                {currentProject.collaborators
+                  .filter(c => c.type === 'sme')
+                  .map(collaborator => (
+                    <div key={collaborator.id} className="p-2 border rounded">
+                      {collaborator.name}
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
