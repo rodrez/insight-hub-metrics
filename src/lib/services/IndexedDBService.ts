@@ -3,11 +3,13 @@ import { Project, Collaborator, Team } from '../types';
 import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
+import { Initiative } from '../types/initiative';
 import { DataQuantities } from '../types/data';
 import { ProjectService } from './db/ProjectService';
 import { CollaboratorService } from './db/CollaboratorService';
 import { SitRepService } from './db/SitRepService';
 import { SPIService } from './db/SPIService';
+import { InitiativeService } from './db/InitiativeService';
 import { BaseIndexedDBService } from './db/base/BaseIndexedDBService';
 import { SampleDataService } from './data/SampleDataService';
 import { ServiceInitializationManager } from './db/initialization/ServiceInitializationManager';
@@ -20,6 +22,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   private collaboratorService: CollaboratorService;
   private sitRepService: SitRepService;
   private spiService: SPIService;
+  private initiativeService: InitiativeService;
   private sampleDataService: SampleDataService;
   private dataExportService: DataExportService;
   private databaseClearingService: DatabaseClearingService;
@@ -31,6 +34,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     this.collaboratorService = new CollaboratorService();
     this.sitRepService = new SitRepService();
     this.spiService = new SPIService();
+    this.initiativeService = new InitiativeService();
     this.sampleDataService = new SampleDataService();
     this.initManager = ServiceInitializationManager.getInstance();
     this.dataExportService = new DataExportService(this);
@@ -53,6 +57,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
       this.collaboratorService.setDatabase(db);
       this.sitRepService.setDatabase(db);
       this.spiService.setDatabase(db);
+      this.initiativeService.setDatabase(db);
     });
   }
 
@@ -85,6 +90,12 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   addObjective = (objective: Objective) => this.spiService.addObjective(objective);
   updateObjective = (id: string, updates: Partial<Objective>) => this.spiService.updateObjective(id, updates);
   deleteObjective = (id: string) => this.spiService.deleteObjective(id);
+
+  // Initiative methods
+  getAllInitiatives = () => this.initiativeService.getAllInitiatives();
+  addInitiative = (initiative: Initiative) => this.initiativeService.addInitiative(initiative);
+  updateInitiative = (id: string, updates: Partial<Initiative>) => this.initiativeService.updateInitiative(id, updates);
+  deleteInitiative = (id: string) => this.initiativeService.deleteInitiative(id);
 
   // Team methods
   async getAllTeams(): Promise<Team[]> {

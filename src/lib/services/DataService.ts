@@ -3,6 +3,7 @@ import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
 import { DataQuantities } from '../types/data';
+import { Initiative } from '../types/initiative';
 
 export interface ExportedData {
   projects: Project[];
@@ -43,4 +44,9 @@ export interface DataService {
   getSMEPartner(id: string): Promise<Collaborator | undefined>;
   addSMEPartner(partner: Collaborator): Promise<void>;
   getDatabase(): IDBDatabase | null;
+  // Add the missing methods for Initiatives
+  getAllInitiatives(): Promise<Initiative[]>;
+  addInitiative(initiative: Initiative): Promise<void>;
+  updateInitiative(id: string, updates: Partial<Initiative>): Promise<void>;
+  deleteInitiative(id: string): Promise<void>;
 }
