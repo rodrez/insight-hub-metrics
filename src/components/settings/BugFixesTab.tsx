@@ -13,15 +13,29 @@ export function BugFixesTab() {
 
   useEffect(() => {
     // Initialize bugs on component mount
-    const initialBugs = bugTracker.getAllBugs();
+    const initialBugs = sortBugsBySeverity(bugTracker.getAllBugs());
     setBugs(initialBugs);
     setPreviousBugIds(new Set(initialBugs.map(bug => bug.id)));
   }, []);
 
+  const sortBugsBySeverity = (bugsToSort: any[]) => {
+    const severityOrder = {
+      'critical': 0,
+      'high': 1,
+      'medium': 2,
+      'low': 3
+    };
+
+    return [...bugsToSort].sort((a, b) => 
+      severityOrder[a.severity as keyof typeof severityOrder] - 
+      severityOrder[b.severity as keyof typeof severityOrder]
+    );
+  };
+
   const refreshBugs = () => {
     try {
       const currentBugIds = new Set(bugs.map(bug => bug.id));
-      const newBugs = bugTracker.getAllBugs();
+      const newBugs = sortBugsBySeverity(bugTracker.getAllBugs());
       setBugs(newBugs);
       
       // Check for new bugs
