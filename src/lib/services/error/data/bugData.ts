@@ -13,106 +13,104 @@ export interface Bug {
 export const initialBugs: Bug[] = [
   {
     id: "BUG-001",
-    title: "Agreement Warning System Enhancement",
-    description: "Current warning system for NDAs and JTDAs needs improvement to handle edge cases",
-    severity: "high",
+    title: "Database Population Progress Indicator",
+    description: "Progress tracking during database population needs improvement",
+    severity: "medium",
     status: "active",
-    location: "src/components/collaborations/agreements/AgreementsList.tsx",
-    impact: "Potential missed warnings for critical agreement expirations",
-    stepsToReproduce: "1. Create multiple agreements with varying expiration dates\n2. Check warning triggers for near-expiry dates",
-    suggestedFix: "Implement more sophisticated warning system with configurable thresholds and email notifications"
+    location: "src/components/data/hooks/useDataPopulation.ts",
+    impact: "Users lack clear feedback during data population process",
+    stepsToReproduce: "1. Clear database\n2. Attempt to populate with large dataset",
+    suggestedFix: "Implement a progress bar component to show real-time population status"
   },
   {
     id: "BUG-002",
-    title: "CSV Export Format Optimization",
-    description: "CSV exports need better formatting and column organization",
-    severity: "medium",
+    title: "Type Safety in Bug Tracking",
+    description: "BugFixesTab uses 'any' type for bugs array",
+    severity: "low",
     status: "active",
-    location: "src/components/data/actions/ExportActions.tsx",
-    impact: "Reduced usability of exported data in spreadsheet applications",
-    suggestedFix: "Reorganize CSV columns and add proper headers for better data organization"
+    location: "src/components/settings/BugFixesTab.tsx",
+    impact: "Reduced type safety and potential runtime errors",
+    suggestedFix: "Replace 'any[]' with proper Bug interface type"
   },
   {
     id: "BUG-003",
-    title: "Mobile Responsive Design for Agreement Tables",
-    description: "Agreement tables don't display properly on mobile devices",
+    title: "Database Operations Error Handling",
+    description: "Error handling in DatabaseOperations class needs enhancement",
     severity: "high",
     status: "active",
-    location: "src/components/collaborations/agreements/AgreementsList.tsx",
-    impact: "Poor user experience on mobile devices",
-    stepsToReproduce: "1. Open agreements page on mobile device\n2. Observe table layout issues",
-    suggestedFix: "Implement responsive design patterns for table display on mobile devices"
+    location: "src/components/data/operations/DatabaseOperations.ts",
+    impact: "Insufficient error context for debugging database issues",
+    suggestedFix: "Implement detailed error handling with specific error types and messages"
   },
   {
     id: "BUG-004",
-    title: "Data Validation for Agreement Dates",
-    description: "Date validation for agreements needs to be more robust",
+    title: "Memory Management in Data Population",
+    description: "Large dataset population may cause memory issues",
     severity: "critical",
     status: "active",
-    location: "src/components/collaborations/agreements/AgreementForm.tsx",
-    impact: "Potential invalid date entries in agreement records",
-    suggestedFix: "Enhance date validation logic and add date range checks"
+    location: "src/lib/services/IndexedDBService.ts",
+    impact: "Potential browser crashes with large datasets",
+    stepsToReproduce: "1. Attempt to populate database with maximum quantity values",
+    suggestedFix: "Implement batch processing with memory usage monitoring"
   },
   {
     id: "BUG-005",
-    title: "Performance Optimization for Large Datasets",
-    description: "Application slows down with large number of agreements and collaborations",
-    severity: "high",
+    title: "Settings Page Load Performance",
+    description: "Settings tabs load all content simultaneously",
+    severity: "medium",
     status: "active",
-    location: "src/components/collaborations/CollaborationList.tsx",
-    impact: "Degraded performance with large datasets",
-    suggestedFix: "Implement virtual scrolling and pagination for large data sets"
+    location: "src/pages/Settings.tsx",
+    impact: "Slower initial page load and unnecessary resource usage",
+    suggestedFix: "Implement lazy loading for tab content"
   },
   {
     id: "BUG-006",
-    title: "Search Functionality Enhancement",
-    description: "Search feature needs to include agreement content and metadata",
-    severity: "medium",
+    title: "Data Validation in Sample Data Generation",
+    description: "Sample data generation lacks comprehensive validation",
+    severity: "high",
     status: "active",
-    location: "src/components/search/GlobalSearch.tsx",
-    impact: "Limited search capabilities for agreements and collaborations",
-    suggestedFix: "Extend search functionality to include agreement details and metadata"
+    location: "src/lib/services/data/sampleDataGenerator.ts",
+    impact: "Potential invalid data states in generated content",
+    suggestedFix: "Add thorough validation checks for generated data"
   },
   {
     id: "BUG-007",
-    title: "Accessibility Improvements for Forms",
-    description: "Form elements need better accessibility support",
+    title: "Component File Size Management",
+    description: "Several components exceed recommended file size",
     severity: "medium",
     status: "active",
-    location: "src/components/ui/form.tsx",
-    impact: "Limited accessibility for users with disabilities",
-    stepsToReproduce: "1. Navigate forms using screen reader\n2. Test keyboard navigation",
-    suggestedFix: "Add proper ARIA labels and keyboard navigation support"
+    location: "Multiple component files",
+    impact: "Reduced maintainability and potential performance issues",
+    suggestedFix: "Refactor large components into smaller, focused components"
   },
   {
     id: "BUG-008",
-    title: "Data Backup Automation",
-    description: "Manual backup process needs automation",
+    title: "React Query Error Boundary Implementation",
+    description: "Missing error boundaries for React Query errors",
     severity: "medium",
     status: "active",
-    location: "src/components/data/actions/BackupActions.tsx",
-    impact: "Risk of data loss due to manual backup process",
-    suggestedFix: "Implement automated backup scheduling system"
+    location: "src/components/data/hooks/useDataPopulation.ts",
+    impact: "Uncaught query errors may crash the application",
+    suggestedFix: "Implement error boundaries for React Query operations"
   },
   {
     id: "BUG-009",
-    title: "Error Handling Enhancement",
-    description: "Better error messages needed for failed operations",
-    severity: "low",
+    title: "IndexedDB Version Management",
+    description: "Database version management needs improvement",
+    severity: "high",
     status: "active",
-    location: "src/lib/utils/errorHandling.ts",
-    impact: "Unclear error messages for users",
-    suggestedFix: "Implement more descriptive error messages and handling"
+    location: "src/lib/services/db/base/BaseDBService.ts",
+    impact: "Potential issues during database schema updates",
+    suggestedFix: "Implement robust version control system for database schema changes"
   },
   {
     id: "BUG-010",
-    title: "Dark Mode Color Scheme",
-    description: "Some components don't properly support dark mode",
+    title: "React Query Cache Configuration",
+    description: "Query cache settings need optimization",
     severity: "low",
     status: "active",
-    location: "src/components/theme/ThemeToggle.tsx",
-    impact: "Inconsistent dark mode experience",
-    stepsToReproduce: "1. Switch to dark mode\n2. Navigate through application\n3. Note inconsistent color schemes",
-    suggestedFix: "Update color schemes for all components in dark mode"
+    location: "src/lib/services/IndexedDBService.ts",
+    impact: "Suboptimal caching behavior for database operations",
+    suggestedFix: "Configure appropriate cache time and stale time for queries"
   }
 ];
