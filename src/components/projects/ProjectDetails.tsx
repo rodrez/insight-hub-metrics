@@ -33,6 +33,23 @@ const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Pr
     setProject(current => ({ ...current, ...updates }));
   };
 
+  const handleSaveChanges = async () => {
+    try {
+      await db.updateProject(project.id, project);
+      setIsEditing(false);
+      toast({
+        title: "Success",
+        description: "Project changes have been saved successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save project changes.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 space-y-6 py-8 animate-fade-in">
       <div className="flex justify-between items-center mb-6">
@@ -45,13 +62,11 @@ const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Pr
           isEditing={isEditing}
           onEdit={() => setIsEditing(true)}
           onCancel={() => setIsEditing(false)}
-          onUpdate={async () => {
-            // Update logic here
-          }}
+          onUpdate={handleSaveChanges}
         />
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="space-y-6">
         <FinancialDetails 
           project={editedProject}
           isEditing={isEditing}
