@@ -25,7 +25,11 @@ export function RelatedEntities({
 }: RelatedEntitiesProps) {
   const { data: smePartner } = useQuery({
     queryKey: ['sme-partner', smePartnerId],
-    queryFn: () => smePartnerId && smePartnerId !== 'none' ? db.getSMEPartner(smePartnerId) : null,
+    queryFn: async () => {
+      if (!smePartnerId || smePartnerId === 'none') return null;
+      const partner = await db.getSMEPartner(smePartnerId);
+      return partner || null;
+    },
     enabled: !!smePartnerId && smePartnerId !== 'none'
   });
 
