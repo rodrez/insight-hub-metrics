@@ -24,6 +24,19 @@ export class CSVExportService {
       if (data.projects && data.projects.length > 0) {
         this.addProjectsSection(items, data.projects);
       }
+
+      // Add Agreements section
+      if (data.collaborators && data.collaborators.length > 0) {
+        this.addAgreementsSection(items, data.collaborators);
+      }
+      
+      if (data.objectives && data.objectives.length > 0) {
+        this.addObjectivesSection(items, data.objectives);
+      }
+
+      if (data.sitreps && data.sitreps.length > 0) {
+        this.addSitRepsSection(items, data.sitreps);
+      }
       
       if (data.spis && data.spis.length > 0) {
         this.addSPIsSection(items, data.spis);
@@ -118,6 +131,92 @@ export class CSVExportService {
         formatDate(p.endDate),
         p.budget || 'N/A',
         p.priority || 'Medium'
+      ].map(escapeCSVValue));
+    });
+    items.push(['']);
+  }
+
+  private static addAgreementsSection(items: any[], collaborators: any[] = []) {
+    items.push(['Agreements (NDAs & JTDAs)']);
+    items.push([
+      'Partner ID',
+      'Partner Name',
+      'NDA Status',
+      'NDA Signed Date',
+      'NDA Expiry Date',
+      'JTDA Status',
+      'JTDA Signed Date',
+      'JTDA Expiry Date'
+    ].map(escapeCSVValue));
+    
+    collaborators.forEach((c: any) => {
+      if (c.agreements) {
+        items.push([
+          c.id,
+          c.name,
+          c.agreements.nda?.status || 'N/A',
+          formatDate(c.agreements.nda?.signedDate) || 'N/A',
+          formatDate(c.agreements.nda?.expiryDate) || 'N/A',
+          c.agreements.jtda?.status || 'N/A',
+          formatDate(c.agreements.jtda?.signedDate) || 'N/A',
+          formatDate(c.agreements.jtda?.expiryDate) || 'N/A'
+        ].map(escapeCSVValue));
+      }
+    });
+    items.push(['']);
+  }
+
+  private static addObjectivesSection(items: any[], objectives: any[] = []) {
+    items.push(['Objectives']);
+    items.push([
+      'Objective ID',
+      'Title',
+      'Description',
+      'Initiative',
+      'Desired Outcome',
+      'Associated SPIs'
+    ].map(escapeCSVValue));
+    
+    objectives.forEach((obj: any) => {
+      items.push([
+        obj.id,
+        obj.title,
+        obj.description,
+        obj.initiative,
+        obj.desiredOutcome,
+        (obj.spiIds || []).join('; ')
+      ].map(escapeCSVValue));
+    });
+    items.push(['']);
+  }
+
+  private static addSitRepsSection(items: any[], sitreps: any[] = []) {
+    items.push(['Situation Reports (SitReps)']);
+    items.push([
+      'SitRep ID',
+      'Title',
+      'Date',
+      'Status',
+      'Level',
+      'Department',
+      'Summary',
+      'Update',
+      'Challenges',
+      'Next Steps'
+    ].map(escapeCSVValue));
+    
+    sitreps.forEach((sitrep: any) => {
+      items.push([
+        sitrep.id,
+        sitrep.title,
+        formatDate(sitrep.date),
+        sitrep.status,
+        sitrep.level || 'N/A',
+        sitrep.departmentId || 'N/A',
+        sitrep.summary,
+        sitrep.update,
+        sitrep.challenges || 'N/A',
+        sitrep.nextSteps || 'N/A'
       ].map(escapeCSVValue));
     });
     items.push(['']);
