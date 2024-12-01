@@ -21,9 +21,18 @@ export function PartnerTableRow({
   getDepartmentColor, 
   handleProjectClick 
 }: PartnerTableRowProps) {
+  // Format name to be more personalized
+  const displayName = collaborator.name.split(' ').map(
+    part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+  ).join(' ');
+
   return (
     <TableRow className="hover:bg-muted/50">
-      <TableCell className="font-medium">{collaborator.name}</TableCell>
+      <TableCell className="font-medium">
+        <span className="text-foreground hover:text-primary transition-colors">
+          {displayName}
+        </span>
+      </TableCell>
       <TableCell>{collaborator.role}</TableCell>
       <TableCell>
         <Badge 
