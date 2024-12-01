@@ -50,9 +50,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
         if (transaction.error) {
           console.warn('Transaction error detected:', transaction.error);
         }
-        if (!transaction.objectStoreNames) {
-          transaction.abort();
-        }
+        transaction.abort();
       } catch (error) {
         console.warn('Error during transaction cleanup:', error);
       }
@@ -160,4 +158,33 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   getAllSMEPartners = () => this.collaboratorService.getAllSMEPartners();
   getSMEPartner = (id: string) => this.collaboratorService.getSMEPartner(id);
   addSMEPartner = (partner: Collaborator) => this.collaboratorService.addSMEPartner(partner);
+
+  // Data export method
+  async exportData(): Promise<void> {
+    if (!this.getDatabase()) throw new Error('Database not initialized');
+    const data = {
+      projects: await this.getAllProjects(),
+      collaborators: await this.getAllCollaborators(),
+      sitreps: await this.getAllSitReps(),
+      spis: await this.getAllSPIs(),
+      objectives: await this.getAllObjectives(),
+      smePartners: await this.getAllSMEPartners()
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `database-export-${new Date().toISOString()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  }
+
+  // Sample data population method
+  async populateSampleData(quantities: DataQuantities): Promise<void> {
+    await this.clear();
+    await this.sampleDataService.generateSampleData(quantities);
+  }
 }
