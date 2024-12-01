@@ -5,26 +5,19 @@ import { toast } from "@/components/ui/use-toast";
 import { NABCSection } from "./NABCSection";
 import { MilestonesSection } from "./MilestonesSection";
 import { Project } from "@/lib/types";
-import { TechDomainSelect } from "./TechDomainSelect";
 import { ProjectHeader } from "./ProjectHeader";
 import { FinancialDetails } from "./FinancialDetails";
 import { Fortune30Section } from "./Fortune30Section";
-import { InternalPartnersSection } from "./InternalPartnersSection";
 import { useQuery } from "@tanstack/react-query";
 import { ProjectActions } from "./details/ProjectActions";
 import { RelatedSPIs } from "./details/RelatedSPIs";
 import { RelatedSitReps } from "./details/RelatedSitReps";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SMEPartnersSection } from "./SMEPartnersSection";
 
 const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Project }) => {
   const [project, setProject] = useState(initialProject);
   const [isEditing, setIsEditing] = useState(false);
   const [editedProject, setEditedProject] = useState(project);
-
-  const { data: smePartners = [] } = useQuery({
-    queryKey: ['sme-partners'],
-    queryFn: () => db.getAllSMEPartners()
-  });
 
   const { data: spis = [] } = useQuery({
     queryKey: ['spis'],
@@ -35,47 +28,6 @@ const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Pr
     queryKey: ['sitreps'],
     queryFn: () => db.getAllSitReps()
   });
-
-  const handleAddSME = async (smeId: string) => {
-    try {
-      const selectedSME = smePartners.find(partner => partner.id === smeId);
-      if (!selectedSME) return;
-
-      const updatedCollaborators = [...editedProject.collaborators];
-      
-      // Check if SME is already added
-      if (!updatedCollaborators.some(c => c.id === selectedSME.id)) {
-        updatedCollaborators.push({
-          id: selectedSME.id,
-          name: selectedSME.name,
-          email: selectedSME.email,
-          role: selectedSME.role,
-          department: selectedSME.department,
-          projects: selectedSME.projects || [],
-          lastActive: new Date().toISOString(),
-          type: 'sme' as const
-        });
-
-        const updatedProject = {
-          ...editedProject,
-          collaborators: updatedCollaborators
-        };
-
-        await db.addProject(updatedProject);
-        setProject(updatedProject);
-        toast({
-          title: "Success",
-          description: "SME partner added successfully",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to add SME partner",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleProjectUpdate = (updates: Partial<Project>) => {
     setProject(current => ({ ...current, ...updates }));
@@ -105,44 +57,12 @@ const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Pr
           isEditing={isEditing}
           onUpdate={handleProjectUpdate}
         />
-
-        <div className="space-y-6">
-          {editedProject.collaborators?.some(c => c.type === 'sme') ? (
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold">SME Partners</h3>
-              <div className="space-y-2">
-                {editedProject.collaborators
-                  .filter(c => c.type === 'sme')
-                  .map(collaborator => (
-                    <div key={collaborator.id} className="p-2 border rounded">
-                      {collaborator.name}
-                    </div>
-                  ))}
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold">Add SME Partner</h3>
-              <Select onValueChange={handleAddSME}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select SME partner" />
-                </SelectTrigger>
-                <SelectContent>
-                  {smePartners.map(partner => (
-                    <SelectItem key={partner.id} value={partner.id}>
-                      {partner.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-        </div>
       </div>
 
       <RelatedSPIs projectId={editedProject.id} spis={spis} />
       <RelatedSitReps projectId={editedProject.id} sitreps={sitreps} />
       <Fortune30Section project={editedProject} />
+      <SMEPartnersSection project={editedProject} onUpdate={setProject} />
       {editedProject.nabc && (
         <NABCSection 
           projectId={editedProject.id} 
