@@ -1,4 +1,4 @@
-import { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { db } from "@/lib/db";
 import { toast } from "@/components/ui/use-toast";
@@ -24,6 +24,16 @@ const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Pr
   const { data: smePartners = [] } = useQuery({
     queryKey: ['sme-partners'],
     queryFn: () => db.getAllSMEPartners()
+  });
+
+  const { data: spis = [] } = useQuery({
+    queryKey: ['spis'],
+    queryFn: () => db.getAllSPIs()
+  });
+
+  const { data: sitreps = [] } = useQuery({
+    queryKey: ['sitreps'],
+    queryFn: () => db.getAllSitReps()
   });
 
   const handleAddSME = async (smeId: string) => {
@@ -67,13 +77,17 @@ const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Pr
     }
   };
 
+  const handleProjectUpdate = (updates: Partial<Project>) => {
+    setProject(current => ({ ...current, ...updates }));
+  };
+
   return (
     <div className="container mx-auto px-4 space-y-6 py-8 animate-fade-in">
       <div className="flex justify-between items-center mb-6">
         <ProjectHeader 
           project={editedProject} 
           isEditing={isEditing} 
-          onUpdate={setProject}
+          onUpdate={handleProjectUpdate}
         />
         <ProjectActions
           isEditing={isEditing}
@@ -89,7 +103,7 @@ const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Pr
         <FinancialDetails 
           project={editedProject}
           isEditing={isEditing}
-          onUpdate={setProject}
+          onUpdate={handleProjectUpdate}
         />
 
         <div className="space-y-6">
@@ -126,8 +140,8 @@ const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Pr
         </div>
       </div>
 
-      <RelatedSPIs projectId={editedProject.id} />
-      <RelatedSitReps projectId={editedProject.id} />
+      <RelatedSPIs projectId={editedProject.id} spis={spis} />
+      <RelatedSitReps projectId={editedProject.id} sitreps={sitreps} />
       <Fortune30Section project={editedProject} />
       {editedProject.nabc && (
         <NABCSection 
@@ -191,4 +205,3 @@ function ProjectDetailsWrapper() {
 }
 
 export default ProjectDetailsWrapper;
-
