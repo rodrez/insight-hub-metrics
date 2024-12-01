@@ -5,10 +5,11 @@ import { useDataCounts } from "./hooks/useDataCounts";
 import { useDataClearing } from "./hooks/useDataClearing";
 import { useDataPopulation } from "./hooks/useDataPopulation";
 import { useCallback, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { Progress } from "@/components/ui/progress";
 import { DataQuantities } from "./SampleData";
 import { errorHandler } from "@/lib/services/error/ErrorHandlingService";
+import { db } from "@/lib/db";
 import {
   Pagination,
   PaginationContent,
@@ -19,6 +20,15 @@ import {
 } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -29,6 +39,18 @@ export default function DataManagement() {
   const { dataCounts, updateDataCounts, isLoading: isLoadingCounts } = useDataCounts(isInitialized);
   const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
+
+  const { data: initiatives, isLoading: isLoadingInitiatives } = useQuery({
+    queryKey: ['initiatives'],
+    queryFn: () => db.getAllInitiatives(),
+    enabled: isInitialized
+  });
+
+  const { data: objectives } = useQuery({
+    queryKey: ['objectives'],
+    queryFn: () => db.getAllObjectives(),
+    enabled: isInitialized
+  });
 
   const handleClear = useCallback(async () => {
     try {
@@ -131,6 +153,45 @@ export default function DataManagement() {
           {renderPagination()}
         </>
       )}
+
+      {/* Initiatives Section */}
+      <Card className="p-6">
+        <h3 className="text-xl font-semibold mb-4">Generated Initiatives</h3>
+        {isLoadingInitiatives ? (
+          <Skeleton className="h-[400px] w-full" />
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[300px]">Initiative</TableHead>
+                <TableHead className="w-[300px]">Objective</TableHead>
+                <TableHead>Desired Outcome</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {initiatives?.map((initiative) => {
+                const objective = objectives?.find(obj => obj.id === initiative.objectiveId);
+                return (
+                  <TableRow key={initiative.id}>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="font-medium">{initiative.title}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {initiative.description}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {objective?.title}
+                    </TableCell>
+                    <TableCell>{initiative.desiredOutcome}</TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        )}
+      </Card>
     </div>
   );
 }
