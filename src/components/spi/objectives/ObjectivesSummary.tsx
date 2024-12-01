@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Target, CheckCircle2, Clock, Activity } from "lucide-react";
+import { Target, CheckCircle2, Clock } from "lucide-react";
 
 export function ObjectivesSummary() {
   const { data: objectives = [] } = useQuery({
@@ -27,12 +27,6 @@ export function ObjectivesSummary() {
       value: objectives.filter(obj => !obj.desiredOutcome.includes("100%")).length,
       icon: Clock,
       color: "text-orange-500"
-    },
-    {
-      title: "Active Initiatives",
-      value: [...new Set(objectives.map(obj => obj.initiative))].length,
-      icon: Activity,
-      color: "text-purple-500"
     }
   ];
 
