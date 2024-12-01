@@ -18,6 +18,7 @@ const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Pr
   const [project, setProject] = useState(initialProject);
   const [isEditing, setIsEditing] = useState(false);
   const [editedProject, setEditedProject] = useState(project);
+  const navigate = useNavigate();
 
   const { data: spis = [] } = useQuery({
     queryKey: ['spis'],
@@ -41,6 +42,8 @@ const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Pr
         title: "Success",
         description: "Project changes have been saved successfully.",
       });
+      // Navigate to dashboard with state to scroll to the project
+      navigate('/', { state: { scrollToProject: project.id } });
     } catch (error) {
       toast({
         title: "Error",
