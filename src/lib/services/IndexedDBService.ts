@@ -3,6 +3,7 @@ import { Project, Collaborator } from '../types';
 import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
 import { SitRep } from '../types/sitrep';
+import { Team } from '../types/team';
 import { BaseIndexedDBService } from './db/base/BaseIndexedDBService';
 import { ProjectService } from './db/ProjectService';
 import { CollaboratorService } from './db/CollaboratorService';
@@ -14,6 +15,9 @@ import { DataExportService } from './db/operations/DataExportService';
 import { DatabaseClearingService } from './db/operations/DatabaseClearingService';
 import { ServiceInitializationManager } from './db/initialization/ServiceInitializationManager';
 import { InitializationQueue } from './db/initialization/InitializationQueue';
+import { TeamService } from './db/TeamService';
+import { DataQuantities } from '../types/data';
+import { SampleDataService } from './data/SampleDataService';
 
 export class IndexedDBService extends BaseIndexedDBService implements DataService {
   private static instance: IndexedDBService | null = null;
@@ -27,6 +31,8 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   private databaseClearingService: DatabaseClearingService;
   private initManager: ServiceInitializationManager;
   private initQueue: InitializationQueue;
+  private teamService: TeamService;
+  private sampleDataService: SampleDataService;
 
   private constructor() {
     super();
@@ -40,6 +46,8 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     this.dataExportService = new DataExportService(this);
     this.databaseClearingService = new DatabaseClearingService(this.getDatabase(), this.initManager);
     this.initQueue = new InitializationQueue();
+    this.teamService = new TeamService(this.transactionService);
+    this.sampleDataService = new SampleDataService();
   }
 
   public static getInstance(): IndexedDBService {
@@ -71,7 +79,6 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     this.spiOperations.setDatabase(db);
   }
 
-  // Implement required DataService methods
   async getAllProjects(): Promise<Project[]> {
     return this.projectService.getAllProjects();
   }
@@ -170,5 +177,13 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
 
   async addSMEPartner(partner: Collaborator): Promise<void> {
     return this.smeService.addSMEPartner(partner);
+  }
+
+  async getAllTeams(): Promise<Team[]> {
+    return this.teamService.getAllTeams();
+  }
+
+  async populateSampleData(quantities: DataQuantities): Promise<void> {
+    await this.sampleDataService.generateSampleData(quantities);
   }
 }
