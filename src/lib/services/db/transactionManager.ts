@@ -12,13 +12,12 @@ export class TransactionManager {
     mode: IDBTransactionMode,
     operation: (store: IDBObjectStore) => IDBRequest<T>
   ): Promise<T> {
-    return new Promise((resolve, reject) => {
+    return new Promise<T>((resolve, reject) => {
       let isCompleted = false;
       const transaction = this.db.transaction(storeName, mode);
       this.activeTransactions.add(transaction);
       const store = transaction.objectStore(storeName);
 
-      // Set transaction timeout with automatic rollback
       const timeoutId = setTimeout(() => {
         if (!isCompleted) {
           console.error(`Transaction timeout for ${storeName} after ${this.TRANSACTION_TIMEOUT}ms`);
@@ -32,7 +31,6 @@ export class TransactionManager {
         clearTimeout(timeoutId);
         this.activeTransactions.delete(transaction);
         
-        // Remove event listeners to prevent memory leaks
         transaction.removeEventListener('complete', onComplete);
         transaction.removeEventListener('error', onError);
         transaction.removeEventListener('abort', onAbort);
@@ -41,7 +39,6 @@ export class TransactionManager {
       const onComplete = () => {
         cleanup();
         console.log(`Transaction completed successfully on ${storeName}`);
-        resolve(transaction.objectStore(storeName).get(0));
       };
 
       const onError = () => {
@@ -58,7 +55,6 @@ export class TransactionManager {
         reject(new Error(`Transaction aborted on ${storeName}`));
       };
 
-      // Add event listeners
       transaction.addEventListener('complete', onComplete);
       transaction.addEventListener('error', onError);
       transaction.addEventListener('abort', onAbort);
@@ -102,13 +98,12 @@ export class TransactionManager {
     storeName: string,
     operation: (store: IDBObjectStore, item: T) => IDBRequest
   ): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       let isCompleted = false;
       const transaction = this.db.transaction(storeName, 'readwrite');
       this.activeTransactions.add(transaction);
       const store = transaction.objectStore(storeName);
 
-      // Set transaction timeout with automatic rollback
       const timeoutId = setTimeout(() => {
         if (!isCompleted) {
           console.error(`Batch operation timeout for ${storeName} after ${this.TRANSACTION_TIMEOUT}ms`);
@@ -122,7 +117,6 @@ export class TransactionManager {
         clearTimeout(timeoutId);
         this.activeTransactions.delete(transaction);
         
-        // Remove event listeners
         transaction.removeEventListener('complete', onComplete);
         transaction.removeEventListener('error', onError);
         transaction.removeEventListener('abort', onAbort);
@@ -148,7 +142,6 @@ export class TransactionManager {
         reject(new Error(`Batch operation aborted on ${storeName}`));
       };
 
-      // Add event listeners
       transaction.addEventListener('complete', onComplete);
       transaction.addEventListener('error', onError);
       transaction.addEventListener('abort', onAbort);
@@ -167,7 +160,6 @@ export class TransactionManager {
     });
   }
 
-  // Clean up any hanging transactions
   public cleanupHangingTransactions(): void {
     this.activeTransactions.forEach(transaction => {
       if (transaction.mode === 'readwrite') {
