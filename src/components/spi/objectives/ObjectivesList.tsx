@@ -3,7 +3,6 @@ import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
 import { ObjectiveCard } from "./ObjectiveCard";
 import { InitiativesList } from "./InitiativesList";
-import { useState } from "react";
 import { Objective } from "@/lib/types/objective";
 import { Separator } from "@/components/ui/separator";
 
@@ -86,6 +85,7 @@ export function ObjectivesList() {
 
   return (
     <div className="space-y-4">
+      <h2 className="text-lg font-semibold">Strategic Objectives</h2>
       <div className="grid grid-cols-1 gap-2">
         {objectives.map((objective) => (
           <ObjectiveCard
