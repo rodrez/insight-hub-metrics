@@ -86,6 +86,11 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   updateObjective = (id: string, updates: Partial<Objective>) => this.spiService.updateObjective(id, updates);
   deleteObjective = (id: string) => this.spiService.deleteObjective(id);
 
+  // Initiative methods
+  getAllInitiatives = () => this.spiService.getAllInitiatives();
+  updateInitiative = (id: string, initiative: any) => this.spiService.updateInitiative(id, initiative);
+  deleteInitiative = (id: string) => this.spiService.deleteInitiative(id);
+
   // Team methods
   async getAllTeams(): Promise<Team[]> {
     const db = this.getDatabase();
@@ -107,14 +112,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   addSMEPartner = (partner: Collaborator) => this.collaboratorService.addSMEPartner(partner);
 
   // Data operations
-  exportData = async (): Promise<{ 
-    projects: Project[]; 
-    collaborators: Collaborator[]; 
-    sitreps: SitRep[]; 
-    spis: SPI[]; 
-    objectives: Objective[]; 
-    smePartners: Collaborator[]; 
-  }> => {
+  exportData = async () => {
     try {
       const data = {
         projects: await this.getAllProjects(),
@@ -125,7 +123,6 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
         smePartners: await this.getAllSMEPartners()
       };
 
-      // Verify we have at least some data
       if (Object.values(data).every(arr => !arr?.length)) {
         throw new Error('No data available in database');
       }
