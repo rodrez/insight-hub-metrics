@@ -107,7 +107,14 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   addSMEPartner = (partner: Collaborator) => this.collaboratorService.addSMEPartner(partner);
 
   // Data operations
-  exportData = async (): Promise<any> => {
+  exportData = async (): Promise<{ 
+    projects: Project[]; 
+    collaborators: Collaborator[]; 
+    sitreps: SitRep[]; 
+    spis: SPI[]; 
+    objectives: Objective[]; 
+    smePartners: Collaborator[]; 
+  }> => {
     try {
       const data = {
         projects: await this.getAllProjects(),

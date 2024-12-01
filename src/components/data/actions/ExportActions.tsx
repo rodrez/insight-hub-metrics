@@ -5,6 +5,7 @@ import { Loader2, ChevronDown } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { errorHandler } from "@/lib/services/error/ErrorHandlingService";
 import { CSVExportService } from "@/lib/services/CSVExportService";
+import { ExportedData } from "@/lib/services/DataService";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,12 +35,8 @@ export function ExportActions({ isInitialized, disabled }: ExportActionsProps) {
     try {
       const data = await db.exportData();
       
-      if (!data) {
-        throw new Error('No data received from database');
-      }
-
-      let blob;
-      let filename;
+      let blob: Blob;
+      let filename: string;
 
       if (format === 'json') {
         blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });

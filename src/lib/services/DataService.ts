@@ -4,6 +4,15 @@ import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
 import { DataQuantities } from '../types/data';
 
+export interface ExportedData {
+  projects: Project[];
+  collaborators: Collaborator[];
+  sitreps: SitRep[];
+  spis: SPI[];
+  objectives: Objective[];
+  smePartners: Collaborator[];
+}
+
 export interface DataService {
   init(): Promise<void>;
   clear(): Promise<void>;
@@ -27,7 +36,7 @@ export interface DataService {
   addObjective(objective: Objective): Promise<void>;
   updateObjective(id: string, updates: Partial<Objective>): Promise<void>;
   deleteObjective(id: string): Promise<void>;
-  exportData(): Promise<void>;
+  exportData(): Promise<ExportedData>;
   getAllTeams(): Promise<Team[]>;
   populateSampleData(quantities: DataQuantities): Promise<void>;
   getAllSMEPartners(): Promise<Collaborator[]>;
