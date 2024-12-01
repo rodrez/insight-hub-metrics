@@ -1,4 +1,3 @@
-import { Collaborator } from "@/lib/types/collaboration";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, AlertTriangle, Shield, ChevronDown } from "lucide-react";
@@ -33,7 +32,15 @@ export function AgreementsList({ collaborators }: AgreementsListProps) {
     const settings = getAgreementWarningSettings();
     if (daysUntil <= 0) return "text-red-500";
     if (daysUntil <= settings.criticalDays) return "text-red-500";
-    if (daysUntil <= settings.warningDays) return "text-orange-500";
+    if (daysUntil <= settings.warningDays) return "text-yellow-500";
+    return "text-green-500";
+  };
+
+  const getIconColor = (daysUntil: number) => {
+    const settings = getAgreementWarningSettings();
+    if (daysUntil <= 0) return "text-red-500";
+    if (daysUntil <= settings.criticalDays) return "text-red-500";
+    if (daysUntil <= settings.warningDays) return "text-yellow-500";
     return "text-green-500";
   };
 
@@ -91,16 +98,7 @@ export function AgreementsList({ collaborators }: AgreementsListProps) {
                     <CollapsibleTrigger className="flex items-center justify-between w-full">
                       <div className="flex items-center gap-2">
                         <h3 className="font-medium">NDA</h3>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <Shield className="h-4 w-4" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Non-Disclosure Agreement</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                        <Shield className={`h-4 w-4 ${getIconColor(getDaysUntilExpiry(collaborator.agreements.nda.expiryDate))}`} />
                       </div>
                       <ChevronDown className="h-4 w-4" />
                     </CollapsibleTrigger>
@@ -139,16 +137,7 @@ export function AgreementsList({ collaborators }: AgreementsListProps) {
                     <CollapsibleTrigger className="flex items-center justify-between w-full">
                       <div className="flex items-center gap-2">
                         <h3 className="font-medium">JTDA</h3>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <Shield className="h-4 w-4" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Joint Technology Development Agreement</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                        <Shield className={`h-4 w-4 ${getIconColor(getDaysUntilExpiry(collaborator.agreements.jtda.expiryDate))}`} />
                       </div>
                       <ChevronDown className="h-4 w-4" />
                     </CollapsibleTrigger>
