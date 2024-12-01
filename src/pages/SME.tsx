@@ -8,6 +8,8 @@ import { toast } from "@/components/ui/use-toast";
 import { SMEList } from '@/components/collaborations/SMEList';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AgreementsList } from '@/components/collaborations/agreements/AgreementsList';
 import {
   Tooltip,
   TooltipContent,
@@ -124,11 +126,24 @@ export default function SME() {
           </div>
         </div>
 
-        <SMEList 
-          collaborators={collaborators}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+        <Tabs defaultValue="partners" className="w-full">
+          <TabsList>
+            <TabsTrigger value="partners">Partners</TabsTrigger>
+            <TabsTrigger value="agreements">Agreements (NDA/JTDA)</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="partners">
+            <SMEList 
+              collaborators={collaborators}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          </TabsContent>
+          
+          <TabsContent value="agreements">
+            <AgreementsList collaborators={collaborators} />
+          </TabsContent>
+        </Tabs>
 
         <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
           <AlertDialogContent>
