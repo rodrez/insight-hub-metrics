@@ -1,6 +1,6 @@
 import { CSVBaseService } from './CSVBaseService';
 import { escapeCSVValue } from '../../utils/csvFormatting';
-import { BusinessCategory, LOB } from '@/components/wiki/data/businessCategories';
+import { BusinessCategory, Contact } from '@/components/wiki/data/businessCategories';
 
 export class LOBCSVService extends CSVBaseService {
   static addLOBSection(items: any[], categories: BusinessCategory[] = []) {
@@ -19,16 +19,22 @@ export class LOBCSVService extends CSVBaseService {
     
     categories.forEach((category) => {
       category.lobs.forEach((lob) => {
-        const primaryContact = category.contacts[0] || {};
+        const primaryContact: Contact = category.contacts[0] || {
+          name: 'N/A',
+          role: 'N/A',
+          email: 'N/A',
+          phone: 'N/A'
+        };
+        
         items.push([
           category.name,
           lob.name,
           lob.department,
           category.description,
-          primaryContact.name || 'N/A',
-          primaryContact.role || 'N/A',
-          primaryContact.email || 'N/A',
-          primaryContact.phone || 'N/A'
+          primaryContact.name,
+          primaryContact.role,
+          primaryContact.email,
+          primaryContact.phone
         ].map(escapeCSVValue));
       });
     });
