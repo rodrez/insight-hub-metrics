@@ -10,6 +10,7 @@ import { DEPARTMENTS } from "@/lib/constants";
 import { SPI } from "@/lib/types/spi";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
+import { useEffect } from "react";
 
 interface SelectFieldsProps {
   status: SPI['status'];
@@ -52,6 +53,17 @@ export function SelectFields({
     },
   });
 
+  // Ensure initial value is set correctly
+  useEffect(() => {
+    if (selectedFortune30 === undefined) {
+      setSelectedFortune30('none');
+    }
+  }, [selectedFortune30, setSelectedFortune30]);
+
+  const handleFortune30Change = (value: string) => {
+    setSelectedFortune30(value);
+  };
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <div className="space-y-2">
@@ -89,10 +101,8 @@ export function SelectFields({
       <div className="space-y-2">
         <Label htmlFor="fortune30">Fortune 30 Partner</Label>
         <Select 
-          value={selectedFortune30} 
-          onValueChange={(value) => {
-            setSelectedFortune30(value);
-          }}
+          value={selectedFortune30 || 'none'} 
+          onValueChange={handleFortune30Change}
         >
           <SelectTrigger id="fortune30">
             <SelectValue placeholder="Fortune 30 Partner" />
