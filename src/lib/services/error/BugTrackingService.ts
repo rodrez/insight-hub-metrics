@@ -2,7 +2,6 @@ import { BugStorageService } from './storage/BugStorageService';
 import { Bug, initialBugs } from './data/bugData';
 
 class BugTracker {
-  private bugs: Bug[] = initialBugs;
   private storage: BugStorageService;
 
   constructor() {
@@ -11,28 +10,32 @@ class BugTracker {
 
   async getAllBugs(): Promise<Bug[]> {
     console.log('Getting all bugs...');
-    const bugsWithStatus = await Promise.all(
-      this.bugs.map(async (bug) => {
-        const storedStatus = await this.storage.getStoredStatus(bug.id);
-        console.log(`Bug ${bug.id} stored status:`, storedStatus);
-        return {
-          ...bug,
-          status: storedStatus || bug.status || 'active'
-        };
-      })
-    );
-    console.log('Bugs with status:', bugsWithStatus);
-    return bugsWithStatus;
+    try {
+      const bugsWithStatus = await Promise.all(
+        initialBugs.map(async (bug) => {
+          const storedStatus = await this.storage.getStoredStatus(bug.id);
+          console.log(`Bug ${bug.id} stored status:`, storedStatus);
+          return {
+            ...bug,
+            status: storedStatus || bug.status || 'active'
+          };
+        })
+      );
+      console.log('Bugs with status:', bugsWithStatus);
+      return bugsWithStatus;
+    } catch (error) {
+      console.error('Error getting bugs:', error);
+      throw error;
+    }
   }
 
   async updateBugStatus(id: string, status: string): Promise<void> {
-    await this.storage.updateStatus(id, status);
-    const bugIndex = this.bugs.findIndex(bug => bug.id === id);
-    if (bugIndex !== -1) {
-      this.bugs[bugIndex] = {
-        ...this.bugs[bugIndex],
-        status
-      };
+    try {
+      await this.storage.updateStatus(id, status);
+      console.log(`Updated bug ${id} status to ${status}`);
+    } catch (error) {
+      console.error('Error updating bug status:', error);
+      throw error;
     }
   }
 }
