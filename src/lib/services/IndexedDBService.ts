@@ -50,8 +50,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
         if (transaction.error) {
           console.warn('Transaction error detected:', transaction.error);
         }
-        // Only abort if the transaction is still active
-        if (transaction.mode !== 'finished') {
+        if (transaction.state !== 'inactive') {
           transaction.abort();
         }
       } catch (error) {
@@ -135,21 +134,15 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   updateObjective = (id: string, updates: Partial<Objective>) => this.spiService.updateObjective(id, updates);
   deleteObjective = (id: string) => this.spiService.deleteObjective(id);
 
-  // Team methods
-  async getAllTeams(): Promise<Team[]> {
-    return this.transactionService.performTransaction('teams', 'readonly', store => store.getAll());
-  }
-
-  // Other methods
   async clear(): Promise<void> {
     await this.cleanupTransactions();
     const stores = ['projects', 'collaborators', 'sitreps', 'spis', 'objectives', 'smePartners'];
-    for (const store of stores) {
-      const transaction = this.getDatabase()?.transaction(store, 'readwrite');
+    for (const storeName of stores) {
+      const transaction = this.getDatabase()?.transaction(storeName, 'readwrite');
       if (transaction) {
         this.activeTransactions.add(transaction);
-        const store = transaction.objectStore(store);
-        await store.clear();
+        const objectStore = transaction.objectStore(storeName);
+        await objectStore.clear();
         this.activeTransactions.delete(transaction);
       }
     }

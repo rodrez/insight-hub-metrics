@@ -8,17 +8,18 @@ export class BaseIndexedDBService {
 
   constructor() {
     this.connectionService = new DatabaseConnectionService();
-    this.transactionService = new DatabaseTransactionService();
+    this.transactionService = new DatabaseTransactionService(null);
   }
 
-  protected getDatabase(): IDBDatabase | null {
+  public getDatabase(): IDBDatabase | null {
     return this.database;
   }
 
   protected async init(): Promise<void> {
     try {
       console.log('Initializing base IndexedDB service...');
-      this.database = await this.connectionService.connect();
+      await this.connectionService.init();
+      this.database = this.connectionService.getDatabase();
       console.log('Database connection established');
     } catch (error) {
       console.error('Error initializing base service:', error);
