@@ -78,7 +78,7 @@ export function SPIList() {
           <Card key={spi.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
             <CardHeader className="flex flex-row items-center justify-between bg-background/50 backdrop-blur-sm">
               <div>
-                <CardTitle className="text-xl font-bold">{spi.name}</CardTitle>
+                <CardTitle className="text-xl font-bold">SPI 1</CardTitle>
                 <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{spi.deliverable}</p>
               </div>
               <div className="flex gap-2">
