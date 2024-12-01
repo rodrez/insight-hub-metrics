@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Info } from "lucide-react";
+import { Info, Save } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import {
   Tooltip,
@@ -17,15 +17,17 @@ type WarningSettings = {
   criticalColor: string;
 };
 
+const DEFAULT_SETTINGS: WarningSettings = {
+  warningDays: 180,
+  criticalDays: 90,
+  warningColor: '#FEF08A',
+  criticalColor: '#FCA5A5'
+};
+
 export function AgreementWarningSettings() {
   const [settings, setSettings] = useState<WarningSettings>(() => {
     const saved = localStorage.getItem('agreementWarningSettings');
-    return saved ? JSON.parse(saved) : {
-      warningDays: 180,
-      criticalDays: 90,
-      warningColor: '#FEF08A',
-      criticalColor: '#FCA5A5'
-    };
+    return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
   });
 
   const handleSave = () => {
@@ -36,21 +38,41 @@ export function AgreementWarningSettings() {
     });
   };
 
+  const resetToDefaults = () => {
+    setSettings(DEFAULT_SETTINGS);
+    localStorage.setItem('agreementWarningSettings', JSON.stringify(DEFAULT_SETTINGS));
+    toast({
+      title: "Settings reset",
+      description: "Warning settings have been reset to default values.",
+    });
+  };
+
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium flex items-center gap-2">
-        Agreement Warning Settings
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <Info className="h-4 w-4 text-muted-foreground" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Configure when and how to display warnings for expiring agreements</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-medium flex items-center gap-2">
+          Agreement Warning Settings
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Info className="h-4 w-4 text-muted-foreground" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Configure when and how to display warnings for expiring agreements</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </h3>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={resetToDefaults}>
+            Reset to Defaults
+          </Button>
+          <Button onClick={handleSave}>
+            <Save className="mr-2 h-4 w-4" />
+            Save Settings
+          </Button>
+        </div>
+      </div>
       
       <div className="grid gap-4">
         <div className="flex items-center gap-4">
@@ -128,8 +150,6 @@ export function AgreementWarningSettings() {
             </div>
           </div>
         </div>
-
-        <Button onClick={handleSave}>Save Settings</Button>
       </div>
     </div>
   );
