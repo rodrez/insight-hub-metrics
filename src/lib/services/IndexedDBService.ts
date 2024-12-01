@@ -94,14 +94,8 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
       this.collaboratorService.setDatabase(db);
       this.sitRepService.setDatabase(db);
       this.spiService.setDatabase(db);
-      
-      // Initialize services
-      await Promise.all([
-        this.projectService.init(),
-        this.collaboratorService.init(),
-        this.sitRepService.init(),
-        this.spiService.init()
-      ]);
+
+      // Services are now initialized through setDatabase, no need to call init()
     } catch (error) {
       console.error('Database initialization failed:', error);
       toast({
@@ -160,33 +154,6 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
         this.activeTransactions.delete(transaction);
       }
     }
-  }
-
-  async exportData(): Promise<void> {
-    if (!this.getDatabase()) throw new Error('Database not initialized');
-    const data = {
-      projects: await this.getAllProjects(),
-      collaborators: await this.getAllCollaborators(),
-      sitreps: await this.getAllSitReps(),
-      spis: await this.getAllSPIs(),
-      objectives: await this.getAllObjectives(),
-      smePartners: await this.getAllSMEPartners()
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `database-export-${new Date().toISOString()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-  }
-
-  async populateSampleData(quantities: DataQuantities): Promise<void> {
-    await this.clear();
-    await this.sampleDataService.generateSampleData(quantities);
   }
 
   // SME Partner methods

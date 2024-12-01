@@ -15,7 +15,7 @@ export class BaseIndexedDBService {
     return this.database;
   }
 
-  protected async init(): Promise<void> {
+  public async init(): Promise<void> {
     try {
       console.log('Initializing base IndexedDB service...');
       await this.connectionService.init();
