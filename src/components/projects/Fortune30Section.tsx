@@ -8,10 +8,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { CollaborationDialog } from "../collaborations/CollaborationDialog";
-import { useState } from "react";
+import { Info } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useQuery } from "@tanstack/react-query";
+import { db } from "@/lib/db";
+import { toast } from "@/components/ui/use-toast";
 
 type Fortune30SectionProps = {
   project: Project;
@@ -19,29 +20,77 @@ type Fortune30SectionProps = {
 
 export function Fortune30Section({ project }: Fortune30SectionProps) {
   const navigate = useNavigate();
-  const [showAddDialog, setShowAddDialog] = useState(false);
-
-  const fortune30Partners = project.collaborators.filter(
-    (collab) => collab.type === "fortune30"
-  );
+  const { data: fortune30Partners = [] } = useQuery({
+    queryKey: ['collaborators-fortune30'],
+    queryFn: async () => {
+      const allCollaborators = await db.getAllCollaborators();
+      return allCollaborators.filter(c => c.type === 'fortune30');
+    },
+  });
 
   const handlePartnerClick = (partnerId: string) => {
     navigate('/collaborations', { state: { scrollToPartner: partnerId } });
   };
 
+  const handleAddPartner = async (partnerId: string) => {
+    try {
+      const selectedPartner = fortune30Partners.find(partner => partner.id === partnerId);
+      if (!selectedPartner) return;
+
+      const updatedCollaborators = [...project.collaborators];
+      
+      if (!updatedCollaborators.some(c => c.id === selectedPartner.id)) {
+        updatedCollaborators.push({
+          id: selectedPartner.id,
+          name: selectedPartner.name,
+          email: selectedPartner.email,
+          role: selectedPartner.role,
+          department: selectedPartner.department,
+          projects: selectedPartner.projects || [],
+          lastActive: new Date().toISOString(),
+          type: 'fortune30' as const
+        });
+
+        const updatedProject = {
+          ...project,
+          collaborators: updatedCollaborators
+        };
+
+        await db.addProject(updatedProject);
+        toast({
+          title: "Success",
+          description: "Fortune 30 partner added successfully",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add Fortune 30 partner",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const fortune30Partners = project.collaborators.filter(
+    (collab) => collab.type === "fortune30"
+  );
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-xl">Fortune 30 Partners</CardTitle>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={() => setShowAddDialog(true)}
-          className="flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Add Partner
-        </Button>
+        <Select onValueChange={handleAddPartner}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Add partner" />
+          </SelectTrigger>
+          <SelectContent>
+            {fortune30Partners.map(partner => (
+              <SelectItem key={partner.id} value={partner.id}>
+                {partner.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -78,12 +127,6 @@ export function Fortune30Section({ project }: Fortune30SectionProps) {
             <p className="text-muted-foreground text-sm">No Fortune 30 partners added yet.</p>
           )}
         </div>
-
-        <CollaborationDialog
-          open={showAddDialog}
-          onOpenChange={setShowAddDialog}
-          departmentId={project.departmentId}
-        />
       </CardContent>
     </Card>
   );
