@@ -7,15 +7,12 @@ interface DataStatsProps {
 }
 
 export function DataStats({ dataCounts, currentPage, itemsPerPage }: DataStatsProps) {
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <div className="rounded-lg border p-4">
         <h3 className="text-sm font-medium">Projects</h3>
         <p className="mt-2 text-2xl font-bold">
-          {`${startIndex + 1}-${Math.min(endIndex, dataCounts.projects)} of ${dataCounts.projects}`}
+          {dataCounts.projects}
         </p>
       </div>
       <div className="rounded-lg border p-4">
