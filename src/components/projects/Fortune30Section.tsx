@@ -29,7 +29,7 @@ export function Fortune30Section({ project }: Fortune30SectionProps) {
   });
 
   const handlePartnerClick = (partnerId: string) => {
-    navigate('/collaborations', { state: { scrollToPartner: partnerId } });
+    navigate('/sme', { state: { scrollToPartner: partnerId } });
   };
 
   const handleAddPartner = async (partnerId: string) => {
