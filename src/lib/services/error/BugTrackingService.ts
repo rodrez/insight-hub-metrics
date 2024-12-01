@@ -112,14 +112,24 @@ class BugTracker {
     }
   ];
 
+  private storage = new Map<string, string>();
+
   getAllBugs() {
-    return this.bugs;
+    // Return bugs with their persisted status
+    return this.bugs.map(bug => ({
+      ...bug,
+      status: this.storage.get(bug.id) || bug.status
+    }));
   }
 
   async updateBugStatus(id: string, status: string) {
+    this.storage.set(id, status);
     const bugIndex = this.bugs.findIndex(bug => bug.id === id);
     if (bugIndex !== -1) {
-      this.bugs[bugIndex].status = status;
+      this.bugs[bugIndex] = {
+        ...this.bugs[bugIndex],
+        status
+      };
     }
   }
 }
