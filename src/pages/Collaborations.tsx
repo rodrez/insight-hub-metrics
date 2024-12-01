@@ -9,6 +9,8 @@ import { Fortune30List } from '@/components/collaborations/Fortune30List';
 import { db } from '@/lib/db';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AgreementsList } from '@/components/collaborations/agreements/AgreementsList';
 
 export default function Collaborations() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -93,11 +95,24 @@ export default function Collaborations() {
           </div>
         </div>
 
-        <Fortune30List 
-          collaborators={collaborators}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+        <Tabs defaultValue="partners" className="w-full">
+          <TabsList>
+            <TabsTrigger value="partners">Partners</TabsTrigger>
+            <TabsTrigger value="agreements">Agreements (NDA/JTDA)</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="partners">
+            <Fortune30List 
+              collaborators={collaborators}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          </TabsContent>
+          
+          <TabsContent value="agreements">
+            <AgreementsList collaborators={collaborators} />
+          </TabsContent>
+        </Tabs>
 
         <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
           <AlertDialogContent>
