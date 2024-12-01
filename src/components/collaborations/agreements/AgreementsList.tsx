@@ -94,91 +94,79 @@ export function AgreementsList({ collaborators }: AgreementsListProps) {
                   </Alert>
                 )}
 
-                {collaborator.agreements?.nda && (
-                  <Collapsible className="border-b pb-4">
+                {collaborator.workstreams?.map((workstream) => (
+                  <Collapsible key={workstream.id} className="border rounded-lg p-4">
                     <CollapsibleTrigger className="flex items-center justify-between w-full">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-medium">NDA</h3>
-                        <Shield className={`h-4 w-4 ${getIconColor(getDaysUntilExpiry(collaborator.agreements.nda.expiryDate))}`} />
+                        <h3 className="font-medium">{workstream.title}</h3>
+                        <div className="flex gap-1">
+                          {collaborator.agreements?.nda && (
+                            <Shield className={`h-4 w-4 ${getIconColor(getDaysUntilExpiry(collaborator.agreements.nda.expiryDate))}`} />
+                          )}
+                          {collaborator.agreements?.jtda && (
+                            <Shield className={`h-4 w-4 ${getIconColor(getDaysUntilExpiry(collaborator.agreements.jtda.expiryDate))}`} />
+                          )}
+                        </div>
                       </div>
                       <ChevronDown className="h-4 w-4" />
                     </CollapsibleTrigger>
-                    <CollapsibleContent className="pt-2 space-y-2">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        <p className="text-sm text-muted-foreground">
-                          Signed: {new Date(collaborator.agreements.nda.signedDate).toLocaleDateString()}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Expires: {new Date(collaborator.agreements.nda.expiryDate).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <p className={`text-sm ${getStatusColor(getDaysUntilExpiry(collaborator.agreements.nda.expiryDate))}`}>
-                        {getWarningMessage(getDaysUntilExpiry(collaborator.agreements.nda.expiryDate), 'NDA')}
-                      </p>
-                      {collaborator.workstreams && (
-                        <div className="mt-2">
-                          <p className="text-sm font-medium">Associated Workstreams:</p>
-                          <ul className="list-disc list-inside text-sm text-muted-foreground">
-                            {collaborator.workstreams.map((workstream) => (
-                              <li key={workstream.id} className="break-all">{workstream.title}</li>
-                            ))}
-                          </ul>
+                    <CollapsibleContent className="pt-4 space-y-4">
+                      {collaborator.agreements?.nda && (
+                        <div className="border-b pb-4">
+                          <h4 className="font-medium mb-2">NDA</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <p className="text-sm text-muted-foreground">
+                              Signed: {new Date(collaborator.agreements.nda.signedDate).toLocaleDateString()}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              Expires: {new Date(collaborator.agreements.nda.expiryDate).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <p className={`text-sm mt-2 ${getStatusColor(getDaysUntilExpiry(collaborator.agreements.nda.expiryDate))}`}>
+                            {getWarningMessage(getDaysUntilExpiry(collaborator.agreements.nda.expiryDate), 'NDA')}
+                          </p>
+                          <Button variant="outline" onClick={handleUpload} className="w-full md:w-auto mt-2">
+                            <Upload className="h-4 w-4 mr-2" />
+                            Upload NDA
+                          </Button>
                         </div>
                       )}
-                      <Button variant="outline" onClick={handleUpload} className="w-full md:w-auto mt-2">
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload NDA
-                      </Button>
-                    </CollapsibleContent>
-                  </Collapsible>
-                )}
-                
-                {collaborator.agreements?.jtda && (
-                  <Collapsible>
-                    <CollapsibleTrigger className="flex items-center justify-between w-full">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-medium">JTDA</h3>
-                        <Shield className={`h-4 w-4 ${getIconColor(getDaysUntilExpiry(collaborator.agreements.jtda.expiryDate))}`} />
-                      </div>
-                      <ChevronDown className="h-4 w-4" />
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="pt-2 space-y-2">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        <p className="text-sm text-muted-foreground">
-                          Signed: {new Date(collaborator.agreements.jtda.signedDate).toLocaleDateString()}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Expires: {new Date(collaborator.agreements.jtda.expiryDate).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <p className={`text-sm ${getStatusColor(getDaysUntilExpiry(collaborator.agreements.jtda.expiryDate))}`}>
-                        {getWarningMessage(getDaysUntilExpiry(collaborator.agreements.jtda.expiryDate), 'JTDA')}
-                      </p>
-                      {collaborator.workstreams && (
-                        <div className="mt-2">
-                          <p className="text-sm font-medium">Associated Workstreams:</p>
-                          <ul className="list-disc list-inside text-sm text-muted-foreground">
-                            {collaborator.workstreams.map((workstream) => (
-                              <li key={workstream.id} className="break-all">{workstream.title}</li>
-                            ))}
-                          </ul>
+                      
+                      {collaborator.agreements?.jtda && (
+                        <div>
+                          <h4 className="font-medium mb-2">JTDA</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <p className="text-sm text-muted-foreground">
+                              Signed: {new Date(collaborator.agreements.jtda.signedDate).toLocaleDateString()}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              Expires: {new Date(collaborator.agreements.jtda.expiryDate).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <p className={`text-sm mt-2 ${getStatusColor(getDaysUntilExpiry(collaborator.agreements.jtda.expiryDate))}`}>
+                            {getWarningMessage(getDaysUntilExpiry(collaborator.agreements.jtda.expiryDate), 'JTDA')}
+                          </p>
+                          <Button variant="outline" onClick={handleUpload} className="w-full md:w-auto mt-2">
+                            <Upload className="h-4 w-4 mr-2" />
+                            Upload JTDA
+                          </Button>
                         </div>
                       )}
-                      <Button variant="outline" onClick={handleUpload} className="w-full md:w-auto mt-2">
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload JTDA
-                      </Button>
+
+                      {!collaborator.agreements?.nda && !collaborator.agreements?.jtda && (
+                        <p className="text-muted-foreground">No agreements found for this workstream</p>
+                      )}
                     </CollapsibleContent>
                   </Collapsible>
-                )}
-                
-                {!collaborator.agreements?.nda && !collaborator.agreements?.jtda && (
-                  <p className="text-muted-foreground">No agreements found</p>
+                ))}
+
+                {!collaborator.workstreams?.length && (
+                  <p className="text-muted-foreground">No workstreams found</p>
                 )}
               </div>
             </CardContent>
           </Card>
-        )
+        );
       })}
     </div>
   );
