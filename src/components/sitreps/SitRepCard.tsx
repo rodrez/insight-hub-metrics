@@ -85,7 +85,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
 
   const supportingPOCs = sitrep.pointsOfContact?.map(contact => ({
     name: contact,
-    department: sitrep.teams?.[0] || ''  // Using first team as department for supporting POCs
+    department: sitrep.teams?.[0] || ''
   })) || [];
 
   return (
@@ -166,7 +166,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
                 {sitrep.smePartnerId && (
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground">SME:</span>
-                    <span className="text-purple-500">
+                    <span style={{ color: smePartner?.color || '#6E59A5' }}>
                       {smePartner ? smePartner.name : 'None'}
                     </span>
                   </div>
