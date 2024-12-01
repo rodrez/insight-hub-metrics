@@ -1,5 +1,5 @@
 import { DataService } from './DataService';
-import { Project, Collaborator } from '../types';
+import { Project, Collaborator, Team } from '../types';
 import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
 import { SitRep } from '../types/sitrep';
@@ -20,6 +20,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   private sitRepService: SitRepService;
   private spiService: SPIService;
   private sampleDataService: SampleDataService;
+  private initialized: boolean = false;
 
   private constructor() {
     super();
@@ -35,6 +36,10 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
       IndexedDBService.instance = new IndexedDBService();
     }
     return IndexedDBService.instance;
+  }
+
+  public isInitialized(): boolean {
+    return this.initialized;
   }
 
   public async init(): Promise<void> {
@@ -53,6 +58,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
 
     try {
       await this.initializationPromise;
+      this.initialized = true;
     } finally {
       // Clear the promise once initialization is complete (success or failure)
       this.initializationPromise = null;
@@ -108,6 +114,11 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   addObjective = (objective: Objective) => this.spiService.addObjective(objective);
   updateObjective = (id: string, updates: Partial<Objective>) => this.spiService.updateObjective(id, updates);
   deleteObjective = (id: string) => this.spiService.deleteObjective(id);
+
+  // Team methods
+  async getAllTeams(): Promise<Team[]> {
+    return this.transactionService.performTransaction('teams', 'readonly', store => store.getAll());
+  }
 
   // Other methods
   async clear(): Promise<void> {
