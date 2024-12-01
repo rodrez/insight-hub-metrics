@@ -12,36 +12,7 @@ interface BackupActionsProps {
 }
 
 export function BackupActions({ isInitialized, disabled }: BackupActionsProps) {
-  const [isBackingUp, setIsBackingUp] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
-
-  const handleBackup = async () => {
-    setIsBackingUp(true);
-    try {
-      const data = await db.exportData();
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `database-backup-${new Date().toISOString()}.json`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      
-      toast({
-        title: "Success",
-        description: "Database backup created successfully",
-      });
-    } catch (error) {
-      errorHandler.handleError(error, {
-        type: 'database',
-        title: 'Failed to backup database'
-      });
-    } finally {
-      setIsBackingUp(false);
-    }
-  };
 
   const handleRestore = async () => {
     const input = document.createElement('input');
@@ -119,35 +90,19 @@ export function BackupActions({ isInitialized, disabled }: BackupActionsProps) {
   }
 
   return (
-    <div className="flex flex-wrap gap-4">
-      <Button 
-        variant="outline" 
-        onClick={handleBackup}
-        disabled={disabled || isBackingUp}
-      >
-        {isBackingUp ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Backing up...
-          </>
-        ) : (
-          "Backup Database"
-        )}
-      </Button>
-      <Button 
-        variant="outline" 
-        onClick={handleRestore}
-        disabled={disabled || isRestoring}
-      >
-        {isRestoring ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Restoring...
-          </>
-        ) : (
-          "Restore Database"
-        )}
-      </Button>
-    </div>
+    <Button 
+      variant="outline" 
+      onClick={handleRestore}
+      disabled={disabled || isRestoring}
+    >
+      {isRestoring ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Restore Backup
+        </>
+      ) : (
+        "Restore Backup"
+      )}
+    </Button>
   );
 }
