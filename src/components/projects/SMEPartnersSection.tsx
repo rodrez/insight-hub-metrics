@@ -8,8 +8,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { db } from "@/lib/db";
 import { useQuery } from "@tanstack/react-query";
@@ -28,7 +26,7 @@ export function SMEPartnersSection({ project, onUpdate }: SMEPartnersSectionProp
   });
 
   const handlePartnerClick = (partnerId: string) => {
-    navigate('/collaborations', { state: { scrollToPartner: partnerId } });
+    navigate('/sme', { state: { scrollToPartner: partnerId } });
   };
 
   const handleAddSME = async (smeId: string) => {
@@ -106,7 +104,7 @@ export function SMEPartnersSection({ project, onUpdate }: SMEPartnersSectionProp
                     <TooltipTrigger>
                       <Badge
                         variant="outline"
-                        className="hover:opacity-90 transition-opacity"
+                        className="bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors"
                       >
                         {partner.name}
                       </Badge>
