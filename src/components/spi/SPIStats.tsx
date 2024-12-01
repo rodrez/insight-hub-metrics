@@ -1,8 +1,27 @@
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function SPIStats() {
+  const [statusColors, setStatusColors] = useState({
+    completed: '#3B82F6',
+    delayed: '#F59E0B',
+    'on-track': '#10B981'
+  });
+
+  useEffect(() => {
+    const saved = localStorage.getItem('projectStatusColors');
+    if (saved) {
+      const colors = JSON.parse(saved);
+      setStatusColors({
+        completed: colors.find((c: any) => c.id === 'completed')?.color || '#3B82F6',
+        delayed: colors.find((c: any) => c.id === 'delayed')?.color || '#F59E0B',
+        'on-track': colors.find((c: any) => c.id === 'active')?.color || '#10B981'
+      });
+    }
+  }, []);
+
   const { data: spis = [] } = useQuery({
     queryKey: ['spis'],
     queryFn: () => db.getAllSPIs()
@@ -30,7 +49,7 @@ export function SPIStats() {
           <CardTitle className="text-sm font-medium">Completed</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-green-600">{stats.completed}</div>
+          <div className="text-2xl font-bold" style={{ color: statusColors.completed }}>{stats.completed}</div>
         </CardContent>
       </Card>
       <Card>
@@ -38,7 +57,7 @@ export function SPIStats() {
           <CardTitle className="text-sm font-medium">On Track</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-blue-600">{stats.onTrack}</div>
+          <div className="text-2xl font-bold" style={{ color: statusColors["on-track"] }}>{stats.onTrack}</div>
         </CardContent>
       </Card>
       <Card>
@@ -46,7 +65,7 @@ export function SPIStats() {
           <CardTitle className="text-sm font-medium">Delayed</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-yellow-600">{stats.delayed}</div>
+          <div className="text-2xl font-bold" style={{ color: statusColors.delayed }}>{stats.delayed}</div>
         </CardContent>
       </Card>
     </div>
