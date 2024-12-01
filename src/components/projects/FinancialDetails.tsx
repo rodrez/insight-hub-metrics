@@ -16,6 +16,11 @@ interface FinancialDetailsProps {
 }
 
 export function FinancialDetails({ project, isEditing, onUpdate }: FinancialDetailsProps) {
+  const handleBusinessImpactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value);
+    onUpdate({ businessImpact: isNaN(value) ? 0 : value * 1000000 }); // Convert M to actual value
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -37,12 +42,18 @@ export function FinancialDetails({ project, isEditing, onUpdate }: FinancialDeta
               </TooltipContent>
             </Tooltip>
             {isEditing ? (
-              <input
-                type="number"
-                value={project.businessImpact ?? 0}
-                onChange={(e) => onUpdate({ businessImpact: Number(e.target.value) || 0 })}
-                className="text-2xl font-bold w-full bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary"
-              />
+              <div className="relative">
+                <input
+                  type="number"
+                  value={((project.businessImpact ?? 0) / 1000000).toFixed(1)}
+                  onChange={handleBusinessImpactChange}
+                  step="0.1"
+                  min="0"
+                  className="text-2xl font-bold w-full bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary pl-6 pr-2"
+                />
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-2xl font-bold">$</span>
+                <span className="absolute right-0 top-1/2 -translate-y-1/2 text-2xl font-bold">M</span>
+              </div>
             ) : (
               <p className="text-2xl font-bold">${((project.businessImpact ?? 0) / 1000000).toFixed(1)}M</p>
             )}
