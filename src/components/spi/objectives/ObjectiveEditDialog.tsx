@@ -38,7 +38,9 @@ export function ObjectiveEditDialog({ objective, onClose, onSave }: ObjectiveEdi
     <Dialog open={!!objective} onOpenChange={() => onClose()}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit Objective</DialogTitle>
+          <DialogTitle>
+            {editedObjective.id ? 'Edit Objective' : 'Add New Objective'}
+          </DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
@@ -72,17 +74,17 @@ export function ObjectiveEditDialog({ objective, onClose, onSave }: ObjectiveEdi
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="desiredOutcome">Desired Outcome (%)</Label>
+            <Label htmlFor="progress">Progress (%)</Label>
             <Input
-              id="desiredOutcome"
+              id="progress"
               type="number"
               min="0"
               max="100"
-              value={editedObjective.desiredOutcome.replace(/\D/g, '')}
+              value={parseInt(editedObjective.desiredOutcome) || 0}
               onChange={(e) =>
-                setEditedObjective({ 
-                  ...editedObjective, 
-                  desiredOutcome: `${e.target.value}%` 
+                setEditedObjective({
+                  ...editedObjective,
+                  desiredOutcome: `${e.target.value}%`
                 })
               }
             />
