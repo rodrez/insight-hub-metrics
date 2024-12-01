@@ -92,35 +92,43 @@ export function SMEPartnersSection({ project, onUpdate }: SMEPartnersSectionProp
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {smeCollaborators.map((partner) => (
-            <div 
-              key={partner.id} 
-              className="border rounded-lg p-4 space-y-2 cursor-pointer hover:bg-muted/50 transition-colors"
-              onClick={() => handlePartnerClick(partner.id)}
-            >
-              <div className="flex justify-between items-start">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Badge
-                        variant="outline"
-                        className="bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors"
-                      >
-                        {partner.name}
-                      </Badge>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Click to view partner details</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+          {smeCollaborators.map((partner) => {
+            const fullPartnerInfo = smePartners.find(p => p.id === partner.id);
+            return (
+              <div 
+                key={partner.id} 
+                className="border rounded-lg p-4 space-y-2 cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => handlePartnerClick(partner.id)}
+              >
+                <div className="flex justify-between items-start">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Badge
+                          variant="outline"
+                          style={{ 
+                            backgroundColor: fullPartnerInfo?.color || '#4B5563',
+                            color: 'white',
+                            borderColor: fullPartnerInfo?.color || '#4B5563'
+                          }}
+                          className="hover:opacity-90 transition-opacity"
+                        >
+                          {partner.name}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Click to view partner details</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  <p className="font-medium mb-1">Scope Summary:</p>
+                  <p>{partner.projects?.[0]?.description || "No scope defined"}</p>
+                </div>
               </div>
-              <div className="text-sm text-muted-foreground">
-                <p className="font-medium mb-1">Scope Summary:</p>
-                <p>{partner.projects?.[0]?.description || "No scope defined"}</p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
           {smeCollaborators.length === 0 && (
             <p className="text-muted-foreground text-sm">No SME partners added yet.</p>
           )}
