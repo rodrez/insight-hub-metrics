@@ -56,9 +56,9 @@ export function ObjectiveCard({ objective, spis, onSPIsChange, onUpdate, onDelet
               {isEditing ? (
                 <div className="space-y-4">
                   <Input
-                    value={editedObjective.initiative}
-                    onChange={(e) => setEditedObjective({ ...editedObjective, initiative: e.target.value })}
-                    placeholder="Initiative"
+                    value={editedObjective.title}
+                    onChange={(e) => setEditedObjective({ ...editedObjective, title: e.target.value })}
+                    placeholder="Objective Title"
                   />
                   <Textarea
                     value={editedObjective.desiredOutcome}
@@ -72,7 +72,7 @@ export function ObjectiveCard({ objective, spis, onSPIsChange, onUpdate, onDelet
                 </div>
               ) : (
                 <>
-                  <CardTitle>{objective.initiative}</CardTitle>
+                  <CardTitle>{objective.title}</CardTitle>
                   <p className="text-sm text-muted-foreground mt-2">{objective.desiredOutcome}</p>
                 </>
               )}
