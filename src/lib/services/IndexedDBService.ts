@@ -13,6 +13,7 @@ import { SampleDataService } from './data/SampleDataService';
 import { ServiceInitializationManager } from './db/initialization/ServiceInitializationManager';
 import { DataExportService } from './db/operations/DataExportService';
 import { DatabaseClearingService } from './db/operations/DatabaseClearingService';
+import { InitializationQueue } from './db/initialization/InitializationQueue';
 
 export class IndexedDBService extends BaseIndexedDBService implements DataService {
   private static instance: IndexedDBService | null = null;
@@ -24,6 +25,8 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   private dataExportService: DataExportService;
   private databaseClearingService: DatabaseClearingService;
   private initManager: ServiceInitializationManager;
+  private initQueue: InitializationQueue;
+  private isInitializing: boolean = false;
 
   private constructor() {
     super();
@@ -35,6 +38,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     this.initManager = ServiceInitializationManager.getInstance();
     this.dataExportService = new DataExportService(this);
     this.databaseClearingService = new DatabaseClearingService(this.getDatabase(), this.initManager);
+    this.initQueue = new InitializationQueue();
   }
 
   public static getInstance(): IndexedDBService {
@@ -45,49 +49,145 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   }
 
   public async init(): Promise<void> {
-    await this.initManager.initializeService('IndexedDB', async () => {
-      await super.init();
-      const db = this.getDatabase();
-      
-      this.projectService.setDatabase(db);
-      this.collaboratorService.setDatabase(db);
-      this.sitRepService.setDatabase(db);
-      this.spiService.setDatabase(db);
-    });
+    if (this.isInitializing) {
+      console.log('Initialization already in progress, queuing request...');
+      return this.initQueue.waitForInitialization();
+    }
+
+    if (this.initManager.isServiceInitialized('IndexedDB')) {
+      console.log('Service already initialized');
+      return;
+    }
+
+    this.isInitializing = true;
+    this.initQueue.startInitialization();
+
+    try {
+      await this.initManager.initializeService('IndexedDB', async () => {
+        await super.init();
+        const db = this.getDatabase();
+        
+        this.projectService.setDatabase(db);
+        this.collaboratorService.setDatabase(db);
+        this.sitRepService.setDatabase(db);
+        this.spiService.setDatabase(db);
+      });
+
+      console.log('IndexedDB Service initialized successfully');
+      this.initQueue.completeInitialization();
+    } catch (error) {
+      console.error('Failed to initialize IndexedDB Service:', error);
+      this.initQueue.failInitialization(error);
+      throw error;
+    } finally {
+      this.isInitializing = false;
+    }
   }
 
-  // Project methods
-  getAllProjects = () => this.projectService.getAllProjects();
-  getProject = (id: string) => this.projectService.getProject(id);
-  addProject = (project: Project) => this.projectService.addProject(project);
-  updateProject = (id: string, updates: Partial<Project>) => this.projectService.updateProject(id, updates);
+  private async ensureInitialized(): Promise<void> {
+    if (!this.initManager.isServiceInitialized('IndexedDB')) {
+      console.log('Service not initialized, initializing...');
+      await this.init();
+    }
+  }
 
-  // Collaborator methods
-  getAllCollaborators = () => this.collaboratorService.getAllCollaborators();
-  getCollaborator = (id: string) => this.collaboratorService.getCollaborator(id);
-  addCollaborator = (collaborator: Collaborator) => this.collaboratorService.addCollaborator(collaborator);
-  updateCollaborator = (id: string, updates: Partial<Collaborator>) => this.collaboratorService.updateCollaborator(id, updates);
+  async getAllProjects(): Promise<Project[]> {
+    await this.ensureInitialized();
+    return this.projectService.getAllProjects();
+  }
 
-  // SitRep methods
-  getAllSitReps = () => this.sitRepService.getAllSitReps();
-  addSitRep = (sitrep: SitRep) => this.sitRepService.addSitRep(sitrep);
-  updateSitRep = (id: string, updates: Partial<SitRep>) => this.sitRepService.updateSitRep(id, updates);
+  async getProject(id: string): Promise<Project | null> {
+    await thisensureInitialized();
+    return this.projectService.getProject(id);
+  }
 
-  // SPI methods
-  getAllSPIs = () => this.spiService.getAllSPIs();
-  getSPI = (id: string) => this.spiService.getSPI(id);
-  addSPI = (spi: SPI) => this.spiService.addSPI(spi);
-  updateSPI = (id: string, updates: Partial<SPI>) => this.spiService.updateSPI(id, updates);
-  deleteSPI = (id: string) => this.spiService.deleteSPI(id);
+  async addProject(project: Project): Promise<void> {
+    await this.ensureInitialized();
+    return this.projectService.addProject(project);
+  }
 
-  // Objective methods
-  getAllObjectives = () => this.spiService.getAllObjectives();
-  addObjective = (objective: Objective) => this.spiService.addObjective(objective);
-  updateObjective = (id: string, updates: Partial<Objective>) => this.spiService.updateObjective(id, updates);
-  deleteObjective = (id: string) => this.spiService.deleteObjective(id);
+  async updateProject(id: string, updates: Partial<Project>): Promise<void> {
+    await this.ensureInitialized();
+    return this.projectService.updateProject(id, updates);
+  }
 
-  // Team methods
+  async getAllCollaborators(): Promise<Collaborator[]> {
+    await this.ensureInitialized();
+    return this.collaboratorService.getAllCollaborators();
+  }
+
+  async getCollaborator(id: string): Promise<Collaborator | null> {
+    await this.ensureInitialized();
+    return this.collaboratorService.getCollaborator(id);
+  }
+
+  async addCollaborator(collaborator: Collaborator): Promise<void> {
+    await this.ensureInitialized();
+    return this.collaboratorService.addCollaborator(collaborator);
+  }
+
+  async updateCollaborator(id: string, updates: Partial<Collaborator>): Promise<void> {
+    await this.ensureInitialized();
+    return this.collaboratorService.updateCollaborator(id, updates);
+  }
+
+  async getAllSitReps(): Promise<SitRep[]> {
+    await this.ensureInitialized();
+    return this.sitRepService.getAllSitReps();
+  }
+
+  async addSitRep(sitrep: SitRep): Promise<void> {
+    await this.ensureInitialized();
+    return this.sitRepService.addSitRep(sitrep);
+  }
+
+  async updateSitRep(id: string, updates: Partial<SitRep>): Promise<void> {
+    await this.ensureInitialized();
+    return this.sitRepService.updateSitRep(id, updates);
+  }
+
+  async getAllSPIs(): Promise<SPI[]> {
+    await this.ensureInitialized();
+    return this.spiService.getAllSPIs();
+  }
+
+  async getSPI(id: string): Promise<SPI | null> {
+    await this.ensureInitialized();
+    return this.spiService.getSPI(id);
+  }
+
+  async addSPI(spi: SPI): Promise<void> {
+    await this.ensureInitialized();
+    return this.spiService.addSPI(spi);
+  }
+
+  async updateSPI(id: string, updates: Partial<SPI>): Promise<void> {
+    await this.ensureInitialized();
+    return this.spiService.updateSPI(id, updates);
+  }
+
+  async getAllObjectives(): Promise<Objective[]> {
+    await this.ensureInitialized();
+    return this.spiService.getAllObjectives();
+  }
+
+  async addObjective(objective: Objective): Promise<void> {
+    await this.ensureInitialized();
+    return this.spiService.addObjective(objective);
+  }
+
+  async updateObjective(id: string, updates: Partial<Objective>): Promise<void> {
+    await this.ensureInitialized();
+    return this.spiService.updateObjective(id, updates);
+  }
+
+  async deleteObjective(id: string): Promise<void> {
+    await this.ensureInitialized();
+    return this.spiService.deleteObjective(id);
+  }
+
   async getAllTeams(): Promise<Team[]> {
+    await this.ensureInitialized();
     const db = this.getDatabase();
     if (!db) throw new Error('Database not initialized');
     
@@ -101,45 +201,13 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     });
   }
 
-  // SME Partner methods
-  getAllSMEPartners = () => this.collaboratorService.getAllSMEPartners();
-  getSMEPartner = (id: string) => this.collaboratorService.getSMEPartner(id);
-  addSMEPartner = (partner: Collaborator) => this.collaboratorService.addSMEPartner(partner);
-
-  // Data operations
-  exportData = async (): Promise<{ 
-    projects: Project[]; 
-    collaborators: Collaborator[]; 
-    sitreps: SitRep[]; 
-    spis: SPI[]; 
-    objectives: Objective[]; 
-    smePartners: Collaborator[]; 
-  }> => {
-    try {
-      const data = {
-        projects: await this.getAllProjects(),
-        collaborators: await this.getAllCollaborators(),
-        sitreps: await this.getAllSitReps(),
-        spis: await this.getAllSPIs(),
-        objectives: await this.getAllObjectives(),
-        smePartners: await this.getAllSMEPartners()
-      };
-
-      // Verify we have at least some data
-      if (Object.values(data).every(arr => !arr?.length)) {
-        throw new Error('No data available in database');
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Error exporting data:', error);
-      throw error;
-    }
-  };
-  
-  clear = () => this.databaseClearingService.clearDatabase();
+  async clear(): Promise<void> {
+    await this.ensureInitialized();
+    return this.databaseClearingService.clearDatabase();
+  }
 
   async populateSampleData(quantities: DataQuantities): Promise<void> {
+    await this.ensureInitialized();
     try {
       await this.clear();
       await this.sampleDataService.generateSampleData(quantities);
