@@ -37,9 +37,6 @@ export function ProjectPartnerBadge({ partner, departmentColor }: ProjectPartner
     if (partner.type === 'sme' && partner.color) {
       return partner.color;
     }
-    if (partner.type === 'fortune30' && partner.color) {
-      return partner.color;
-    }
     return departmentColor || '#333';
   };
 

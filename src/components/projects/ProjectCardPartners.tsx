@@ -1,6 +1,8 @@
 import { Project } from '@/lib/types';
 import { ProjectPartnerBadge } from './ProjectPartnerBadge';
 import { CollaboratorType } from '@/lib/types/collaboration';
+import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/db';
 
 interface ProjectCardPartnersProps {
   project: Project;
@@ -23,6 +25,12 @@ export function ProjectCardPartners({ project, getDepartmentColor }: ProjectCard
     collab => collab.type === 'sme'
   );
 
+  // Fetch SME partner details to get their colors
+  const { data: allSMEPartners = [] } = useQuery({
+    queryKey: ['sme-partners'],
+    queryFn: () => db.getAllSMEPartners()
+  });
+
   const renderPartnerSection = (
     title: string,
     partners: Array<{ id: string; name: string; type: CollaboratorType; department: string }>,
@@ -32,13 +40,23 @@ export function ProjectCardPartners({ project, getDepartmentColor }: ProjectCard
       <div className="text-sm text-muted-foreground mb-1">{title}:</div>
       <div className="flex flex-wrap gap-2">
         {partners.length > 0 ? (
-          partners.map((partner) => (
-            <ProjectPartnerBadge 
-              key={`${project.id}-${partner.id}`}
-              partner={partner}
-              departmentColor={getDepartmentColor(partner.department)}
-            />
-          ))
+          partners.map((partner) => {
+            // If it's an SME partner, find its color from the settings
+            const smePartner = partner.type === 'sme' 
+              ? allSMEPartners.find(sme => sme.id === partner.id)
+              : null;
+            
+            return (
+              <ProjectPartnerBadge 
+                key={`${project.id}-${partner.id}`}
+                partner={{
+                  ...partner,
+                  color: smePartner?.color
+                }}
+                departmentColor={getDepartmentColor(partner.department)}
+              />
+            );
+          })
         ) : (
           <span className="text-sm text-muted-foreground">{emptyMessage}</span>
         )}
