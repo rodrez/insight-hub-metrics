@@ -35,6 +35,10 @@ export function ExportActions({ isInitialized, disabled }: ExportActionsProps) {
       const data = await db.exportData();
       console.log('Exported data:', data); // Debug log
       
+      if (!data) {
+        throw new Error('No data received from database');
+      }
+
       let blob;
       let filename;
 
