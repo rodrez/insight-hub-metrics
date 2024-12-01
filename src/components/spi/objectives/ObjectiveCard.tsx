@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Pen, Trash2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Pen, Trash2, Target, ArrowRight } from "lucide-react";
 import { Objective } from "@/lib/types/objective";
 
 interface ObjectiveCardProps {
@@ -10,15 +11,37 @@ interface ObjectiveCardProps {
 }
 
 export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProps) {
+  const progress = objective.desiredOutcome.includes("100%") ? 100 : 
+    parseInt(objective.desiredOutcome.match(/\d+/)?.[0] || "0");
+
   return (
-    <Card className="hover:bg-accent/50 transition-colors">
+    <Card className="hover:shadow-md transition-all duration-200 group animate-fade-in">
       <CardContent className="p-4">
-        <div className="flex justify-between items-start">
-          <div className="space-y-1">
-            <h4 className="font-medium">{objective.title}</h4>
-            <p className="text-sm text-muted-foreground">{objective.desiredOutcome}</p>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-2 flex-1">
+            <div className="flex items-start gap-3">
+              <Target className="h-5 w-5 text-primary mt-1" />
+              <div>
+                <h4 className="font-medium text-lg">{objective.title}</h4>
+                <p className="text-sm text-muted-foreground">{objective.description}</p>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium">Initiative: {objective.initiative}</span>
+              </div>
+              <div className="space-y-1">
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>Progress</span>
+                  <span>{progress}%</span>
+                </div>
+                <Progress value={progress} className="h-2" />
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
+          
+          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
               variant="ghost"
               size="icon"

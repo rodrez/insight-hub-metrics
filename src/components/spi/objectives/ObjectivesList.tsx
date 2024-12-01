@@ -5,8 +5,16 @@ import { ObjectiveCard } from "./ObjectiveCard";
 import { InitiativesList } from "./InitiativesList";
 import { Objective } from "@/lib/types/objective";
 import { Separator } from "@/components/ui/separator";
+import { ObjectivesSummary } from "./ObjectivesSummary";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState } from "react";
+import { Progress } from "@/components/ui/progress";
 
 export function ObjectivesList() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+
   const { data: objectives = [], refetch } = useQuery({
     queryKey: ['objectives'],
     queryFn: () => db.getAllObjectives(),
@@ -37,57 +45,57 @@ export function ObjectivesList() {
     }
   };
 
-  // Add sample data if none exists
-  const addSampleData = async () => {
-    if (objectives.length === 0) {
-      const sampleObjectives = [
-        {
-          id: '1',
-          title: 'Improve Customer Experience',
-          description: 'Focus on enhancing customer satisfaction through improved service delivery',
-          initiative: 'Customer First Initiative',
-          desiredOutcome: 'Increase customer satisfaction score by 20%',
-          spiIds: []
-        },
-        {
-          id: '2',
-          title: 'Digital Transformation',
-          description: 'Modernize legacy systems and implement new digital solutions',
-          initiative: 'Digital Evolution Program',
-          desiredOutcome: 'Modernize 80% of legacy systems',
-          spiIds: []
-        },
-        {
-          id: '3',
-          title: 'Operational Excellence',
-          description: 'Streamline operations and improve efficiency across departments',
-          initiative: 'Operational Optimization',
-          desiredOutcome: 'Reduce operational costs by 15%',
-          spiIds: []
-        }
-      ];
+  const filteredObjectives = objectives
+    .filter(obj => 
+      obj.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      obj.description.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .filter(obj => {
+      if (filterStatus === "all") return true;
+      if (filterStatus === "completed") return obj.desiredOutcome.includes("100%");
+      return !obj.desiredOutcome.includes("100%");
+    });
 
-      for (const objective of sampleObjectives) {
-        await db.addObjective(objective);
-      }
-      refetch();
-      toast({
-        title: "Success",
-        description: "Sample objectives added successfully",
-      });
-    }
-  };
-
-  // Call addSampleData when component mounts if no data exists
-  if (objectives.length === 0) {
-    addSampleData();
-  }
+  const completionPercentage = objectives.length > 0
+    ? (objectives.filter(obj => obj.desiredOutcome.includes("100%")).length / objectives.length) * 100
+    : 0;
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Strategic Objectives</h2>
-      <div className="grid grid-cols-1 gap-2">
-        {objectives.map((objective) => (
+    <div className="space-y-6">
+      <ObjectivesSummary />
+      
+      <div className="bg-card rounded-lg p-4 shadow-sm">
+        <h3 className="text-lg font-semibold mb-2">Overall Progress</h3>
+        <Progress value={completionPercentage} className="h-2 mb-2" />
+        <p className="text-sm text-muted-foreground">{completionPercentage.toFixed(0)}% of objectives completed</p>
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex-1">
+          <Input
+            placeholder="Search objectives..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full"
+          />
+        </div>
+        <Select
+          value={filterStatus}
+          onValueChange={setFilterStatus}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Objectives</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="in-progress">In Progress</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 animate-fade-in">
+        {filteredObjectives.map((objective) => (
           <ObjectiveCard
             key={objective.id}
             objective={objective}
@@ -96,6 +104,7 @@ export function ObjectivesList() {
           />
         ))}
       </div>
+
       <Separator className="my-6" />
       <InitiativesList objectives={objectives} />
     </div>
