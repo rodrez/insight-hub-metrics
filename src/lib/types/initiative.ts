@@ -3,5 +3,7 @@ export type Initiative = {
   title: string;
   description: string;
   details?: string;
+  desiredOutcome: string;
+  objectiveId: string;
   createdAt: string;
 };
