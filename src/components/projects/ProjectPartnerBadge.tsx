@@ -34,6 +34,9 @@ export function ProjectPartnerBadge({ partner, departmentColor }: ProjectPartner
   };
 
   const getBadgeColor = () => {
+    if (partner.type === 'sme' && partner.color) {
+      return partner.color;
+    }
     if (partner.type === 'fortune30' && partner.color) {
       return partner.color;
     }
@@ -45,8 +48,12 @@ export function ProjectPartnerBadge({ partner, departmentColor }: ProjectPartner
       <Tooltip>
         <TooltipTrigger>
           <Badge
-            style={{ backgroundColor: getBadgeColor() }}
-            className="flex items-center gap-1 text-white"
+            style={{ 
+              backgroundColor: getBadgeColor(),
+              borderColor: getBadgeColor(),
+              color: 'white'
+            }}
+            className="flex items-center gap-1 text-white hover:opacity-90 transition-opacity"
           >
             {getIcon()}
             {partner.name}
