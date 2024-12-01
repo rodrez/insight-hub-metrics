@@ -10,13 +10,7 @@ import { toast } from "@/components/ui/use-toast";
 export function BugFixesTab() {
   const [bugs, setBugs] = useState<any[]>([]);
   const [previousBugIds, setPreviousBugIds] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    // Initialize bugs on component mount
-    const initialBugs = sortBugsBySeverity(bugTracker.getAllBugs());
-    setBugs(initialBugs);
-    setPreviousBugIds(new Set(initialBugs.map(bug => bug.id)));
-  }, []);
+  const [isLoading, setIsLoading] = useState(true);
 
   const sortBugsBySeverity = (bugsToSort: any[]) => {
     const severityOrder = {
@@ -32,11 +26,34 @@ export function BugFixesTab() {
     );
   };
 
-  const refreshBugs = () => {
+  const loadBugs = async () => {
+    try {
+      const fetchedBugs = await bugTracker.getAllBugs();
+      const sortedBugs = sortBugsBySeverity(fetchedBugs);
+      setBugs(sortedBugs);
+      setPreviousBugIds(new Set(sortedBugs.map(bug => bug.id)));
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error loading bugs:', error);
+      toast({
+        title: "Error loading bugs",
+        description: "Failed to load the bug list",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadBugs();
+  }, []);
+
+  const refreshBugs = async () => {
     try {
       const currentBugIds = new Set(bugs.map(bug => bug.id));
-      const newBugs = sortBugsBySeverity(bugTracker.getAllBugs());
-      setBugs(newBugs);
+      const newBugs = await bugTracker.getAllBugs();
+      const sortedBugs = sortBugsBySeverity(newBugs);
+      setBugs(sortedBugs);
       
       // Check for new bugs
       const newBugCount = newBugs.filter(bug => !currentBugIds.has(bug.id)).length;
@@ -104,6 +121,10 @@ export function BugFixesTab() {
   const isNewBug = (bugId: string) => {
     return !previousBugIds.has(bugId);
   };
+
+  if (isLoading) {
+    return <div>Loading bugs...</div>;
+  }
 
   return (
     <ScrollArea className="h-[600px] pr-4">
