@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Info } from "lucide-react";
+import { Info, Save } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import {
   Tooltip,
@@ -52,7 +52,7 @@ export function StatusColorSettings() {
     loadSettings();
   }, []);
 
-  // Save settings whenever they change (but only after initial load)
+  // Auto-save settings whenever they change (but only after initial load)
   useEffect(() => {
     if (hasLoaded) {
       try {
@@ -82,6 +82,22 @@ export function StatusColorSettings() {
     });
   };
 
+  const saveSettings = () => {
+    try {
+      localStorage.setItem('projectStatusColors', JSON.stringify(statusColors));
+      toast({
+        title: "Settings saved",
+        description: "Your color settings have been saved successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error saving settings",
+        description: "Failed to save settings. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -98,9 +114,15 @@ export function StatusColorSettings() {
             </Tooltip>
           </TooltipProvider>
         </div>
-        <Button variant="outline" onClick={resetToDefaults}>
-          Reset to Defaults
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={resetToDefaults}>
+            Reset to Defaults
+          </Button>
+          <Button onClick={saveSettings}>
+            <Save className="mr-2 h-4 w-4" />
+            Save Settings
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-4">
