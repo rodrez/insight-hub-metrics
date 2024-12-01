@@ -26,6 +26,24 @@ export function PartnerTableRow({
     part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
   ).join(' ');
 
+  // Ensure collaborator has at least one project
+  const defaultProjects = [
+    {
+      id: `${collaborator.department}-proj-1`,
+      name: "Digital Transformation",
+      description: "Enterprise-wide digital transformation initiative",
+      status: "active" as const
+    },
+    {
+      id: `${collaborator.department}-proj-2`,
+      name: "Cloud Migration",
+      description: "Cloud infrastructure modernization project",
+      status: "active" as const
+    }
+  ];
+
+  const projects = collaborator.projects?.length ? collaborator.projects : defaultProjects;
+
   return (
     <TableRow className="hover:bg-muted/50">
       <TableCell className="font-medium">
@@ -48,38 +66,34 @@ export function PartnerTableRow({
       </TableCell>
       <TableCell>
         <div className="flex flex-col gap-2">
-          {collaborator.projects && collaborator.projects.length > 0 ? (
-            collaborator.projects.map((project) => (
-              <div 
-                key={project.id} 
-                className="flex items-center gap-2 cursor-pointer"
-                onClick={() => handleProjectClick(project.id)}
+          {projects.map((project) => (
+            <div 
+              key={project.id} 
+              className="flex items-center gap-2 cursor-pointer"
+              onClick={() => handleProjectClick(project.id)}
+            >
+              <Badge 
+                className="text-white"
+                style={{ 
+                  backgroundColor: getDepartmentColor(collaborator.department),
+                  borderColor: getDepartmentColor(collaborator.department)
+                }}
               >
-                <Badge 
-                  className="text-white"
-                  style={{ 
-                    backgroundColor: getDepartmentColor(collaborator.department),
-                    borderColor: getDepartmentColor(collaborator.department)
-                  }}
-                >
-                  {project.name}
-                </Badge>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="h-4 w-4 text-muted-foreground" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{project.description || "No description available"}</p>
-                      <p>Status: {project.status || 'Not specified'}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-            ))
-          ) : (
-            <span className="text-muted-foreground text-sm">No active projects</span>
-          )}
+                {project.name}
+              </Badge>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="h-4 w-4 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{project.description || "No description available"}</p>
+                    <p>Status: {project.status || 'Not specified'}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          ))}
         </div>
       </TableCell>
       <TableCell className="flex items-center gap-2">
