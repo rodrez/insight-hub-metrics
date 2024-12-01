@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pen, Trash2 } from "lucide-react";
+import { Pen, Plus, Trash2 } from "lucide-react";
 import { Objective } from "@/lib/types/objective";
 import { useState } from "react";
 import { InitiativeEditDialog } from "./InitiativeEditDialog";
@@ -54,9 +54,30 @@ export function InitiativesList({ objectives }: InitiativesListProps) {
     setSelectedInitiative(null);
   };
 
+  const handleAddNew = () => {
+    const newInitiative = {
+      id: crypto.randomUUID(),
+      initiative: '',
+      desiredOutcome: '',
+      objectiveIds: [],
+    };
+    setSelectedInitiative(newInitiative);
+  };
+
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Strategic Initiatives</h3>
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold">Strategic Initiatives</h3>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleAddNew}
+          className="flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          Add Initiative
+        </Button>
+      </div>
       <div className="grid grid-cols-1 gap-2">
         {initiatives.map((initiative) => (
           <Card key={initiative.id} className="hover:bg-accent/50 transition-colors">
