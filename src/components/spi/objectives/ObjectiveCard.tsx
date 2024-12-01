@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { db } from "@/lib/db";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ObjectiveCardProps {
   objective: Objective;
@@ -23,11 +26,20 @@ export function ObjectiveCard({ objective, spis, onSPIsChange, onUpdate, onDelet
   const [isEditing, setIsEditing] = useState(false);
   const [editedObjective, setEditedObjective] = useState(objective);
 
+  const { data: initiatives } = useQuery({
+    queryKey: ['initiatives'],
+    queryFn: () => db.getAllInitiatives()
+  });
+
   const handleSPIToggle = (spiId: string) => {
     const newSPIIds = objective.spiIds.includes(spiId)
       ? objective.spiIds.filter(id => id !== spiId)
       : [...objective.spiIds, spiId];
     onSPIsChange(objective.id, newSPIIds);
+  };
+
+  const handleInitiativeChange = (initiativeId: string) => {
+    setEditedObjective({ ...editedObjective, initiativeId });
   };
 
   const handleSave = () => {
@@ -65,6 +77,21 @@ export function ObjectiveCard({ objective, spis, onSPIsChange, onUpdate, onDelet
                     onChange={(e) => setEditedObjective({ ...editedObjective, desiredOutcome: e.target.value })}
                     placeholder="Desired Outcome"
                   />
+                  <Select
+                    value={editedObjective.initiativeId}
+                    onValueChange={handleInitiativeChange}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Initiative" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {initiatives?.map((initiative) => (
+                        <SelectItem key={initiative.id} value={initiative.id}>
+                          {initiative.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <div className="flex gap-2">
                     <Button onClick={handleSave}>Save</Button>
                     <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
@@ -74,6 +101,11 @@ export function ObjectiveCard({ objective, spis, onSPIsChange, onUpdate, onDelet
                 <>
                   <CardTitle>{objective.title}</CardTitle>
                   <p className="text-sm text-muted-foreground mt-2">{objective.desiredOutcome}</p>
+                  {objective.initiativeId && initiatives?.find(i => i.id === objective.initiativeId) && (
+                    <p className="text-sm text-blue-500 mt-1">
+                      Initiative: {initiatives.find(i => i.id === objective.initiativeId)?.title}
+                    </p>
+                  )}
                 </>
               )}
             </div>

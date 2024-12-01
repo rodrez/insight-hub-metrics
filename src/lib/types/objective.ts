@@ -4,4 +4,5 @@ export type Objective = {
   description: string;
   desiredOutcome: string;
   spiIds: string[];
+  initiativeId?: string;
 };
