@@ -14,6 +14,9 @@ import { ServiceInitializationManager } from './db/initialization/ServiceInitial
 import { DataExportService } from './db/operations/DataExportService';
 import { DatabaseClearingService } from './db/operations/DatabaseClearingService';
 import { InitializationQueue } from './db/initialization/InitializationQueue';
+import { SMEService } from './db/SMEService';
+import { SPIOperations } from './db/SPIOperations';
+import { ExportedData } from './DataService';
 
 export class IndexedDBService extends BaseIndexedDBService implements DataService {
   private static instance: IndexedDBService | null = null;
@@ -21,6 +24,8 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   private collaboratorService: CollaboratorService;
   private sitRepService: SitRepService;
   private spiService: SPIService;
+  private smeService: SMEService;
+  private spiOperations: SPIOperations;
   private sampleDataService: SampleDataService;
   private dataExportService: DataExportService;
   private databaseClearingService: DatabaseClearingService;
@@ -34,6 +39,8 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     this.collaboratorService = new CollaboratorService();
     this.sitRepService = new SitRepService();
     this.spiService = new SPIService();
+    this.smeService = new SMEService();
+    this.spiOperations = new SPIOperations();
     this.sampleDataService = new SampleDataService();
     this.initManager = ServiceInitializationManager.getInstance();
     this.dataExportService = new DataExportService(this);
@@ -97,7 +104,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   }
 
   async getProject(id: string): Promise<Project | null> {
-    await thisensureInitialized();
+    await this.ensureInitialized();
     return this.projectService.getProject(id);
   }
 
@@ -166,6 +173,11 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     return this.spiService.updateSPI(id, updates);
   }
 
+  async deleteSPI(id: string): Promise<void> {
+    await this.ensureInitialized();
+    return this.spiOperations.deleteSPI(id);
+  }
+
   async getAllObjectives(): Promise<Objective[]> {
     await this.ensureInitialized();
     return this.spiService.getAllObjectives();
@@ -214,5 +226,25 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     } catch (error) {
       throw error;
     }
+  }
+
+  async exportData(): Promise<ExportedData> {
+    await this.ensureInitialized();
+    return this.dataExportService.exportData();
+  }
+
+  async getAllSMEPartners(): Promise<Collaborator[]> {
+    await this.ensureInitialized();
+    return this.smeService.getAllSMEPartners();
+  }
+
+  async getSMEPartner(id: string): Promise<Collaborator | undefined> {
+    await this.ensureInitialized();
+    return this.smeService.getSMEPartner(id);
+  }
+
+  async addSMEPartner(partner: Collaborator): Promise<void> {
+    await this.ensureInitialized();
+    return this.smeService.addSMEPartner(partner);
   }
 }
