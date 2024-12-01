@@ -31,8 +31,25 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
 
   const { data: smePartner } = useQuery({
     queryKey: ['sme-partner', sitrep.smePartnerId],
-    queryFn: () => sitrep.smePartnerId ? db.getSMEPartner(sitrep.smePartnerId) : null,
+    queryFn: async () => {
+      if (!sitrep.smePartnerId || sitrep.smePartnerId === 'none') return null;
+      const partner = await db.getSMEPartner(sitrep.smePartnerId);
+      return partner || null;
+    },
     enabled: !!sitrep.smePartnerId && sitrep.smePartnerId !== 'none'
+  });
+
+  const { data: fortune30Partner } = useQuery({
+    queryKey: ['collaborators-fortune30', sitrep.fortune30PartnerId],
+    queryFn: async () => {
+      if (!sitrep.fortune30PartnerId || sitrep.fortune30PartnerId === 'none') return null;
+      const allCollaborators = await db.getAllCollaborators();
+      const partner = allCollaborators.find(c => 
+        c.type === 'fortune30' && c.id === sitrep.fortune30PartnerId
+      );
+      return partner || null;
+    },
+    enabled: !!sitrep.fortune30PartnerId && sitrep.fortune30PartnerId !== 'none'
   });
 
   const getStatusBadgeColor = (status: string) => {
@@ -160,7 +177,9 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
                 {sitrep.fortune30PartnerId && (
                   <div className="flex items-center gap-2">
                     <span className="text-muted-foreground">Fortune 30:</span>
-                    <span className="text-blue-500">{sitrep.fortune30PartnerId}</span>
+                    <span style={{ color: fortune30Partner?.color || '#4B5563' }}>
+                      {fortune30Partner?.name || 'Not found'}
+                    </span>
                   </div>
                 )}
                 {sitrep.smePartnerId && (
