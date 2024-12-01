@@ -10,18 +10,17 @@ import { SitRepService } from './db/SitRepService';
 import { SPIService } from './db/SPIService';
 import { BaseIndexedDBService } from './db/base/BaseIndexedDBService';
 import { SampleDataService } from './data/SampleDataService';
+import { ServiceInitializationManager } from './db/initialization/ServiceInitializationManager';
 import { toast } from "@/components/ui/use-toast";
 
 export class IndexedDBService extends BaseIndexedDBService implements DataService {
   private static instance: IndexedDBService | null = null;
-  private initializationPromise: Promise<void> | null = null;
   private projectService: ProjectService;
   private collaboratorService: CollaboratorService;
   private sitRepService: SitRepService;
   private spiService: SPIService;
   private sampleDataService: SampleDataService;
-  private initialized: boolean = false;
-  private activeTransactions: Set<IDBTransaction> = new Set();
+  private initManager: ServiceInitializationManager;
 
   private constructor() {
     super();
@@ -30,6 +29,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     this.sitRepService = new SitRepService();
     this.spiService = new SPIService();
     this.sampleDataService = new SampleDataService();
+    this.initManager = ServiceInitializationManager.getInstance();
   }
 
   public static getInstance(): IndexedDBService {
@@ -39,70 +39,17 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     return IndexedDBService.instance;
   }
 
-  public isInitialized(): boolean {
-    return this.initialized;
-  }
-
-  private async cleanupTransactions(): Promise<void> {
-    console.log('Cleaning up transactions...');
-    for (const transaction of this.activeTransactions) {
-      try {
-        if (transaction.error) {
-          console.warn('Transaction error detected:', transaction.error);
-        }
-        transaction.abort();
-      } catch (error) {
-        console.warn('Error during transaction cleanup:', error);
-      }
-    }
-    this.activeTransactions.clear();
-  }
-
   public async init(): Promise<void> {
-    if (this.initializationPromise) {
-      return this.initializationPromise;
-    }
-
-    if (this.isInitialized()) {
-      return Promise.resolve();
-    }
-
-    this.initializationPromise = this.performInitialization();
-
-    try {
-      await this.initializationPromise;
-      this.initialized = true;
-      console.log('Database initialized successfully');
-    } catch (error) {
-      console.error('Database initialization failed:', error);
-      throw error;
-    } finally {
-      this.initializationPromise = null;
-    }
-  }
-
-  private async performInitialization(): Promise<void> {
-    try {
-      await this.cleanupTransactions();
+    await this.initManager.initializeService('IndexedDB', async () => {
       await super.init();
+      const db = this.getDatabase();
       
       // Initialize all services with the current database instance
-      const db = this.getDatabase();
       this.projectService.setDatabase(db);
       this.collaboratorService.setDatabase(db);
       this.sitRepService.setDatabase(db);
       this.spiService.setDatabase(db);
-
-      // Services are now initialized through setDatabase, no need to call init()
-    } catch (error) {
-      console.error('Database initialization failed:', error);
-      toast({
-        title: "Error",
-        description: "Failed to initialize database. Please refresh the page.",
-        variant: "destructive",
-      });
-      throw error;
-    }
+    });
   }
 
   // Project methods
@@ -140,20 +87,6 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     return [];
   }
 
-  async clear(): Promise<void> {
-    await this.cleanupTransactions();
-    const stores = ['projects', 'collaborators', 'sitreps', 'spis', 'objectives', 'smePartners'];
-    for (const storeName of stores) {
-      const transaction = this.getDatabase()?.transaction(storeName, 'readwrite');
-      if (transaction) {
-        this.activeTransactions.add(transaction);
-        const objectStore = transaction.objectStore(storeName);
-        await objectStore.clear();
-        this.activeTransactions.delete(transaction);
-      }
-    }
-  }
-
   // SME Partner methods
   getAllSMEPartners = () => this.collaboratorService.getAllSMEPartners();
   getSMEPartner = (id: string) => this.collaboratorService.getSMEPartner(id);
@@ -186,5 +119,17 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   async populateSampleData(quantities: DataQuantities): Promise<void> {
     await this.clear();
     await this.sampleDataService.generateSampleData(quantities);
+  }
+
+  async clear(): Promise<void> {
+    const stores = ['projects', 'collaborators', 'sitreps', 'spis', 'objectives', 'smePartners'];
+    for (const storeName of stores) {
+      const transaction = this.getDatabase()?.transaction(storeName, 'readwrite');
+      if (transaction) {
+        const objectStore = transaction.objectStore(storeName);
+        await objectStore.clear();
+      }
+    }
+    this.initManager.resetService('IndexedDB');
   }
 }
