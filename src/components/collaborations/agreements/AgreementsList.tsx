@@ -4,6 +4,7 @@ import { Upload, AlertTriangle, Shield, ChevronDown } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { getDaysUntilExpiry, getAgreementWarningSettings } from "@/lib/utils/agreementUtils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Collaborator } from "@/lib/types/collaboration";
 import {
   Tooltip,
   TooltipContent,
