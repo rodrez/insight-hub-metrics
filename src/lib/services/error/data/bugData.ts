@@ -63,16 +63,6 @@ export const initialBugs: Bug[] = [
   },
   {
     id: "BUG-006",
-    title: "Data Validation Performance",
-    description: "DataValidationService performs unnecessary validation steps",
-    severity: "medium",
-    status: "active",
-    location: "src/lib/services/data/DataValidationService.ts",
-    impact: "Slower validation process for large datasets",
-    suggestedFix: "Optimize validation logic and implement batch processing"
-  },
-  {
-    id: "BUG-007",
     title: "Project Store Error Propagation",
     description: "ProjectStore error handling doesn't properly propagate errors",
     severity: "medium",
@@ -82,7 +72,7 @@ export const initialBugs: Bug[] = [
     suggestedFix: "Implement proper error propagation and logging mechanism"
   },
   {
-    id: "BUG-008",
+    id: "BUG-007",
     title: "Base DB Service Connection Management",
     description: "BaseDBService doesn't properly manage database connections",
     severity: "high",
@@ -92,7 +82,7 @@ export const initialBugs: Bug[] = [
     suggestedFix: "Implement proper connection pooling and cleanup"
   },
   {
-    id: "BUG-009",
+    id: "BUG-008",
     title: "Settings Page Component Size",
     description: "Several settings components exceed recommended file size",
     severity: "low",
@@ -102,7 +92,7 @@ export const initialBugs: Bug[] = [
     suggestedFix: "Split large components into smaller, focused components"
   },
   {
-    id: "BUG-010",
+    id: "BUG-009",
     title: "Bug Tracking Service State Management",
     description: "BugTracker class uses local state instead of persistent storage",
     severity: "medium",
@@ -110,5 +100,15 @@ export const initialBugs: Bug[] = [
     location: "src/lib/services/error/BugTrackingService.ts",
     impact: "Bug status changes don't persist across sessions",
     suggestedFix: "Implement proper persistence layer for bug tracking state"
+  },
+  {
+    id: "BUG-010",
+    title: "Data Validation Performance",
+    description: "DataValidationService performs unnecessary validation steps",
+    severity: "medium",
+    status: "active",
+    location: "src/lib/services/data/DataValidationService.ts",
+    impact: "Slower validation process for large datasets",
+    suggestedFix: "Optimize validation logic and implement batch processing"
   }
 ];
