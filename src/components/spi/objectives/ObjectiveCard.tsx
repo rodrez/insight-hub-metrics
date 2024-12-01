@@ -5,6 +5,7 @@ import { Pen, Trash2, Target, ArrowRight } from "lucide-react";
 import { Objective } from "@/lib/types/objective";
 import { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
+import { ObjectiveEditDialog } from "./ObjectiveEditDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +28,8 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
     active: '#10B981'
   });
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [selectedObjective, setSelectedObjective] = useState<Objective | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem('projectStatusColors');
@@ -39,11 +42,8 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
   }, []);
 
   const handleEdit = () => {
-    onEdit(objective);
-    toast({
-      title: "Edit mode activated",
-      description: "You can now edit the objective details.",
-    });
+    setSelectedObjective(objective);
+    setShowEditDialog(true);
   };
 
   const handleDelete = () => {
@@ -56,6 +56,16 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
     toast({
       title: "Objective deleted",
       description: "The objective has been successfully deleted.",
+    });
+  };
+
+  const handleSaveEdit = (updatedObjective: Objective) => {
+    onEdit(updatedObjective);
+    setShowEditDialog(false);
+    setSelectedObjective(null);
+    toast({
+      title: "Objective updated",
+      description: "The objective has been successfully updated.",
     });
   };
 
@@ -132,6 +142,15 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ObjectiveEditDialog
+        objective={selectedObjective}
+        onClose={() => {
+          setShowEditDialog(false);
+          setSelectedObjective(null);
+        }}
+        onSave={handleSaveEdit}
+      />
     </>
   );
 }
