@@ -95,18 +95,18 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-4">
           <Input
-            placeholder="SPI Name"
+            placeholder="SPI 1"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
           <Textarea
-            placeholder="Deliverable"
+            placeholder="Deliverable for SPI 1"
             value={deliverable}
             onChange={(e) => setDeliverable(e.target.value)}
             className="h-32"
           />
           <Textarea
-            placeholder="Details"
+            placeholder="Details for SPI 1"
             value={details}
             onChange={(e) => setDetails(e.target.value)}
             className="h-32"
