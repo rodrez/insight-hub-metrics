@@ -19,15 +19,29 @@ interface TeamPOCFieldsProps {
 }
 
 export function TeamPOCFields({ teamId, onPOCSelect, selectedPOC }: TeamPOCFieldsProps) {
-  const { data: internalPartners = [] } = useQuery({
+  const { data: internalPartners = [], isError } = useQuery({
     queryKey: ['collaborators-internal'],
     queryFn: async () => {
-      const allCollaborators = await db.getAllCollaborators();
-      return allCollaborators.filter(c => c.type === 'internal');
+      try {
+        const allCollaborators = await db.getAllCollaborators();
+        return allCollaborators.filter(c => c.type === 'internal') || [];
+      } catch (error) {
+        console.error('Error fetching collaborators:', error);
+        return [];
+      }
     },
   });
 
   const teamPartners = internalPartners.filter(p => p.department === teamId);
+
+  if (isError) {
+    toast({
+      title: "Error Loading POCs",
+      description: "Failed to load points of contact",
+      variant: "destructive"
+    });
+    return null;
+  }
 
   if (teamPartners.length === 0) {
     toast({
