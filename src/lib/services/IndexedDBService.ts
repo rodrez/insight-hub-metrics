@@ -21,6 +21,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   private spiService: SPIService;
   private sampleDataService: SampleDataService;
   private initialized: boolean = false;
+  private activeTransactions: Set<IDBTransaction> = new Set();
 
   private constructor() {
     super();
@@ -42,31 +43,50 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     return this.initialized;
   }
 
+  private async cleanupTransactions(): Promise<void> {
+    console.log('Cleaning up transactions...');
+    for (const transaction of this.activeTransactions) {
+      try {
+        if (transaction.error) {
+          console.warn('Transaction error detected:', transaction.error);
+        }
+        // Only abort if the transaction is still active
+        if (transaction.mode !== 'finished') {
+          transaction.abort();
+        }
+      } catch (error) {
+        console.warn('Error during transaction cleanup:', error);
+      }
+    }
+    this.activeTransactions.clear();
+  }
+
   public async init(): Promise<void> {
-    // If initialization is already in progress, return the existing promise
     if (this.initializationPromise) {
       return this.initializationPromise;
     }
 
-    // If already initialized, return immediately
     if (this.isInitialized()) {
       return Promise.resolve();
     }
 
-    // Create new initialization promise
     this.initializationPromise = this.performInitialization();
 
     try {
       await this.initializationPromise;
       this.initialized = true;
+      console.log('Database initialized successfully');
+    } catch (error) {
+      console.error('Database initialization failed:', error);
+      throw error;
     } finally {
-      // Clear the promise once initialization is complete (success or failure)
       this.initializationPromise = null;
     }
   }
 
   private async performInitialization(): Promise<void> {
     try {
+      await this.cleanupTransactions();
       await super.init();
       await Promise.all([
         this.projectService.init(),
@@ -122,9 +142,16 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
 
   // Other methods
   async clear(): Promise<void> {
+    await this.cleanupTransactions();
     const stores = ['projects', 'collaborators', 'sitreps', 'spis', 'objectives', 'smePartners'];
     for (const store of stores) {
-      await this.transactionService.performTransaction(store, 'readwrite', store => store.clear());
+      const transaction = this.getDatabase()?.transaction(store, 'readwrite');
+      if (transaction) {
+        this.activeTransactions.add(transaction);
+        const store = transaction.objectStore(store);
+        await store.clear();
+        this.activeTransactions.delete(transaction);
+      }
     }
   }
 
