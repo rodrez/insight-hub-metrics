@@ -5,6 +5,8 @@ import { AgreementCSVService } from './csv/AgreementCSVService';
 import { ObjectiveCSVService } from './csv/ObjectiveCSVService';
 import { SitRepCSVService } from './csv/SitRepCSVService';
 import { SPICSVService } from './csv/SPICSVService';
+import { LOBCSVService } from './csv/LOBCSVService';
+import { businessCategories } from '@/components/wiki/data/businessCategories';
 
 export class CSVExportService {
   static convertToCSV(data: any): string {
@@ -48,6 +50,9 @@ export class CSVExportService {
       if (data.spis && data.spis.length > 0) {
         SPICSVService.addSPIsSection(items, data.spis);
       }
+
+      // Add Lines of Business section
+      LOBCSVService.addLOBSection(items, businessCategories);
 
       // If no data sections were added, add a message
       if (items.length === 1) { // Only metadata exists
