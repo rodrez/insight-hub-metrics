@@ -15,6 +15,11 @@ export class CSVExportService {
       if (data.collaborators && data.collaborators.length > 0) {
         this.addCollaboratorsSection(items, data.collaborators);
       }
+
+      // Add SME partners section
+      if (data.smePartners && data.smePartners.length > 0) {
+        this.addSMEPartnersSection(items, data.smePartners);
+      }
       
       if (data.projects && data.projects.length > 0) {
         this.addProjectsSection(items, data.projects);
@@ -37,7 +42,7 @@ export class CSVExportService {
   }
 
   private static addCollaboratorsSection(items: any[], collaborators: any[] = []) {
-    items.push(['Collaborators']);
+    items.push(['Fortune 30 & Internal Collaborators']);
     items.push([
       'Collaborator ID',
       'Full Name',
@@ -57,6 +62,34 @@ export class CSVExportService {
         c.email,
         c.status || 'Active',
         formatDate(c.lastActive || new Date())
+      ].map(escapeCSVValue));
+    });
+    items.push(['']);
+  }
+
+  private static addSMEPartnersSection(items: any[], smePartners: any[] = []) {
+    items.push(['SME Partners']);
+    items.push([
+      'Partner ID',
+      'Company Name',
+      'Role',
+      'Department',
+      'Email Address',
+      'Primary Contact',
+      'Contact Role',
+      'Last Updated'
+    ].map(escapeCSVValue));
+    
+    smePartners.forEach((sme: any) => {
+      items.push([
+        sme.id,
+        sme.name,
+        sme.role,
+        sme.department,
+        sme.email,
+        sme.primaryContact?.name || 'N/A',
+        sme.primaryContact?.role || 'N/A',
+        formatDate(sme.lastActive || new Date())
       ].map(escapeCSVValue));
     });
     items.push(['']);
