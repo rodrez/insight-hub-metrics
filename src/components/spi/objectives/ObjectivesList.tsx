@@ -3,9 +3,9 @@ import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
 import { ObjectiveCard } from "./ObjectiveCard";
 import { InitiativesList } from "./InitiativesList";
+import { useState } from "react";
 import { Objective } from "@/lib/types/objective";
 import { Separator } from "@/components/ui/separator";
-import { Card } from "@/components/ui/card";
 
 export function ObjectivesList() {
   const { data: objectives = [], refetch } = useQuery({
@@ -85,31 +85,19 @@ export function ObjectivesList() {
   }
 
   return (
-    <div className="space-y-6">
-      <Card className="p-4">
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold">Strategic Objectives</h3>
-          <p className="text-sm text-muted-foreground">
-            Track and manage key business objectives and their desired outcomes
-          </p>
-        </div>
-        <div className="mt-4 grid gap-2">
-          {objectives.map((objective) => (
-            <ObjectiveCard
-              key={objective.id}
-              objective={objective}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
-      </Card>
-      
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-2">
+        {objectives.map((objective) => (
+          <ObjectiveCard
+            key={objective.id}
+            objective={objective}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        ))}
+      </div>
       <Separator className="my-6" />
-      
-      <Card className="p-4">
-        <InitiativesList objectives={objectives} />
-      </Card>
+      <InitiativesList objectives={objectives} />
     </div>
   );
 }

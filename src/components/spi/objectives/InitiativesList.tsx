@@ -56,30 +56,25 @@ export function InitiativesList({ objectives }: InitiativesListProps) {
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <h3 className="text-lg font-semibold">Strategic Initiatives</h3>
-        <p className="text-sm text-muted-foreground">
-          Key initiatives aligned with strategic objectives
-        </p>
-      </div>
-      <div className="grid gap-2">
+      <h3 className="text-lg font-semibold">Strategic Initiatives</h3>
+      <div className="grid grid-cols-1 gap-2">
         {initiatives.map((initiative) => (
-          <Card key={initiative.id} className="hover:bg-accent/50 transition-colors animate-fade-in">
-            <CardContent className="p-3">
+          <Card key={initiative.id} className="hover:bg-accent/50 transition-colors">
+            <CardContent className="p-4">
               <div className="flex flex-col space-y-2">
-                <div className="flex justify-between items-start gap-4">
-                  <div className="space-y-1 min-w-0">
-                    <h4 className="font-medium text-sm">{initiative.initiative}</h4>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-1">
+                    <h4 className="font-medium">{initiative.initiative}</h4>
+                    <p className="text-sm text-muted-foreground">
                       {initiative.desiredOutcome}
                     </p>
                   </div>
-                  <div className="flex gap-1 shrink-0">
+                  <div className="flex gap-2">
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => handleEdit(initiative)}
-                      className="h-8 w-8 text-gray-400 hover:text-green-500 hover:bg-green-500/10 transition-colors"
+                      className="h-8 w-8 text-gray-400 hover:text-green-500 transition-colors"
                     >
                       <Pen className="h-4 w-4" />
                     </Button>
@@ -87,13 +82,13 @@ export function InitiativesList({ objectives }: InitiativesListProps) {
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDelete(initiative.id)}
-                      className="h-8 w-8 text-gray-400 hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                      className="h-8 w-8 text-gray-400 hover:text-red-500 transition-colors"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-1">
+                <div className="flex gap-1">
                   {initiative.objectiveIds.map((objId) => {
                     const objective = objectives.find(o => o.id === objId);
                     return objective ? (
