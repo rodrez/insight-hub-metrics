@@ -2,7 +2,6 @@ import { generateFortune30Partners } from './generators/fortune30Generator';
 import { generateInternalPartners } from './generators/internalPartnersGenerator';
 import { generateSMEPartners } from './generators/smePartnersGenerator';
 import { generateSampleProjects } from './generators/projectGenerator';
-import { generateSampleInitiatives } from './generators/spiGenerator';
 import { DataQuantities } from '@/lib/types/data';
 import { errorHandler } from '../error/ErrorHandlingService';
 import { validateCollaborator } from './utils/dataGenerationUtils';
@@ -14,7 +13,6 @@ export class SampleDataService {
       const fortune30Partners = generateFortune30Partners().filter(validateCollaborator);
       const internalPartners = generateInternalPartners().filter(validateCollaborator);
       const smePartners = generateSMEPartners().filter(validateCollaborator);
-      const initiatives = generateSampleInitiatives();
 
       const projectInput = {
         projects: quantities.projects,
@@ -37,8 +35,7 @@ export class SampleDataService {
         smePartners: smePartners.slice(0, quantities.smePartners),
         projects: projects.slice(0, quantities.projects),
         spis: spis.slice(0, quantities.spis),
-        objectives,
-        initiatives,
+        objectives: objectives.slice(0, quantities.objectives),
         sitreps: sitreps.slice(0, quantities.sitreps)
       };
     } catch (error) {

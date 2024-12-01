@@ -15,12 +15,12 @@ export function ObjectivesAchievementChart({ spis }: Props) {
     queryFn: () => db.getAllObjectives()
   });
 
-  const objectiveData = objectives.reduce((acc: any[], objective: Objective, index: number) => {
+  const objectiveData = objectives.reduce((acc: any[], objective: Objective) => {
     const relatedSPIs = spis.filter(spi => objective.spiIds.includes(spi.id));
     const completedSPIs = relatedSPIs.filter(spi => spi.status === 'completed');
     
     acc.push({
-      objective: `Objective ${index + 1}`,
+      initiative: objective.initiative,
       total: relatedSPIs.length,
       completed: completedSPIs.length,
       completion: relatedSPIs.length > 0 
@@ -42,7 +42,7 @@ export function ObjectivesAchievementChart({ spis }: Props) {
             <BarChart data={objectiveData}>
               <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
               <XAxis 
-                dataKey="objective" 
+                dataKey="initiative" 
                 tick={{ fontSize: 12 }}
                 interval={0}
                 angle={-45}

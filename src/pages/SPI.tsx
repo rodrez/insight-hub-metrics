@@ -2,7 +2,6 @@ import { useState } from "react";
 import { SPIForm } from "@/components/spi/SPIForm";
 import { SPIList } from "@/components/spi/SPIList";
 import { ObjectivesList } from "@/components/spi/objectives/ObjectivesList";
-import { InitiativesList } from "@/components/spi/initiatives/InitiativesList";
 import { SPIAnalytics } from "@/components/spi/analytics/SPIAnalytics";
 import { SPIStats } from "@/components/spi/SPIStats";
 import { useQueryClient } from "@tanstack/react-query";
@@ -45,7 +44,6 @@ export default function SPIPage() {
         <TabsList>
           <TabsTrigger value="spis">SPIs</TabsTrigger>
           <TabsTrigger value="objectives">Objectives</TabsTrigger>
-          <TabsTrigger value="initiatives">Initiatives</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
         <TabsContent value="spis">
@@ -53,9 +51,6 @@ export default function SPIPage() {
         </TabsContent>
         <TabsContent value="objectives">
           <ObjectivesList />
-        </TabsContent>
-        <TabsContent value="initiatives">
-          <InitiativesList />
         </TabsContent>
         <TabsContent value="analytics">
           <SPIAnalytics />
