@@ -8,6 +8,9 @@ import { TechDomainSelect } from "@/components/projects/TechDomainSelect";
 import { BasicProjectInfo } from "@/components/projects/form/BasicProjectInfo";
 import { NABCFields } from "@/components/projects/form/NABCFields";
 import { SMEPartnerSelect } from "@/components/projects/form/SMEPartnerSelect";
+import { Label } from "@/components/ui/label";
+import { useQuery } from "@tanstack/react-query";
+import { Project, Collaborator } from "@/lib/types";
 
 export default function AddProject() {
   const navigate = useNavigate();
@@ -26,11 +29,34 @@ export default function AddProject() {
   const [benefits, setBenefits] = useState("");
   const [competition, setCompetition] = useState("");
 
+  // Fetch SME partner details for the selected SME
+  const { data: smePartners = [] } = useQuery({
+    queryKey: ['sme-partners'],
+    queryFn: () => db.getAllSMEPartners()
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const newProject = {
+      const selectedSMEPartner = selectedSME !== 'none' 
+        ? smePartners.find(partner => partner.id === selectedSME)
+        : null;
+
+      const collaborators: Collaborator[] = selectedSMEPartner 
+        ? [{ 
+            id: selectedSMEPartner.id,
+            name: selectedSMEPartner.name,
+            email: selectedSMEPartner.email,
+            role: selectedSMEPartner.role,
+            department: selectedSMEPartner.department,
+            projects: selectedSMEPartner.projects || [],
+            lastActive: new Date().toISOString(),
+            type: 'sme' as const
+          }]
+        : [];
+
+      const newProject: Project = {
         id: `project-${Date.now()}`,
         name,
         poc,
@@ -41,17 +67,16 @@ export default function AddProject() {
         spent: 0,
         status: 'active' as const,
         departmentId: pocDepartment,
-        collaborators: selectedSME !== 'none' ? [{
-          id: selectedSME,
-          type: 'sme' as const
-        }] : [],
+        collaborators,
         techDomainId,
         nabc: {
           needs,
           approach,
           benefits,
           competition
-        }
+        },
+        milestones: [],
+        metrics: []
       };
 
       await db.addProject(newProject);
