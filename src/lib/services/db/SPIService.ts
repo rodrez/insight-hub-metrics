@@ -29,6 +29,22 @@ export class SPIService extends BaseIndexedDBService {
     return this.transactionService.performTransaction('objectives', 'readonly', store => store.getAll());
   }
 
+  public async addObjective(objective: Objective): Promise<void> {
+    await this.transactionService.performTransaction('objectives', 'readwrite', store => store.put(objective));
+  }
+
+  public async updateObjective(id: string, updates: Partial<Objective>): Promise<void> {
+    const objective = await this.transactionService.performTransaction('objectives', 'readonly', store => store.get(id));
+    if (!objective) throw new Error('Objective not found');
+    await this.transactionService.performTransaction('objectives', 'readwrite', store => 
+      store.put({ ...objective, ...updates })
+    );
+  }
+
+  public async deleteObjective(id: string): Promise<void> {
+    await this.transactionService.performTransaction('objectives', 'readwrite', store => store.delete(id));
+  }
+
   public async getAllInitiatives(): Promise<any[]> {
     return this.transactionService.performTransaction('initiatives', 'readonly', store => store.getAll());
   }
