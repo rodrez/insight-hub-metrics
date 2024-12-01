@@ -1,5 +1,5 @@
 import { DataService } from './DataService';
-import { Project, Collaborator, Team } from '../types';
+import { Project, Collaborator } from '../types';
 import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
 import { SitRep } from '../types/sitrep';
@@ -10,15 +10,18 @@ import { SitRepService } from './db/SitRepService';
 import { SPIService } from './db/SPIService';
 import { BaseIndexedDBService } from './db/base/BaseIndexedDBService';
 import { SampleDataService } from './data/SampleDataService';
+import { toast } from "@/components/ui/use-toast";
 
 export class IndexedDBService extends BaseIndexedDBService implements DataService {
+  private static instance: IndexedDBService | null = null;
+  private initializationPromise: Promise<void> | null = null;
   private projectService: ProjectService;
   private collaboratorService: CollaboratorService;
   private sitRepService: SitRepService;
   private spiService: SPIService;
   private sampleDataService: SampleDataService;
 
-  constructor() {
+  private constructor() {
     super();
     this.projectService = new ProjectService();
     this.collaboratorService = new CollaboratorService();
@@ -27,14 +30,53 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     this.sampleDataService = new SampleDataService();
   }
 
+  public static getInstance(): IndexedDBService {
+    if (!IndexedDBService.instance) {
+      IndexedDBService.instance = new IndexedDBService();
+    }
+    return IndexedDBService.instance;
+  }
+
   public async init(): Promise<void> {
-    await super.init();
-    await Promise.all([
-      this.projectService.init(),
-      this.collaboratorService.init(),
-      this.sitRepService.init(),
-      this.spiService.init()
-    ]);
+    // If initialization is already in progress, return the existing promise
+    if (this.initializationPromise) {
+      return this.initializationPromise;
+    }
+
+    // If already initialized, return immediately
+    if (this.isInitialized()) {
+      return Promise.resolve();
+    }
+
+    // Create new initialization promise
+    this.initializationPromise = this.performInitialization();
+
+    try {
+      await this.initializationPromise;
+    } finally {
+      // Clear the promise once initialization is complete (success or failure)
+      this.initializationPromise = null;
+    }
+  }
+
+  private async performInitialization(): Promise<void> {
+    try {
+      await super.init();
+      await Promise.all([
+        this.projectService.init(),
+        this.collaboratorService.init(),
+        this.sitRepService.init(),
+        this.spiService.init()
+      ]);
+    } catch (error) {
+      console.error('Database initialization failed:', error);
+      toast({
+        title: "Error",
+        description: "Failed to initialize database. Please refresh the page.",
+        variant: "destructive",
+      });
+      throw error;
+    }
   }
 
   // Project methods
@@ -95,10 +137,6 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
-  }
-
-  async getAllTeams(): Promise<Team[]> {
-    return this.transactionService.performTransaction('teams', 'readonly', store => store.getAll());
   }
 
   async populateSampleData(quantities: DataQuantities): Promise<void> {
