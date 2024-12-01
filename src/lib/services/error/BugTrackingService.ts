@@ -112,25 +112,97 @@ class BugTracker {
     }
   ];
 
-  private storage = new Map<string, string>();
+  private db: IDBDatabase | null = null;
+  private readonly DB_NAME = 'bugTracker';
+  private readonly STORE_NAME = 'bugStatuses';
+  private readonly DB_VERSION = 1;
 
-  getAllBugs() {
-    // Return bugs with their persisted status
-    return this.bugs.map(bug => ({
-      ...bug,
-      status: this.storage.get(bug.id) || bug.status
-    }));
+  constructor() {
+    this.initDB();
+  }
+
+  private async initDB(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(this.DB_NAME, this.DB_VERSION);
+
+      request.onerror = () => {
+        console.error("Error opening bug tracker database");
+        reject(request.error);
+      };
+
+      request.onsuccess = () => {
+        this.db = request.result;
+        resolve();
+      };
+
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        if (!db.objectStoreNames.contains(this.STORE_NAME)) {
+          db.createObjectStore(this.STORE_NAME, { keyPath: 'id' });
+        }
+      };
+    });
+  }
+
+  private async getStoredStatus(id: string): Promise<string | undefined> {
+    if (!this.db) return undefined;
+
+    return new Promise((resolve) => {
+      const transaction = this.db!.transaction(this.STORE_NAME, 'readonly');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const request = store.get(id);
+
+      request.onsuccess = () => {
+        resolve(request.result?.status);
+      };
+
+      request.onerror = () => {
+        console.error(`Error fetching status for bug ${id}`);
+        resolve(undefined);
+      };
+    });
+  }
+
+  async getAllBugs() {
+    const bugsWithStatus = await Promise.all(
+      this.bugs.map(async (bug) => {
+        const storedStatus = await this.getStoredStatus(bug.id);
+        return {
+          ...bug,
+          status: storedStatus || bug.status
+        };
+      })
+    );
+    return bugsWithStatus;
   }
 
   async updateBugStatus(id: string, status: string) {
-    this.storage.set(id, status);
-    const bugIndex = this.bugs.findIndex(bug => bug.id === id);
-    if (bugIndex !== -1) {
-      this.bugs[bugIndex] = {
-        ...this.bugs[bugIndex],
-        status
-      };
+    if (!this.db) {
+      console.error("Database not initialized");
+      return;
     }
+
+    return new Promise<void>((resolve, reject) => {
+      const transaction = this.db!.transaction(this.STORE_NAME, 'readwrite');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const request = store.put({ id, status });
+
+      request.onsuccess = () => {
+        const bugIndex = this.bugs.findIndex(bug => bug.id === id);
+        if (bugIndex !== -1) {
+          this.bugs[bugIndex] = {
+            ...this.bugs[bugIndex],
+            status
+          };
+        }
+        resolve();
+      };
+
+      request.onerror = () => {
+        console.error(`Error updating status for bug ${id}`);
+        reject(request.error);
+      };
+    });
   }
 }
 
