@@ -58,7 +58,7 @@ export function ObjectiveCard({ objective, spis, onSPIsChange, onUpdate, onDelet
                   <Input
                     value={editedObjective.initiative}
                     onChange={(e) => setEditedObjective({ ...editedObjective, initiative: e.target.value })}
-                    placeholder="Initiative"
+                    placeholder="Objective"
                   />
                   <Textarea
                     value={editedObjective.desiredOutcome}
