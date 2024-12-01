@@ -1,10 +1,16 @@
 import { Collaborator } from "@/lib/types/collaboration";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, AlertTriangle } from "lucide-react";
+import { Upload, AlertTriangle, Shield } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { getDaysUntilExpiry } from "@/lib/utils/agreementUtils";
+import { getDaysUntilExpiry, getAgreementWarningSettings } from "@/lib/utils/agreementUtils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface AgreementsListProps {
   collaborators: Collaborator[];
@@ -19,15 +25,35 @@ export function AgreementsList({ collaborators }: AgreementsListProps) {
   };
 
   const getStatusColor = (daysUntil: number) => {
+    const settings = getAgreementWarningSettings();
     if (daysUntil <= 0) return "text-red-500";
-    if (daysUntil <= 90) return "text-orange-500";
+    if (daysUntil <= settings.criticalDays) return "text-red-500";
+    if (daysUntil <= settings.warningDays) return "text-orange-500";
     return "text-green-500";
+  };
+
+  const getWarningMessage = (daysUntil: number, type: string) => {
+    const settings = getAgreementWarningSettings();
+    if (daysUntil <= 0) {
+      return `${type} has expired!`;
+    }
+    if (daysUntil <= settings.criticalDays) {
+      return `Critical: ${type} expires in ${daysUntil} days`;
+    }
+    if (daysUntil <= settings.warningDays) {
+      return `Warning: ${type} expires in ${daysUntil} days`;
+    }
+    return `${daysUntil} days until expiration`;
   };
 
   return (
     <div className="space-y-6">
       {collaborators.map((collaborator) => {
         const hasJtdaWithoutNda = collaborator.agreements?.jtda && !collaborator.agreements?.nda;
+        const hasExpiredNda = collaborator.agreements?.nda && 
+          getDaysUntilExpiry(collaborator.agreements.nda.expiryDate) <= 0;
+        const hasExpiredJtda = collaborator.agreements?.jtda && 
+          getDaysUntilExpiry(collaborator.agreements.jtda.expiryDate) <= 0;
 
         return (
           <Card key={collaborator.id}>
@@ -44,11 +70,13 @@ export function AgreementsList({ collaborators }: AgreementsListProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {hasJtdaWithoutNda && (
+                {(hasJtdaWithoutNda || hasExpiredNda || hasExpiredJtda) && (
                   <Alert variant="destructive" className="mb-4">
                     <AlertTriangle className="h-4 w-4" />
                     <AlertDescription>
-                      Warning: JTDA exists without an NDA. An NDA is required before establishing a JTDA.
+                      {hasJtdaWithoutNda && "Warning: JTDA exists without an NDA. An NDA is required before establishing a JTDA."}
+                      {hasExpiredNda && " NDA has expired!"}
+                      {hasExpiredJtda && " JTDA has expired!"}
                     </AlertDescription>
                   </Alert>
                 )}
@@ -56,7 +84,19 @@ export function AgreementsList({ collaborators }: AgreementsListProps) {
                 {collaborator.agreements?.nda && (
                   <div className="flex items-center justify-between border-b pb-4">
                     <div>
-                      <h3 className="font-medium">NDA</h3>
+                      <h3 className="font-medium flex items-center gap-2">
+                        NDA
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Shield className="h-4 w-4" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Non-Disclosure Agreement</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </h3>
                       <p className="text-sm text-muted-foreground">
                         Signed: {new Date(collaborator.agreements.nda.signedDate).toLocaleDateString()}
                       </p>
@@ -64,7 +104,7 @@ export function AgreementsList({ collaborators }: AgreementsListProps) {
                         Expires: {new Date(collaborator.agreements.nda.expiryDate).toLocaleDateString()}
                       </p>
                       <p className={`text-sm ${getStatusColor(getDaysUntilExpiry(collaborator.agreements.nda.expiryDate))}`}>
-                        {getDaysUntilExpiry(collaborator.agreements.nda.expiryDate)} days until expiration
+                        {getWarningMessage(getDaysUntilExpiry(collaborator.agreements.nda.expiryDate), 'NDA')}
                       </p>
                       {collaborator.workstreams && (
                         <div className="mt-2">
@@ -87,7 +127,19 @@ export function AgreementsList({ collaborators }: AgreementsListProps) {
                 {collaborator.agreements?.jtda && (
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-medium">JTDA</h3>
+                      <h3 className="font-medium flex items-center gap-2">
+                        JTDA
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Shield className="h-4 w-4" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Joint Technology Development Agreement</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </h3>
                       <p className="text-sm text-muted-foreground">
                         Signed: {new Date(collaborator.agreements.jtda.signedDate).toLocaleDateString()}
                       </p>
@@ -95,7 +147,7 @@ export function AgreementsList({ collaborators }: AgreementsListProps) {
                         Expires: {new Date(collaborator.agreements.jtda.expiryDate).toLocaleDateString()}
                       </p>
                       <p className={`text-sm ${getStatusColor(getDaysUntilExpiry(collaborator.agreements.jtda.expiryDate))}`}>
-                        {getDaysUntilExpiry(collaborator.agreements.jtda.expiryDate)} days until expiration
+                        {getWarningMessage(getDaysUntilExpiry(collaborator.agreements.jtda.expiryDate), 'JTDA')}
                       </p>
                       {collaborator.workstreams && (
                         <div className="mt-2">
