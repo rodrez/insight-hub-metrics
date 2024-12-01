@@ -84,7 +84,17 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
 
   // Team methods
   async getAllTeams(): Promise<Team[]> {
-    return [];
+    const db = this.getDatabase();
+    if (!db) throw new Error('Database not initialized');
+    
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(['teams'], 'readonly');
+      const store = transaction.objectStore('teams');
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(new Error('Failed to fetch teams'));
+    });
   }
 
   // SME Partner methods
@@ -92,44 +102,86 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   getSMEPartner = (id: string) => this.collaboratorService.getSMEPartner(id);
   addSMEPartner = (partner: Collaborator) => this.collaboratorService.addSMEPartner(partner);
 
-  // Data export method
+  // Implementing the missing methods from DataService interface
   async exportData(): Promise<void> {
-    if (!this.getDatabase()) throw new Error('Database not initialized');
-    const data = {
-      projects: await this.getAllProjects(),
-      collaborators: await this.getAllCollaborators(),
-      sitreps: await this.getAllSitReps(),
-      spis: await this.getAllSPIs(),
-      objectives: await this.getAllObjectives(),
-      smePartners: await this.getAllSMEPartners()
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `database-export-${new Date().toISOString()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+    if (!this.getDatabase()) {
+      throw new Error('Database not initialized');
+    }
+
+    try {
+      const data = {
+        projects: await this.getAllProjects(),
+        collaborators: await this.getAllCollaborators(),
+        sitreps: await this.getAllSitReps(),
+        spis: await this.getAllSPIs(),
+        objectives: await this.getAllObjectives(),
+        smePartners: await this.getAllSMEPartners()
+      };
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `database-export-${new Date().toISOString()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: "Success",
+        description: "Data exported successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to export data",
+        variant: "destructive",
+      });
+      throw error;
+    }
   }
 
-  // Sample data population method
   async populateSampleData(quantities: DataQuantities): Promise<void> {
-    await this.clear();
-    await this.sampleDataService.generateSampleData(quantities);
+    try {
+      await this.clear();
+      await this.sampleDataService.generateSampleData(quantities);
+      toast({
+        title: "Success",
+        description: "Sample data populated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to populate sample data",
+        variant: "destructive",
+      });
+      throw error;
+    }
   }
 
   async clear(): Promise<void> {
-    const stores = ['projects', 'collaborators', 'sitreps', 'spis', 'objectives', 'smePartners'];
-    for (const storeName of stores) {
-      const transaction = this.getDatabase()?.transaction(storeName, 'readwrite');
-      if (transaction) {
-        const objectStore = transaction.objectStore(storeName);
-        await objectStore.clear();
+    const stores = ['projects', 'collaborators', 'sitreps', 'spis', 'objectives', 'smePartners', 'teams'];
+    try {
+      for (const storeName of stores) {
+        const transaction = this.getDatabase()?.transaction(storeName, 'readwrite');
+        if (transaction) {
+          const objectStore = transaction.objectStore(storeName);
+          await objectStore.clear();
+        }
       }
+      this.initManager.resetService('IndexedDB');
+      toast({
+        title: "Success",
+        description: "Database cleared successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to clear database",
+        variant: "destructive",
+      });
+      throw error;
     }
-    this.initManager.resetService('IndexedDB');
   }
 }
