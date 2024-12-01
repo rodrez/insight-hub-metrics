@@ -29,9 +29,7 @@ export function BugFixesTab() {
       console.log('Loading bugs...');
       const fetchedBugs = await bugTracker.getAllBugs();
       console.log('Fetched bugs:', fetchedBugs);
-      const activeBugs = fetchedBugs.filter(bug => bug.status !== 'resolved');
-      const sortedBugs = sortBugsBySeverity(activeBugs);
-      console.log('Sorted active bugs:', sortedBugs);
+      const sortedBugs = sortBugsBySeverity(fetchedBugs);
       setBugs(sortedBugs);
       setIsLoading(false);
     } catch (error) {
@@ -52,13 +50,16 @@ export function BugFixesTab() {
   const handleResolveBug = async (bugId: string) => {
     try {
       await bugTracker.updateBugStatus(bugId, 'resolved');
-      await loadBugs(); // Reload bugs after resolving one
+      setBugs(prevBugs => 
+        prevBugs.map(bug => 
+          bug.id === bugId ? { ...bug, status: 'resolved' } : bug
+        )
+      );
       toast({
         title: "Bug resolved",
         description: "The bug has been marked as resolved",
       });
     } catch (error) {
-      console.error('Error resolving bug:', error);
       toast({
         title: "Error",
         description: "Failed to resolve the bug",
@@ -86,56 +87,48 @@ export function BugFixesTab() {
     return <div>Loading bugs...</div>;
   }
 
-  const activeBugs = bugs.filter(bug => bug.status !== 'resolved');
-
   return (
     <ScrollArea className="h-[600px] pr-4">
       <div className="space-y-4">
         <div className="flex gap-2 mb-4">
-          <Badge variant="outline">Critical: {activeBugs.filter(b => b.severity === 'critical').length}</Badge>
-          <Badge variant="outline">High: {activeBugs.filter(b => b.severity === 'high').length}</Badge>
-          <Badge variant="outline">Medium: {activeBugs.filter(b => b.severity === 'medium').length}</Badge>
-          <Badge variant="outline">Low: {activeBugs.filter(b => b.severity === 'low').length}</Badge>
+          <Badge variant="outline">Critical: {bugs.filter(b => b.severity === 'critical').length}</Badge>
+          <Badge variant="outline">High: {bugs.filter(b => b.severity === 'high').length}</Badge>
+          <Badge variant="outline">Medium: {bugs.filter(b => b.severity === 'medium').length}</Badge>
+          <Badge variant="outline">Low: {bugs.filter(b => b.severity === 'low').length}</Badge>
         </div>
         
-        {activeBugs.length === 0 ? (
-          <div className="text-center text-muted-foreground">
-            No active bugs found
-          </div>
-        ) : (
-          activeBugs.map((bug) => (
-            <Card key={bug.id} className="p-4">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Badge className={getSeverityColor(bug.severity)}>{bug.severity}</Badge>
-                    <span className="text-sm text-muted-foreground">{bug.id}</span>
-                  </div>
-                  <h3 className="text-lg font-semibold">{bug.title}</h3>
-                  <p className="text-sm text-muted-foreground">{bug.description}</p>
-                  
-                  <div className="space-y-1 mt-4">
-                    <p className="text-sm"><strong>Location:</strong> {bug.location}</p>
-                    <p className="text-sm"><strong>Impact:</strong> {bug.impact}</p>
-                    {bug.stepsToReproduce && (
-                      <p className="text-sm"><strong>Steps to Reproduce:</strong> {bug.stepsToReproduce}</p>
-                    )}
-                    <p className="text-sm"><strong>Suggested Fix:</strong> {bug.suggestedFix}</p>
-                  </div>
+        {bugs.map((bug) => (
+          <Card key={bug.id} className="p-4">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Badge className={getSeverityColor(bug.severity)}>{bug.severity}</Badge>
+                  <span className="text-sm text-muted-foreground">{bug.id}</span>
                 </div>
+                <h3 className="text-lg font-semibold">{bug.title}</h3>
+                <p className="text-sm text-muted-foreground">{bug.description}</p>
                 
-                <Button
-                  variant={bug.status === 'resolved' ? 'secondary' : 'outline'}
-                  onClick={() => handleResolveBug(bug.id)}
-                  className="ml-4"
-                  disabled={bug.status === 'resolved'}
-                >
-                  {bug.status === 'resolved' ? 'Resolved' : 'Mark as Resolved'}
-                </Button>
+                <div className="space-y-1 mt-4">
+                  <p className="text-sm"><strong>Location:</strong> {bug.location}</p>
+                  <p className="text-sm"><strong>Impact:</strong> {bug.impact}</p>
+                  {bug.stepsToReproduce && (
+                    <p className="text-sm"><strong>Steps to Reproduce:</strong> {bug.stepsToReproduce}</p>
+                  )}
+                  <p className="text-sm"><strong>Suggested Fix:</strong> {bug.suggestedFix}</p>
+                </div>
               </div>
-            </Card>
-          ))
-        )}
+              
+              <Button
+                variant={bug.status === 'resolved' ? 'secondary' : 'outline'}
+                onClick={() => handleResolveBug(bug.id)}
+                className="ml-4"
+                disabled={bug.status === 'resolved'}
+              >
+                {bug.status === 'resolved' ? 'Resolved' : 'Mark as Resolved'}
+              </Button>
+            </div>
+          </Card>
+        ))}
       </div>
     </ScrollArea>
   );

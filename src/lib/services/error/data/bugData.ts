@@ -13,102 +13,104 @@ export interface Bug {
 export const initialBugs: Bug[] = [
   {
     id: "BUG-001",
-    title: "Transaction Timeout Handling",
-    description: "Transaction timeout handling in TransactionManager needs improvement",
-    severity: "high",
+    title: "Database Population Progress Indicator",
+    description: "Progress tracking during database population needs improvement",
+    severity: "medium",
     status: "active",
-    location: "src/lib/services/db/transactionManager.ts",
-    impact: "Long-running transactions may hang indefinitely",
-    suggestedFix: "Implement proper cleanup of hanging transactions and add retry mechanism"
+    location: "src/components/data/hooks/useDataPopulation.ts",
+    impact: "Users lack clear feedback during data population process",
+    stepsToReproduce: "1. Clear database\n2. Attempt to populate with large dataset",
+    suggestedFix: "Implement a progress bar component to show real-time population status"
   },
   {
     id: "BUG-002",
-    title: "Memory Management in Data Stats",
-    description: "DataStats component may cause memory leaks due to unmanaged subscriptions",
-    severity: "medium",
+    title: "Type Safety in Bug Tracking",
+    description: "BugFixesTab uses 'any' type for bugs array",
+    severity: "low",
     status: "active",
-    location: "src/components/data/stats/DataStats.tsx",
-    impact: "Potential memory leaks in long-running sessions",
-    suggestedFix: "Implement proper cleanup in useEffect hooks and unsubscribe from data listeners"
+    location: "src/components/settings/BugFixesTab.tsx",
+    impact: "Reduced type safety and potential runtime errors",
+    suggestedFix: "Replace 'any[]' with proper Bug interface type"
   },
   {
     id: "BUG-003",
-    title: "Batch Operation Error Handling",
-    description: "DatabaseOperations class lacks proper error handling for batch operations",
+    title: "Database Operations Error Handling",
+    description: "Error handling in DatabaseOperations class needs enhancement",
     severity: "high",
     status: "active",
     location: "src/components/data/operations/DatabaseOperations.ts",
-    impact: "Failed batch operations may leave database in inconsistent state",
-    suggestedFix: "Implement transaction rollback and proper error recovery mechanisms"
+    impact: "Insufficient error context for debugging database issues",
+    suggestedFix: "Implement detailed error handling with specific error types and messages"
   },
   {
     id: "BUG-004",
-    title: "Type Safety in Fortune30Settings",
-    description: "Fortune30Settings component uses 'any' type for editPartner state",
-    severity: "low",
-    status: "active",
-    location: "src/components/settings/partners/Fortune30Settings.tsx",
-    impact: "Reduced type safety could lead to runtime errors",
-    suggestedFix: "Replace 'any' with proper Collaborator interface type"
-  },
-  {
-    id: "BUG-005",
-    title: "IndexedDB Service Initialization",
-    description: "Race condition possible during IndexedDB service initialization",
+    title: "Memory Management in Data Population",
+    description: "Large dataset population may cause memory issues",
     severity: "critical",
     status: "active",
     location: "src/lib/services/IndexedDBService.ts",
-    impact: "Database operations may fail if executed before initialization completes",
-    suggestedFix: "Implement proper initialization queue and status checking"
+    impact: "Potential browser crashes with large datasets",
+    stepsToReproduce: "1. Attempt to populate database with maximum quantity values",
+    suggestedFix: "Implement batch processing with memory usage monitoring"
+  },
+  {
+    id: "BUG-005",
+    title: "Settings Page Load Performance",
+    description: "Settings tabs load all content simultaneously",
+    severity: "medium",
+    status: "active",
+    location: "src/pages/Settings.tsx",
+    impact: "Slower initial page load and unnecessary resource usage",
+    suggestedFix: "Implement lazy loading for tab content"
   },
   {
     id: "BUG-006",
-    title: "Project Store Error Propagation",
-    description: "ProjectStore error handling doesn't properly propagate errors",
-    severity: "medium",
+    title: "Data Validation in Sample Data Generation",
+    description: "Sample data generation lacks comprehensive validation",
+    severity: "high",
     status: "active",
-    location: "src/lib/services/db/stores/projectStore.ts",
-    impact: "Silent failures in project operations",
-    suggestedFix: "Implement proper error propagation and logging mechanism"
+    location: "src/lib/services/data/sampleDataGenerator.ts",
+    impact: "Potential invalid data states in generated content",
+    suggestedFix: "Add thorough validation checks for generated data"
   },
   {
     id: "BUG-007",
-    title: "Base DB Service Connection Management",
-    description: "BaseDBService doesn't properly manage database connections",
-    severity: "high",
+    title: "Component File Size Management",
+    description: "Several components exceed recommended file size",
+    severity: "medium",
     status: "active",
-    location: "src/lib/services/db/base/BaseDBService.ts",
-    impact: "Potential database connection leaks",
-    suggestedFix: "Implement proper connection pooling and cleanup"
+    location: "Multiple component files",
+    impact: "Reduced maintainability and potential performance issues",
+    suggestedFix: "Refactor large components into smaller, focused components"
   },
   {
     id: "BUG-008",
-    title: "Settings Page Component Size",
-    description: "Several settings components exceed recommended file size",
-    severity: "low",
+    title: "React Query Error Boundary Implementation",
+    description: "Missing error boundaries for React Query errors",
+    severity: "medium",
     status: "active",
-    location: "src/pages/Settings.tsx",
-    impact: "Reduced maintainability and potential performance issues",
-    suggestedFix: "Split large components into smaller, focused components"
+    location: "src/components/data/hooks/useDataPopulation.ts",
+    impact: "Uncaught query errors may crash the application",
+    suggestedFix: "Implement error boundaries for React Query operations"
   },
   {
     id: "BUG-009",
-    title: "Bug Tracking Service State Management",
-    description: "BugTracker class uses local state instead of persistent storage",
-    severity: "medium",
+    title: "IndexedDB Version Management",
+    description: "Database version management needs improvement",
+    severity: "high",
     status: "active",
-    location: "src/lib/services/error/BugTrackingService.ts",
-    impact: "Bug status changes don't persist across sessions",
-    suggestedFix: "Implement proper persistence layer for bug tracking state"
+    location: "src/lib/services/db/base/BaseDBService.ts",
+    impact: "Potential issues during database schema updates",
+    suggestedFix: "Implement robust version control system for database schema changes"
   },
   {
     id: "BUG-010",
-    title: "Data Validation Performance",
-    description: "DataValidationService performs unnecessary validation steps",
-    severity: "medium",
+    title: "React Query Cache Configuration",
+    description: "Query cache settings need optimization",
+    severity: "low",
     status: "active",
-    location: "src/lib/services/data/DataValidationService.ts",
-    impact: "Slower validation process for large datasets",
-    suggestedFix: "Optimize validation logic and implement batch processing"
+    location: "src/lib/services/IndexedDBService.ts",
+    impact: "Suboptimal caching behavior for database operations",
+    suggestedFix: "Configure appropriate cache time and stale time for queries"
   }
 ];

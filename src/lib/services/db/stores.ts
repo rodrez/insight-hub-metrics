@@ -7,8 +7,7 @@ export const DB_CONFIG = {
     sitreps: 'sitreps',
     spis: 'spis',
     objectives: 'objectives',
-    smePartners: 'smePartners',
-    bugs: 'bugs'
+    smePartners: 'smePartners'
   }
 };
 
@@ -36,7 +35,4 @@ export const createStores = (db: IDBDatabase) => {
 
   console.log('Creating smePartners store');
   db.createObjectStore(DB_CONFIG.stores.smePartners, { keyPath: 'id' });
-
-  console.log('Creating bugs store');
-  db.createObjectStore(DB_CONFIG.stores.bugs, { keyPath: 'id' });
 };

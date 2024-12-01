@@ -8,36 +8,26 @@ export class BaseDBService {
     if (this.db) return;
 
     return new Promise((resolve, reject) => {
-      try {
-        console.log('Initializing database connection...');
-        const request = indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
+      const request = indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
 
-        request.onerror = () => {
-          console.error('Failed to open database:', request.error);
-          reject(new DatabaseError('Failed to open database'));
-        };
+      request.onerror = () => {
+        reject(new DatabaseError('Failed to open database'));
+      };
 
-        request.onsuccess = () => {
-          console.log('Database opened successfully');
-          this.db = request.result;
-          resolve();
-        };
+      request.onsuccess = () => {
+        this.db = request.result;
+        resolve();
+      };
 
-        request.onupgradeneeded = (event) => {
-          console.log('Database upgrade needed - creating stores');
-          const db = (event.target as IDBOpenDBRequest).result;
-          createStores(db);
-        };
-      } catch (error) {
-        console.error('Error during database initialization:', error);
-        reject(new DatabaseError('Database initialization failed'));
-      }
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        createStores(db);
+      };
     });
   }
   
   protected async ensureInitialized(): Promise<void> {
     if (!this.db) {
-      console.log('Database not initialized, initializing...');
       await this.init();
     }
     if (!this.db) {
@@ -61,31 +51,23 @@ export class BaseDBService {
   ): Promise<T> {
     await this.ensureInitialized();
     return new Promise((resolve, reject) => {
-      if (!this.db) {
-        reject(new DatabaseError('Database not initialized'));
-        return;
-      }
+      const transaction = this.db!.transaction(storeName, mode);
+      const store = transaction.objectStore(storeName);
+
+      transaction.onerror = () => {
+        const error = transaction.error?.message || `Unknown transaction error on ${storeName}`;
+        reject(new DatabaseError(error));
+      };
 
       try {
-        const transaction = this.db.transaction(storeName, mode);
-        const store = transaction.objectStore(storeName);
-
-        transaction.onerror = () => {
-          const error = transaction.error?.message || `Unknown transaction error on ${storeName}`;
-          console.error(`Transaction error on ${storeName}:`, error);
-          reject(new DatabaseError(error));
-        };
-
         const request = operation(store);
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => {
           const error = request.error?.message || `Unknown operation error on ${storeName}`;
-          console.error(`Operation error on ${storeName}:`, error);
           reject(new DatabaseError(error));
         };
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error(`Error in ${storeName} operation:`, errorMessage);
         reject(new DatabaseError(errorMessage));
       }
     });
