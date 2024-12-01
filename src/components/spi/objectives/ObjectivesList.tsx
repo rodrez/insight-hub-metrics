@@ -10,10 +10,14 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { ObjectiveEditDialog } from "./ObjectiveEditDialog";
 
 export function ObjectivesList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [selectedObjective, setSelectedObjective] = useState<Objective | null>(null);
 
   const { data: objectives = [], refetch } = useQuery({
     queryKey: ['objectives'],
@@ -22,10 +26,7 @@ export function ObjectivesList() {
   });
 
   const handleEdit = async (objective: Objective) => {
-    toast({
-      title: "Edit functionality coming soon",
-      description: "The ability to edit objectives will be added in a future update.",
-    });
+    setSelectedObjective(objective);
   };
 
   const handleDelete = async (id: string) => {
@@ -40,6 +41,36 @@ export function ObjectivesList() {
       toast({
         title: "Error",
         description: "Failed to delete objective",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAddNew = () => {
+    const newObjective: Objective = {
+      id: crypto.randomUUID(),
+      title: "",
+      description: "",
+      initiative: "",
+      desiredOutcome: "0%",
+      spiIds: []
+    };
+    setSelectedObjective(newObjective);
+  };
+
+  const handleSave = async (objective: Objective) => {
+    try {
+      await db.addObjective(objective);
+      await refetch();
+      setSelectedObjective(null);
+      toast({
+        title: "Success",
+        description: "Objective saved successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save objective",
         variant: "destructive",
       });
     }
@@ -62,6 +93,19 @@ export function ObjectivesList() {
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Objectives</h2>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleAddNew}
+          className="flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          Add Objective
+        </Button>
+      </div>
+
       <ObjectivesSummary />
       
       <div className="bg-card rounded-lg p-4 shadow-sm">
@@ -107,6 +151,14 @@ export function ObjectivesList() {
 
       <Separator className="my-6" />
       <InitiativesList objectives={objectives} />
+
+      {selectedObjective && (
+        <ObjectiveEditDialog
+          objective={selectedObjective}
+          onClose={() => setSelectedObjective(null)}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 }
