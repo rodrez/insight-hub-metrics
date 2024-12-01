@@ -1,4 +1,10 @@
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface LevelBadgeProps {
   level: "CEO" | "SVP" | "CTO";
@@ -18,12 +24,34 @@ export function LevelBadge({ level }: LevelBadgeProps) {
     }
   };
 
+  const getLevelDescription = (level: string) => {
+    switch (level) {
+      case 'CEO':
+        return 'Chief Executive Officer level - Highest priority updates requiring CEO attention';
+      case 'SVP':
+        return 'Senior Vice President level - Strategic updates for senior leadership';
+      case 'CTO':
+        return 'Chief Technology Officer level - Technical updates requiring CTO review';
+      default:
+        return 'Standard level update';
+    }
+  };
+
   return (
-    <Badge 
-      variant="outline" 
-      className={`${getLevelColor(level)} font-semibold`}
-    >
-      {level}
-    </Badge>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger>
+          <Badge 
+            variant="outline" 
+            className={`${getLevelColor(level)} font-semibold`}
+          >
+            {level}
+          </Badge>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{getLevelDescription(level)}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
