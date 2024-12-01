@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Pen, Trash2, Target, ArrowRight } from "lucide-react";
 import { Objective } from "@/lib/types/objective";
+import { useState, useEffect } from "react";
 
 interface ObjectiveCardProps {
   objective: Objective;
@@ -11,6 +12,20 @@ interface ObjectiveCardProps {
 }
 
 export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProps) {
+  const [statusColors, setStatusColors] = useState({
+    active: '#10B981'
+  });
+
+  useEffect(() => {
+    const saved = localStorage.getItem('projectStatusColors');
+    if (saved) {
+      const colors = JSON.parse(saved);
+      setStatusColors({
+        active: colors.find((c: any) => c.id === 'active')?.color || '#10B981'
+      });
+    }
+  }, []);
+
   const progress = objective.desiredOutcome.includes("100%") ? 100 : 
     parseInt(objective.desiredOutcome.match(/\d+/)?.[0] || "0");
 
@@ -38,7 +53,10 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
                 </div>
                 <Progress 
                   value={progress} 
-                  className="h-2 bg-muted [&>[role=progressbar]]:bg-[#10B981]" 
+                  className="h-2 bg-muted [&>[role=progressbar]]"
+                  style={{ 
+                    ["--progress-background" as any]: statusColors.active 
+                  }}
                 />
               </div>
             </div>
