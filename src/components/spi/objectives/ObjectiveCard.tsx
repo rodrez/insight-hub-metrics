@@ -36,7 +36,10 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
                   <span>Progress</span>
                   <span>{progress}%</span>
                 </div>
-                <Progress value={progress} className="h-2" />
+                <Progress 
+                  value={progress} 
+                  className="h-2 bg-muted [&>[role=progressbar]]:bg-[#10B981]" 
+                />
               </div>
             </div>
           </div>
