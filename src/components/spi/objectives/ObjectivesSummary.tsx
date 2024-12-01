@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Target, CheckCircle2, Clock, Activity } from "lucide-react";
 
 export function ObjectivesSummary() {
@@ -37,17 +37,14 @@ export function ObjectivesSummary() {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 animate-fade-in">
+    <div className="grid gap-4 md:grid-cols-4">
       {stats.map((stat, index) => (
-        <Card key={index} className="hover:shadow-md transition-shadow">
-          <CardContent className="flex items-center p-4">
-            <div className={`mr-4 ${stat.color}`}>
-              <stat.icon className="h-8 w-8" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-              <h3 className="text-2xl font-bold">{stat.value}</h3>
-            </div>
+        <Card key={index}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold" style={{ color: stat.color }}>{stat.value}</div>
           </CardContent>
         </Card>
       ))}
