@@ -4,7 +4,7 @@ import { DatabaseTransactionService } from '../DatabaseTransactionService';
 export class BaseIndexedDBService {
   protected connectionService: DatabaseConnectionService;
   protected transactionService: DatabaseTransactionService;
-  private database: IDBDatabase | null = null;
+  protected database: IDBDatabase | null = null;
 
   constructor() {
     this.connectionService = new DatabaseConnectionService();
@@ -20,6 +20,7 @@ export class BaseIndexedDBService {
       console.log('Initializing base IndexedDB service...');
       await this.connectionService.init();
       this.database = this.connectionService.getDatabase();
+      this.transactionService = new DatabaseTransactionService(this.database);
       console.log('Database connection established');
     } catch (error) {
       console.error('Error initializing base service:', error);
@@ -27,12 +28,8 @@ export class BaseIndexedDBService {
     }
   }
 
-  protected async closeConnection(): Promise<void> {
-    if (this.database) {
-      console.log('Closing database connection...');
-      this.database.close();
-      this.database = null;
-      console.log('Database connection closed');
-    }
+  public setDatabase(db: IDBDatabase | null): void {
+    this.database = db;
+    this.transactionService = new DatabaseTransactionService(db);
   }
 }

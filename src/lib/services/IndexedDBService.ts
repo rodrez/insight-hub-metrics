@@ -50,7 +50,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
         if (transaction.error) {
           console.warn('Transaction error detected:', transaction.error);
         }
-        if (transaction.state !== 'inactive') {
+        if (!transaction.objectStoreNames) {
           transaction.abort();
         }
       } catch (error) {
@@ -87,6 +87,15 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     try {
       await this.cleanupTransactions();
       await super.init();
+      
+      // Initialize all services with the current database instance
+      const db = this.getDatabase();
+      this.projectService.setDatabase(db);
+      this.collaboratorService.setDatabase(db);
+      this.sitRepService.setDatabase(db);
+      this.spiService.setDatabase(db);
+      
+      // Initialize services
       await Promise.all([
         this.projectService.init(),
         this.collaboratorService.init(),
@@ -133,6 +142,11 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   addObjective = (objective: Objective) => this.spiService.addObjective(objective);
   updateObjective = (id: string, updates: Partial<Objective>) => this.spiService.updateObjective(id, updates);
   deleteObjective = (id: string) => this.spiService.deleteObjective(id);
+
+  // Team methods
+  async getAllTeams(): Promise<Team[]> {
+    return [];
+  }
 
   async clear(): Promise<void> {
     await this.cleanupTransactions();
