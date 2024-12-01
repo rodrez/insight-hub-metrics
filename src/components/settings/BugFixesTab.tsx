@@ -4,12 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState, useEffect } from "react";
-import { RefreshCw } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 
 export function BugFixesTab() {
   const [bugs, setBugs] = useState<any[]>([]);
-  const [previousBugIds, setPreviousBugIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
 
   const sortBugsBySeverity = (bugsToSort: any[]) => {
@@ -33,7 +31,6 @@ export function BugFixesTab() {
       console.log('Fetched bugs:', fetchedBugs);
       const sortedBugs = sortBugsBySeverity(fetchedBugs);
       setBugs(sortedBugs);
-      setPreviousBugIds(new Set(sortedBugs.map(bug => bug.id)));
       setIsLoading(false);
     } catch (error) {
       console.error('Error loading bugs:', error);
@@ -50,45 +47,9 @@ export function BugFixesTab() {
     loadBugs();
   }, []);
 
-  const refreshBugs = async () => {
-    try {
-      const currentBugIds = new Set(bugs.map(bug => bug.id));
-      // Get fresh bugs while preserving resolved statuses
-      const newBugs = await bugTracker.getAllBugs();
-      console.log('Refreshed bugs:', newBugs);
-      const sortedBugs = sortBugsBySeverity(newBugs);
-      setBugs(sortedBugs);
-      
-      // Check for new bugs (ones that weren't in the previous set)
-      const newBugCount = newBugs.filter(bug => !currentBugIds.has(bug.id)).length;
-      
-      if (newBugCount > 0) {
-        toast({
-          title: "New bugs found!",
-          description: `${newBugCount} new bug${newBugCount > 1 ? 's' : ''} have been detected`,
-          variant: "default",
-        });
-      } else {
-        toast({
-          title: "Bug list refreshed",
-          description: "No new bugs found",
-        });
-      }
-      
-      setPreviousBugIds(currentBugIds);
-    } catch (error) {
-      toast({
-        title: "Error refreshing bugs",
-        description: "Failed to refresh the bug list",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleResolveBug = async (bugId: string) => {
     try {
       await bugTracker.updateBugStatus(bugId, 'resolved');
-      // Update the local state to reflect the change
       setBugs(prevBugs => 
         prevBugs.map(bug => 
           bug.id === bugId ? { ...bug, status: 'resolved' } : bug
@@ -122,10 +83,6 @@ export function BugFixesTab() {
     }
   };
 
-  const isNewBug = (bugId: string) => {
-    return !previousBugIds.has(bugId);
-  };
-
   if (isLoading) {
     return <div>Loading bugs...</div>;
   }
@@ -133,29 +90,20 @@ export function BugFixesTab() {
   return (
     <ScrollArea className="h-[600px] pr-4">
       <div className="space-y-4">
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex gap-2">
-            <Badge variant="outline">Critical: {bugs.filter(b => b.severity === 'critical').length}</Badge>
-            <Badge variant="outline">High: {bugs.filter(b => b.severity === 'high').length}</Badge>
-            <Badge variant="outline">Medium: {bugs.filter(b => b.severity === 'medium').length}</Badge>
-            <Badge variant="outline">Low: {bugs.filter(b => b.severity === 'low').length}</Badge>
-          </div>
-          <Button onClick={refreshBugs} size="sm" variant="outline">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh Bugs
-          </Button>
+        <div className="flex gap-2 mb-4">
+          <Badge variant="outline">Critical: {bugs.filter(b => b.severity === 'critical').length}</Badge>
+          <Badge variant="outline">High: {bugs.filter(b => b.severity === 'high').length}</Badge>
+          <Badge variant="outline">Medium: {bugs.filter(b => b.severity === 'medium').length}</Badge>
+          <Badge variant="outline">Low: {bugs.filter(b => b.severity === 'low').length}</Badge>
         </div>
         
         {bugs.map((bug) => (
-          <Card key={bug.id} className={`p-4 ${isNewBug(bug.id) ? 'ring-2 ring-blue-500' : ''}`}>
+          <Card key={bug.id} className="p-4">
             <div className="flex items-start justify-between">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Badge className={getSeverityColor(bug.severity)}>{bug.severity}</Badge>
                   <span className="text-sm text-muted-foreground">{bug.id}</span>
-                  {isNewBug(bug.id) && (
-                    <Badge variant="secondary" className="bg-blue-100">New</Badge>
-                  )}
                 </div>
                 <h3 className="text-lg font-semibold">{bug.title}</h3>
                 <p className="text-sm text-muted-foreground">{bug.description}</p>
