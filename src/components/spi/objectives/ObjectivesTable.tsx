@@ -28,8 +28,8 @@ export function ObjectivesTable() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[300px]">Objective</TableHead>
             <TableHead className="w-[300px]">Initiative</TableHead>
+            <TableHead className="w-[300px]">Objective</TableHead>
             <TableHead>Desired Outcome</TableHead>
           </TableRow>
         </TableHeader>
@@ -41,6 +41,14 @@ export function ObjectivesTable() {
 
             return alignedInitiatives.map((initiative, index) => (
               <TableRow key={initiative.id}>
+                <TableCell>
+                  <div className="space-y-1">
+                    <div className="font-medium">{initiative.title}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {initiative.description}
+                    </div>
+                  </div>
+                </TableCell>
                 {index === 0 && (
                   <TableCell
                     className="font-medium bg-muted/50"
@@ -54,14 +62,6 @@ export function ObjectivesTable() {
                     </div>
                   </TableCell>
                 )}
-                <TableCell>
-                  <div className="space-y-1">
-                    <div className="font-medium">{initiative.title}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {initiative.description}
-                    </div>
-                  </div>
-                </TableCell>
                 <TableCell>{initiative.desiredOutcome}</TableCell>
               </TableRow>
             ));
