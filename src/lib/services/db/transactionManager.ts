@@ -10,7 +10,7 @@ export class TransactionManager {
   async performTransaction<T>(
     storeName: string,
     mode: IDBTransactionMode,
-    operation: (store: IDBObjectStore) => IDBRequest
+    operation: (store: IDBObjectStore) => IDBRequest<T>
   ): Promise<T> {
     return new Promise((resolve, reject) => {
       let isCompleted = false;
