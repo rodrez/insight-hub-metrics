@@ -11,7 +11,8 @@ import { SPIService } from './db/SPIService';
 import { BaseIndexedDBService } from './db/base/BaseIndexedDBService';
 import { SampleDataService } from './data/SampleDataService';
 import { ServiceInitializationManager } from './db/initialization/ServiceInitializationManager';
-import { toast } from "@/components/ui/use-toast";
+import { DataExportService } from './db/operations/DataExportService';
+import { DatabaseClearingService } from './db/operations/DatabaseClearingService';
 
 export class IndexedDBService extends BaseIndexedDBService implements DataService {
   private static instance: IndexedDBService | null = null;
@@ -20,6 +21,8 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   private sitRepService: SitRepService;
   private spiService: SPIService;
   private sampleDataService: SampleDataService;
+  private dataExportService: DataExportService;
+  private databaseClearingService: DatabaseClearingService;
   private initManager: ServiceInitializationManager;
 
   private constructor() {
@@ -30,6 +33,8 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     this.spiService = new SPIService();
     this.sampleDataService = new SampleDataService();
     this.initManager = ServiceInitializationManager.getInstance();
+    this.dataExportService = new DataExportService(this);
+    this.databaseClearingService = new DatabaseClearingService(this.getDatabase(), this.initManager);
   }
 
   public static getInstance(): IndexedDBService {
@@ -44,7 +49,6 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
       await super.init();
       const db = this.getDatabase();
       
-      // Initialize all services with the current database instance
       this.projectService.setDatabase(db);
       this.collaboratorService.setDatabase(db);
       this.sitRepService.setDatabase(db);
@@ -102,85 +106,15 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   getSMEPartner = (id: string) => this.collaboratorService.getSMEPartner(id);
   addSMEPartner = (partner: Collaborator) => this.collaboratorService.addSMEPartner(partner);
 
-  // Implementing the missing methods from DataService interface
-  async exportData(): Promise<void> {
-    if (!this.getDatabase()) {
-      throw new Error('Database not initialized');
-    }
-
-    try {
-      const data = {
-        projects: await this.getAllProjects(),
-        collaborators: await this.getAllCollaborators(),
-        sitreps: await this.getAllSitReps(),
-        spis: await this.getAllSPIs(),
-        objectives: await this.getAllObjectives(),
-        smePartners: await this.getAllSMEPartners()
-      };
-
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `database-export-${new Date().toISOString()}.json`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
-      toast({
-        title: "Success",
-        description: "Data exported successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to export data",
-        variant: "destructive",
-      });
-      throw error;
-    }
-  }
+  // Data operations
+  exportData = () => this.dataExportService.exportData();
+  clear = () => this.databaseClearingService.clearDatabase();
 
   async populateSampleData(quantities: DataQuantities): Promise<void> {
     try {
       await this.clear();
       await this.sampleDataService.generateSampleData(quantities);
-      toast({
-        title: "Success",
-        description: "Sample data populated successfully",
-      });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to populate sample data",
-        variant: "destructive",
-      });
-      throw error;
-    }
-  }
-
-  async clear(): Promise<void> {
-    const stores = ['projects', 'collaborators', 'sitreps', 'spis', 'objectives', 'smePartners', 'teams'];
-    try {
-      for (const storeName of stores) {
-        const transaction = this.getDatabase()?.transaction(storeName, 'readwrite');
-        if (transaction) {
-          const objectStore = transaction.objectStore(storeName);
-          await objectStore.clear();
-        }
-      }
-      this.initManager.resetService('IndexedDB');
-      toast({
-        title: "Success",
-        description: "Database cleared successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to clear database",
-        variant: "destructive",
-      });
       throw error;
     }
   }
