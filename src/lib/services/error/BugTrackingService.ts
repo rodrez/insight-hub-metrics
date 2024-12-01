@@ -10,15 +10,18 @@ class BugTracker {
   }
 
   async getAllBugs(): Promise<Bug[]> {
+    console.log('Getting all bugs...');
     const bugsWithStatus = await Promise.all(
       this.bugs.map(async (bug) => {
         const storedStatus = await this.storage.getStoredStatus(bug.id);
+        console.log(`Bug ${bug.id} stored status:`, storedStatus);
         return {
           ...bug,
-          status: storedStatus || bug.status
+          status: storedStatus || bug.status || 'active'
         };
       })
     );
+    console.log('Bugs with status:', bugsWithStatus);
     return bugsWithStatus;
   }
 

@@ -28,7 +28,9 @@ export function BugFixesTab() {
 
   const loadBugs = async () => {
     try {
+      console.log('Loading bugs...');
       const fetchedBugs = await bugTracker.getAllBugs();
+      console.log('Fetched bugs:', fetchedBugs);
       const sortedBugs = sortBugsBySeverity(fetchedBugs);
       setBugs(sortedBugs);
       setPreviousBugIds(new Set(sortedBugs.map(bug => bug.id)));
@@ -51,11 +53,13 @@ export function BugFixesTab() {
   const refreshBugs = async () => {
     try {
       const currentBugIds = new Set(bugs.map(bug => bug.id));
+      // Get fresh bugs while preserving resolved statuses
       const newBugs = await bugTracker.getAllBugs();
+      console.log('Refreshed bugs:', newBugs);
       const sortedBugs = sortBugsBySeverity(newBugs);
       setBugs(sortedBugs);
       
-      // Check for new bugs
+      // Check for new bugs (ones that weren't in the previous set)
       const newBugCount = newBugs.filter(bug => !currentBugIds.has(bug.id)).length;
       
       if (newBugCount > 0) {
