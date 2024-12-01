@@ -24,6 +24,9 @@ interface Objective {
   id: string;
   title: string;
   desiredOutcome: string;
+  description: string;
+  initiative: string;
+  spiIds: string[];
 }
 
 export function ObjectivesList() {
@@ -83,17 +86,26 @@ export function ObjectivesList() {
         {
           id: '1',
           title: 'Improve Customer Experience',
-          desiredOutcome: 'Increase customer satisfaction score by 20%'
+          description: 'Focus on enhancing customer satisfaction through improved service delivery',
+          initiative: 'Customer First Initiative',
+          desiredOutcome: 'Increase customer satisfaction score by 20%',
+          spiIds: []
         },
         {
           id: '2',
           title: 'Digital Transformation',
-          desiredOutcome: 'Modernize 80% of legacy systems'
+          description: 'Modernize legacy systems and implement new digital solutions',
+          initiative: 'Digital Evolution Program',
+          desiredOutcome: 'Modernize 80% of legacy systems',
+          spiIds: []
         },
         {
           id: '3',
           title: 'Operational Excellence',
-          desiredOutcome: 'Reduce operational costs by 15%'
+          description: 'Streamline operations and improve efficiency across departments',
+          initiative: 'Operational Optimization',
+          desiredOutcome: 'Reduce operational costs by 15%',
+          spiIds: []
         }
       ];
 
