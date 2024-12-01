@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useQueryClient } from "@tanstack/react-query";
+import { fortune30Partners } from "@/components/data/fortune30Partners";
 
 interface SitRepCardProps {
   sitrep: SitRep;
@@ -50,11 +51,9 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
 
   const handleStatusChange = async (newStatus: 'pending-review' | 'ready' | 'submitted') => {
     try {
-      // Using Walmart as our test Fortune 30 partner
       const updatedSitrep = { 
         ...sitrep, 
         status: newStatus,
-        fortune30PartnerId: 'walmart' // Using Walmart from our Fortune 30 partners list
       };
       await fetch(`/api/sitreps/${sitrep.id}`, {
         method: 'PUT',
@@ -91,6 +90,11 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
     name: contact,
     department: sitrep.teams?.[0] || ''
   })) || [];
+
+  // Find the Fortune 30 partner from our static data
+  const fortune30Partner = fortune30Partners.find(
+    partner => partner.id === sitrep.fortune30PartnerId
+  );
 
   return (
     <>
@@ -161,7 +165,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
 
             <PartnerDisplay 
               fortune30PartnerId={sitrep.fortune30PartnerId} 
-              smePartnerId={sitrep.smePartnerId} 
+              smePartnerId={sitrep.smePartnerId}
             />
           </div>
         </CardContent>

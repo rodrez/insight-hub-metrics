@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { fortune30Partners } from "@/components/data/fortune30Partners";
+import { db } from "@/lib/db";
 
 interface PartnerDisplayProps {
   fortune30PartnerId?: string;
@@ -16,9 +17,8 @@ export function PartnerDisplay({ fortune30PartnerId, smePartnerId }: PartnerDisp
     queryKey: ['sme-partner', smePartnerId],
     queryFn: async () => {
       if (!smePartnerId || smePartnerId === 'none') return null;
-      const response = await fetch(`/api/sme-partners/${smePartnerId}`);
-      if (!response.ok) return null;
-      return response.json();
+      const partner = await db.getSMEPartner(smePartnerId);
+      return partner || null;
     },
     enabled: !!smePartnerId && smePartnerId !== 'none'
   });
@@ -27,11 +27,11 @@ export function PartnerDisplay({ fortune30PartnerId, smePartnerId }: PartnerDisp
 
   return (
     <div className="flex flex-wrap gap-4 text-sm">
-      {fortune30PartnerId && (
+      {fortune30Partner && (
         <div className="flex items-center gap-2">
           <span className="text-muted-foreground">Fortune 30:</span>
-          <span style={{ color: fortune30Partner?.color || '#4B5563' }}>
-            {fortune30Partner?.name || 'Not found'}
+          <span style={{ color: fortune30Partner.color }}>
+            {fortune30Partner.name}
           </span>
         </div>
       )}
@@ -39,7 +39,7 @@ export function PartnerDisplay({ fortune30PartnerId, smePartnerId }: PartnerDisp
         <div className="flex items-center gap-2">
           <span className="text-muted-foreground">SME:</span>
           <span style={{ color: smePartner?.color || '#6E59A5' }}>
-            {smePartner ? smePartner.name : 'None'}
+            {smePartner ? smePartner.name : 'Loading...'}
           </span>
         </div>
       )}
