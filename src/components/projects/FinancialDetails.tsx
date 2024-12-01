@@ -39,12 +39,12 @@ export function FinancialDetails({ project, isEditing, onUpdate }: FinancialDeta
             {isEditing ? (
               <input
                 type="number"
-                value={project.businessImpact || 0}
-                onChange={(e) => onUpdate({ businessImpact: Number(e.target.value) })}
+                value={project.businessImpact ?? 0}
+                onChange={(e) => onUpdate({ businessImpact: Number(e.target.value) || 0 })}
                 className="text-2xl font-bold w-full bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary"
               />
             ) : (
-              <p className="text-2xl font-bold">${((project.businessImpact || 0) / 1000000).toFixed(1)}M</p>
+              <p className="text-2xl font-bold">${((project.businessImpact ?? 0) / 1000000).toFixed(1)}M</p>
             )}
           </div>
           <div className="space-y-2">
