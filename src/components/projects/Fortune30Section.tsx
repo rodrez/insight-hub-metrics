@@ -20,7 +20,7 @@ type Fortune30SectionProps = {
 
 export function Fortune30Section({ project }: Fortune30SectionProps) {
   const navigate = useNavigate();
-  const { data: fortune30Partners = [] } = useQuery({
+  const { data: availablePartners = [] } = useQuery({
     queryKey: ['collaborators-fortune30'],
     queryFn: async () => {
       const allCollaborators = await db.getAllCollaborators();
@@ -34,7 +34,7 @@ export function Fortune30Section({ project }: Fortune30SectionProps) {
 
   const handleAddPartner = async (partnerId: string) => {
     try {
-      const selectedPartner = fortune30Partners.find(partner => partner.id === partnerId);
+      const selectedPartner = availablePartners.find(partner => partner.id === partnerId);
       if (!selectedPartner) return;
 
       const updatedCollaborators = [...project.collaborators];
@@ -84,7 +84,7 @@ export function Fortune30Section({ project }: Fortune30SectionProps) {
             <SelectValue placeholder="Add partner" />
           </SelectTrigger>
           <SelectContent>
-            {fortune30Partners.map(partner => (
+            {availablePartners.map(partner => (
               <SelectItem key={partner.id} value={partner.id}>
                 {partner.name}
               </SelectItem>
