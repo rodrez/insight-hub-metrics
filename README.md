@@ -1,69 +1,110 @@
-# Welcome to your Lovable project
+# SitRep Management System
 
-## Project info
+A modern web application for managing Situation Reports (SitReps) and collaborations across different organizational levels.
 
-**URL**: https://lovable.dev/projects/26db535a-309b-4c46-9cdc-9453068364f3
+## Features
 
-## How can I edit this code?
+- **SitRep Management**: Create, edit, and track situation reports with different status levels (Submitted, Pending Review, Ready)
+- **Partner Collaboration**: Manage Fortune 30 and SME partner relationships
+- **Project Tracking**: Monitor projects and their associated partners
+- **Department Organization**: Organize content by departments and teams
+- **Real-time Updates**: Track changes and updates across the organization
 
-There are several ways of editing your application.
+## Technology Stack
 
-**Use Lovable**
+- **Frontend Framework**: React with TypeScript
+- **Build Tool**: Vite
+- **UI Components**: shadcn/ui
+- **Styling**: Tailwind CSS
+- **State Management**: TanStack Query (React Query)
+- **Data Storage**: IndexedDB for local data persistence
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/26db535a-309b-4c46-9cdc-9453068364f3) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- Node.js (Latest LTS version recommended)
+- npm or yarn package manager
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Installation
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
+1. Clone the repository:
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
 git clone <YOUR_GIT_URL>
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+2. Navigate to the project directory:
+```sh
+cd <PROJECT_NAME>
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+3. Install dependencies:
+```sh
+npm install
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+4. Start the development server:
+```sh
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The application will be available at `http://localhost:5173`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Project Structure
 
-**Use GitHub Codespaces**
+- `/src/components/` - React components organized by feature
+  - `/sitreps/` - SitRep-related components
+  - `/projects/` - Project management components
+  - `/ui/` - Reusable UI components
+- `/src/lib/` - Core utilities and services
+  - `/services/` - Data services and API integrations
+  - `/types/` - TypeScript type definitions
+  - `/utils/` - Helper functions and utilities
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Development
 
-## What technologies are used for this project?
+### Using Lovable
 
-This project is built with .
+1. Visit [Lovable Project](https://lovable.dev/projects/26db535a-309b-4c46-9cdc-9453068364f3)
+2. Start making changes through the interactive interface
+3. Changes will be automatically committed to the repository
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Using Local Development
 
-## How can I deploy this project?
+1. Make your changes in your preferred IDE
+2. Test locally using `npm run dev`
+3. Commit and push changes to reflect them in Lovable
 
-Simply open [Lovable](https://lovable.dev/projects/26db535a-309b-4c46-9cdc-9453068364f3) and click on Share -> Publish.
+### Using GitHub Codespaces
 
-## I want to use a custom domain - is that possible?
+1. Navigate to the repository on GitHub
+2. Click "Code" > "Codespaces"
+3. Create a new codespace
+4. Make changes directly in the browser-based IDE
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+## Deployment
+
+### Quick Deploy
+
+1. Open [Lovable](https://lovable.dev/projects/26db535a-309b-4c46-9cdc-9453068364f3)
+2. Click Share -> Publish
+3. Your application will be deployed instantly
+
+### Custom Domain Setup
+
+While direct custom domain support isn't available through Lovable yet, you can deploy to Netlify:
+
+1. Connect your repository to Netlify
+2. Configure your custom domain in Netlify settings
+3. Follow [our custom domain guide](https://docs.lovable.dev/tips-tricks/custom-domain/) for detailed instructions
+
+## Contributing
+
+1. Create a new branch for your feature
+2. Make your changes
+3. Submit a pull request
+4. Changes will be reflected in Lovable once merged
+
+## License
+
+This project is private and proprietary. All rights reserved.
