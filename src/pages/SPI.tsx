@@ -20,12 +20,12 @@ export default function SPIPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Schedule Performance Index</h1>
+    <div className="container mx-auto px-4 py-6 lg:py-8 max-w-7xl">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold">Schedule Performance Index</h1>
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" className="shrink-0">
               <Plus className="h-4 w-4" />
             </Button>
           </DialogTrigger>
@@ -38,22 +38,33 @@ export default function SPIPage() {
         </Dialog>
       </div>
 
-      <SPIStats />
+      <div className="mb-6">
+        <SPIStats />
+      </div>
 
-      <Tabs defaultValue="spis">
-        <TabsList>
-          <TabsTrigger value="spis">SPIs</TabsTrigger>
-          <TabsTrigger value="objectives">Objectives</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+      <Tabs defaultValue="spis" className="space-y-6">
+        <TabsList className="w-full sm:w-auto flex justify-start overflow-x-auto">
+          <TabsTrigger value="spis" className="flex-1 sm:flex-none">SPIs</TabsTrigger>
+          <TabsTrigger value="objectives" className="flex-1 sm:flex-none">Objectives</TabsTrigger>
+          <TabsTrigger value="analytics" className="flex-1 sm:flex-none">Analytics</TabsTrigger>
         </TabsList>
-        <TabsContent value="spis">
-          <SPIList />
+        
+        <TabsContent value="spis" className="min-h-[300px]">
+          <div className="bg-card rounded-lg p-4">
+            <SPIList />
+          </div>
         </TabsContent>
-        <TabsContent value="objectives">
-          <ObjectivesList />
+        
+        <TabsContent value="objectives" className="min-h-[300px]">
+          <div className="bg-card rounded-lg p-4">
+            <ObjectivesList />
+          </div>
         </TabsContent>
-        <TabsContent value="analytics">
-          <SPIAnalytics />
+        
+        <TabsContent value="analytics" className="min-h-[300px]">
+          <div className="bg-card rounded-lg p-4">
+            <SPIAnalytics />
+          </div>
         </TabsContent>
       </Tabs>
     </div>
