@@ -97,9 +97,10 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
                   </div>
                   <Progress 
                     value={progress} 
-                    className="h-2 bg-muted [&>[role=progressbar]]"
+                    className="h-2"
                     style={{ 
-                      ["--progress-background" as any]: statusColors.active 
+                      backgroundColor: 'hsl(var(--muted))',
+                      ['--progress-background' as any]: statusColors.active 
                     }}
                   />
                 </div>
@@ -110,7 +111,7 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={handleEdit}
+                onClick={() => handleEdit()}
                 className="text-gray-400 hover:text-green-500 transition-colors"
               >
                 <Pen className="h-4 w-4" />
@@ -118,7 +119,7 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={handleDelete}
+                onClick={() => handleDelete()}
                 className="text-gray-400 hover:text-red-500 transition-colors"
               >
                 <Trash2 className="h-4 w-4" />
