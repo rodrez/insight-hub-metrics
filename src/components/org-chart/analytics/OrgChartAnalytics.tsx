@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Legend, PieChart, Pie, Cell, LineChart, Line } from "recharts";
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 export function OrgChartAnalytics() {
   const { data: collaborators = [] } = useQuery({
@@ -11,88 +11,100 @@ export function OrgChartAnalytics() {
     queryFn: () => db.getAllCollaborators()
   });
 
-  const { data: projects = [] } = useQuery({
-    queryKey: ['projects'],
-    queryFn: () => db.getAllProjects()
-  });
+  // Group collaborators by position
+  const seniorManagers = collaborators.filter(c => c.role?.toLowerCase().includes('senior manager'));
+  const techLeads = collaborators.filter(c => c.role?.toLowerCase().includes('tech lead'));
+  const directors = collaborators.filter(c => c.role?.toLowerCase().includes('director'));
 
-  const { data: spis = [] } = useQuery({
-    queryKey: ['spis'],
-    queryFn: () => db.getAllSPIs()
-  });
-
-  const { data: sitreps = [] } = useQuery({
-    queryKey: ['sitreps'],
-    queryFn: () => db.getAllSitReps()
-  });
-
-  const internalCollaborators = collaborators.filter(c => c.type === 'internal');
-
-  // Workload Distribution
-  const workloadData = internalCollaborators.map(collab => ({
-    name: collab.name,
-    projects: collab.assignedProjects?.length || 0,
-    spis: collab.assignedSpis?.length || 0,
-    sitreps: collab.assignedSitreps?.length || 0
-  }));
-
-  // Project Status Distribution
-  const projectStatusData = projects.reduce((acc: any[], project) => {
-    const status = project.status;
-    const existingStatus = acc.find(item => item.status === status);
-    if (existingStatus) {
-      existingStatus.count++;
-    } else {
-      acc.push({ status, count: 1 });
-    }
-    return acc;
-  }, []);
-
-  // Assignment Coverage
-  const coverageData = [
+  // Position Workload Distribution
+  const positionWorkloadData = [
     {
-      name: 'Projects',
-      assigned: projects.filter(p => internalCollaborators.some(c => c.assignedProjects?.includes(p.id))).length,
-      total: projects.length
+      position: 'Senior Managers',
+      projects: seniorManagers.reduce((sum, c) => sum + (c.assignedProjects?.length || 0), 0),
+      spis: seniorManagers.reduce((sum, c) => sum + (c.assignedSpis?.length || 0), 0),
+      sitreps: seniorManagers.reduce((sum, c) => sum + (c.assignedSitreps?.length || 0), 0),
+      fortune30: seniorManagers.reduce((sum, c) => sum + (c.fortune30Partners?.length || 0), 0),
+      sme: seniorManagers.reduce((sum, c) => sum + (c.smePartners?.length || 0), 0),
     },
     {
-      name: 'SPIs',
-      assigned: spis.filter(s => internalCollaborators.some(c => c.assignedSpis?.includes(s.id))).length,
-      total: spis.length
+      position: 'Tech Leads',
+      projects: techLeads.reduce((sum, c) => sum + (c.assignedProjects?.length || 0), 0),
+      spis: techLeads.reduce((sum, c) => sum + (c.assignedSpis?.length || 0), 0),
+      sitreps: techLeads.reduce((sum, c) => sum + (c.assignedSitreps?.length || 0), 0),
+      fortune30: techLeads.reduce((sum, c) => sum + (c.fortune30Partners?.length || 0), 0),
+      sme: techLeads.reduce((sum, c) => sum + (c.smePartners?.length || 0), 0),
     },
     {
-      name: 'SitReps',
-      assigned: sitreps.filter(s => internalCollaborators.some(c => c.assignedSitreps?.includes(s.id))).length,
-      total: sitreps.length
+      position: 'Directors',
+      projects: directors.reduce((sum, c) => sum + (c.assignedProjects?.length || 0), 0),
+      spis: directors.reduce((sum, c) => sum + (c.assignedSpis?.length || 0), 0),
+      sitreps: directors.reduce((sum, c) => sum + (c.assignedSitreps?.length || 0), 0),
+      fortune30: directors.reduce((sum, c) => sum + (c.fortune30Partners?.length || 0), 0),
+      sme: directors.reduce((sum, c) => sum + (c.smePartners?.length || 0), 0),
     }
   ];
 
-  // Team Member Load Balance
-  const loadBalanceData = internalCollaborators.map(collab => ({
-    name: collab.name,
-    totalAssignments: (collab.assignedProjects?.length || 0) + 
-                     (collab.assignedSpis?.length || 0) + 
-                     (collab.assignedSitreps?.length || 0)
-  })).sort((a, b) => b.totalAssignments - a.totalAssignments);
+  // Individual Position Load Distribution
+  const getPositionData = (position: string[]) => {
+    return position.map(c => ({
+      name: c.name,
+      totalAssignments: 
+        (c.assignedProjects?.length || 0) +
+        (c.assignedSpis?.length || 0) +
+        (c.assignedSitreps?.length || 0) +
+        (c.fortune30Partners?.length || 0) +
+        (c.smePartners?.length || 0)
+    }));
+  };
+
+  // Partner Type Distribution
+  const partnerDistributionData = [
+    { 
+      name: 'Fortune 30',
+      value: collaborators.reduce((sum, c) => sum + (c.fortune30Partners?.length || 0), 0)
+    },
+    { 
+      name: 'SME',
+      value: collaborators.reduce((sum, c) => sum + (c.smePartners?.length || 0), 0)
+    }
+  ];
+
+  // Assignment Type Distribution
+  const assignmentTypeData = [
+    { 
+      name: 'Projects',
+      value: collaborators.reduce((sum, c) => sum + (c.assignedProjects?.length || 0), 0)
+    },
+    { 
+      name: 'SPIs',
+      value: collaborators.reduce((sum, c) => sum + (c.assignedSpis?.length || 0), 0)
+    },
+    { 
+      name: 'SitReps',
+      value: collaborators.reduce((sum, c) => sum + (c.assignedSitreps?.length || 0), 0)
+    }
+  ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <Card>
         <CardHeader>
-          <CardTitle>Workload Distribution</CardTitle>
+          <CardTitle>Position Workload Distribution</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={workloadData}>
+              <BarChart data={positionWorkloadData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" angle={-45} textAnchor="end" height={60} />
+                <XAxis dataKey="position" />
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="projects" fill="#0088FE" name="Projects" />
-                <Bar dataKey="spis" fill="#00C49F" name="SPIs" />
-                <Bar dataKey="sitreps" fill="#FFBB28" name="SitReps" />
+                <Bar dataKey="projects" name="Projects" fill="#0088FE" />
+                <Bar dataKey="spis" name="SPIs" fill="#00C49F" />
+                <Bar dataKey="sitreps" name="SitReps" fill="#FFBB28" />
+                <Bar dataKey="fortune30" name="Fortune 30" fill="#FF8042" />
+                <Bar dataKey="sme" name="SME" fill="#8884d8" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -101,22 +113,42 @@ export function OrgChartAnalytics() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Project Status Distribution</CardTitle>
+          <CardTitle>Senior Manager Load Distribution</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={getPositionData(seniorManagers)}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" angle={-45} textAnchor="end" height={60} />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="totalAssignments" name="Total Assignments" fill="#0088FE" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Partner Type Distribution</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={projectStatusData}
-                  dataKey="count"
-                  nameKey="status"
+                  data={partnerDistributionData}
+                  dataKey="value"
+                  nameKey="name"
                   cx="50%"
                   cy="50%"
-                  outerRadius={100}
+                  outerRadius={80}
                   label
                 >
-                  {projectStatusData.map((entry, index) => (
+                  {partnerDistributionData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -130,45 +162,28 @@ export function OrgChartAnalytics() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Assignment Coverage</CardTitle>
+          <CardTitle>Assignment Type Distribution</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={coverageData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
+              <PieChart>
+                <Pie
+                  data={assignmentTypeData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  label
+                >
+                  {assignmentTypeData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="assigned" fill="#0088FE" name="Assigned" />
-                <Bar dataKey="total" fill="#00C49F" name="Total" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Team Member Load Balance</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={loadBalanceData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" angle={-45} textAnchor="end" height={60} />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="totalAssignments" 
-                  stroke="#8884d8" 
-                  name="Total Assignments"
-                />
-              </LineChart>
+              </PieChart>
             </ResponsiveContainer>
           </div>
         </CardContent>
