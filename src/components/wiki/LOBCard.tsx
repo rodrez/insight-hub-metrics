@@ -26,6 +26,7 @@ export function LOBCard({ lob, category, onUpdate, onDelete }: LOBCardProps) {
   const [editedName, setEditedName] = useState(lob.name);
   const [editedDescription, setEditedDescription] = useState(category.detailedDescription || '');
   const [contacts, setContacts] = useState<Contact[]>(category.contacts);
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [newContact, setNewContact] = useState<Contact>({
     name: '',
     role: '',
@@ -77,16 +78,33 @@ export function LOBCard({ lob, category, onUpdate, onDelete }: LOBCardProps) {
     });
   };
 
-  const handleDeleteContact = (email: string) => {
-    setContacts(contacts.filter(contact => contact.email !== email));
+  const handleEditContact = (contact: Contact) => {
+    setEditingContact(contact);
+    setNewContact(contact);
   };
 
-  const handleDelete = () => {
-    onDelete(lob);
-    toast({
-      title: "Success",
-      description: "LOB deleted successfully"
-    });
+  const handleUpdateContact = () => {
+    if (editingContact) {
+      setContacts(contacts.map(c => 
+        c.email === editingContact.email ? newContact : c
+      ));
+      setEditingContact(null);
+      setNewContact({
+        name: '',
+        role: '',
+        email: '',
+        phone: '',
+        notes: ''
+      });
+      toast({
+        title: "Success",
+        description: "Contact updated successfully"
+      });
+    }
+  };
+
+  const handleDeleteContact = (email: string) => {
+    setContacts(contacts.filter(contact => contact.email !== email));
   };
 
   return (
@@ -130,6 +148,7 @@ export function LOBCard({ lob, category, onUpdate, onDelete }: LOBCardProps) {
                   key={contact.email}
                   contact={contact}
                   onDelete={handleDeleteContact}
+                  onEdit={handleEditContact}
                 />
               ))}
 
@@ -137,6 +156,8 @@ export function LOBCard({ lob, category, onUpdate, onDelete }: LOBCardProps) {
                 <ContactForm
                   contact={newContact}
                   onChange={setNewContact}
+                  onSubmit={editingContact ? handleUpdateContact : handleAddContact}
+                  isEditing={!!editingContact}
                 />
               </div>
             </div>

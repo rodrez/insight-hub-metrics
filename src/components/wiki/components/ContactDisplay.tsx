@@ -5,9 +5,10 @@ import { Contact } from "../types/contact";
 interface ContactDisplayProps {
   contact: Contact;
   onDelete: (email: string) => void;
+  onEdit: (contact: Contact) => void;
 }
 
-export function ContactDisplay({ contact, onDelete }: ContactDisplayProps) {
+export function ContactDisplay({ contact, onDelete, onEdit }: ContactDisplayProps) {
   return (
     <div className="p-4 border rounded-lg space-y-2">
       <div className="flex justify-between items-start">
@@ -27,6 +28,7 @@ export function ContactDisplay({ contact, onDelete }: ContactDisplayProps) {
             variant="ghost"
             size="icon"
             className="text-gray-400 hover:text-green-500 transition-colors"
+            onClick={() => onEdit(contact)}
           >
             <Pen className="h-4 w-4" />
           </Button>

@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,9 +7,11 @@ import { Contact } from "../types/contact";
 interface ContactFormProps {
   contact: Contact;
   onChange: (updatedContact: Contact) => void;
+  onSubmit: () => void;
+  isEditing?: boolean;
 }
 
-export function ContactForm({ contact, onChange }: ContactFormProps) {
+export function ContactForm({ contact, onChange, onSubmit, isEditing = false }: ContactFormProps) {
   return (
     <div className="grid grid-cols-2 gap-4">
       <div>
@@ -53,6 +56,11 @@ export function ContactForm({ contact, onChange }: ContactFormProps) {
           placeholder="Add any additional notes about this contact..."
           className="h-20"
         />
+      </div>
+      <div className="col-span-2">
+        <Button onClick={onSubmit} className="w-full">
+          {isEditing ? 'Update Contact' : 'Add Contact'}
+        </Button>
       </div>
     </div>
   );
