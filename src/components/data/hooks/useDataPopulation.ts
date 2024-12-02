@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { DatabaseError } from "@/lib/utils/errorHandling";
 import { DatabaseOperations } from "../operations/DatabaseOperations";
 import { DataQuantities } from "../SampleData";
+import { toast } from "@/components/ui/use-toast";
 
 export function useDataPopulation() {
   const [isPopulating, setIsPopulating] = useState(false);
@@ -19,71 +20,56 @@ export function useDataPopulation() {
     setProgress(0);
     
     try {
+      console.log('Starting data population with quantities:', quantities);
+      
       const populateStep: LoadingStep = {
         name: "Sample Data Population",
         action: async () => {
           try {
-            const {
-              fortune30Partners,
-              internalPartners,
-              smePartners,
-              projects,
-              spis,
-              objectives,
-              sitreps
-            } = await sampleDataService.generateSampleData(quantities);
+            // First ensure database is initialized
+            console.log('Initializing database...');
+            await db.init();
+            console.log('Database initialized successfully');
 
-            // Add data to database in sequence with progress updates
-            const totalSteps = 7;
-            let currentStep = 0;
+            // Clear existing data
+            console.log('Clearing existing data...');
+            await db.clear();
+            console.log('Existing data cleared successfully');
 
-            await databaseOps.addCollaboratorsInBatches(fortune30Partners, () => {
-              currentStep++;
-              setProgress((currentStep / totalSteps) * 100);
-            });
+            // Generate and save new data
+            console.log('Generating sample data...');
+            await sampleDataService.generateSampleData(quantities);
+            console.log('Sample data generated and saved successfully');
 
-            await databaseOps.addCollaboratorsInBatches(internalPartners, () => {
-              currentStep++;
-              setProgress((currentStep / totalSteps) * 100);
-            });
-
-            // Explicitly add SME partners to their dedicated store
-            await databaseOps.addSMEPartnersInBatches(smePartners, () => {
-              currentStep++;
-              setProgress((currentStep / totalSteps) * 100);
-            });
-
-            await databaseOps.addProjectsInBatches(projects, () => {
-              currentStep++;
-              setProgress((currentStep / totalSteps) * 100);
-            });
-
-            await databaseOps.addSPIsInBatches(spis, () => {
-              currentStep++;
-              setProgress((currentStep / totalSteps) * 100);
-            });
-
-            await databaseOps.addObjectivesInBatches(objectives, () => {
-              currentStep++;
-              setProgress((currentStep / totalSteps) * 100);
-            });
-
-            await databaseOps.addSitRepsInBatches(sitreps, () => {
-              currentStep++;
-              setProgress((currentStep / totalSteps) * 100);
-            });
-
+            // Invalidate queries to refresh UI
             queryClient.invalidateQueries({ queryKey: ['data-counts'] });
             
             return true;
           } catch (error) {
-            console.error('Sample data population error:', error);
+            console.error('Detailed error in populateStep:', {
+              error,
+              message: error instanceof Error ? error.message : 'Unknown error',
+              stack: error instanceof Error ? error.stack : undefined
+            });
             return false;
           }
         }
       };
 
       await executeWithRetry(populateStep);
+      
+      toast({
+        title: "Success",
+        description: "Sample data populated successfully",
+      });
+    } catch (error) {
+      console.error('Data population failed:', error);
+      toast({
+        title: "Error",
+        description: "Failed to populate data. Check console for details.",
+        variant: "destructive",
+      });
+      throw error;
     } finally {
       setIsPopulating(false);
       setProgress(0);
