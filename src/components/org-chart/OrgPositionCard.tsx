@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Pen } from "lucide-react";
 import { RelationshipSelectionDialog } from "./RelationshipSelectionDialog";
 import { RelationshipDisplay } from "./RelationshipDisplay";
@@ -11,10 +10,9 @@ import { toast } from "@/components/ui/use-toast";
 interface OrgPositionCardProps {
   title: string;
   width?: string;
-  isRatMember?: boolean;
 }
 
-export function OrgPositionCard({ title, width = "w-96", isRatMember = false }: OrgPositionCardProps) {
+export function OrgPositionCard({ title, width = "w-96" }: OrgPositionCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [position, setPosition] = useState<OrgPosition>({
     id: crypto.randomUUID(),
@@ -23,8 +21,7 @@ export function OrgPositionCard({ title, width = "w-96", isRatMember = false }: 
     fortune30Partners: [],
     smePartners: [],
     spis: [],
-    sitreps: [],
-    isRatMember
+    sitreps: []
   });
 
   const handleSave = (updatedPosition: OrgPosition) => {
@@ -38,14 +35,7 @@ export function OrgPositionCard({ title, width = "w-96", isRatMember = false }: 
   return (
     <Card className={`${width} p-6 shadow-lg animate-fade-in`}>
       <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-2">
-          <h2 className="text-xl font-semibold">{title}</h2>
-          {isRatMember && (
-            <Badge variant="secondary" className="bg-purple-100 text-purple-800 border-purple-300">
-              RAT Member
-            </Badge>
-          )}
-        </div>
+        <h2 className="text-xl font-semibold">{title}</h2>
         <Button 
           variant="ghost" 
           size="icon" 

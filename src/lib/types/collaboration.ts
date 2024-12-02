@@ -1,24 +1,25 @@
-export type CollaborationType = 'fortune30' | 'sme' | 'internal';
+export type AgreementStatus = 'signed' | 'pending' | 'expired';
+export type AgreementType = 'NDA' | 'JTDA' | 'Both' | 'None';
 
-export interface Agreement {
+export type Agreement = {
   signedDate: string;
   expiryDate: string;
-  status: 'signed' | 'pending' | 'expired';
-}
+  status: AgreementStatus;
+};
 
-export interface CollaboratorAgreements {
+export type CollaboratorAgreements = {
   nda?: Agreement;
   jtda?: Agreement;
-}
+};
 
-export interface ContactPerson {
+export type ContactPerson = {
   name: string;
+  role: string;
   email: string;
   phone?: string;
-  role?: string;
-}
+};
 
-export interface Workstream {
+export type Workstream = {
   id: string;
   title: string;
   objectives: string;
@@ -27,34 +28,38 @@ export interface Workstream {
   status: 'active' | 'completed' | 'on-hold';
   startDate: string;
   lastUpdated: string;
-}
+};
 
-export interface Project {
-  id: string;
-  name: string;
-  description?: string;
-  status: 'active' | 'completed' | 'delayed' | 'action-needed';
-}
+export type CollaboratorType = 'fortune30' | 'internal' | 'sme';
 
-export interface CollaboratorStats {
+export type CollaboratorStats = {
   fortune30Count: number;
   internalCount: number;
   smeCount: number;
   total: number;
-}
+};
 
-export interface Collaborator {
+export type CollaboratorProject = {
+  id: string;
+  name: string;
+  description?: string;
+  status?: 'active' | 'completed' | 'delayed' | 'action-needed';
+  nabc?: {
+    needs: string;
+  };
+};
+
+export type Collaborator = {
   id: string;
   name: string;
   email: string;
   role: string;
   department: string;
-  projects?: Project[];
+  projects: CollaboratorProject[];
   lastActive: string;
-  type: CollaborationType;
+  type: CollaboratorType;
   color?: string;
+  agreements?: CollaboratorAgreements;
   primaryContact?: ContactPerson;
   workstreams?: Workstream[];
-  agreements?: CollaboratorAgreements;
-  ratMember: string;
-}
+};

@@ -1,31 +1,106 @@
 import { Collaborator } from '@/lib/types/collaboration';
 
+const fortune30Companies = [
+  { 
+    name: "Walmart",
+    color: "#0071CE",
+    department: "Retail",
+    agreementTypes: ["nda", "jtda"]
+  },
+  { 
+    name: "Amazon",
+    color: "#FF9900",
+    department: "Technology",
+    agreementTypes: ["nda"]
+  },
+  { 
+    name: "Apple",
+    color: "#555555",
+    department: "Technology",
+    agreementTypes: ["jtda"]
+  },
+  { 
+    name: "CVS Health",
+    color: "#CC0000",
+    department: "Healthcare",
+    agreementTypes: ["nda", "jtda"]
+  },
+  { 
+    name: "UnitedHealth",
+    color: "#002677",
+    department: "Healthcare",
+    agreementTypes: ["jtda"]
+  },
+  { 
+    name: "Microsoft",
+    color: "#00A4EF",
+    department: "Technology",
+    agreementTypes: ["nda", "jtda"]
+  }
+];
+
 export const generateFortune30Partners = (): Collaborator[] => {
-  return fortune30Companies.map((company, index) => ({
-    id: company.name.toLowerCase().replace(/\s+/g, ''),
-    name: company.name,
-    color: company.color,
-    email: `partnerships@${company.name.toLowerCase().replace(/\s+/g, '')}.com`,
-    role: "Strategic Partner",
-    department: company.department,
-    projects: [
-      {
-        id: `${company.department.toLowerCase()}-project-${index + 1}`,
-        name: `${company.department} Innovation Project ${index + 1}`,
-        description: `Strategic partnership focusing on ${company.department.toLowerCase()} innovation and digital transformation.`,
-        status: "active"
-      }
-    ],
-    lastActive: new Date().toISOString(),
-    type: "fortune30",
-    ratMember: `RAT Member ${index + 1}`,
-    agreements: company.agreementTypes.reduce((acc, type) => ({
-      ...acc,
-      [type]: {
-        signedDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
-        expiryDate: new Date(Date.now() + 275 * 24 * 60 * 60 * 1000).toISOString(),
+  const today = new Date();
+  
+  return fortune30Companies.map((company, index) => {
+    const agreements: { nda?: any; jtda?: any } = {};
+    
+    // Generate some agreements that are close to expiry for testing
+    if (company.agreementTypes.includes('nda')) {
+      const isExpiring = index === 0 || index === 3; // Make some NDAs expire soon
+      agreements.nda = {
+        signedDate: new Date(today.getTime() - (90 * 24 * 60 * 60 * 1000)).toISOString(),
+        expiryDate: new Date(today.getTime() + (isExpiring ? 85 : 275) * 24 * 60 * 60 * 1000).toISOString(),
         status: 'signed'
-      }
-    }), {})
-  }));
+      };
+    }
+    
+    if (company.agreementTypes.includes('jtda')) {
+      const isExpiring = index === 1 || index === 4; // Make some JTDAs expire soon
+      agreements.jtda = {
+        signedDate: new Date(today.getTime() - (60 * 24 * 60 * 60 * 1000)).toISOString(),
+        expiryDate: new Date(today.getTime() + (isExpiring ? 45 : 305) * 24 * 60 * 60 * 1000).toISOString(),
+        status: 'signed'
+      };
+    }
+
+    return {
+      id: company.name.toLowerCase().replace(/\s+/g, ''),
+      name: company.name,
+      color: company.color,
+      email: `partnerships@${company.name.toLowerCase().replace(/\s+/g, '')}.com`,
+      role: "Strategic Partner",
+      department: company.department,
+      projects: [
+        {
+          id: `${company.department.toLowerCase()}-project-${index + 1}`,
+          name: `${company.department} Innovation Project ${index + 1}`,
+          description: `Strategic partnership focusing on ${company.department.toLowerCase()} innovation and digital transformation.`,
+          status: "active"
+        }
+      ],
+      workstreams: [
+        {
+          id: `ws-${index + 1}`,
+          title: `${company.department} Innovation Stream`,
+          objectives: `Drive innovation in ${company.department.toLowerCase()} through strategic collaboration`,
+          nextSteps: "Complete phase 1 implementation and review results",
+          keyContacts: [
+            {
+              name: "John Smith",
+              role: "Project Lead",
+              email: "john.smith@company.com",
+              phone: "+1 (555) 123-4567"
+            }
+          ],
+          status: "active",
+          startDate: new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000)).toISOString(),
+          lastUpdated: today.toISOString()
+        }
+      ],
+      lastActive: today.toISOString(),
+      type: "fortune30",
+      agreements
+    };
+  });
 };

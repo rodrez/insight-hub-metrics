@@ -6,7 +6,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { CollaborationDialog } from '@/components/collaborations/CollaborationDialog';
 import { toast } from "@/components/ui/use-toast";
 import { SMEList } from '@/components/collaborations/SMEList';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AgreementsList } from '@/components/collaborations/agreements/AgreementsList';
@@ -16,14 +16,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Collaborator } from '@/lib/types/collaboration';
 
 export default function SME() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedCollaborator, setSelectedCollaborator] = useState<string | null>(null);
-  const queryClient = useQueryClient();
 
   const { data: collaborators = [], isLoading } = useQuery({
     queryKey: ['collaborators-sme'],
@@ -61,23 +59,6 @@ export default function SME() {
   const handleEdit = (id: string) => {
     setSelectedCollaborator(id);
     setShowEditDialog(true);
-  };
-
-  const handleSave = async (collaborator: Collaborator) => {
-    try {
-      await db.addSMEPartner(collaborator);
-      toast({
-        title: "Success",
-        description: "SME partner saved successfully"
-      });
-      queryClient.invalidateQueries({ queryKey: ['collaborators-sme'] });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save SME partner",
-        variant: "destructive",
-      });
-    }
   };
 
   if (isLoading) {
@@ -183,7 +164,6 @@ export default function SME() {
         <CollaborationDialog
           open={showEditDialog}
           onOpenChange={setShowEditDialog}
-          onSave={handleSave}
           collaboratorId={selectedCollaborator}
           collaborationType="sme"
         />

@@ -19,7 +19,6 @@ export default function AddProject() {
   const [pocDepartment, setPocDepartment] = useState("");
   const [techLead, setTechLead] = useState("");
   const [techLeadDepartment, setTechLeadDepartment] = useState("");
-  const [ratMember, setRatMember] = useState("");
   const [budget, setBudget] = useState("");
   const [techDomainId, setTechDomainId] = useState("");
   const [selectedSME, setSelectedSME] = useState("none");
@@ -64,7 +63,6 @@ export default function AddProject() {
         pocDepartment,
         techLead,
         techLeadDepartment,
-        ratMember,
         budget: Number(budget),
         spent: 0,
         status: 'active' as const,
@@ -117,8 +115,6 @@ export default function AddProject() {
               setTechLead={setTechLead}
               techLeadDepartment={techLeadDepartment}
               setTechLeadDepartment={setTechLeadDepartment}
-              ratMember={ratMember}
-              setRatMember={setRatMember}
               budget={budget}
               setBudget={setBudget}
             />

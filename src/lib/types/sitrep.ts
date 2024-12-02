@@ -1,24 +1,20 @@
-export type SitRepStatus = 'pending-review' | 'ready' | 'submitted';
-export type SitRepLevel = 'CEO' | 'SVP' | 'CTO';
-
 export interface SitRep {
   id: string;
   title: string;
   date: string;
   spiId: string;
+  projectId?: string;
   update: string;
-  challenges: string;
-  nextSteps: string;
-  status: SitRepStatus;
-  level: SitRepLevel;
+  challenges?: string;
+  nextSteps?: string;
+  status: 'pending-review' | 'ready' | 'submitted';
   summary: string;
-  departmentId: string;
-  ratMember: string;
+  departmentId?: string;
+  level?: "CEO" | "SVP" | "CTO";
   teams?: string[];
   pointsOfContact?: string[];
   fortune30PartnerId?: string;
   smePartnerId?: string;
   poc?: string;
   pocDepartment?: string;
-  projectId?: string;
 }

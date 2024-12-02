@@ -1,17 +1,14 @@
-export type SPIStatus = 'on-track' | 'delayed' | 'completed' | 'cancelled';
-
-export interface SPI {
+export type SPI = {
   id: string;
   name: string;
   deliverable: string;
-  details: string;
+  details?: string;
   expectedCompletionDate: string;
-  status: SPIStatus;
+  status: 'on-track' | 'delayed' | 'completed';
   projectId?: string;
   departmentId: string;
-  sitrepIds: string[];
-  createdAt: string;
-  ratMember: string;
   smePartnerId?: string;
   fortune30PartnerId?: string;
-}
+  sitrepIds: string[];
+  createdAt: string;
+};

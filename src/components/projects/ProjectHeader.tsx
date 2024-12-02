@@ -3,23 +3,12 @@ import { Project } from "@/lib/types";
 import { DEPARTMENTS } from "@/lib/constants";
 import { toast } from "@/components/ui/use-toast";
 import { memo } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ProjectHeaderProps {
   project: Project;
   isEditing: boolean;
   onUpdate: (updates: Partial<Project>) => void;
 }
-
-const RAT_MEMBERS = [
-  { id: "director", name: "Director" },
-  { id: "sm1", name: "Senior Manager 1" },
-  { id: "sm2", name: "Senior Manager 2" },
-  { id: "sm3", name: "Senior Manager 3" },
-  { id: "tl1", name: "Tech Lead 1" },
-  { id: "tl2", name: "Tech Lead 2" },
-  { id: "tl3", name: "Tech Lead 3" },
-];
 
 export const ProjectHeader = memo(({ project, isEditing, onUpdate }: ProjectHeaderProps) => {
   const getDepartmentColor = (id: string) => {
@@ -72,15 +61,6 @@ export const ProjectHeader = memo(({ project, isEditing, onUpdate }: ProjectHead
                 className="text-white"
               >
                 {project.techLead}
-              </Badge>
-            </p>
-            <p className="flex items-center gap-2">
-              RAT Member:{" "}
-              <Badge
-                variant="secondary"
-                className="bg-purple-100 text-purple-800 border-purple-300"
-              >
-                {RAT_MEMBERS.find(m => m.id === project.ratMember)?.name || project.ratMember}
               </Badge>
             </p>
           </div>
@@ -146,23 +126,6 @@ export const ProjectHeader = memo(({ project, isEditing, onUpdate }: ProjectHead
             ))}
           </select>
         </div>
-      </div>
-      <div className="space-y-2">
-        <Select
-          value={project.ratMember}
-          onValueChange={(value) => onUpdate({ ratMember: value })}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select RAT Member" />
-          </SelectTrigger>
-          <SelectContent>
-            {RAT_MEMBERS.map(member => (
-              <SelectItem key={member.id} value={member.id}>
-                {member.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
       <select
         value={project.status}

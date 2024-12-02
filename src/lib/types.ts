@@ -15,7 +15,6 @@ export type Project = {
   pocDepartment: string;
   techLead: string;
   techLeadDepartment: string;
-  ratMember: string;
   budget: number;
   spent: number;
   businessImpact?: number;
