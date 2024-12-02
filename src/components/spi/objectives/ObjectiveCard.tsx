@@ -1,9 +1,9 @@
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Pen, Trash2, Target, ArrowRight } from "lucide-react";
 import { Objective } from "@/lib/types/objective";
-import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { ObjectiveEditDialog } from "./ObjectiveEditDialog";
 import {
@@ -25,21 +25,11 @@ interface ObjectiveCardProps {
 
 export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProps) {
   const [statusColors, setStatusColors] = useState({
-    active: '#10B981'
+    active: '#ffffff'
   });
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedObjective, setSelectedObjective] = useState<Objective | null>(null);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('projectStatusColors');
-    if (saved) {
-      const colors = JSON.parse(saved);
-      setStatusColors({
-        active: colors.find((c: any) => c.id === 'active')?.color || '#10B981'
-      });
-    }
-  }, []);
 
   const handleEdit = () => {
     setSelectedObjective(objective);
@@ -75,24 +65,24 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
 
   return (
     <>
-      <Card className="hover:shadow-md transition-all duration-200 group animate-fade-in">
+      <Card className="hover:shadow-md transition-all duration-200 group animate-fade-in bg-[#1A1F2C] text-white">
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-2 flex-1">
               <div className="flex items-start gap-3">
-                <Target className="h-5 w-5 text-primary mt-1" />
+                <Target className="h-5 w-5 text-white mt-1" />
                 <div>
                   <h4 className="font-medium text-lg">{objective.title}</h4>
-                  <p className="text-sm text-muted-foreground">{objective.description}</p>
+                  <p className="text-sm text-gray-400">{objective.description}</p>
                 </div>
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                  <ArrowRight className="h-4 w-4 text-gray-400" />
                   <span className="text-sm font-medium">Initiative: {objective.initiative}</span>
                 </div>
                 <div className="space-y-1">
-                  <div className="flex justify-between text-sm text-muted-foreground">
+                  <div className="flex justify-between text-sm text-gray-400">
                     <span>Progress</span>
                     <span>{progress}%</span>
                   </div>
@@ -100,8 +90,8 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
                     value={progress} 
                     className="h-2"
                     style={{ 
-                      '--progress-background': statusColors.active,
-                      backgroundColor: 'hsl(var(--muted))'
+                      '--progress-background': '#ffffff',
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)'
                     } as React.CSSProperties}
                   />
                 </div>
