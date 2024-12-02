@@ -6,7 +6,6 @@ import { generateFortune30Partners } from './generators/fortune30Generator';
 import { generateInternalPartners } from './generators/internalPartnersGenerator';
 import { generateSMEPartners } from './generators/smePartnersGenerator';
 import { generateSampleProjects } from './generators/projectGenerator';
-import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './generators/spiGenerator';
 import { DEPARTMENTS } from '@/lib/constants';
 
 export class SampleDataService {
@@ -33,10 +32,7 @@ export class SampleDataService {
         collaborators: internalPartners
       };
 
-      const { projects } = await generateSampleProjects(projectInput);
-      const spis = generateSampleSPIs(projects.map(p => p.id), quantities.spis);
-      const objectives = generateSampleObjectives(quantities.objectives);
-      const sitreps = generateSampleSitReps(spis, quantities.sitreps);
+      const { projects, spis, objectives, sitreps } = await generateSampleProjects(projectInput);
 
       toast({
         title: "Success",
