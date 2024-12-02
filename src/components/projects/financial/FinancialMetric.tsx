@@ -49,7 +49,7 @@ export function FinancialMetric({
         <div className="relative">
           <Input
             type={type}
-            value={value}
+            defaultValue={value}
             onChange={onChange}
             step={step}
             min={min}
