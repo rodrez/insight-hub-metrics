@@ -30,15 +30,33 @@ export const generateSampleObjectives = (count: number): Objective[] => {
   }));
 };
 
+const initiativeTypes = [
+  "Digital Transformation",
+  "Innovation & Research",
+  "Process Optimization",
+  "Customer Experience",
+  "Technology Modernization",
+  "Data Analytics",
+  "Security Enhancement",
+  "Cloud Migration",
+  "AI/ML Integration",
+  "Infrastructure Upgrade"
+];
+
 export const generateSampleInitiatives = (count: number) => {
   return Array.from({ length: count }, (_, i) => ({
     id: `initiative-${i + 1}`,
-    initiative: `Strategic Initiative ${i + 1}`,
-    desiredOutcome: `Achieve ${Math.floor(Math.random() * 100)}% completion`,
+    initiative: `${initiativeTypes[i % initiativeTypes.length]} Initiative ${i + 1}`,
+    desiredOutcome: `Achieve ${Math.floor(Math.random() * 100)}% completion in ${initiativeTypes[i % initiativeTypes.length].toLowerCase()}`,
     objectiveIds: [],
     status: 'active',
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
+    description: `Strategic initiative focused on ${initiativeTypes[i % initiativeTypes.length].toLowerCase()} to drive business value and innovation.`,
+    priority: Math.floor(Math.random() * 3) + 1, // 1-3 priority
+    targetDate: addDays(new Date(), 90 + Math.floor(Math.random() * 180)).toISOString(), // 3-9 months target
+    progress: Math.floor(Math.random() * 100),
+    department: Array.from(DEPARTMENTS)[Math.floor(Math.random() * DEPARTMENTS.length)].id
   }));
 };
 

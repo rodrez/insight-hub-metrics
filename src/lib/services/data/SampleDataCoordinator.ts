@@ -21,10 +21,12 @@ export class SampleDataCoordinator {
         ...quantities,
         departments: Array.from(DEPARTMENTS),
         fortune30Partners,
-        collaborators: [],
+        collaborators: []
       };
 
+      console.log('Generating sample data with quantities:', quantities);
       const { projects, spis, objectives, initiatives, sitreps } = await generateSampleProjects(projectInput);
+      console.log('Generated initiatives:', initiatives.length);
 
       // Add to database
       for (const partner of fortune30Partners) {
@@ -44,6 +46,7 @@ export class SampleDataCoordinator {
       }
 
       for (const initiative of initiatives) {
+        console.log('Saving initiative:', initiative.id);
         await db.addInitiative(initiative);
       }
 
