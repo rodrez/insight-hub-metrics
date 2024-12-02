@@ -30,6 +30,7 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedObjective, setSelectedObjective] = useState<Objective | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     const loadStatusColors = () => {
@@ -53,6 +54,7 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
   const handleEdit = () => {
     setSelectedObjective(objective);
     setShowEditDialog(true);
+    setIsEditing(true);
   };
 
   const handleDelete = () => {
@@ -70,14 +72,17 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
 
   const handleSaveEdit = async (updatedObjective: Objective) => {
     try {
+      setIsEditing(true);
       await onEdit(updatedObjective);
       setShowEditDialog(false);
       setSelectedObjective(null);
+      setIsEditing(false);
       toast({
         title: "Success",
         description: "Objective updated successfully",
       });
     } catch (error) {
+      setIsEditing(false);
       toast({
         title: "Error",
         description: "Failed to update objective",
@@ -130,6 +135,7 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
                 variant="ghost"
                 size="icon"
                 onClick={handleEdit}
+                disabled={isEditing}
                 className="text-gray-400 hover:text-green-500 transition-colors"
               >
                 <Pen className="h-4 w-4" />
@@ -138,6 +144,7 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
                 variant="ghost"
                 size="icon"
                 onClick={handleDelete}
+                disabled={isEditing}
                 className="text-gray-400 hover:text-red-500 transition-colors"
               >
                 <Trash2 className="h-4 w-4" />
@@ -168,6 +175,7 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
           onClose={() => {
             setShowEditDialog(false);
             setSelectedObjective(null);
+            setIsEditing(false);
           }}
           onSave={handleSaveEdit}
         />
