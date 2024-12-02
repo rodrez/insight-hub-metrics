@@ -2,6 +2,7 @@ import { DatabaseCleaner } from './databaseCleaner';
 import { toast } from "@/components/ui/use-toast";
 import { DatabaseError } from '../../utils/errorHandling';
 import { STORE_NAMES } from './stores';
+import { connectionManager } from './connectionManager';
 
 export class DatabaseClearingService {
   constructor(private db: IDBDatabase | null) {}
