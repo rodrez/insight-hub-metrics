@@ -13,6 +13,11 @@ interface Initiative {
   initiative: string;
   desiredOutcome: string;
   objectiveIds: string[];
+  description: string;
+  priority: number;
+  targetDate: string;
+  progress: number;
+  department: string;
 }
 
 export function InitiativesList({ objectives }: { objectives: Objective[] }) {
@@ -20,7 +25,12 @@ export function InitiativesList({ objectives }: { objectives: Objective[] }) {
   
   const { data: initiatives = [], refetch } = useQuery({
     queryKey: ['initiatives'],
-    queryFn: () => db.getAllInitiatives(),
+    queryFn: async () => {
+      console.log('Fetching initiatives...');
+      const result = await db.getAllInitiatives();
+      console.log('Fetched initiatives:', result);
+      return result;
+    },
   });
 
   const handleEdit = (initiative: Initiative) => {
@@ -36,6 +46,7 @@ export function InitiativesList({ objectives }: { objectives: Objective[] }) {
         description: "Initiative deleted successfully",
       });
     } catch (error) {
+      console.error('Error deleting initiative:', error);
       toast({
         title: "Error",
         description: "Failed to delete initiative",
@@ -50,6 +61,11 @@ export function InitiativesList({ objectives }: { objectives: Objective[] }) {
       initiative: '',
       desiredOutcome: '',
       objectiveIds: [],
+      description: '',
+      priority: 1,
+      targetDate: new Date().toISOString(),
+      progress: 0,
+      department: 'default'
     };
     setSelectedInitiative(newInitiative);
   };
@@ -70,6 +86,7 @@ export function InitiativesList({ objectives }: { objectives: Objective[] }) {
         description: "Initiative saved successfully",
       });
     } catch (error) {
+      console.error('Error saving initiative:', error);
       toast({
         title: "Error",
         description: "Failed to save initiative",
@@ -78,10 +95,12 @@ export function InitiativesList({ objectives }: { objectives: Objective[] }) {
     }
   };
 
+  console.log('Current initiatives:', initiatives);
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Strategic Initiatives</h3>
+        <h3 className="text-lg font-semibold">Strategic Initiatives ({initiatives.length})</h3>
         <Button 
           variant="outline" 
           size="sm" 
@@ -102,6 +121,9 @@ export function InitiativesList({ objectives }: { objectives: Objective[] }) {
                     <h4 className="font-medium">{initiative.initiative}</h4>
                     <p className="text-sm text-muted-foreground">
                       {initiative.desiredOutcome}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Priority: {initiative.priority} | Progress: {initiative.progress}%
                     </p>
                   </div>
                   <div className="flex gap-2">
