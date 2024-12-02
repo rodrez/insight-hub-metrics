@@ -36,12 +36,28 @@ export function RelationshipDisplay({ title, type, itemIds }: RelationshipDispla
 
   if (selectedItems.length === 0) return null;
 
+  const getBadgeStyle = (item: any) => {
+    if (type === 'fortune30Partners' || type === 'smePartners') {
+      return {
+        backgroundColor: item.color || '#4A90E2',
+        color: '#FFFFFF',
+        borderColor: 'transparent'
+      };
+    }
+    return {};
+  };
+
   return (
     <Card className="p-3 bg-card/50">
       <h4 className="text-sm font-medium mb-2">{title}</h4>
       <div className="flex flex-wrap gap-1">
         {selectedItems.map((item: any) => (
-          <Badge key={item.id} variant="secondary" className="text-xs">
+          <Badge 
+            key={item.id} 
+            variant="secondary" 
+            className="text-xs"
+            style={getBadgeStyle(item)}
+          >
             {item.name || item.title}
           </Badge>
         ))}

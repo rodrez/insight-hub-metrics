@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Edit } from "lucide-react";
+import { Pen } from "lucide-react";
 import { RelationshipSelectionDialog } from "./RelationshipSelectionDialog";
 import { RelationshipDisplay } from "./RelationshipDisplay";
 import { OrgPosition } from "./types";
@@ -36,9 +36,13 @@ export function OrgPositionCard({ title, width = "w-96" }: OrgPositionCardProps)
     <Card className={`${width} p-6 shadow-lg animate-fade-in`}>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">{title}</h2>
-        <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
-          <Edit className="h-4 w-4 mr-2" />
-          Edit
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => setIsEditing(true)}
+          className="text-gray-400 hover:text-green-500 transition-colors"
+        >
+          <Pen className="h-4 w-4" />
         </Button>
       </div>
       
