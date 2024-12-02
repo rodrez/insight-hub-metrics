@@ -6,7 +6,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { CollaborationDialog } from '@/components/collaborations/CollaborationDialog';
 import { toast } from "@/components/ui/use-toast";
 import { SMEList } from '@/components/collaborations/SMEList';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AgreementsList } from '@/components/collaborations/agreements/AgreementsList';
@@ -16,12 +16,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Collaborator } from '@/lib/types/collaboration';
 
 export default function SME() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedCollaborator, setSelectedCollaborator] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const { data: collaborators = [], isLoading } = useQuery({
     queryKey: ['collaborators-sme'],
@@ -61,16 +63,6 @@ export default function SME() {
     setShowEditDialog(true);
   };
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 pt-16 pb-8 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-4">Loading Small Medium Enterprise Partnerships...</h2>
-        </div>
-      </div>
-    );
-  }
-
   const handleSave = async (collaborator: Collaborator) => {
     try {
       await db.addSMEPartner(collaborator);
@@ -78,7 +70,6 @@ export default function SME() {
         title: "Success",
         description: "SME partner saved successfully"
       });
-      // Refresh data
       queryClient.invalidateQueries({ queryKey: ['collaborators-sme'] });
     } catch (error) {
       toast({
@@ -88,6 +79,16 @@ export default function SME() {
       });
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 pt-16 pb-8 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold mb-4">Loading Small Medium Enterprise Partnerships...</h2>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 pt-16 pb-8">

@@ -1,36 +1,47 @@
-import { SPI } from '@/lib/types/spi';
-import { SitRep } from '@/lib/types/sitrep';
-import { addDays } from 'date-fns';
+import { SPI } from "@/lib/types/spi";
+import { SitRep } from "@/lib/types/sitrep";
+import { generateId } from "../utils/dataGenerationUtils";
 
 export const generateSampleSPIs = (projectIds: string[], count: number): SPI[] => {
   return Array.from({ length: count }, (_, i) => ({
-    id: `spi-${i + 1}`,
-    name: `Strategic Initiative ${i + 1}`,
-    deliverable: `Deliverable for Initiative ${i + 1}`,
-    details: `Details for Initiative ${i + 1}`,
-    expectedCompletionDate: addDays(new Date(), 30).toISOString(),
-    status: 'on-track',
+    id: generateId(),
+    name: `SPI ${i + 1}`,
+    deliverable: `Deliverable ${i + 1}`,
+    details: `Details for SPI ${i + 1}`,
+    expectedCompletionDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString(),
+    status: "on-track",
     projectId: projectIds[i % projectIds.length],
-    departmentId: 'engineering',
+    departmentId: "default",
     sitrepIds: [],
     createdAt: new Date().toISOString(),
     ratMember: `RAT Member ${i + 1}`
   }));
 };
 
+export const generateSampleObjectives = (count: number) => {
+  return Array.from({ length: count }, (_, i) => ({
+    id: generateId(),
+    title: `Objective ${i + 1}`,
+    description: `Description for objective ${i + 1}`,
+    status: "in-progress",
+    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString(),
+    ratMember: `RAT Member ${i + 1}`
+  }));
+};
+
 export const generateSampleSitReps = (spis: SPI[], count: number): SitRep[] => {
   return Array.from({ length: count }, (_, i) => ({
-    id: `sitrep-${i + 1}`,
+    id: generateId(),
     title: `SitRep ${i + 1}`,
     date: new Date().toISOString(),
     spiId: spis[i % spis.length].id,
-    update: `Update for SitRep ${i + 1}`,
-    challenges: `Challenges for SitRep ${i + 1}`,
-    nextSteps: `Next steps for SitRep ${i + 1}`,
-    status: 'pending-review',
-    level: 'SVP',
-    summary: `Summary for SitRep ${i + 1}`,
-    departmentId: 'engineering',
+    update: `Update ${i + 1}`,
+    challenges: `Challenges ${i + 1}`,
+    nextSteps: `Next steps ${i + 1}`,
+    status: "pending-review",
+    level: "CEO",
+    summary: `Summary ${i + 1}`,
+    departmentId: "default",
     ratMember: `RAT Member ${i + 1}`
   }));
 };

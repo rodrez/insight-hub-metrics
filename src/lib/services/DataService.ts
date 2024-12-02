@@ -24,6 +24,7 @@ export interface DataService {
   getCollaborator(id: string): Promise<Collaborator | undefined>;
   addCollaborator(collaborator: Collaborator): Promise<void>;
   updateCollaborator(id: string, updates: Partial<Collaborator>): Promise<void>;
+  deleteCollaborator(id: string): Promise<void>;
   getAllSitReps(): Promise<SitRep[]>;
   addSitRep(sitrep: SitRep): Promise<void>;
   updateSitRep(id: string, updates: Partial<SitRep>): Promise<void>;
