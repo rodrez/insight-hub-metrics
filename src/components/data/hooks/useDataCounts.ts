@@ -8,6 +8,7 @@ export function useDataCounts(isInitialized: boolean) {
 
   const fetchDataCounts = async (): Promise<DataCounts> => {
     if (!isInitialized) {
+      console.log('Database not initialized, returning empty counts');
       return {
         projects: 0,
         spis: 0,
@@ -21,7 +22,9 @@ export function useDataCounts(isInitialized: boolean) {
     }
     
     try {
+      console.log('Initializing database before fetching counts...');
       await db.init();
+      console.log('Database initialized, proceeding to fetch counts');
       
       const [
         projects,
@@ -32,14 +35,37 @@ export function useDataCounts(isInitialized: boolean) {
         smePartners,
         initiatives
       ] = await Promise.all([
-        db.getAllProjects(),
-        db.getAllSPIs(),
-        db.getAllObjectives(),
-        db.getAllSitReps(),
-        db.getAllCollaborators(),
-        db.getAllSMEPartners(),
-        db.getAllInitiatives()
+        db.getAllProjects().catch(e => {
+          console.error('Error fetching projects:', e);
+          return [];
+        }),
+        db.getAllSPIs().catch(e => {
+          console.error('Error fetching SPIs:', e);
+          return [];
+        }),
+        db.getAllObjectives().catch(e => {
+          console.error('Error fetching objectives:', e);
+          return [];
+        }),
+        db.getAllSitReps().catch(e => {
+          console.error('Error fetching sitreps:', e);
+          return [];
+        }),
+        db.getAllCollaborators().catch(e => {
+          console.error('Error fetching collaborators:', e);
+          return [];
+        }),
+        db.getAllSMEPartners().catch(e => {
+          console.error('Error fetching SME partners:', e);
+          return [];
+        }),
+        db.getAllInitiatives().catch(e => {
+          console.error('Error fetching initiatives:', e);
+          return [];
+        })
       ]);
+
+      console.log('All data fetched successfully, calculating counts');
 
       const counts = {
         projects: projects?.length || 0,
@@ -52,6 +78,8 @@ export function useDataCounts(isInitialized: boolean) {
         initiatives: initiatives?.length || 0
       };
 
+      console.log('Calculated counts:', counts);
+
       // Update individual count queries
       Object.entries(counts).forEach(([key, value]) => {
         queryClient.setQueryData(['data-count', key], value);
@@ -59,7 +87,12 @@ export function useDataCounts(isInitialized: boolean) {
 
       return counts;
     } catch (error) {
-      console.error('Error fetching data counts:', error);
+      console.error('Detailed error in fetchDataCounts:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      
       toast({
         title: "Error",
         description: "Failed to fetch data counts. Please ensure the database is properly initialized.",
