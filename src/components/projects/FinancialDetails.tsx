@@ -21,6 +21,16 @@ export function FinancialDetails({ project, isEditing, onUpdate }: FinancialDeta
     onUpdate({ businessImpact: isNaN(value) ? 0 : value * 1000000 }); // Convert M to actual value
   };
 
+  const handleBudgetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value);
+    onUpdate({ budget: isNaN(value) ? 0 : value });
+  };
+
+  const handleSpentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value);
+    onUpdate({ spent: isNaN(value) ? 0 : value });
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -69,12 +79,16 @@ export function FinancialDetails({ project, isEditing, onUpdate }: FinancialDeta
               </TooltipContent>
             </Tooltip>
             {isEditing ? (
-              <input
-                type="number"
-                value={project.budget}
-                onChange={(e) => onUpdate({ budget: Number(e.target.value) })}
-                className="text-2xl font-bold w-full bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary"
-              />
+              <div className="relative">
+                <input
+                  type="number"
+                  value={project.budget}
+                  onChange={handleBudgetChange}
+                  min="0"
+                  className="text-2xl font-bold w-full bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary pl-6"
+                />
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-2xl font-bold">$</span>
+              </div>
             ) : (
               <p className="text-2xl font-bold">${project.budget.toLocaleString()}</p>
             )}
@@ -90,12 +104,16 @@ export function FinancialDetails({ project, isEditing, onUpdate }: FinancialDeta
               </TooltipContent>
             </Tooltip>
             {isEditing ? (
-              <input
-                type="number"
-                value={project.spent}
-                onChange={(e) => onUpdate({ spent: Number(e.target.value) })}
-                className="text-2xl font-bold w-full bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary"
-              />
+              <div className="relative">
+                <input
+                  type="number"
+                  value={project.spent}
+                  onChange={handleSpentChange}
+                  min="0"
+                  className="text-2xl font-bold w-full bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary pl-6"
+                />
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-2xl font-bold">$</span>
+              </div>
             ) : (
               <p className="text-2xl font-bold">${project.spent?.toLocaleString() || 0}</p>
             )}
@@ -110,7 +128,7 @@ export function FinancialDetails({ project, isEditing, onUpdate }: FinancialDeta
                 <p>Remaining budget</p>
               </TooltipContent>
             </Tooltip>
-            <p className="text-2xl font-bold">${project.budget - (project.spent || 0)}</p>
+            <p className="text-2xl font-bold">${(project.budget - (project.spent || 0)).toLocaleString()}</p>
             <Progress value={((project.budget - (project.spent || 0)) / project.budget) * 100} className="h-2" />
           </div>
         </TooltipProvider>
