@@ -10,6 +10,8 @@ export function OrgChartDistributionAction({ disabled }: { disabled: boolean }) 
   const handleDistributeOrgChart = async () => {
     setIsDistributing(true);
     try {
+      console.log('Starting org chart distribution...');
+      
       // Fetch all data
       const [projects, spis, sitreps, collaborators] = await Promise.all([
         db.getAllProjects(),
