@@ -1,5 +1,7 @@
 import { Network } from "lucide-react";
 import { OrgPositionCard } from "@/components/org-chart/OrgPositionCard";
+import { OrgChartAnalytics } from "@/components/org-chart/analytics/OrgChartAnalytics";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function OrgChart() {
   return (
@@ -9,34 +11,45 @@ export default function OrgChart() {
         <h1 className="text-2xl font-bold">Organization Chart</h1>
       </div>
       
-      <div className="grid gap-8">
-        {/* Director Level */}
-        <div className="flex justify-center">
-          <OrgPositionCard title="Director" width="w-96" />
-        </div>
+      <Tabs defaultValue="chart" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="chart">Org Chart</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        </TabsList>
 
-        {/* Senior Manager Level */}
-        <div className="flex justify-center gap-8">
-          {[1, 2, 3].map((index) => (
-            <OrgPositionCard
-              key={index}
-              title={`Senior Manager ${index}`}
-              width="w-80"
-            />
-          ))}
-        </div>
+        <TabsContent value="chart" className="space-y-8">
+          {/* Director Level */}
+          <div className="flex justify-center">
+            <OrgPositionCard title="Director" width="w-96" />
+          </div>
 
-        {/* Tech Lead Level */}
-        <div className="flex justify-center gap-4">
-          {[1, 2, 3].map((index) => (
-            <OrgPositionCard
-              key={index}
-              title={`Tech Lead ${index}`}
-              width="w-72"
-            />
-          ))}
-        </div>
-      </div>
+          {/* Senior Manager Level */}
+          <div className="flex justify-center gap-8">
+            {[1, 2, 3].map((index) => (
+              <OrgPositionCard
+                key={index}
+                title={`Senior Manager ${index}`}
+                width="w-80"
+              />
+            ))}
+          </div>
+
+          {/* Tech Lead Level */}
+          <div className="flex justify-center gap-4">
+            {[1, 2, 3].map((index) => (
+              <OrgPositionCard
+                key={index}
+                title={`Tech Lead ${index}`}
+                width="w-72"
+              />
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="analytics">
+          <OrgChartAnalytics />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
