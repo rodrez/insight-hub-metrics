@@ -59,6 +59,9 @@ export function PartnerProjects({ collaborator, type }: PartnerProjectsProps) {
             key={project.id} 
             className="p-2 border rounded-lg cursor-pointer hover:bg-accent transition-colors"
             onClick={() => handleProjectClick(project.id)}
+            style={{ 
+              borderColor: collaborator.color || '#333'
+            }}
           >
             <p className="font-medium">{project.name}</p>
             <p className="text-sm text-muted-foreground">
