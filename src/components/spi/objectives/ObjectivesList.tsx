@@ -1,23 +1,54 @@
-import { useQuery } from "@tanstack/react-query";
-import { toast } from "@/components/ui/use-toast";
-import { db } from "@/lib/db";
-import { ObjectiveCard } from "./ObjectiveCard";
-import { InitiativesList } from "./InitiativesList";
-import { Objective } from "@/lib/types/objective";
-import { Separator } from "@/components/ui/separator";
-import { ObjectivesSummary } from "./ObjectivesSummary";
+import { useState, useEffect } from "react";
+import { SPIForm } from "@/components/spi/SPIForm";
+import { SPIList } from "@/components/spi/SPIList";
+import { ObjectivesList } from "@/components/spi/objectives/ObjectivesList";
+import { SPIAnalytics } from "@/components/spi/analytics/SPIAnalytics";
+import { SPIStats } from "@/components/spi/SPIStats";
+import { useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
-import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { ObjectiveCard } from "./ObjectiveCard";
+import { InitiativesList } from "./InitiativesList";
+import { Separator } from "@/components/ui/separator";
+import { ObjectivesSummary } from "./ObjectivesSummary";
 import { ObjectiveEditDialog } from "./ObjectiveEditDialog";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "@/components/ui/use-toast";
+import { db } from "@/lib/db";
+import { Objective } from "@/lib/types/objective";
 
 export function ObjectivesList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedObjective, setSelectedObjective] = useState<Objective | null>(null);
+  const [statusColors, setStatusColors] = useState({
+    active: '#10B981'
+  });
+
+  useEffect(() => {
+    const loadStatusColors = () => {
+      const saved = localStorage.getItem('projectStatusColors');
+      if (saved) {
+        const colors = JSON.parse(saved);
+        const activeColor = colors.find((c: any) => c.id === 'active')?.color;
+        if (activeColor) {
+          setStatusColors({
+            active: activeColor
+          });
+        }
+      }
+    };
+
+    loadStatusColors();
+    window.addEventListener('storage', loadStatusColors);
+    return () => window.removeEventListener('storage', loadStatusColors);
+  }, []);
 
   const { data: objectives = [], refetch } = useQuery({
     queryKey: ['objectives'],
@@ -110,7 +141,14 @@ export function ObjectivesList() {
       
       <div className="bg-card rounded-lg p-4 shadow-sm">
         <h3 className="text-lg font-semibold mb-2">Overall Progress</h3>
-        <Progress value={completionPercentage} className="h-2 mb-2" />
+        <Progress 
+          value={completionPercentage} 
+          className="h-2 mb-2"
+          style={{ 
+            '--progress-background': statusColors.active,
+            backgroundColor: 'rgba(255, 255, 255, 0.1)'
+          } as React.CSSProperties}
+        />
         <p className="text-sm text-muted-foreground">{completionPercentage.toFixed(0)}% of objectives completed</p>
       </div>
 
