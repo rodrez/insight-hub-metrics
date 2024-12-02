@@ -59,7 +59,7 @@ export function FinancialDetails({ project, isEditing, onUpdate }: FinancialDeta
                   onChange={handleBusinessImpactChange}
                   step="0.1"
                   min="0"
-                  className="text-2xl font-bold w-full bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary pl-4"
+                  className="text-2xl font-bold w-full bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary pl-6 pr-2"
                 />
                 <span className="absolute left-0 top-1/2 -translate-y-1/2 text-2xl font-bold">$</span>
                 <span className="absolute right-0 top-1/2 -translate-y-1/2 text-2xl font-bold">M</span>
@@ -84,9 +84,8 @@ export function FinancialDetails({ project, isEditing, onUpdate }: FinancialDeta
                   type="number"
                   value={project.budget}
                   onChange={handleBudgetChange}
-                  step={1000}
                   min="0"
-                  className="text-2xl font-bold w-full bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary pl-4"
+                  className="text-2xl font-bold w-full bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary pl-6"
                 />
                 <span className="absolute left-0 top-1/2 -translate-y-1/2 text-2xl font-bold">$</span>
               </div>
@@ -110,9 +109,8 @@ export function FinancialDetails({ project, isEditing, onUpdate }: FinancialDeta
                   type="number"
                   value={project.spent}
                   onChange={handleSpentChange}
-                  step={1000}
                   min="0"
-                  className="text-2xl font-bold w-full bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary pl-4"
+                  className="text-2xl font-bold w-full bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary pl-6"
                 />
                 <span className="absolute left-0 top-1/2 -translate-y-1/2 text-2xl font-bold">$</span>
               </div>

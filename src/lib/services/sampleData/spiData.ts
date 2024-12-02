@@ -6,9 +6,9 @@ import { addDays } from 'date-fns';
 export const generateSampleSPIs = (projectIds: string[], count: number): SPI[] => {
   return Array.from({ length: count }, (_, i) => ({
     id: `spi-${i + 1}`,
-    name: `SPI ${i + 1}`,
-    deliverable: `Deliverable for SPI ${i + 1}`,
-    details: `Details for SPI ${i + 1}`,
+    name: `Strategic Initiative ${i + 1}`,
+    deliverable: `Deliverable for Initiative ${i + 1}`,
+    details: `Details for Initiative ${i + 1}`,
     expectedCompletionDate: addDays(new Date(), 30).toISOString(),
     status: 'on-track',
     projectId: projectIds[i % projectIds.length],

@@ -13,104 +13,104 @@ export interface Bug {
 export const initialBugs: Bug[] = [
   {
     id: "BUG-001",
-    title: "Type Mismatch in SampleDataService",
-    description: "Type error between Collaborator[] and number in sample data generation",
-    severity: "critical",
+    title: "Database Population Progress Indicator",
+    description: "Progress tracking during database population needs improvement",
+    severity: "medium",
     status: "active",
-    location: "src/lib/services/SampleDataService.ts",
-    impact: "Prevents successful data population and affects application stability",
-    stepsToReproduce: "1. Navigate to Settings\n2. Attempt to populate sample data",
-    suggestedFix: "Update type definitions and ensure proper handling of Collaborator arrays vs numeric quantities"
+    location: "src/components/data/hooks/useDataPopulation.ts",
+    impact: "Users lack clear feedback during data population process",
+    stepsToReproduce: "1. Clear database\n2. Attempt to populate with large dataset",
+    suggestedFix: "Implement a progress bar component to show real-time population status"
   },
   {
     id: "BUG-002",
-    title: "DataManagement Component Length",
-    description: "DataManagement.tsx is too long (136 lines) and needs refactoring",
-    severity: "medium",
+    title: "Type Safety in Bug Tracking",
+    description: "BugFixesTab uses 'any' type for bugs array",
+    severity: "low",
     status: "active",
-    location: "src/components/data/DataManagement.tsx",
-    impact: "Reduced maintainability and potential performance issues",
-    suggestedFix: "Split into smaller components: DataHeader, DataControls, and DataDisplay"
+    location: "src/components/settings/BugFixesTab.tsx",
+    impact: "Reduced type safety and potential runtime errors",
+    suggestedFix: "Replace 'any[]' with proper Bug interface type"
   },
   {
     id: "BUG-003",
-    title: "Fortune30Settings Component Size",
-    description: "Fortune30Settings.tsx is 171 lines long and needs restructuring",
-    severity: "medium",
-    status: "active",
-    location: "src/components/settings/partners/Fortune30Settings.tsx",
-    impact: "Code maintainability and readability issues",
-    suggestedFix: "Extract partner list and dialog components into separate files"
-  },
-  {
-    id: "BUG-004",
-    title: "SMESettings Component Length",
-    description: "SMESettings.tsx is 171 lines and requires refactoring",
-    severity: "medium",
-    status: "active",
-    location: "src/components/settings/partners/SMESettings.tsx",
-    impact: "Reduced code maintainability and potential performance impact",
-    suggestedFix: "Split into SMEList, SMEDialog, and SMEActions components"
-  },
-  {
-    id: "BUG-005",
-    title: "Wiki Page Size",
-    description: "Wiki.tsx is 197 lines long and needs optimization",
-    severity: "medium",
-    status: "active",
-    location: "src/pages/Wiki.tsx",
-    impact: "Page load performance and maintenance challenges",
-    suggestedFix: "Extract wiki sections data and search functionality into separate files"
-  },
-  {
-    id: "BUG-006",
-    title: "Progress Tracking Enhancement",
-    description: "Data population progress tracking needs improvement",
-    severity: "low",
-    status: "active",
-    location: "src/components/data/hooks/useDataPopulation.ts",
-    impact: "Limited user feedback during data population",
-    suggestedFix: "Add detailed progress tracking for each data type being populated"
-  },
-  {
-    id: "BUG-007",
-    title: "Error Handling in DatabaseOperations",
-    description: "Database operations lack comprehensive error handling",
+    title: "Database Operations Error Handling",
+    description: "Error handling in DatabaseOperations class needs enhancement",
     severity: "high",
     status: "active",
     location: "src/components/data/operations/DatabaseOperations.ts",
-    impact: "Potential silent failures and data inconsistencies",
-    suggestedFix: "Implement detailed error handling with specific error types"
+    impact: "Insufficient error context for debugging database issues",
+    suggestedFix: "Implement detailed error handling with specific error types and messages"
+  },
+  {
+    id: "BUG-004",
+    title: "Memory Management in Data Population",
+    description: "Large dataset population may cause memory issues",
+    severity: "critical",
+    status: "active",
+    location: "src/lib/services/IndexedDBService.ts",
+    impact: "Potential browser crashes with large datasets",
+    stepsToReproduce: "1. Attempt to populate database with maximum quantity values",
+    suggestedFix: "Implement batch processing with memory usage monitoring"
+  },
+  {
+    id: "BUG-005",
+    title: "Settings Page Load Performance",
+    description: "Settings tabs load all content simultaneously",
+    severity: "medium",
+    status: "active",
+    location: "src/pages/Settings.tsx",
+    impact: "Slower initial page load and unnecessary resource usage",
+    suggestedFix: "Implement lazy loading for tab content"
+  },
+  {
+    id: "BUG-006",
+    title: "Data Validation in Sample Data Generation",
+    description: "Sample data generation lacks comprehensive validation",
+    severity: "high",
+    status: "active",
+    location: "src/lib/services/data/sampleDataGenerator.ts",
+    impact: "Potential invalid data states in generated content",
+    suggestedFix: "Add thorough validation checks for generated data"
+  },
+  {
+    id: "BUG-007",
+    title: "Component File Size Management",
+    description: "Several components exceed recommended file size",
+    severity: "medium",
+    status: "active",
+    location: "Multiple component files",
+    impact: "Reduced maintainability and potential performance issues",
+    suggestedFix: "Refactor large components into smaller, focused components"
   },
   {
     id: "BUG-008",
-    title: "React Query Error Boundaries",
-    description: "Missing error boundaries for React Query operations",
-    severity: "high",
+    title: "React Query Error Boundary Implementation",
+    description: "Missing error boundaries for React Query errors",
+    severity: "medium",
     status: "active",
     location: "src/components/data/hooks/useDataPopulation.ts",
     impact: "Uncaught query errors may crash the application",
-    suggestedFix: "Add error boundaries and error recovery mechanisms"
+    suggestedFix: "Implement error boundaries for React Query operations"
   },
   {
     id: "BUG-009",
-    title: "Data Validation Enhancement",
-    description: "Sample data validation needs improvement",
-    severity: "medium",
+    title: "IndexedDB Version Management",
+    description: "Database version management needs improvement",
+    severity: "high",
     status: "active",
-    location: "src/lib/services/data/DataValidationService.ts",
-    impact: "Potential invalid data states in generated content",
-    suggestedFix: "Implement comprehensive validation checks for all data types"
+    location: "src/lib/services/db/base/BaseDBService.ts",
+    impact: "Potential issues during database schema updates",
+    suggestedFix: "Implement robust version control system for database schema changes"
   },
   {
     id: "BUG-010",
-    title: "Memory Management in Data Population",
-    description: "Large dataset population may cause memory issues",
-    severity: "high",
+    title: "React Query Cache Configuration",
+    description: "Query cache settings need optimization",
+    severity: "low",
     status: "active",
     location: "src/lib/services/IndexedDBService.ts",
-    impact: "Browser crashes with large datasets",
-    stepsToReproduce: "1. Attempt to populate maximum quantity of sample data",
-    suggestedFix: "Implement batch processing with memory monitoring"
+    impact: "Suboptimal caching behavior for database operations",
+    suggestedFix: "Configure appropriate cache time and stale time for queries"
   }
 ];
