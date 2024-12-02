@@ -51,6 +51,16 @@ export class ServiceInitializationManager {
     }
   }
 
+  public async reinitialize(): Promise<void> {
+    this.initializedServices.clear();
+    this.initializationPromises.clear();
+    // Re-initialize core services
+    await this.initializeService('IndexedDB', async () => {
+      // Core initialization logic will be handled by the service itself
+      console.log('Reinitializing core services...');
+    });
+  }
+
   public isServiceInitialized(serviceName: string): boolean {
     return this.initializedServices.has(serviceName);
   }
