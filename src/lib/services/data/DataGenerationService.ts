@@ -30,8 +30,7 @@ export class DataGenerationService {
         sitreps: 10,
         fortune30: 6,
         internalPartners: 20,
-        smePartners: 10,
-        initiatives: 5
+        smePartners: 10
       };
 
       const fortune30Partners = generateFortune30Partners().filter(validateCollaborator);
@@ -45,9 +44,9 @@ export class DataGenerationService {
         collaborators: internalPartners.slice(0, defaultQuantities.internalPartners)
       };
 
-      const { projects, spis, objectives, sitreps, initiatives } = await generateSampleProjects(projectInput);
+      const { projects, spis, objectives, sitreps } = await generateSampleProjects(projectInput);
 
-      const stores = ['collaborators', 'smePartners', 'projects', 'spis', 'objectives', 'sitreps', 'initiatives'];
+      const stores = ['collaborators', 'smePartners', 'projects', 'spis', 'objectives', 'sitreps'];
       const transaction = db.getDatabase().transaction(stores, 'readwrite');
 
       await this.saveToDatabase(transaction, 'collaborators', [...fortune30Partners, ...internalPartners]);
@@ -56,7 +55,6 @@ export class DataGenerationService {
       await this.saveToDatabase(transaction, 'spis', spis);
       await this.saveToDatabase(transaction, 'objectives', objectives);
       await this.saveToDatabase(transaction, 'sitreps', sitreps);
-      await this.saveToDatabase(transaction, 'initiatives', initiatives);
 
       this.showSuccessStep("All data saved successfully");
       return { success: true };

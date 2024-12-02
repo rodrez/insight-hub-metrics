@@ -1,32 +1,37 @@
 import { DatabaseError } from '../../utils/errorHandling';
-import { TransactionLifecycleManager } from './transaction/TransactionLifecycleManager';
-import { DB_CONFIG } from './stores';
 
 export class DatabaseTransactionService {
-  private transactionManager: TransactionLifecycleManager;
-
-  constructor() {
-    this.transactionManager = new TransactionLifecycleManager();
-  }
+  constructor(private db: IDBDatabase | null) {}
 
   async performTransaction<T>(
     storeName: string,
     mode: IDBTransactionMode,
     operation: (store: IDBObjectStore) => IDBRequest<T>
   ): Promise<T> {
-    try {
-      return await this.transactionManager.executeTransaction(
-        DB_CONFIG.name,
-        DB_CONFIG.version,
-        storeName,
-        mode,
-        operation
-      );
-    } catch (error) {
-      console.error('Transaction failed:', error);
-      throw new DatabaseError(
-        `Transaction failed for store ${storeName}: ${error instanceof Error ? error.message : String(error)}`
-      );
+    if (!this.db) {
+      throw new DatabaseError('Database not initialized');
     }
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(storeName, mode);
+      const store = transaction.objectStore(storeName);
+
+      transaction.onerror = () => {
+        const error = transaction.error?.message || `Unknown transaction error on ${storeName}`;
+        reject(new DatabaseError(error));
+      };
+
+      try {
+        const request = operation(store);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => {
+          const error = request.error?.message || `Unknown operation error on ${storeName}`;
+          reject(new DatabaseError(error));
+        };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        reject(new DatabaseError(errorMessage));
+      }
+    });
   }
 }

@@ -3,7 +3,7 @@ import { Collaborator } from '@/lib/types/collaboration';
 import { defaultTechDomains } from '@/lib/types/techDomain';
 import { generateNABC } from './templates/projectTemplates';
 import { generateMilestones, generateMetrics } from './templates/metricsTemplates';
-import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps, generateSampleInitiatives } from './spiGenerator';
+import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiGenerator';
 
 export interface ProjectGenerationInput {
   projects: number;
@@ -13,7 +13,6 @@ export interface ProjectGenerationInput {
   fortune30: number;
   internalPartners: number;
   smePartners: number;
-  initiatives: number;
   departments: Department[];
   fortune30Partners: Collaborator[];
   collaborators: Collaborator[];
@@ -101,8 +100,7 @@ export const generateSampleProjects = async (input: ProjectGenerationInput) => {
 
   const spis = generateSampleSPIs(projects.map(p => p.id), input.spis);
   const objectives = generateSampleObjectives(input.objectives);
-  const initiatives = generateSampleInitiatives(input.initiatives);
   const sitreps = generateSampleSitReps(spis, input.sitreps);
 
-  return { projects, spis, objectives, initiatives, sitreps };
+  return { projects, spis, objectives, sitreps };
 };

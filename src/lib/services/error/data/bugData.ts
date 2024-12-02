@@ -13,102 +13,104 @@ export interface Bug {
 export const initialBugs: Bug[] = [
   {
     id: "BUG-001",
-    title: "Database Connection Stability Issues",
-    description: "Database connections are being closed while transactions are in progress, causing InvalidStateError exceptions",
-    severity: "critical",
+    title: "Database Population Progress Indicator",
+    description: "Progress tracking during database population needs improvement",
+    severity: "medium",
     status: "active",
-    location: "src/lib/services/db/DatabaseTransactionService.ts",
-    impact: "Data operations failing, potential data loss or corruption",
-    suggestedFix: "Implement connection pooling and improve transaction lifecycle management"
+    location: "src/components/data/hooks/useDataPopulation.ts",
+    impact: "Users lack clear feedback during data population process",
+    stepsToReproduce: "1. Clear database\n2. Attempt to populate with large dataset",
+    suggestedFix: "Implement a progress bar component to show real-time population status"
   },
   {
     id: "BUG-002",
-    title: "DataManagement Component Size",
-    description: "DataManagement.tsx is too large (179 lines) and handles too many responsibilities",
-    severity: "medium",
+    title: "Type Safety in Bug Tracking",
+    description: "BugFixesTab uses 'any' type for bugs array",
+    severity: "low",
     status: "active",
-    location: "src/components/data/DataManagement.tsx",
-    impact: "Reduced maintainability and harder to test code",
-    suggestedFix: "Split into smaller, focused components (DataHeader, DataControls, DataDisplay)"
+    location: "src/components/settings/BugFixesTab.tsx",
+    impact: "Reduced type safety and potential runtime errors",
+    suggestedFix: "Replace 'any[]' with proper Bug interface type"
   },
   {
     id: "BUG-003",
-    title: "Database Initialization Race Conditions",
-    description: "Multiple concurrent initialization attempts causing database state inconsistencies",
+    title: "Database Operations Error Handling",
+    description: "Error handling in DatabaseOperations class needs enhancement",
     severity: "high",
     status: "active",
-    location: "src/lib/services/db/DatabaseConnectionService.ts",
-    impact: "Application instability and potential data corruption",
-    suggestedFix: "Implement proper initialization locking mechanism and state management"
+    location: "src/components/data/operations/DatabaseOperations.ts",
+    impact: "Insufficient error context for debugging database issues",
+    suggestedFix: "Implement detailed error handling with specific error types and messages"
   },
   {
     id: "BUG-004",
-    title: "Missing Error Recovery Mechanisms",
-    description: "Database operations lack proper error recovery and retry mechanisms",
-    severity: "high",
+    title: "Memory Management in Data Population",
+    description: "Large dataset population may cause memory issues",
+    severity: "critical",
     status: "active",
-    location: "src/lib/services/db/operations/*",
-    impact: "Failed operations don't automatically recover, requiring manual intervention",
-    suggestedFix: "Implement comprehensive retry strategies and error recovery patterns"
+    location: "src/lib/services/IndexedDBService.ts",
+    impact: "Potential browser crashes with large datasets",
+    stepsToReproduce: "1. Attempt to populate database with maximum quantity values",
+    suggestedFix: "Implement batch processing with memory usage monitoring"
   },
   {
     id: "BUG-005",
-    title: "Inconsistent Database State Handling",
-    description: "Application doesn't properly handle database state transitions and cleanup",
+    title: "Settings Page Load Performance",
+    description: "Settings tabs load all content simultaneously",
     severity: "medium",
     status: "active",
-    location: "src/lib/services/db/*",
-    impact: "Memory leaks and resource exhaustion",
-    suggestedFix: "Implement proper connection cleanup and state management"
+    location: "src/pages/Settings.tsx",
+    impact: "Slower initial page load and unnecessary resource usage",
+    suggestedFix: "Implement lazy loading for tab content"
   },
   {
     id: "BUG-006",
-    title: "Large Component Files",
-    description: "Several components exceed recommended size limits (>100 lines)",
-    severity: "medium",
+    title: "Data Validation in Sample Data Generation",
+    description: "Sample data generation lacks comprehensive validation",
+    severity: "high",
     status: "active",
-    location: "src/components/settings/*, src/components/data/*",
-    impact: "Code maintainability and readability issues",
-    suggestedFix: "Refactor large components into smaller, focused components"
+    location: "src/lib/services/data/sampleDataGenerator.ts",
+    impact: "Potential invalid data states in generated content",
+    suggestedFix: "Add thorough validation checks for generated data"
   },
   {
     id: "BUG-007",
-    title: "Missing Loading States",
-    description: "Database operations don't properly indicate loading states",
-    severity: "low",
+    title: "Component File Size Management",
+    description: "Several components exceed recommended file size",
+    severity: "medium",
     status: "active",
-    location: "src/components/data/DataManagement.tsx",
-    impact: "Poor user experience during data operations",
-    suggestedFix: "Add loading indicators and proper state management for all async operations"
+    location: "Multiple component files",
+    impact: "Reduced maintainability and potential performance issues",
+    suggestedFix: "Refactor large components into smaller, focused components"
   },
   {
     id: "BUG-008",
-    title: "Insufficient Error Feedback",
-    description: "Users aren't properly notified of database operation failures",
+    title: "React Query Error Boundary Implementation",
+    description: "Missing error boundaries for React Query errors",
     severity: "medium",
     status: "active",
-    location: "Multiple components handling database operations",
-    impact: "Poor error visibility and user experience",
-    suggestedFix: "Implement consistent error notification system using toast messages"
+    location: "src/components/data/hooks/useDataPopulation.ts",
+    impact: "Uncaught query errors may crash the application",
+    suggestedFix: "Implement error boundaries for React Query operations"
   },
   {
     id: "BUG-009",
-    title: "Missing Data Validation",
-    description: "Data operations lack comprehensive input validation",
+    title: "IndexedDB Version Management",
+    description: "Database version management needs improvement",
     severity: "high",
     status: "active",
-    location: "src/lib/services/data/*, src/components/data/*",
-    impact: "Potential data integrity issues",
-    suggestedFix: "Implement Zod schemas for all data operations"
+    location: "src/lib/services/db/base/BaseDBService.ts",
+    impact: "Potential issues during database schema updates",
+    suggestedFix: "Implement robust version control system for database schema changes"
   },
   {
     id: "BUG-010",
-    title: "Inefficient Query Management",
-    description: "React Query configurations could be optimized for better performance",
+    title: "React Query Cache Configuration",
+    description: "Query cache settings need optimization",
     severity: "low",
     status: "active",
-    location: "src/components/data/hooks/*",
-    impact: "Suboptimal application performance",
-    suggestedFix: "Optimize query configurations and implement proper caching strategies"
+    location: "src/lib/services/IndexedDBService.ts",
+    impact: "Suboptimal caching behavior for database operations",
+    suggestedFix: "Configure appropriate cache time and stale time for queries"
   }
 ];

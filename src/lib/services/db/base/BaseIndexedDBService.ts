@@ -8,7 +8,7 @@ export class BaseIndexedDBService {
 
   constructor() {
     this.connectionService = new DatabaseConnectionService();
-    this.transactionService = new DatabaseTransactionService();
+    this.transactionService = new DatabaseTransactionService(null);
   }
 
   public getDatabase(): IDBDatabase | null {
@@ -20,7 +20,7 @@ export class BaseIndexedDBService {
       console.log('Initializing base IndexedDB service...');
       await this.connectionService.init();
       this.database = this.connectionService.getDatabase();
-      this.transactionService = new DatabaseTransactionService();
+      this.transactionService = new DatabaseTransactionService(this.database);
       console.log('Database connection established');
     } catch (error) {
       console.error('Error initializing base service:', error);
@@ -30,6 +30,6 @@ export class BaseIndexedDBService {
 
   public setDatabase(db: IDBDatabase | null): void {
     this.database = db;
-    this.transactionService = new DatabaseTransactionService();
+    this.transactionService = new DatabaseTransactionService(db);
   }
 }

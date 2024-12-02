@@ -1,14 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Database } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { DataQuantityForm } from "./actions/DataQuantityForm";
 import { BackupActions } from "./actions/BackupActions";
 import { ExportActions } from "./actions/ExportActions";
 import { toast } from "@/components/ui/use-toast";
 import { DataQuantities } from "./types/dataTypes";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useQueryClient } from "@tanstack/react-query";
 
 interface DatabaseActionsProps {
   isInitialized: boolean;
@@ -27,14 +25,11 @@ export function DatabaseActions({
 }: DatabaseActionsProps) {
   const [error, setError] = useState<string | null>(null);
   const [showQuantityForm, setShowQuantityForm] = useState(false);
-  const queryClient = useQueryClient();
 
   const handleClear = async () => {
     try {
       setError(null);
       await onClear();
-      // Invalidate all queries to refresh the UI
-      await queryClient.invalidateQueries();
       toast({
         title: "Success",
         description: "Database cleared successfully",
@@ -52,18 +47,14 @@ export function DatabaseActions({
 
   const handlePopulate = async (quantities: DataQuantities) => {
     try {
-      console.log('Starting population with quantities:', quantities);
       setError(null);
       await onPopulate(quantities);
-      // Invalidate all queries to refresh the UI
-      await queryClient.invalidateQueries();
       setShowQuantityForm(false);
       toast({
         title: "Success",
         description: "Database populated successfully",
       });
     } catch (err) {
-      console.error('Population error:', err);
       const errorMessage = err instanceof Error ? err.message : "Failed to populate database";
       setError(errorMessage);
       toast({
@@ -108,41 +99,19 @@ export function DatabaseActions({
           )}
         </Button>
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                onClick={() => setShowQuantityForm(true)}
-                disabled={isClearing || isPopulating}
-              >
-                {isPopulating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Populating...
-                  </>
-                ) : (
-                  <>
-                    <Database className="mr-2 h-4 w-4" />
-                    Populate with Sample Data
-                  </>
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-[300px] p-4">
-              <p className="text-sm">This will generate sample data in the following order:</p>
-              <ol className="list-decimal ml-4 mt-2 text-sm">
-                <li>Generate Fortune 30 partners</li>
-                <li>Create internal partners across departments</li>
-                <li>Generate SME partners</li>
-                <li>Create projects with assigned partners</li>
-                <li>Generate SPIs for each project</li>
-                <li>Create objectives</li>
-                <li>Generate initiatives</li>
-                <li>Generate situation reports</li>
-              </ol>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button
+          onClick={() => setShowQuantityForm(true)}
+          disabled={isClearing || isPopulating}
+        >
+          {isPopulating ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Populating...
+            </>
+          ) : (
+            "Populate with Sample Data"
+          )}
+        </Button>
 
         <BackupActions isInitialized={isInitialized} disabled={isClearing || isPopulating} />
         <ExportActions isInitialized={isInitialized} disabled={isClearing || isPopulating} />

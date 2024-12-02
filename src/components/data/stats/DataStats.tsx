@@ -39,10 +39,6 @@ export function DataStats({ dataCounts, currentPage, itemsPerPage }: DataStatsPr
         <h3 className="text-sm font-medium">SitReps</h3>
         <p className="mt-2 text-2xl font-bold">{dataCounts.sitreps}</p>
       </div>
-      <div className="rounded-lg border p-4">
-        <h3 className="text-sm font-medium">Initiatives</h3>
-        <p className="mt-2 text-2xl font-bold">{dataCounts.initiatives}</p>
-      </div>
     </div>
   );
 }

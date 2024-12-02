@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pen, Plus, Trash2 } from "lucide-react";
@@ -5,102 +6,68 @@ import { Objective } from "@/lib/types/objective";
 import { useState } from "react";
 import { InitiativeEditDialog } from "./InitiativeEditDialog";
 import { toast } from "@/components/ui/use-toast";
-import { db } from "@/lib/db";
-import { useQuery } from "@tanstack/react-query";
 
-interface Initiative {
-  id: string;
-  initiative: string;
-  desiredOutcome: string;
-  objectiveIds: string[];
-  description: string;
-  priority: number;
-  targetDate: string;
-  progress: number;
-  department: string;
+interface InitiativesListProps {
+  objectives: Objective[];
 }
 
-export function InitiativesList({ objectives }: { objectives: Objective[] }) {
-  const [selectedInitiative, setSelectedInitiative] = useState<Initiative | null>(null);
+export function InitiativesList({ objectives }: InitiativesListProps) {
+  const [selectedInitiative, setSelectedInitiative] = useState<any | null>(null);
   
-  const { data: initiatives = [], refetch } = useQuery({
-    queryKey: ['initiatives'],
-    queryFn: async () => {
-      console.log('Fetching initiatives...');
-      const result = await db.getAllInitiatives();
-      console.log('Fetched initiatives:', result);
-      return result;
+  const initiatives = [
+    {
+      id: '1',
+      initiative: 'Customer Experience Enhancement',
+      desiredOutcome: 'Achieve 95% customer satisfaction rating',
+      objectiveIds: ['1'],
     },
-  });
+    {
+      id: '2',
+      initiative: 'Legacy System Modernization',
+      desiredOutcome: 'Complete migration of core systems to cloud infrastructure',
+      objectiveIds: ['2'],
+    },
+    {
+      id: '3',
+      initiative: 'Process Automation',
+      desiredOutcome: 'Automate 60% of manual processes',
+      objectiveIds: ['2', '3'],
+    },
+  ];
 
-  const handleEdit = (initiative: Initiative) => {
+  const handleEdit = (initiative: any) => {
     setSelectedInitiative(initiative);
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      await db.deleteInitiative(id);
-      await refetch();
-      toast({
-        title: "Success",
-        description: "Initiative deleted successfully",
-      });
-    } catch (error) {
-      console.error('Error deleting initiative:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete initiative",
-        variant: "destructive",
-      });
-    }
+  const handleDelete = (id: string) => {
+    toast({
+      title: "Initiative deleted",
+      description: "The initiative has been successfully removed.",
+    });
+  };
+
+  const handleSave = (initiative: any) => {
+    toast({
+      title: "Initiative updated",
+      description: "The initiative has been successfully updated.",
+    });
+    setSelectedInitiative(null);
   };
 
   const handleAddNew = () => {
-    const newInitiative: Initiative = {
+    const newInitiative = {
       id: crypto.randomUUID(),
       initiative: '',
       desiredOutcome: '',
       objectiveIds: [],
-      description: '',
-      priority: 1,
-      targetDate: new Date().toISOString(),
-      progress: 0,
-      department: 'default'
     };
     setSelectedInitiative(newInitiative);
   };
 
-  const handleSave = async (initiative: Initiative) => {
-    try {
-      if (initiative.id) {
-        if (selectedInitiative?.id) {
-          await db.updateInitiative(initiative.id, initiative);
-        } else {
-          await db.addInitiative(initiative);
-        }
-      }
-      await refetch();
-      setSelectedInitiative(null);
-      toast({
-        title: "Success",
-        description: "Initiative saved successfully",
-      });
-    } catch (error) {
-      console.error('Error saving initiative:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save initiative",
-        variant: "destructive",
-      });
-    }
-  };
-
-  console.log('Current initiatives:', initiatives);
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Strategic Initiatives ({initiatives.length})</h3>
+        <h3 className="text-lg font-semibold">Strategic Initiatives</h3>
         <Button 
           variant="outline" 
           size="sm" 
@@ -122,9 +89,6 @@ export function InitiativesList({ objectives }: { objectives: Objective[] }) {
                     <p className="text-sm text-muted-foreground">
                       {initiative.desiredOutcome}
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      Priority: {initiative.priority} | Progress: {initiative.progress}%
-                    </p>
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -145,20 +109,32 @@ export function InitiativesList({ objectives }: { objectives: Objective[] }) {
                     </Button>
                   </div>
                 </div>
+                <div className="flex gap-1">
+                  {initiative.objectiveIds.map((objId) => {
+                    const objective = objectives.find(o => o.id === objId);
+                    return objective ? (
+                      <Badge
+                        key={objId}
+                        variant="secondary"
+                        className="text-xs"
+                      >
+                        {objective.title}
+                      </Badge>
+                    ) : null;
+                  })}
+                </div>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {selectedInitiative && (
-        <InitiativeEditDialog
-          initiative={selectedInitiative}
-          objectives={objectives}
-          onClose={() => setSelectedInitiative(null)}
-          onSave={handleSave}
-        />
-      )}
+      <InitiativeEditDialog
+        initiative={selectedInitiative}
+        objectives={objectives}
+        onClose={() => setSelectedInitiative(null)}
+        onSave={handleSave}
+      />
     </div>
   );
 }

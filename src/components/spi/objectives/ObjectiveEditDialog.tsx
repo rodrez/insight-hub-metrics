@@ -2,11 +2,12 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Objective } from "@/lib/types/objective";
 import { useState, useEffect } from "react";
@@ -14,104 +15,87 @@ import { useState, useEffect } from "react";
 interface ObjectiveEditDialogProps {
   objective: Objective | null;
   onClose: () => void;
-  onSave: (objective: Objective) => Promise<void>;
+  onSave: (objective: Objective) => void;
 }
 
 export function ObjectiveEditDialog({ objective, onClose, onSave }: ObjectiveEditDialogProps) {
   const [editedObjective, setEditedObjective] = useState<Objective | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (objective) {
-      const progress = objective.desiredOutcome.includes("%") ? 
-        objective.desiredOutcome.replace("%", "") : 
-        objective.desiredOutcome.match(/\d+/)?.[0] || "0";
-        
-      setEditedObjective({
-        ...objective,
-        desiredOutcome: progress
-      });
+      setEditedObjective(objective);
     }
   }, [objective]);
 
   if (!editedObjective) return null;
 
-  const handleSave = async () => {
-    if (isSaving || !editedObjective) return;
-    
-    try {
-      setIsSaving(true);
-      const updatedObjective = {
-        ...editedObjective,
-        desiredOutcome: `${editedObjective.desiredOutcome}%`
-      };
-      await onSave(updatedObjective);
-    } finally {
-      setIsSaving(false);
-    }
+  const handleSave = () => {
+    onSave(editedObjective);
+    onClose();
   };
 
   return (
-    <Dialog open={!!objective} onOpenChange={() => !isSaving && onClose()}>
-      <DialogContent>
+    <Dialog open={!!objective} onOpenChange={() => onClose()}>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit Objective</DialogTitle>
-          <DialogDescription>
-            Make changes to your objective here. Click save when you're done.
-          </DialogDescription>
+          <DialogTitle>
+            {editedObjective.id ? 'Edit Objective' : 'Add New Objective'}
+          </DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
+            <Label htmlFor="title">Title</Label>
             <Input
+              id="title"
               value={editedObjective.title}
               onChange={(e) =>
                 setEditedObjective({ ...editedObjective, title: e.target.value })
               }
-              placeholder="Title"
             />
           </div>
           <div className="grid gap-2">
+            <Label htmlFor="description">Description</Label>
             <Textarea
+              id="description"
               value={editedObjective.description}
               onChange={(e) =>
                 setEditedObjective({ ...editedObjective, description: e.target.value })
               }
-              placeholder="Description"
             />
           </div>
           <div className="grid gap-2">
+            <Label htmlFor="initiative">Initiative</Label>
             <Input
+              id="initiative"
               value={editedObjective.initiative}
               onChange={(e) =>
                 setEditedObjective({ ...editedObjective, initiative: e.target.value })
               }
-              placeholder="Initiative"
             />
           </div>
           <div className="grid gap-2">
+            <Label htmlFor="progress">Progress (%)</Label>
             <Input
+              id="progress"
               type="number"
               min="0"
               max="100"
-              value={editedObjective.desiredOutcome}
+              value={parseInt(editedObjective.desiredOutcome) || 0}
               onChange={(e) =>
                 setEditedObjective({
                   ...editedObjective,
-                  desiredOutcome: e.target.value
+                  desiredOutcome: `${e.target.value}%`
                 })
               }
-              placeholder="Progress (%)"
             />
           </div>
         </div>
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onClose} disabled={isSaving}>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save"}
-          </Button>
-        </div>
+          <Button onClick={handleSave}>Save changes</Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

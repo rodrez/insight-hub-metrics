@@ -11,15 +11,14 @@ export class SampleDataService {
 
   async generateSampleData(quantities: Partial<DataQuantities> = {}): Promise<void> {
     try {
-      const validatedQuantities: Required<DataQuantities> = {
+      const validatedQuantities = {
         projects: quantities.projects ?? 10,
         spis: quantities.spis ?? 10,
         objectives: quantities.objectives ?? 5,
         sitreps: quantities.sitreps ?? 10,
         fortune30: quantities.fortune30 ?? 6,
         internalPartners: quantities.internalPartners ?? 20,
-        smePartners: quantities.smePartners ?? 10,
-        initiatives: quantities.initiatives ?? 5
+        smePartners: quantities.smePartners ?? 10
       };
 
       await this.coordinator.generateData(validatedQuantities);

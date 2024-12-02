@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Pen, Trash2, Target, ArrowRight } from "lucide-react";
 import { Objective } from "@/lib/types/objective";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { ObjectiveEditDialog } from "./ObjectiveEditDialog";
 import {
@@ -19,7 +19,7 @@ import {
 
 interface ObjectiveCardProps {
   objective: Objective;
-  onEdit: (objective: Objective) => Promise<void>;
+  onEdit: (objective: Objective) => void;
   onDelete: (id: string) => void;
 }
 
@@ -30,31 +30,20 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedObjective, setSelectedObjective] = useState<Objective | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    const loadStatusColors = () => {
-      const saved = localStorage.getItem('projectStatusColors');
-      if (saved) {
-        const colors = JSON.parse(saved);
-        const activeColor = colors.find((c: any) => c.id === 'active')?.color;
-        if (activeColor) {
-          setStatusColors({
-            active: activeColor
-          });
-        }
-      }
-    };
-
-    loadStatusColors();
-    window.addEventListener('storage', loadStatusColors);
-    return () => window.removeEventListener('storage', loadStatusColors);
+    const saved = localStorage.getItem('projectStatusColors');
+    if (saved) {
+      const colors = JSON.parse(saved);
+      setStatusColors({
+        active: colors.find((c: any) => c.id === 'active')?.color || '#10B981'
+      });
+    }
   }, []);
 
   const handleEdit = () => {
     setSelectedObjective(objective);
     setShowEditDialog(true);
-    setIsEditing(true);
   };
 
   const handleDelete = () => {
@@ -70,63 +59,48 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
     });
   };
 
-  const handleSaveEdit = async (updatedObjective: Objective) => {
-    if (isEditing) return;
-    
-    try {
-      setIsEditing(true);
-      await onEdit(updatedObjective);
-      setShowEditDialog(false);
-      setSelectedObjective(null);
-      toast({
-        title: "Success",
-        description: "Objective updated successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update objective",
-        variant: "destructive",
-      });
-    } finally {
-      setIsEditing(false);
-    }
+  const handleSaveEdit = (updatedObjective: Objective) => {
+    onEdit(updatedObjective);
+    setShowEditDialog(false);
+    setSelectedObjective(null);
+    toast({
+      title: "Objective updated",
+      description: "The objective has been successfully updated.",
+    });
   };
 
-  const progress = objective.desiredOutcome.includes("%") ? 
-    parseInt(objective.desiredOutcome) : 
+  const progress = objective.desiredOutcome.includes("100%") ? 100 : 
     parseInt(objective.desiredOutcome.match(/\d+/)?.[0] || "0");
 
   return (
     <>
-      <Card className="hover:shadow-md transition-all duration-200 group animate-fade-in bg-[#1A1F2C] text-white">
+      <Card className="hover:shadow-md transition-all duration-200 group animate-fade-in">
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-2 flex-1">
               <div className="flex items-start gap-3">
-                <Target className="h-5 w-5 text-white mt-1" />
+                <Target className="h-5 w-5 text-primary mt-1" />
                 <div>
                   <h4 className="font-medium text-lg">{objective.title}</h4>
-                  <p className="text-sm text-gray-400">{objective.description}</p>
+                  <p className="text-sm text-muted-foreground">{objective.description}</p>
                 </div>
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <ArrowRight className="h-4 w-4 text-gray-400" />
+                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">Initiative: {objective.initiative}</span>
                 </div>
                 <div className="space-y-1">
-                  <div className="flex justify-between text-sm text-gray-400">
+                  <div className="flex justify-between text-sm text-muted-foreground">
                     <span>Progress</span>
                     <span>{progress}%</span>
                   </div>
                   <Progress 
                     value={progress} 
-                    className="h-2"
+                    className="h-2 bg-muted [&>[role=progressbar]]"
                     style={{ 
-                      '--progress-background': statusColors.active,
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)'
-                    } as React.CSSProperties}
+                      ["--progress-background" as any]: statusColors.active 
+                    }}
                   />
                 </div>
               </div>
@@ -137,7 +111,6 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
                 variant="ghost"
                 size="icon"
                 onClick={handleEdit}
-                disabled={isEditing}
                 className="text-gray-400 hover:text-green-500 transition-colors"
               >
                 <Pen className="h-4 w-4" />
@@ -146,7 +119,6 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
                 variant="ghost"
                 size="icon"
                 onClick={handleDelete}
-                disabled={isEditing}
                 className="text-gray-400 hover:text-red-500 transition-colors"
               >
                 <Trash2 className="h-4 w-4" />
@@ -171,17 +143,14 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
         </AlertDialogContent>
       </AlertDialog>
 
-      {showEditDialog && (
-        <ObjectiveEditDialog
-          objective={selectedObjective}
-          onClose={() => {
-            setShowEditDialog(false);
-            setSelectedObjective(null);
-            setIsEditing(false);
-          }}
-          onSave={handleSaveEdit}
-        />
-      )}
+      <ObjectiveEditDialog
+        objective={selectedObjective}
+        onClose={() => {
+          setShowEditDialog(false);
+          setSelectedObjective(null);
+        }}
+        onSave={handleSaveEdit}
+      />
     </>
   );
 }

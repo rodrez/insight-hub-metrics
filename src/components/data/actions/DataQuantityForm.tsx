@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { DataQuantities } from "../types/dataTypes";
+import { DataQuantities } from "../SampleData";
 import { Loader2 } from "lucide-react";
 import { dataQuantitiesSchema } from "../validation/databaseSchemas";
 import { useForm } from "react-hook-form";
@@ -25,8 +25,7 @@ export function DataQuantityForm({ onSubmit, onCancel, isLoading }: DataQuantity
       sitreps: 10,
       fortune30: 6,
       internalPartners: 20,
-      smePartners: 5,
-      initiatives: 5
+      smePartners: 5
     }
   });
 
@@ -131,26 +130,9 @@ export function DataQuantityForm({ onSubmit, onCancel, isLoading }: DataQuantity
               </FormItem>
             )}
           />
-
-          <FormField
-            control={form.control}
-            name="initiatives"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Initiatives</FormLabel>
-                <FormControl>
-                  <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
 
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
+        <div className="flex justify-end">
           <Button type="submit" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Generate Data

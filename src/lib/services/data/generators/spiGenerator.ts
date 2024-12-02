@@ -4,19 +4,6 @@ import { SitRep } from '@/lib/types/sitrep';
 import { addDays } from 'date-fns';
 import { DEPARTMENTS } from '@/lib/constants';
 
-const initiativeTypes = [
-  "Digital Transformation",
-  "Innovation & Research",
-  "Process Optimization",
-  "Customer Experience",
-  "Technology Modernization",
-  "Data Analytics",
-  "Security Enhancement",
-  "Cloud Migration",
-  "AI/ML Integration",
-  "Infrastructure Upgrade"
-];
-
 export const generateSampleSPIs = (projectIds: string[], count: number): SPI[] => {
   return Array.from({ length: count }, (_, i) => ({
     id: `spi-${i + 1}`,
@@ -38,40 +25,13 @@ export const generateSampleObjectives = (count: number): Objective[] => {
     title: `Objective ${i + 1}`,
     description: `Description for Objective ${i + 1}`,
     initiative: `Initiative ${i + 1}`,
-    desiredOutcome: `${Math.floor(Math.random() * 100)}%`,
+    desiredOutcome: `Desired outcome for Objective ${i + 1}`,
     spiIds: []
   }));
 };
 
-export const generateSampleInitiatives = (count: number) => {
-  console.log('Generating initiatives, count:', count);
-  const departments = Array.from(DEPARTMENTS);
-  
-  const initiatives = Array.from({ length: count }, (_, i) => {
-    const initiative = {
-      id: `initiative-${i + 1}`,
-      initiative: `${initiativeTypes[i % initiativeTypes.length]} Initiative ${i + 1}`,
-      desiredOutcome: `Achieve ${Math.floor(Math.random() * 100)}% completion in ${initiativeTypes[i % initiativeTypes.length].toLowerCase()}`,
-      objectiveIds: [],
-      status: 'active',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      description: `Strategic initiative focused on ${initiativeTypes[i % initiativeTypes.length].toLowerCase()} to drive business value and innovation.`,
-      priority: Math.floor(Math.random() * 3) + 1, // 1-3 priority
-      targetDate: addDays(new Date(), 90 + Math.floor(Math.random() * 180)).toISOString(), // 3-9 months target
-      progress: Math.floor(Math.random() * 100),
-      department: departments[Math.floor(Math.random() * departments.length)].id
-    };
-    console.log('Generated initiative:', initiative);
-    return initiative;
-  });
-  
-  console.log('Generated initiatives:', initiatives);
-  return initiatives;
-};
-
 export const generateSampleSitReps = (spis: SPI[], count: number): SitRep[] => {
-  const departments = Array.from(DEPARTMENTS);
+  const departments = DEPARTMENTS;
   const levels: Array<"CEO" | "SVP" | "CTO"> = ["CEO", "SVP", "CTO"];
   const statuses: Array<'pending-review' | 'ready' | 'submitted'> = ['pending-review', 'ready', 'submitted'];
 

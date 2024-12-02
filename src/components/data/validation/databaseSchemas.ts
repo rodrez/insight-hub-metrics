@@ -1,12 +1,24 @@
 import { z } from 'zod';
+import { DataQuantities, dataQuantitiesSchema } from '@/lib/types/data';
 
-export const dataQuantitiesSchema = z.object({
-  projects: z.number().min(0).default(5),
-  spis: z.number().min(0).default(10),
-  objectives: z.number().min(0).default(5),
-  sitreps: z.number().min(0).default(10),
-  fortune30: z.number().min(0).default(6),
-  internalPartners: z.number().min(0).default(20),
-  smePartners: z.number().min(0).default(5),
-  initiatives: z.number().min(0).default(5)
-});
+export { dataQuantitiesSchema };
+
+export const validateDataQuantities = (data: Partial<DataQuantities>): DataQuantities => {
+  const defaultValues: DataQuantities = {
+    projects: 0,
+    spis: 0,
+    objectives: 0,
+    sitreps: 0,
+    fortune30: 0,
+    internalPartners: 0,
+    smePartners: 0
+  };
+
+  // Merge incoming data with default values to ensure all required properties exist
+  const mergedData = { ...defaultValues, ...data };
+
+  // Validate the merged data against the schema
+  const validatedData = dataQuantitiesSchema.parse(mergedData);
+  
+  return validatedData;
+};

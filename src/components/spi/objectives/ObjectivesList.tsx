@@ -1,17 +1,18 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { ObjectiveCard } from "./ObjectiveCard";
-import { InitiativesList } from "./InitiativesList";
-import { ObjectivesSummary } from "./ObjectivesSummary";
-import { ObjectiveEditDialog } from "./ObjectiveEditDialog";
-import { ObjectivesProgress } from "./progress/ObjectivesProgress";
-import { ObjectivesFilters } from "./filters/ObjectivesFilters";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
+import { ObjectiveCard } from "./ObjectiveCard";
+import { InitiativesList } from "./InitiativesList";
 import { Objective } from "@/lib/types/objective";
+import { Separator } from "@/components/ui/separator";
+import { ObjectivesSummary } from "./ObjectivesSummary";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState } from "react";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { ObjectiveEditDialog } from "./ObjectiveEditDialog";
 
 export function ObjectivesList() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -59,11 +60,7 @@ export function ObjectivesList() {
 
   const handleSave = async (objective: Objective) => {
     try {
-      if (objective.id) {
-        await db.updateObjective(objective.id, objective);
-      } else {
-        await db.addObjective(objective);
-      }
+      await db.addObjective(objective);
       await refetch();
       setSelectedObjective(null);
       toast({
@@ -110,13 +107,36 @@ export function ObjectivesList() {
       </div>
 
       <ObjectivesSummary />
-      <ObjectivesProgress completionPercentage={completionPercentage} />
-      <ObjectivesFilters
-        searchQuery={searchQuery}
-        filterStatus={filterStatus}
-        onSearchChange={setSearchQuery}
-        onFilterChange={setFilterStatus}
-      />
+      
+      <div className="bg-card rounded-lg p-4 shadow-sm">
+        <h3 className="text-lg font-semibold mb-2">Overall Progress</h3>
+        <Progress value={completionPercentage} className="h-2 mb-2" />
+        <p className="text-sm text-muted-foreground">{completionPercentage.toFixed(0)}% of objectives completed</p>
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex-1">
+          <Input
+            placeholder="Search objectives..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full"
+          />
+        </div>
+        <Select
+          value={filterStatus}
+          onValueChange={setFilterStatus}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Objectives</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="in-progress">In Progress</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
       <div className="grid grid-cols-1 gap-4 animate-fade-in">
         {filteredObjectives.map((objective) => (

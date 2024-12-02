@@ -1,7 +1,6 @@
 import { SPI } from "../../types/spi";
 import { Objective } from "../../types/objective";
 import { BaseIndexedDBService } from "./base/BaseIndexedDBService";
-import { DatabaseError } from "../../utils/errorHandling";
 
 export class SPIService extends BaseIndexedDBService {
   public async getAllSPIs(): Promise<SPI[]> {
@@ -18,7 +17,7 @@ export class SPIService extends BaseIndexedDBService {
 
   public async updateSPI(id: string, updates: Partial<SPI>): Promise<void> {
     const spi = await this.getSPI(id);
-    if (!spi) throw new DatabaseError('SPI not found');
+    if (!spi) throw new Error('SPI not found');
     await this.addSPI({ ...spi, ...updates });
   }
 
@@ -36,7 +35,7 @@ export class SPIService extends BaseIndexedDBService {
 
   public async updateObjective(id: string, updates: Partial<Objective>): Promise<void> {
     const objective = await this.transactionService.performTransaction('objectives', 'readonly', store => store.get(id));
-    if (!objective) throw new DatabaseError('Objective not found');
+    if (!objective) throw new Error('Objective not found');
     await this.transactionService.performTransaction('objectives', 'readwrite', store => 
       store.put({ ...objective, ...updates })
     );
@@ -47,16 +46,7 @@ export class SPIService extends BaseIndexedDBService {
   }
 
   public async getAllInitiatives(): Promise<any[]> {
-    try {
-      return await this.transactionService.performTransaction('initiatives', 'readonly', store => store.getAll());
-    } catch (error) {
-      console.error('Error fetching initiatives:', error);
-      throw error;
-    }
-  }
-
-  public async addInitiative(initiative: any): Promise<void> {
-    await this.transactionService.performTransaction('initiatives', 'readwrite', store => store.put(initiative));
+    return this.transactionService.performTransaction('initiatives', 'readonly', store => store.getAll());
   }
 
   public async updateInitiative(id: string, initiative: any): Promise<void> {

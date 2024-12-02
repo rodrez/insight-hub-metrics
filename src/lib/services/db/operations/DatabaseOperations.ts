@@ -1,7 +1,6 @@
 import { DatabaseTransactionService } from '../DatabaseTransactionService';
 import { SMEOperations } from './SMEOperations';
 import { toast } from "@/components/ui/use-toast";
-import { withRetry } from '@/lib/utils/retryUtils';
 
 export class DatabaseOperations {
   private smeOperations: SMEOperations;
@@ -15,17 +14,8 @@ export class DatabaseOperations {
     
     try {
       for (const storeName of stores) {
-        await withRetry(
-          async () => this.transactionService.performTransaction(storeName, 'readwrite', store => store.clear()),
-          {
-            operation: `Clearing store ${storeName}`,
-            maxAttempts: 3,
-            delayMs: 1000,
-            backoffFactor: 1.5
-          }
-        );
+        await this.transactionService.performTransaction(storeName, 'readwrite', store => store.clear());
       }
-      
       console.log('All stores cleared successfully');
       toast({
         title: "Success",

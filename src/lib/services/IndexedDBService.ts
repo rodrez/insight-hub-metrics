@@ -3,7 +3,7 @@ import { Project, Collaborator, Team } from '../types';
 import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
-import { DataQuantities } from '@/components/data/types/dataTypes';
+import { DataQuantities } from '../types/data';
 import { ProjectService } from './db/ProjectService';
 import { CollaboratorService } from './db/CollaboratorService';
 import { SitRepService } from './db/SitRepService';
@@ -24,7 +24,6 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   private dataExportService: DataExportService;
   private databaseClearingService: DatabaseClearingService;
   private initManager: ServiceInitializationManager;
-  private initialized: boolean = false;
 
   private constructor() {
     super();
@@ -54,12 +53,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
       this.collaboratorService.setDatabase(db);
       this.sitRepService.setDatabase(db);
       this.spiService.setDatabase(db);
-      this.initialized = true;
     });
-  }
-
-  public isInitialized(): boolean {
-    return this.initialized && this.getDatabase() !== null;
   }
 
   // Project methods
@@ -94,7 +88,6 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
 
   // Initiative methods
   getAllInitiatives = () => this.spiService.getAllInitiatives();
-  addInitiative = (initiative: any) => this.spiService.addInitiative(initiative);
   updateInitiative = (id: string, initiative: any) => this.spiService.updateInitiative(id, initiative);
   deleteInitiative = (id: string) => this.spiService.deleteInitiative(id);
 
@@ -146,17 +139,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   async populateSampleData(quantities: DataQuantities): Promise<void> {
     try {
       await this.clear();
-      const validatedQuantities: DataQuantities = {
-        projects: quantities.projects,
-        spis: quantities.spis,
-        objectives: quantities.objectives,
-        sitreps: quantities.sitreps,
-        fortune30: quantities.fortune30,
-        internalPartners: quantities.internalPartners,
-        smePartners: quantities.smePartners,
-        initiatives: quantities.initiatives
-      };
-      await this.sampleDataService.generateSampleData(validatedQuantities);
+      await this.sampleDataService.generateSampleData(quantities);
     } catch (error) {
       throw error;
     }

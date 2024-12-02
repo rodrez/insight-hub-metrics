@@ -5,8 +5,7 @@ import { SampleDataService } from "@/lib/services/data/SampleDataService";
 import { useQueryClient } from "@tanstack/react-query";
 import { DatabaseError } from "@/lib/utils/errorHandling";
 import { DatabaseOperations } from "../operations/DatabaseOperations";
-import { DataQuantities } from "../types/dataTypes";
-import { toast } from "@/components/ui/use-toast";
+import { DataQuantities } from "../SampleData";
 
 export function useDataPopulation() {
   const [isPopulating, setIsPopulating] = useState(false);
@@ -20,42 +19,71 @@ export function useDataPopulation() {
     setProgress(0);
     
     try {
-      console.log('Starting data population with quantities:', quantities);
-      
-      // First ensure database is initialized
-      console.log('Initializing database...');
-      await db.init();
-      console.log('Database initialized successfully');
+      const populateStep: LoadingStep = {
+        name: "Sample Data Population",
+        action: async () => {
+          try {
+            const {
+              fortune30Partners,
+              internalPartners,
+              smePartners,
+              projects,
+              spis,
+              objectives,
+              sitreps
+            } = await sampleDataService.generateSampleData(quantities);
 
-      // Clear existing data
-      console.log('Clearing existing data...');
-      await db.clear();
-      console.log('Existing data cleared successfully');
+            // Add data to database in sequence with progress updates
+            const totalSteps = 7;
+            let currentStep = 0;
 
-      // Generate and save new data
-      console.log('Generating sample data...');
-      await sampleDataService.generateSampleData({
-        ...quantities,
-        initiatives: quantities.initiatives || 5 // Provide default value if missing
-      });
-      console.log('Sample data generated and saved successfully');
+            await databaseOps.addCollaboratorsInBatches(fortune30Partners, () => {
+              currentStep++;
+              setProgress((currentStep / totalSteps) * 100);
+            });
 
-      // Invalidate queries to refresh UI
-      await queryClient.invalidateQueries({ queryKey: ['data-counts'] });
-      await queryClient.invalidateQueries({ queryKey: ['initiatives'] });
-      
-      toast({
-        title: "Success",
-        description: "Sample data populated successfully",
-      });
-    } catch (error) {
-      console.error('Data population failed:', error);
-      toast({
-        title: "Error",
-        description: "Failed to populate data. Check console for details.",
-        variant: "destructive",
-      });
-      throw error;
+            await databaseOps.addCollaboratorsInBatches(internalPartners, () => {
+              currentStep++;
+              setProgress((currentStep / totalSteps) * 100);
+            });
+
+            // Explicitly add SME partners to their dedicated store
+            await databaseOps.addSMEPartnersInBatches(smePartners, () => {
+              currentStep++;
+              setProgress((currentStep / totalSteps) * 100);
+            });
+
+            await databaseOps.addProjectsInBatches(projects, () => {
+              currentStep++;
+              setProgress((currentStep / totalSteps) * 100);
+            });
+
+            await databaseOps.addSPIsInBatches(spis, () => {
+              currentStep++;
+              setProgress((currentStep / totalSteps) * 100);
+            });
+
+            await databaseOps.addObjectivesInBatches(objectives, () => {
+              currentStep++;
+              setProgress((currentStep / totalSteps) * 100);
+            });
+
+            await databaseOps.addSitRepsInBatches(sitreps, () => {
+              currentStep++;
+              setProgress((currentStep / totalSteps) * 100);
+            });
+
+            queryClient.invalidateQueries({ queryKey: ['data-counts'] });
+            
+            return true;
+          } catch (error) {
+            console.error('Sample data population error:', error);
+            return false;
+          }
+        }
+      };
+
+      await executeWithRetry(populateStep);
     } finally {
       setIsPopulating(false);
       setProgress(0);

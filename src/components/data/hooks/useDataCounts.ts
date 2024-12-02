@@ -5,10 +5,9 @@ import { toast } from "@/components/ui/use-toast";
 
 export function useDataCounts(isInitialized: boolean) {
   const queryClient = useQueryClient();
-  
+
   const fetchDataCounts = async (): Promise<DataCounts> => {
     if (!isInitialized) {
-      console.log('Database not initialized, returning empty counts');
       return {
         projects: 0,
         spis: 0,
@@ -16,18 +15,12 @@ export function useDataCounts(isInitialized: boolean) {
         sitreps: 0,
         fortune30: 0,
         internalPartners: 0,
-        smePartners: 0,
-        initiatives: 0
+        smePartners: 0
       };
     }
-
+    
     try {
-      // Only initialize if not already initialized
-      if (!db.isInitialized()) {
-        console.log('Initializing database before fetching counts...');
-        await db.init();
-      }
-      console.log('Database initialized, proceeding to fetch counts');
+      await db.init();
       
       const [
         projects,
@@ -35,40 +28,15 @@ export function useDataCounts(isInitialized: boolean) {
         objectives,
         sitreps,
         collaborators,
-        smePartners,
-        initiatives
+        smePartners
       ] = await Promise.all([
-        db.getAllProjects().catch(e => {
-          console.error('Error fetching projects:', e);
-          return [];
-        }),
-        db.getAllSPIs().catch(e => {
-          console.error('Error fetching SPIs:', e);
-          return [];
-        }),
-        db.getAllObjectives().catch(e => {
-          console.error('Error fetching objectives:', e);
-          return [];
-        }),
-        db.getAllSitReps().catch(e => {
-          console.error('Error fetching sitreps:', e);
-          return [];
-        }),
-        db.getAllCollaborators().catch(e => {
-          console.error('Error fetching collaborators:', e);
-          return [];
-        }),
-        db.getAllSMEPartners().catch(e => {
-          console.error('Error fetching SME partners:', e);
-          return [];
-        }),
-        db.getAllInitiatives().catch(e => {
-          console.error('Error fetching initiatives:', e);
-          return [];
-        })
+        db.getAllProjects(),
+        db.getAllSPIs(),
+        db.getAllObjectives(),
+        db.getAllSitReps(),
+        db.getAllCollaborators(),
+        db.getAllSMEPartners()
       ]);
-
-      console.log('All data fetched successfully, calculating counts');
 
       const counts = {
         projects: projects?.length || 0,
@@ -77,14 +45,22 @@ export function useDataCounts(isInitialized: boolean) {
         sitreps: sitreps?.length || 0,
         fortune30: collaborators?.filter(c => c.type === 'fortune30')?.length || 0,
         internalPartners: collaborators?.filter(c => c.type === 'internal')?.length || 0,
-        smePartners: smePartners?.length || 0,
-        initiatives: initiatives?.length || 0
+        smePartners: smePartners?.length || 0
       };
 
-      console.log('Calculated counts:', counts);
+      // Update individual count queries
+      Object.entries(counts).forEach(([key, value]) => {
+        queryClient.setQueryData(['data-count', key], value);
+      });
+
       return counts;
     } catch (error) {
-      console.error('Error in fetchDataCounts:', error);
+      console.error('Error fetching data counts:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch data counts. Please ensure the database is properly initialized.",
+        variant: "destructive",
+      });
       throw error;
     }
   };
@@ -96,23 +72,21 @@ export function useDataCounts(isInitialized: boolean) {
     sitreps: 0,
     fortune30: 0,
     internalPartners: 0,
-    smePartners: 0,
-    initiatives: 0
+    smePartners: 0
   }, isLoading, refetch } = useQuery({
     queryKey: ['data-counts'],
     queryFn: fetchDataCounts,
     enabled: isInitialized,
-    staleTime: 5000, // Increase stale time to 5 seconds to reduce unnecessary fetches
-    refetchInterval: 10000, // Reduce polling frequency to 10 seconds
-    retry: 1, // Only retry once to prevent excessive retries on failure
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 30, // 30 minutes
   });
 
   const updateDataCounts = async () => {
-    if (!isInitialized) {
-      console.log('Skipping data counts update - database not initialized');
-      return;
-    }
     await queryClient.invalidateQueries({ queryKey: ['data-counts'] });
+    // Also invalidate individual count queries
+    Object.keys(dataCounts).forEach(key => {
+      queryClient.invalidateQueries({ queryKey: ['data-count', key] });
+    });
     await refetch();
   };
 
