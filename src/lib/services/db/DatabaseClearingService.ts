@@ -1,4 +1,3 @@
-import { DatabaseCleaner } from './databaseCleaner';
 import { toast } from "@/components/ui/use-toast";
 import { DatabaseError } from '../../utils/errorHandling';
 import { STORE_NAMES } from './stores';
@@ -13,68 +12,32 @@ export class DatabaseClearingService {
     }
 
     try {
-      // Close existing connections first
-      connectionManager.closeAllConnections();
-      
-      if (!STORE_NAMES || STORE_NAMES.length === 0) {
-        console.warn('No stores found in database');
-        return;
+      const transaction = this.db.transaction(STORE_NAMES, 'readwrite');
+      const stores = Array.from(STORE_NAMES);
+
+      if (!stores || stores.length === 0) {
+        throw new DatabaseError('No stores found to clear');
       }
 
-      // Clear stores sequentially to avoid transaction conflicts
-      for (const storeName of STORE_NAMES) {
-        await this.clearStore(storeName);
-      }
+      await Promise.all(
+        stores.map(storeName => {
+          return new Promise<void>((resolve, reject) => {
+            const store = transaction.objectStore(storeName);
+            const request = store.clear();
 
-      // Delete and recreate the database
-      await DatabaseCleaner.clearDatabase();
-      
+            request.onsuccess = () => resolve();
+            request.onerror = () => reject(new Error(`Failed to clear ${storeName}`));
+          });
+        })
+      );
+
       toast({
         title: "Success",
         description: "Database cleared successfully",
       });
-      
-      console.log('Database cleared successfully');
     } catch (error) {
       console.error('Error clearing database:', error);
-      toast({
-        title: "Error",
-        description: "Failed to clear database",
-        variant: "destructive",
-      });
-      throw new DatabaseError('Failed to clear database', error instanceof Error ? error : undefined);
+      throw error;
     }
-  }
-
-  private clearStore(storeName: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      try {
-        const transaction = this.db!.transaction(storeName, 'readwrite');
-        const store = transaction.objectStore(storeName);
-
-        const request = store.clear();
-
-        request.onsuccess = () => {
-          console.log(`Store ${storeName} cleared successfully`);
-          resolve();
-        };
-
-        request.onerror = () => {
-          console.error(`Error clearing store ${storeName}:`, request.error);
-          reject(new DatabaseError(`Failed to clear store ${storeName}`));
-        };
-
-        transaction.oncomplete = () => {
-          resolve();
-        };
-
-        transaction.onerror = () => {
-          reject(new DatabaseError(`Transaction error clearing store ${storeName}`));
-        };
-      } catch (error) {
-        console.error(`Error accessing store ${storeName}:`, error);
-        reject(new DatabaseError(`Error accessing store ${storeName}`));
-      }
-    });
   }
 }
