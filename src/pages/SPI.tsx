@@ -5,11 +5,14 @@ import { SPIForm } from "@/components/spi/SPIForm";
 import { SPIStats } from "@/components/spi/SPIStats";
 import { SPIAnalytics } from "@/components/spi/analytics/SPIAnalytics";
 import { ObjectivesList } from "@/components/spi/objectives/ObjectivesList";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function SPI() {
   const [statusColors, setStatusColors] = useState({
     active: '#10B981'
   });
+  
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const loadStatusColors = () => {
@@ -29,6 +32,10 @@ export default function SPI() {
     window.addEventListener('storage', loadStatusColors);
     return () => window.removeEventListener('storage', loadStatusColors);
   }, []);
+
+  const handleFormSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['spis'] });
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -55,7 +62,7 @@ export default function SPI() {
         </TabsContent>
 
         <TabsContent value="new">
-          <SPIForm />
+          <SPIForm onSubmitSuccess={handleFormSuccess} />
         </TabsContent>
 
         <TabsContent value="objectives">
