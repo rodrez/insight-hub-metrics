@@ -49,22 +49,26 @@ export function SelectionSection({ title, type, position, onPositionChange }: Se
   };
 
   const handleValueChange = (value: string) => {
-    if (!position[type].includes(value)) {
+    const currentArray = Array.isArray(position[type]) ? position[type] : [];
+    if (!currentArray.includes(value)) {
       const updatedPosition = {
         ...position,
-        [type]: [...position[type], value]
+        [type]: [...currentArray, value]
       };
       onPositionChange(updatedPosition);
     }
   };
 
   const handleRemoveItem = (itemId: string) => {
+    const currentArray = Array.isArray(position[type]) ? position[type] : [];
     const updatedPosition = {
       ...position,
-      [type]: position[type].filter((id: string) => id !== itemId)
+      [type]: currentArray.filter((id: string) => id !== itemId)
     };
     onPositionChange(updatedPosition);
   };
+
+  const selectedIds = Array.isArray(position[type]) ? position[type] : [];
 
   return (
     <div>
@@ -85,7 +89,7 @@ export function SelectionSection({ title, type, position, onPositionChange }: Se
         </SelectContent>
       </Select>
       <div className="flex flex-wrap gap-2 mt-2">
-        {position[type].map((itemId: string) => {
+        {selectedIds.map((itemId: string) => {
           const item = items.find((i: any) => i.id === itemId);
           return item ? (
             <Badge

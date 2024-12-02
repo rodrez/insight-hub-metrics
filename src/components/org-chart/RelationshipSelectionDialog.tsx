@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { SelectionSection } from "./SelectionSection";
 import { OrgPosition } from "./types";
+import { useState } from "react";
 
 interface RelationshipSelectionDialogProps {
   isOpen: boolean;
@@ -16,8 +17,10 @@ export function RelationshipSelectionDialog({
   position,
   onSave 
 }: RelationshipSelectionDialogProps) {
+  const [tempPosition, setTempPosition] = useState<OrgPosition>(position);
+
   const handleSave = () => {
-    onSave(position);
+    onSave(tempPosition);
     onClose();
   };
 
@@ -31,27 +34,32 @@ export function RelationshipSelectionDialog({
           <SelectionSection
             title="Projects"
             type="projects"
-            position={position}
+            position={tempPosition}
+            onPositionChange={setTempPosition}
           />
           <SelectionSection
             title="Fortune 30 Partners"
             type="fortune30Partners"
-            position={position}
+            position={tempPosition}
+            onPositionChange={setTempPosition}
           />
           <SelectionSection
             title="SME Partners"
             type="smePartners"
-            position={position}
+            position={tempPosition}
+            onPositionChange={setTempPosition}
           />
           <SelectionSection
             title="SPIs"
             type="spis"
-            position={position}
+            position={tempPosition}
+            onPositionChange={setTempPosition}
           />
           <SelectionSection
             title="SitReps"
             type="sitreps"
-            position={position}
+            position={tempPosition}
+            onPositionChange={setTempPosition}
           />
         </div>
         <DialogFooter>
