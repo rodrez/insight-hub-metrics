@@ -8,6 +8,7 @@ export const fortune30Partners: Collaborator[] = [
     email: "partnerships@walmart.com",
     role: "Strategic Partner",
     department: "Retail",
+    ratMember: "John Smith",
     primaryContact: {
       name: "John Smith",
       role: "Director of Innovation",
@@ -63,6 +64,7 @@ export const fortune30Partners: Collaborator[] = [
     email: "enterprise@amazon.com",
     role: "Technology Partner",
     department: "Cloud Services",
+    ratMember: "Emily Chen",
     primaryContact: {
       name: "Emily Chen",
       role: "Head of Strategic Partnerships",
@@ -112,6 +114,7 @@ export const fortune30Partners: Collaborator[] = [
     email: "partnerships@apple.com",
     role: "Innovation Partner",
     department: "Technology",
+    ratMember: "Tim Cook",
     projects: [
       {
         id: "technology-project-1",
@@ -137,6 +140,7 @@ export const fortune30Partners: Collaborator[] = [
     email: "enterprise@microsoft.com",
     role: "Technology Partner",
     department: "Software",
+    ratMember: "Satya Nadella",
     projects: [
       {
         id: "software-project-1",
@@ -162,6 +166,7 @@ export const fortune30Partners: Collaborator[] = [
     email: "partnerships@google.com",
     role: "Technology Partner",
     department: "Technology",
+    ratMember: "Sundar Pichai",
     projects: [
       {
         id: "technology-project-2",

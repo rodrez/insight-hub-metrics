@@ -20,4 +20,5 @@ export interface SitRep {
   smePartnerId?: string;
   poc?: string;
   pocDepartment?: string;
+  projectId?: string;
 }
