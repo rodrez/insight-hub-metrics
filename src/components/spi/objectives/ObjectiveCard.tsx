@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Pen, Trash2, Target, ArrowRight } from "lucide-react";
@@ -25,11 +25,31 @@ interface ObjectiveCardProps {
 
 export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProps) {
   const [statusColors, setStatusColors] = useState({
-    active: '#ffffff'
+    active: '#10B981'
   });
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedObjective, setSelectedObjective] = useState<Objective | null>(null);
+
+  useEffect(() => {
+    const loadStatusColors = () => {
+      const saved = localStorage.getItem('projectStatusColors');
+      if (saved) {
+        const colors = JSON.parse(saved);
+        const activeColor = colors.find((c: any) => c.id === 'active')?.color;
+        if (activeColor) {
+          setStatusColors({
+            active: activeColor
+          });
+        }
+      }
+    };
+
+    loadStatusColors();
+    // Listen for storage changes in case settings are updated
+    window.addEventListener('storage', loadStatusColors);
+    return () => window.removeEventListener('storage', loadStatusColors);
+  }, []);
 
   const handleEdit = () => {
     setSelectedObjective(objective);
@@ -90,7 +110,7 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
                     value={progress} 
                     className="h-2"
                     style={{ 
-                      '--progress-background': '#ffffff',
+                      '--progress-background': statusColors.active,
                       backgroundColor: 'rgba(255, 255, 255, 0.1)'
                     } as React.CSSProperties}
                   />
