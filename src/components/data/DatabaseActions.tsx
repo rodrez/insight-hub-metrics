@@ -7,6 +7,7 @@ import { BackupActions } from "./actions/BackupActions";
 import { ExportActions } from "./actions/ExportActions";
 import { toast } from "@/components/ui/use-toast";
 import { DataQuantities } from "./types/dataTypes";
+import { db } from "@/lib/db";
 
 interface DatabaseActionsProps {
   isInitialized: boolean;
@@ -25,6 +26,7 @@ export function DatabaseActions({
 }: DatabaseActionsProps) {
   const [error, setError] = useState<string | null>(null);
   const [showQuantityForm, setShowQuantityForm] = useState(false);
+  const [isDistributing, setIsDistributing] = useState(false);
 
   const handleClear = async () => {
     try {
@@ -65,6 +67,65 @@ export function DatabaseActions({
     }
   };
 
+  const handleDistributeOrgChart = async () => {
+    setIsDistributing(true);
+    try {
+      const [projects, spis, sitreps, collaborators] = await Promise.all([
+        db.getAllProjects(),
+        db.getAllSPIs(),
+        db.getAllSitReps(),
+        db.getAllCollaborators()
+      ]);
+
+      const internalCollaborators = collaborators.filter(c => c.type === 'internal');
+      
+      // Distribute items evenly across collaborators
+      const distribution = internalCollaborators.map(collaborator => ({
+        id: collaborator.id,
+        projects: [],
+        spis: [],
+        sitreps: []
+      }));
+
+      // Helper function to distribute items
+      const distributeItems = (items: any[], type: string) => {
+        let currentIndex = 0;
+        items.forEach(item => {
+          distribution[currentIndex % distribution.length][type].push(item.id);
+          currentIndex++;
+        });
+      };
+
+      distributeItems(projects, 'projects');
+      distributeItems(spis, 'spis');
+      distributeItems(sitreps, 'sitreps');
+
+      // Save the distribution
+      for (const position of distribution) {
+        await db.updateCollaborator(position.id, {
+          projects: position.projects,
+          spis: position.spis,
+          sitreps: position.sitreps
+        });
+      }
+
+      toast({
+        title: "Success",
+        description: "Org chart data distributed successfully",
+      });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to distribute org chart data";
+      setError(errorMessage);
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsDistributing(false);
+    }
+  };
+
   if (!isInitialized) {
     return (
       <Alert>
@@ -87,7 +148,7 @@ export function DatabaseActions({
         <Button
           variant="destructive"
           onClick={handleClear}
-          disabled={isClearing || isPopulating}
+          disabled={isClearing || isPopulating || isDistributing}
         >
           {isClearing ? (
             <>
@@ -101,7 +162,7 @@ export function DatabaseActions({
 
         <Button
           onClick={() => setShowQuantityForm(true)}
-          disabled={isClearing || isPopulating}
+          disabled={isClearing || isPopulating || isDistributing}
         >
           {isPopulating ? (
             <>
@@ -113,8 +174,22 @@ export function DatabaseActions({
           )}
         </Button>
 
-        <BackupActions isInitialized={isInitialized} disabled={isClearing || isPopulating} />
-        <ExportActions isInitialized={isInitialized} disabled={isClearing || isPopulating} />
+        <Button
+          onClick={handleDistributeOrgChart}
+          disabled={isClearing || isPopulating || isDistributing}
+        >
+          {isDistributing ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Distributing...
+            </>
+          ) : (
+            "Distribute Org Chart"
+          )}
+        </Button>
+
+        <BackupActions isInitialized={isInitialized} disabled={isClearing || isPopulating || isDistributing} />
+        <ExportActions isInitialized={isInitialized} disabled={isClearing || isPopulating || isDistributing} />
       </div>
 
       {showQuantityForm && (

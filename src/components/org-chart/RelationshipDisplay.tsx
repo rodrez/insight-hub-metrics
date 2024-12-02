@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
-import { OrgPosition } from "./types";
+import { format } from "date-fns";
 
 interface RelationshipDisplayProps {
   title: string;
@@ -32,7 +32,14 @@ export function RelationshipDisplay({ title, type, itemIds }: RelationshipDispla
     }
   });
 
-  const selectedItems = items.filter((item: any) => itemIds.includes(item.id));
+  const selectedItems = items
+    .filter((item: any) => itemIds.includes(item.id))
+    .sort((a: any, b: any) => {
+      if (type === 'sitreps') {
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      }
+      return 0;
+    });
 
   if (selectedItems.length === 0) return null;
 
@@ -44,7 +51,29 @@ export function RelationshipDisplay({ title, type, itemIds }: RelationshipDispla
         borderColor: 'transparent'
       };
     }
+    if (type === 'spis') {
+      switch (item.status) {
+        case 'completed':
+          return { backgroundColor: '#10B981', color: '#FFFFFF', borderColor: 'transparent' };
+        case 'delayed':
+          return { backgroundColor: '#F59E0B', color: '#FFFFFF', borderColor: 'transparent' };
+        case 'on-track':
+          return { backgroundColor: '#3B82F6', color: '#FFFFFF', borderColor: 'transparent' };
+        default:
+          return {};
+      }
+    }
     return {};
+  };
+
+  const getItemLabel = (item: any) => {
+    if (type === 'sitreps') {
+      return `${item.title} (${format(new Date(item.date), 'MMM d, yyyy')})`;
+    }
+    if (type === 'spis') {
+      return `${item.name} (Due: ${format(new Date(item.expectedCompletionDate), 'MMM d, yyyy')})`;
+    }
+    return item.name || item.title;
   };
 
   return (
@@ -58,7 +87,7 @@ export function RelationshipDisplay({ title, type, itemIds }: RelationshipDispla
             className="text-xs"
             style={getBadgeStyle(item)}
           >
-            {item.name || item.title}
+            {getItemLabel(item)}
           </Badge>
         ))}
       </div>
