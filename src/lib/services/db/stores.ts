@@ -1,38 +1,34 @@
 export const DB_CONFIG = {
-  name: 'projectManagementDB',
+  name: 'projectsDB',
   version: 1,
-  stores: {
-    projects: 'projects',
-    collaborators: 'collaborators',
-    sitreps: 'sitreps',
-    spis: 'spis',
-    objectives: 'objectives',
-    smePartners: 'smePartners'
-  }
 };
 
 export const createStores = (db: IDBDatabase) => {
-  // Remove existing object stores if they exist during upgrade
-  Array.from(db.objectStoreNames).forEach(storeName => {
-    db.deleteObjectStore(storeName);
-  });
+  if (!db.objectStoreNames.contains('projects')) {
+    db.createObjectStore('projects', { keyPath: 'id' });
+  }
 
-  // Create fresh object stores
-  console.log('Creating projects store');
-  db.createObjectStore(DB_CONFIG.stores.projects, { keyPath: 'id' });
+  if (!db.objectStoreNames.contains('collaborators')) {
+    db.createObjectStore('collaborators', { keyPath: 'id' });
+  }
 
-  console.log('Creating collaborators store');
-  db.createObjectStore(DB_CONFIG.stores.collaborators, { keyPath: 'id' });
+  if (!db.objectStoreNames.contains('sitreps')) {
+    db.createObjectStore('sitreps', { keyPath: 'id' });
+  }
 
-  console.log('Creating sitreps store');
-  db.createObjectStore(DB_CONFIG.stores.sitreps, { keyPath: 'id' });
+  if (!db.objectStoreNames.contains('spis')) {
+    db.createObjectStore('spis', { keyPath: 'id' });
+  }
 
-  console.log('Creating spis store');
-  db.createObjectStore(DB_CONFIG.stores.spis, { keyPath: 'id' });
+  if (!db.objectStoreNames.contains('objectives')) {
+    db.createObjectStore('objectives', { keyPath: 'id' });
+  }
 
-  console.log('Creating objectives store');
-  db.createObjectStore(DB_CONFIG.stores.objectives, { keyPath: 'id' });
+  if (!db.objectStoreNames.contains('initiatives')) {
+    db.createObjectStore('initiatives', { keyPath: 'id' });
+  }
 
-  console.log('Creating smePartners store');
-  db.createObjectStore(DB_CONFIG.stores.smePartners, { keyPath: 'id' });
+  if (!db.objectStoreNames.contains('smePartners')) {
+    db.createObjectStore('smePartners', { keyPath: 'id' });
+  }
 };

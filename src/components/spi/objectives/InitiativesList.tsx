@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pen, Plus, Trash2 } from "lucide-react";
@@ -9,10 +9,6 @@ import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
 import { useQuery } from "@tanstack/react-query";
 
-interface InitiativesListProps {
-  objectives: Objective[];
-}
-
 interface Initiative {
   id: string;
   initiative: string;
@@ -20,7 +16,7 @@ interface Initiative {
   objectiveIds: string[];
 }
 
-export function InitiativesList({ objectives }: InitiativesListProps) {
+export function InitiativesList({ objectives }: { objectives: Objective[] }) {
   const [selectedInitiative, setSelectedInitiative] = useState<Initiative | null>(null);
   
   const { data: initiatives = [], refetch } = useQuery({
@@ -37,8 +33,8 @@ export function InitiativesList({ objectives }: InitiativesListProps) {
       await db.deleteInitiative(id);
       await refetch();
       toast({
-        title: "Initiative deleted",
-        description: "The initiative has been successfully removed.",
+        title: "Success",
+        description: "Initiative deleted successfully",
       });
     } catch (error) {
       toast({
@@ -49,16 +45,24 @@ export function InitiativesList({ objectives }: InitiativesListProps) {
     }
   };
 
+  const handleAddNew = () => {
+    const newInitiative: Initiative = {
+      id: crypto.randomUUID(),
+      initiative: '',
+      desiredOutcome: '',
+      objectiveIds: [],
+    };
+    setSelectedInitiative(newInitiative);
+  };
+
   const handleSave = async (initiative: Initiative) => {
     try {
       if (initiative.id) {
-        await db.updateInitiative(initiative.id, initiative);
-      } else {
-        const newInitiative = {
-          ...initiative,
-          id: crypto.randomUUID(),
-        };
-        await db.addInitiative(newInitiative);
+        if (selectedInitiative?.id) {
+          await db.updateInitiative(initiative.id, initiative);
+        } else {
+          await db.addInitiative(initiative);
+        }
       }
       await refetch();
       setSelectedInitiative(null);
@@ -73,16 +77,6 @@ export function InitiativesList({ objectives }: InitiativesListProps) {
         variant: "destructive",
       });
     }
-  };
-
-  const handleAddNew = () => {
-    const newInitiative = {
-      id: '',
-      initiative: '',
-      desiredOutcome: '',
-      objectiveIds: [],
-    };
-    setSelectedInitiative(newInitiative);
   };
 
   return (
@@ -130,32 +124,20 @@ export function InitiativesList({ objectives }: InitiativesListProps) {
                     </Button>
                   </div>
                 </div>
-                <div className="flex gap-1">
-                  {initiative.objectiveIds.map((objId) => {
-                    const objective = objectives.find(o => o.id === objId);
-                    return objective ? (
-                      <Badge
-                        key={objId}
-                        variant="secondary"
-                        className="text-xs"
-                      >
-                        {objective.title}
-                      </Badge>
-                    ) : null;
-                  })}
-                </div>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <InitiativeEditDialog
-        initiative={selectedInitiative}
-        objectives={objectives}
-        onClose={() => setSelectedInitiative(null)}
-        onSave={handleSave}
-      />
+      {selectedInitiative && (
+        <InitiativeEditDialog
+          initiative={selectedInitiative}
+          objectives={objectives}
+          onClose={() => setSelectedInitiative(null)}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 }
