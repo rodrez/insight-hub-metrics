@@ -13,104 +13,102 @@ export interface Bug {
 export const initialBugs: Bug[] = [
   {
     id: "BUG-001",
-    title: "Database Population Progress Indicator",
-    description: "Progress tracking during database population needs improvement",
+    title: "Long Component Files Need Refactoring",
+    description: "Several component files exceed recommended length (>150 lines)",
     severity: "medium",
     status: "active",
-    location: "src/components/data/hooks/useDataPopulation.ts",
-    impact: "Users lack clear feedback during data population process",
-    stepsToReproduce: "1. Clear database\n2. Attempt to populate with large dataset",
-    suggestedFix: "Implement a progress bar component to show real-time population status"
+    location: "src/components/settings/DepartmentSettings.tsx, BugFixesTab.tsx, SampleDataSettings.tsx",
+    impact: "Reduced code maintainability and harder to understand components",
+    suggestedFix: "Split components into smaller, focused subcomponents and move them to separate files"
   },
   {
     id: "BUG-002",
-    title: "Type Safety in Bug Tracking",
-    description: "BugFixesTab uses 'any' type for bugs array",
-    severity: "low",
+    title: "Missing Error Boundaries",
+    description: "Application lacks error boundaries for graceful error handling",
+    severity: "high",
     status: "active",
-    location: "src/components/settings/BugFixesTab.tsx",
-    impact: "Reduced type safety and potential runtime errors",
-    suggestedFix: "Replace 'any[]' with proper Bug interface type"
+    location: "src/App.tsx and major feature components",
+    impact: "Runtime errors could crash entire application sections",
+    suggestedFix: "Implement React Error Boundary components around major feature sections"
   },
   {
     id: "BUG-003",
-    title: "Database Operations Error Handling",
-    description: "Error handling in DatabaseOperations class needs enhancement",
-    severity: "high",
+    title: "Inconsistent Type Usage",
+    description: "Some components use 'any' type instead of proper interfaces",
+    severity: "medium",
     status: "active",
-    location: "src/components/data/operations/DatabaseOperations.ts",
-    impact: "Insufficient error context for debugging database issues",
-    suggestedFix: "Implement detailed error handling with specific error types and messages"
+    location: "src/components/settings/BugFixesTab.tsx",
+    impact: "Reduced type safety and potential runtime errors",
+    suggestedFix: "Replace 'any' types with proper interfaces and type definitions"
   },
   {
     id: "BUG-004",
-    title: "Memory Management in Data Population",
-    description: "Large dataset population may cause memory issues",
-    severity: "critical",
+    title: "Loading State Improvements",
+    description: "Loading states could be enhanced with better user feedback",
+    severity: "low",
     status: "active",
-    location: "src/lib/services/IndexedDBService.ts",
-    impact: "Potential browser crashes with large datasets",
-    stepsToReproduce: "1. Attempt to populate database with maximum quantity values",
-    suggestedFix: "Implement batch processing with memory usage monitoring"
+    location: "src/components/settings/BugFixesTab.tsx",
+    impact: "User experience during loading operations could be improved",
+    suggestedFix: "Add loading skeletons and progress indicators for better UX"
   },
   {
     id: "BUG-005",
-    title: "Settings Page Load Performance",
-    description: "Settings tabs load all content simultaneously",
+    title: "Database Service Singleton Pattern",
+    description: "Current database service implementation could be improved",
     severity: "medium",
     status: "active",
-    location: "src/pages/Settings.tsx",
-    impact: "Slower initial page load and unnecessary resource usage",
-    suggestedFix: "Implement lazy loading for tab content"
+    location: "src/lib/db.ts",
+    impact: "Potential issues with service initialization and state management",
+    suggestedFix: "Implement proper singleton pattern with type-safe getInstance method"
   },
   {
     id: "BUG-006",
-    title: "Data Validation in Sample Data Generation",
-    description: "Sample data generation lacks comprehensive validation",
+    title: "Missing Input Validation",
+    description: "Some form inputs lack proper validation",
     severity: "high",
     status: "active",
-    location: "src/lib/services/data/sampleDataGenerator.ts",
-    impact: "Potential invalid data states in generated content",
-    suggestedFix: "Add thorough validation checks for generated data"
+    location: "src/components/settings/sample-data/QuantityInputs.tsx",
+    impact: "Could lead to invalid data states or errors",
+    suggestedFix: "Add comprehensive input validation using zod or similar validation library"
   },
   {
     id: "BUG-007",
-    title: "Component File Size Management",
-    description: "Several components exceed recommended file size",
+    title: "Performance Optimization Needed",
+    description: "Large lists render without virtualization",
     severity: "medium",
     status: "active",
-    location: "Multiple component files",
-    impact: "Reduced maintainability and potential performance issues",
-    suggestedFix: "Refactor large components into smaller, focused components"
+    location: "src/components/settings/BugFixesTab.tsx",
+    impact: "Potential performance issues with large datasets",
+    suggestedFix: "Implement virtual scrolling for large lists using react-virtual or similar"
   },
   {
     id: "BUG-008",
-    title: "React Query Error Boundary Implementation",
-    description: "Missing error boundaries for React Query errors",
-    severity: "medium",
+    title: "Accessibility Improvements",
+    description: "Some interactive elements lack proper ARIA attributes",
+    severity: "high",
     status: "active",
-    location: "src/components/data/hooks/useDataPopulation.ts",
-    impact: "Uncaught query errors may crash the application",
-    suggestedFix: "Implement error boundaries for React Query operations"
+    location: "Multiple component files",
+    impact: "Reduced accessibility for users with assistive technologies",
+    suggestedFix: "Add proper ARIA labels and roles to interactive elements"
   },
   {
     id: "BUG-009",
-    title: "IndexedDB Version Management",
-    description: "Database version management needs improvement",
-    severity: "high",
+    title: "State Management Refactor",
+    description: "Local state could be better managed with global state solution",
+    severity: "medium",
     status: "active",
-    location: "src/lib/services/db/base/BaseDBService.ts",
-    impact: "Potential issues during database schema updates",
-    suggestedFix: "Implement robust version control system for database schema changes"
+    location: "src/components/settings/DepartmentSettings.tsx",
+    impact: "Complex state management across components",
+    suggestedFix: "Implement proper state management using React Query or similar solution"
   },
   {
     id: "BUG-010",
-    title: "React Query Cache Configuration",
-    description: "Query cache settings need optimization",
+    title: "Code Documentation",
+    description: "Some complex functions lack proper JSDoc documentation",
     severity: "low",
     status: "active",
-    location: "src/lib/services/IndexedDBService.ts",
-    impact: "Suboptimal caching behavior for database operations",
-    suggestedFix: "Configure appropriate cache time and stale time for queries"
+    location: "Various utility and service files",
+    impact: "Harder for new developers to understand code functionality",
+    suggestedFix: "Add comprehensive JSDoc documentation to complex functions and components"
   }
 ];
