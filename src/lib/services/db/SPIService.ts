@@ -49,6 +49,10 @@ export class SPIService extends BaseIndexedDBService {
     return this.transactionService.performTransaction('initiatives', 'readonly', store => store.getAll());
   }
 
+  public async addInitiative(initiative: any): Promise<void> {
+    await this.transactionService.performTransaction('initiatives', 'readwrite', store => store.put(initiative));
+  }
+
   public async updateInitiative(id: string, initiative: any): Promise<void> {
     await this.transactionService.performTransaction('initiatives', 'readwrite', store => store.put(initiative));
   }

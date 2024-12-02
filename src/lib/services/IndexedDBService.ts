@@ -88,6 +88,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
 
   // Initiative methods
   getAllInitiatives = () => this.spiService.getAllInitiatives();
+  addInitiative = (initiative: any) => this.spiService.addInitiative(initiative);
   updateInitiative = (id: string, initiative: any) => this.spiService.updateInitiative(id, initiative);
   deleteInitiative = (id: string) => this.spiService.deleteInitiative(id);
 

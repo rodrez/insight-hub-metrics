@@ -37,6 +37,7 @@ export interface DataService {
   updateObjective(id: string, updates: Partial<Objective>): Promise<void>;
   deleteObjective(id: string): Promise<void>;
   getAllInitiatives(): Promise<any[]>;
+  addInitiative(initiative: any): Promise<void>;
   updateInitiative(id: string, initiative: any): Promise<void>;
   deleteInitiative(id: string): Promise<void>;
   exportData(): Promise<ExportedData>;
