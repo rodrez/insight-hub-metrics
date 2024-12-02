@@ -79,7 +79,10 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-2 flex-1">
               <div className="flex items-start gap-3">
-                <Target className="h-5 w-5 text-primary mt-1" />
+                <Target 
+                  className="h-5 w-5 mt-1" 
+                  style={{ color: statusColors.active }}
+                />
                 <div>
                   <h4 className="font-medium text-lg">{objective.title}</h4>
                   <p className="text-sm text-muted-foreground">{objective.description}</p>
