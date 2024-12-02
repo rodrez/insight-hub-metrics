@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
+import { format } from "date-fns";
 import { OrgPosition } from "./types";
 
 interface RelationshipDisplayProps {
@@ -25,7 +26,8 @@ export function RelationshipDisplay({ title, type, itemIds }: RelationshipDispla
         case 'spis':
           return db.getAllSPIs();
         case 'sitreps':
-          return db.getAllSitReps();
+          const sitreps = await db.getAllSitReps();
+          return sitreps.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         default:
           return [];
       }
@@ -36,6 +38,45 @@ export function RelationshipDisplay({ title, type, itemIds }: RelationshipDispla
 
   if (selectedItems.length === 0) return null;
 
+  const getSPIStatusColor = (status: string) => {
+    switch (status) {
+      case 'on-track':
+        return 'bg-green-500/10 border-green-500 text-green-500';
+      case 'delayed':
+        return 'bg-red-500/10 border-red-500 text-red-500';
+      case 'completed':
+        return 'bg-blue-500/10 border-blue-500 text-blue-500';
+      default:
+        return 'bg-gray-500/10 border-gray-500 text-gray-500';
+    }
+  };
+
+  const getBadgeContent = (item: any) => {
+    if (type === 'sitreps') {
+      return (
+        <div className="flex items-center gap-2">
+          <span>{item.title}</span>
+          <span className="text-xs text-muted-foreground">
+            {format(new Date(item.date), 'MMM d, yyyy')}
+          </span>
+        </div>
+      );
+    }
+    
+    if (type === 'spis') {
+      return (
+        <div className="flex items-center gap-2">
+          <span>{item.name}</span>
+          <span className="text-xs text-muted-foreground">
+            ECD: {format(new Date(item.expectedCompletionDate), 'MMM d, yyyy')}
+          </span>
+        </div>
+      );
+    }
+
+    return item.name || item.title;
+  };
+
   const getBadgeStyle = (item: any) => {
     if (type === 'fortune30Partners' || type === 'smePartners') {
       return {
@@ -44,6 +85,11 @@ export function RelationshipDisplay({ title, type, itemIds }: RelationshipDispla
         borderColor: 'transparent'
       };
     }
+    
+    if (type === 'spis') {
+      return {};
+    }
+    
     return {};
   };
 
@@ -55,10 +101,10 @@ export function RelationshipDisplay({ title, type, itemIds }: RelationshipDispla
           <Badge 
             key={item.id} 
             variant="secondary" 
-            className="text-xs"
+            className={`text-xs ${type === 'spis' ? getSPIStatusColor(item.status) : ''}`}
             style={getBadgeStyle(item)}
           >
-            {item.name || item.title}
+            {getBadgeContent(item)}
           </Badge>
         ))}
       </div>
