@@ -46,7 +46,6 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
     };
 
     loadStatusColors();
-    // Listen for storage changes in case settings are updated
     window.addEventListener('storage', loadStatusColors);
     return () => window.removeEventListener('storage', loadStatusColors);
   }, []);
