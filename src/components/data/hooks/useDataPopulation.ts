@@ -5,7 +5,7 @@ import { SampleDataService } from "@/lib/services/data/SampleDataService";
 import { useQueryClient } from "@tanstack/react-query";
 import { DatabaseError } from "@/lib/utils/errorHandling";
 import { DatabaseOperations } from "../operations/DatabaseOperations";
-import { DataQuantities } from "../SampleData";
+import { DataQuantities } from "../types/dataTypes";
 import { toast } from "@/components/ui/use-toast";
 
 export function useDataPopulation() {
@@ -38,7 +38,10 @@ export function useDataPopulation() {
 
             // Generate and save new data
             console.log('Generating sample data...');
-            await sampleDataService.generateSampleData(quantities);
+            await sampleDataService.generateSampleData({
+              ...quantities,
+              initiatives: quantities.initiatives || 5 // Provide default value if missing
+            });
             console.log('Sample data generated and saved successfully');
 
             // Invalidate queries to refresh UI
