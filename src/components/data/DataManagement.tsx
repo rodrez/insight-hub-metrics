@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
+import { db } from "@/lib/db";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -33,11 +35,14 @@ export default function DataManagement() {
   const handleClear = useCallback(async () => {
     try {
       await clearDatabase();
+      // Ensure database is reinitialized after clearing
+      await db.init();
       // Invalidate all queries to refresh the UI
       await queryClient.invalidateQueries();
       await updateDataCounts();
       setCurrentPage(1);
     } catch (error) {
+      console.error('Clear error:', error);
       errorHandler.handleError(error, {
         type: 'database',
         title: 'Failed to clear database'
@@ -48,10 +53,21 @@ export default function DataManagement() {
   const handlePopulate = useCallback(async (quantities: DataQuantities) => {
     try {
       console.log('Starting population with quantities:', quantities);
+      // Ensure database is initialized before population
+      await db.init();
       await populateSampleData(quantities);
-      // Invalidate all queries to refresh the UI
+      
+      // Wait a brief moment for the database to settle
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Invalidate queries and update counts
       await queryClient.invalidateQueries();
       await updateDataCounts();
+      
+      toast({
+        title: "Success",
+        description: "Database populated successfully. Refreshing data...",
+      });
     } catch (error) {
       console.error('Population error:', error);
       errorHandler.handleError(error, {

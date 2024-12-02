@@ -79,25 +79,9 @@ export function useDataCounts(isInitialized: boolean) {
       };
 
       console.log('Calculated counts:', counts);
-
-      // Update individual count queries
-      Object.entries(counts).forEach(([key, value]) => {
-        queryClient.setQueryData(['data-count', key], value);
-      });
-
       return counts;
     } catch (error) {
-      console.error('Detailed error in fetchDataCounts:', {
-        error,
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined
-      });
-      
-      toast({
-        title: "Error",
-        description: "Failed to fetch data counts. Please ensure the database is properly initialized.",
-        variant: "destructive",
-      });
+      console.error('Error in fetchDataCounts:', error);
       throw error;
     }
   };
@@ -115,16 +99,12 @@ export function useDataCounts(isInitialized: boolean) {
     queryKey: ['data-counts'],
     queryFn: fetchDataCounts,
     enabled: isInitialized,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    gcTime: 1000 * 60 * 30, // 30 minutes
+    staleTime: 1000, // Reduce stale time to 1 second to ensure frequent updates
+    refetchInterval: 2000, // Add polling every 2 seconds while the query is mounted
   });
 
   const updateDataCounts = async () => {
     await queryClient.invalidateQueries({ queryKey: ['data-counts'] });
-    // Also invalidate individual count queries
-    Object.keys(dataCounts).forEach(key => {
-      queryClient.invalidateQueries({ queryKey: ['data-count', key] });
-    });
     await refetch();
   };
 
