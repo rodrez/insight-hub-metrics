@@ -15,7 +15,8 @@ export function useDataCounts(isInitialized: boolean) {
         sitreps: 0,
         fortune30: 0,
         internalPartners: 0,
-        smePartners: 0
+        smePartners: 0,
+        initiatives: 0
       };
     }
     
@@ -28,14 +29,16 @@ export function useDataCounts(isInitialized: boolean) {
         objectives,
         sitreps,
         collaborators,
-        smePartners
+        smePartners,
+        initiatives
       ] = await Promise.all([
         db.getAllProjects(),
         db.getAllSPIs(),
         db.getAllObjectives(),
         db.getAllSitReps(),
         db.getAllCollaborators(),
-        db.getAllSMEPartners()
+        db.getAllSMEPartners(),
+        db.getAllInitiatives()
       ]);
 
       const counts = {
@@ -45,7 +48,8 @@ export function useDataCounts(isInitialized: boolean) {
         sitreps: sitreps?.length || 0,
         fortune30: collaborators?.filter(c => c.type === 'fortune30')?.length || 0,
         internalPartners: collaborators?.filter(c => c.type === 'internal')?.length || 0,
-        smePartners: smePartners?.length || 0
+        smePartners: smePartners?.length || 0,
+        initiatives: initiatives?.length || 0
       };
 
       // Update individual count queries
@@ -72,7 +76,8 @@ export function useDataCounts(isInitialized: boolean) {
     sitreps: 0,
     fortune30: 0,
     internalPartners: 0,
-    smePartners: 0
+    smePartners: 0,
+    initiatives: 0
   }, isLoading, refetch } = useQuery({
     queryKey: ['data-counts'],
     queryFn: fetchDataCounts,
