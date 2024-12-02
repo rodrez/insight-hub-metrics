@@ -1,13 +1,21 @@
 import { Badge } from "@/components/ui/badge";
 import { Collaborator } from "@/lib/types/collaboration";
-import { Project } from "@/lib/types";
 
 interface ProjectCardPartnersProps {
-  partners: Collaborator[];
+  partners?: Collaborator[];
   getDepartmentColor: (departmentId: string) => string;
 }
 
-export function ProjectCardPartners({ partners, getDepartmentColor }: ProjectCardPartnersProps) {
+export function ProjectCardPartners({ partners = [], getDepartmentColor }: ProjectCardPartnersProps) {
+  if (!partners || partners.length === 0) {
+    return (
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Project Partners</h3>
+        <p className="text-muted-foreground">No partners assigned</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Project Partners</h3>
@@ -15,8 +23,9 @@ export function ProjectCardPartners({ partners, getDepartmentColor }: ProjectCar
         {partners.map((partner) => (
           <Badge
             key={partner.id}
-            style={{ backgroundColor: partner.color }}
+            style={{ backgroundColor: partner.color || getDepartmentColor(partner.department) }}
             className="text-white"
+            title={partner.role}
           >
             {partner.name} (RAT: {partner.ratMember})
           </Badge>
