@@ -24,6 +24,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   private dataExportService: DataExportService;
   private databaseClearingService: DatabaseClearingService;
   private initManager: ServiceInitializationManager;
+  private initialized: boolean = false;
 
   private constructor() {
     super();
@@ -53,7 +54,12 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
       this.collaboratorService.setDatabase(db);
       this.sitRepService.setDatabase(db);
       this.spiService.setDatabase(db);
+      this.initialized = true;
     });
+  }
+
+  public isInitialized(): boolean {
+    return this.initialized && this.getDatabase() !== null;
   }
 
   // Project methods

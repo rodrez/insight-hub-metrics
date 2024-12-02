@@ -16,6 +16,7 @@ export interface ExportedData {
 export interface DataService {
   init(): Promise<void>;
   clear(): Promise<void>;
+  isInitialized(): boolean;
   getAllProjects(): Promise<Project[]>;
   getProject(id: string): Promise<Project | undefined>;
   addProject(project: Project): Promise<void>;
