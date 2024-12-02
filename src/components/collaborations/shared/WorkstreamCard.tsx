@@ -18,9 +18,10 @@ type WorkstreamCardProps = {
     nda?: Agreement;
     jtda?: Agreement;
   };
+  color?: string;
 };
 
-export function WorkstreamCard({ workstream, formatDate, agreements }: WorkstreamCardProps) {
+export function WorkstreamCard({ workstream, formatDate, agreements, color }: WorkstreamCardProps) {
   const getStatusColor = (status?: string) => {
     if (!status) return 'text-gray-400';
     return status === 'signed' ? 'text-green-500' : 'text-yellow-500';
@@ -54,7 +55,12 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
   };
 
   return (
-    <Card className={`${getWarningColor()}`}>
+    <Card 
+      className={`${getWarningColor()}`}
+      style={{ 
+        borderColor: color || '#333'
+      }}
+    >
       <CardContent className="pt-6">
         <div className="flex justify-between items-start mb-2">
           <h5 className="font-medium">{workstream.title}</h5>
