@@ -1,6 +1,8 @@
 import { Dispatch, SetStateAction } from 'react';
 import { Collaborator } from '@/lib/types/collaboration';
-import { SPIStatus } from '@/lib/types/spi';
+import { Project } from '@/lib/types';
+
+export type SPIStatus = 'on-track' | 'delayed' | 'completed' | 'cancelled';
 
 export interface SelectFieldsProps {
   status: SPIStatus;

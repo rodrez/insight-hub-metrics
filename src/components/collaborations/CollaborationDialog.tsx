@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Collaborator } from "@/lib/types/collaboration";
-import { CollaborationType } from "@/lib/types/collaboration";
+import { Collaborator, CollaborationType } from "@/lib/types/collaboration";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,23 +8,32 @@ import { DEPARTMENTS } from "@/lib/constants";
 interface CollaborationDialogProps {
   onClose: () => void;
   onSave: (collaborator: Collaborator) => void;
+  collaboratorId?: string;
+  collaborationType?: CollaborationType;
+  departmentId?: string;
 }
 
-export function CollaborationDialog({ onClose, onSave }: CollaborationDialogProps) {
+export function CollaborationDialog({ 
+  onClose, 
+  onSave, 
+  collaboratorId,
+  collaborationType = 'fortune30',
+  departmentId 
+}: CollaborationDialogProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
-  const [department, setDepartment] = useState<string | null>(null);
-  const [type, setType] = useState<CollaborationType | null>(null);
+  const [department, setDepartment] = useState<string | null>(departmentId || null);
+  const [type, setType] = useState<CollaborationType>(collaborationType);
   const [ratMember, setRatMember] = useState("");
 
   const handleSave = () => {
     if (!name || !email || !role || !department || !type || !ratMember) {
-      return; // You can add error handling here
+      return;
     }
 
     const newCollaborator: Collaborator = {
-      id: `${Date.now()}`, // Simple ID generation; replace with a better ID generation strategy
+      id: collaboratorId || `${Date.now()}`,
       name,
       email,
       role,
@@ -73,7 +81,7 @@ export function CollaborationDialog({ onClose, onSave }: CollaborationDialogProp
           ))}
         </SelectContent>
       </Select>
-      <Select value={type || ""} onValueChange={(value) => setType(value as CollaborationType)}>
+      <Select value={type} onValueChange={(value) => setType(value as CollaborationType)}>
         <SelectTrigger className="mb-2">
           <SelectValue placeholder="Select collaboration type" />
         </SelectTrigger>
