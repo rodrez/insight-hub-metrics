@@ -1,4 +1,5 @@
 import { Info } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import {
   Tooltip,
   TooltipContent,
@@ -46,16 +47,16 @@ export function FinancialMetric({
       </TooltipProvider>
       {isEditing ? (
         <div className="relative">
-          <input
+          <Input
             type={type}
             value={value}
             onChange={onChange}
             step={step}
             min={min}
-            className="text-2xl font-bold w-full bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary pl-6 pr-2"
+            className="pl-6 text-xl font-semibold"
           />
-          {prefix && <span className="absolute left-0 top-1/2 -translate-y-1/2 text-2xl font-bold">{prefix}</span>}
-          {suffix && <span className="absolute right-0 top-1/2 -translate-y-1/2 text-2xl font-bold">{suffix}</span>}
+          {prefix && <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xl font-semibold">{prefix}</span>}
+          {suffix && <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xl font-semibold">{suffix}</span>}
         </div>
       ) : (
         <p className="text-2xl font-bold">{prefix}{value}{suffix}</p>
