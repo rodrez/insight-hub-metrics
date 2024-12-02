@@ -1,5 +1,6 @@
 import { SPI } from "@/lib/types/spi";
 import { SitRep } from "@/lib/types/sitrep";
+import { Objective } from "@/lib/types/objective";
 import { generateId } from "../utils/dataGenerationUtils";
 
 export const generateSampleSPIs = (projectIds: string[], count: number): SPI[] => {
@@ -18,13 +19,14 @@ export const generateSampleSPIs = (projectIds: string[], count: number): SPI[] =
   }));
 };
 
-export const generateSampleObjectives = (count: number) => {
+export const generateSampleObjectives = (count: number): Objective[] => {
   return Array.from({ length: count }, (_, i) => ({
     id: generateId(),
     title: `Objective ${i + 1}`,
     description: `Description for objective ${i + 1}`,
-    status: "in-progress",
-    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString(),
+    initiative: `Initiative ${i + 1}`,
+    desiredOutcome: "0%",
+    spiIds: [],
     ratMember: `RAT Member ${i + 1}`
   }));
 };

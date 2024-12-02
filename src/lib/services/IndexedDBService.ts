@@ -25,7 +25,7 @@ export class IndexedDBService implements DataService {
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
-        
+
         if (!db.objectStoreNames.contains('projects')) {
           db.createObjectStore('projects', { keyPath: 'id' });
         }
@@ -166,13 +166,13 @@ export class IndexedDBService implements DataService {
 
   public async deleteCollaborator(id: string): Promise<void> {
     if (!this.db) throw new Error("Database not initialized");
-    
+
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction(['collaborators'], 'readwrite');
       const store = transaction.objectStore('collaborators');
-      
+
       const request = store.delete(id);
-      
+
       request.onerror = () => reject(request.error);
       request.onsuccess = () => resolve();
     });
@@ -420,7 +420,7 @@ export class IndexedDBService implements DataService {
       await this.addProject(project);
     }
     
-    for (const collaborator of data.collaborators) {
+    for (const collaborator of data.internalPartners) {
       await this.addCollaborator(collaborator);
     }
     
@@ -435,10 +435,6 @@ export class IndexedDBService implements DataService {
     for (const objective of data.objectives) {
       await this.addObjective(objective);
     }
-  }
-
-  public getDatabase(): IDBDatabase | null {
-    return this.db;
   }
 
   public async getAllSMEPartners(): Promise<Collaborator[]> {

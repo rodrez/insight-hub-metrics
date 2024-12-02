@@ -1,4 +1,5 @@
 import { Collaborator } from '@/lib/types/collaboration';
+import { smeCompanies } from '../companies';
 
 export const generateSMEPartners = (): Collaborator[] => {
   return smeCompanies.map((company, index) => ({
@@ -6,19 +7,19 @@ export const generateSMEPartners = (): Collaborator[] => {
     name: company.name,
     color: company.color,
     email: `info@${company.name.toLowerCase().replace(/\s+/g, '')}.com`,
-    role: company.role,
+    role: "SME Partner",
     department: company.department,
+    ratMember: company.ratMember,
     projects: [
       {
         id: `${company.department.toLowerCase()}-${index + 1}`,
-        name: `${company.expertise} Implementation`,
-        description: `Advanced ${company.expertise.toLowerCase()} project focusing on enterprise solutions`,
+        name: `${company.department} Implementation`,
+        description: `Advanced ${company.department.toLowerCase()} project focusing on enterprise solutions`,
         status: "active"
       }
     ],
     lastActive: new Date().toISOString(),
-    type: "sme",
-    ratMember: `SME RAT Member ${index + 1}`,
+    type: "sme" as const,
     agreements: {
       nda: {
         signedDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
