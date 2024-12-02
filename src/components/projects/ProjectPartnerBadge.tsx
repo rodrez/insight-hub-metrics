@@ -34,14 +34,19 @@ export function ProjectPartnerBadge({ partner, departmentColor }: ProjectPartner
   };
 
   const getBadgeColor = () => {
-    if (partner.type === 'fortune30' && partner.color) {
+    // For Fortune 30 partners, always use their brand color if available
+    if (partner.type === 'fortune30') {
       return partner.color;
     }
+    // For SME partners, use their color if available
     if (partner.type === 'sme' && partner.color) {
       return partner.color;
     }
-    return departmentColor || '#333';
+    // Fallback to department color or default
+    return departmentColor || '#4B5563';
   };
+
+  const badgeColor = getBadgeColor();
 
   return (
     <TooltipProvider>
@@ -49,10 +54,11 @@ export function ProjectPartnerBadge({ partner, departmentColor }: ProjectPartner
         <TooltipTrigger>
           <Badge
             style={{ 
-              backgroundColor: getBadgeColor(),
-              borderColor: getBadgeColor(),
+              backgroundColor: badgeColor,
+              borderColor: badgeColor,
+              color: 'white'
             }}
-            className="flex items-center gap-1 text-white hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1 hover:opacity-90 transition-opacity"
           >
             {getIcon()}
             {partner.name}
