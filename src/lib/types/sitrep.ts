@@ -1,4 +1,7 @@
-export type SitRep = {
+export type SitRepStatus = 'pending-review' | 'ready' | 'submitted';
+export type SitRepLevel = 'CEO' | 'SVP' | 'CTO';
+
+export interface SitRep {
   id: string;
   title: string;
   date: string;
@@ -6,16 +9,15 @@ export type SitRep = {
   update: string;
   challenges: string;
   nextSteps: string;
-  status: 'pending-review' | 'ready' | 'submitted';
-  level: 'CEO' | 'SVP' | 'CTO';
+  status: SitRepStatus;
+  level: SitRepLevel;
   summary: string;
-  projectId?: string;
   departmentId: string;
-  fortune30PartnerId?: string;
-  smePartnerId?: string;
+  ratMember: string;
   teams?: string[];
   pointsOfContact?: string[];
+  fortune30PartnerId?: string;
+  smePartnerId?: string;
   poc?: string;
   pocDepartment?: string;
-  ratMember: string;
-};
+}

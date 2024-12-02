@@ -1,42 +1,21 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { DEPARTMENTS } from "@/lib/constants";
-import { SPI } from "@/lib/types/spi";
-import { useQuery } from "@tanstack/react-query";
-import { db } from "@/lib/db";
-import { useEffect } from "react";
+import { Dispatch, SetStateAction } from 'react';
+import { Collaborator, Project, SPIStatus } from '@/lib/types';
 
-const RAT_MEMBERS = [
-  { id: "director", name: "Director" },
-  { id: "sm1", name: "Senior Manager 1" },
-  { id: "sm2", name: "Senior Manager 2" },
-  { id: "sm3", name: "Senior Manager 3" },
-  { id: "tl1", name: "Tech Lead 1" },
-  { id: "tl2", name: "Tech Lead 2" },
-  { id: "tl3", name: "Tech Lead 3" },
-];
-
-interface SelectFieldsProps {
-  status: SPI['status'];
-  setStatus: (value: SPI['status']) => void;
+export interface SelectFieldsProps {
+  status: SPIStatus;
+  setStatus: Dispatch<SetStateAction<SPIStatus>>;
   selectedProject: string;
-  setSelectedProject: (value: string) => void;
+  setSelectedProject: Dispatch<SetStateAction<string>>;
   selectedFortune30: string;
-  setSelectedFortune30: (value: string) => void;
+  setSelectedFortune30: Dispatch<SetStateAction<string>>;
   selectedSME: string;
-  setSelectedSME: (value: string) => void;
+  setSelectedSME: Dispatch<SetStateAction<string>>;
   selectedDepartment: string;
-  setSelectedDepartment: (value: string) => void;
+  setSelectedDepartment: Dispatch<SetStateAction<string>>;
   selectedRatMember: string;
-  setSelectedRatMember: (value: string) => void;
-  projects?: any[];
-  fortune30Partners?: any[];
+  setSelectedRatMember: Dispatch<SetStateAction<string>>;
+  projects?: Project[];
+  fortune30Partners?: Collaborator[];
 }
 
 export function SelectFields({
@@ -55,106 +34,91 @@ export function SelectFields({
   projects,
   fortune30Partners,
 }: SelectFieldsProps) {
-  const { data: smePartners = [] } = useQuery({
-    queryKey: ['collaborators-sme'],
-    queryFn: async () => {
-      const smePartners = await db.getAllSMEPartners();
-      if (smePartners && smePartners.length > 0) {
-        return smePartners;
-      }
-      const allCollaborators = await db.getAllCollaborators();
-      return allCollaborators.filter(c => c.type === 'sme');
-    },
-  });
-
-  useEffect(() => {
-    if (selectedFortune30 === undefined) {
-      setSelectedFortune30('none');
-    }
-  }, [selectedFortune30, setSelectedFortune30]);
-
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <div className="space-y-2">
-        <Label htmlFor="status">Status</Label>
-        <Select value={status} onValueChange={(value: SPI['status']) => setStatus(value)}>
-          <SelectTrigger id="status">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="on-track">On Track</SelectItem>
-            <SelectItem value="delayed">Delayed</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
-          </SelectContent>
-        </Select>
+    <div className="space-y-6">
+      {/* Status Field */}
+      <div>
+        <label className="block text-sm font-medium">Status</label>
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value as SPIStatus)}
+          className="mt-1 block w-full border rounded-md"
+        >
+          <option value="on-track">On Track</option>
+          <option value="delayed">Delayed</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="project">Related Project</Label>
-        <Select value={selectedProject} onValueChange={setSelectedProject}>
-          <SelectTrigger id="project">
-            <SelectValue placeholder="Related Project" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">None</SelectItem>
-            {projects?.map(project => (
-              <SelectItem key={project.id} value={project.id}>
-                {project.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Project Field */}
+      <div>
+        <label className="block text-sm font-medium">Select Project</label>
+        <select
+          value={selectedProject}
+          onChange={(e) => setSelectedProject(e.target.value)}
+          className="mt-1 block w-full border rounded-md"
+        >
+          <option value="none">Select a project...</option>
+          {projects?.map((project) => (
+            <option key={project.id} value={project.id}>
+              {project.name}
+            </option>
+          ))}
+        </select>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="fortune30">Fortune 30 Partner</Label>
-        <Select value={selectedFortune30 || 'none'} onValueChange={setSelectedFortune30}>
-          <SelectTrigger id="fortune30">
-            <SelectValue placeholder="Fortune 30 Partner" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">None</SelectItem>
-            {fortune30Partners?.map(partner => (
-              <SelectItem key={partner.id} value={partner.id}>
-                {partner.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Fortune 30 Partner Field */}
+      <div>
+        <label className="block text-sm font-medium">Select Fortune 30 Partner</label>
+        <select
+          value={selectedFortune30}
+          onChange={(e) => setSelectedFortune30(e.target.value)}
+          className="mt-1 block w-full border rounded-md"
+        >
+          <option value="none">Select a partner...</option>
+          {fortune30Partners?.map((partner) => (
+            <option key={partner.id} value={partner.id}>
+              {partner.name}
+            </option>
+          ))}
+        </select>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="sme">SME Partner</Label>
-        <Select value={selectedSME} onValueChange={setSelectedSME}>
-          <SelectTrigger id="sme">
-            <SelectValue placeholder="SME Partner" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">None</SelectItem>
-            {smePartners.map(partner => (
-              <SelectItem key={partner.id} value={partner.id}>
-                {partner.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* SME Partner Field */}
+      <div>
+        <label className="block text-sm font-medium">Select SME Partner</label>
+        <select
+          value={selectedSME}
+          onChange={(e) => setSelectedSME(e.target.value)}
+          className="mt-1 block w-full border rounded-md"
+        >
+          <option value="none">Select a partner...</option>
+        </select>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="ratMember">RAT Member</Label>
-        <Select value={selectedRatMember} onValueChange={setSelectedRatMember}>
-          <SelectTrigger id="ratMember">
-            <SelectValue placeholder="Select RAT Member" />
-          </SelectTrigger>
-          <SelectContent>
-            {RAT_MEMBERS.map(member => (
-              <SelectItem key={member.id} value={member.id}>
-                {member.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Department Field */}
+      <div>
+        <label className="block text-sm font-medium">Select Department</label>
+        <select
+          value={selectedDepartment}
+          onChange={(e) => setSelectedDepartment(e.target.value)}
+          className="mt-1 block w-full border rounded-md"
+        >
+          <option value="none">Select a department...</option>
+        </select>
+      </div>
+
+      {/* Rat Member Field */}
+      <div>
+        <label className="block text-sm font-medium">Select Rat Member</label>
+        <select
+          value={selectedRatMember}
+          onChange={(e) => setSelectedRatMember(e.target.value)}
+          className="mt-1 block w-full border rounded-md"
+        >
+          <option value="none">Select a rat member...</option>
+        </select>
       </div>
     </div>
   );
