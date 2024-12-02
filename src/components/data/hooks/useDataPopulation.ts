@@ -22,44 +22,27 @@ export function useDataPopulation() {
     try {
       console.log('Starting data population with quantities:', quantities);
       
-      const populateStep: LoadingStep = {
-        name: "Sample Data Population",
-        action: async () => {
-          try {
-            // First ensure database is initialized
-            console.log('Initializing database...');
-            await db.init();
-            console.log('Database initialized successfully');
+      // First ensure database is initialized
+      console.log('Initializing database...');
+      await db.init();
+      console.log('Database initialized successfully');
 
-            // Clear existing data
-            console.log('Clearing existing data...');
-            await db.clear();
-            console.log('Existing data cleared successfully');
+      // Clear existing data
+      console.log('Clearing existing data...');
+      await db.clear();
+      console.log('Existing data cleared successfully');
 
-            // Generate and save new data
-            console.log('Generating sample data...');
-            await sampleDataService.generateSampleData({
-              ...quantities,
-              initiatives: quantities.initiatives || 5 // Provide default value if missing
-            });
-            console.log('Sample data generated and saved successfully');
+      // Generate and save new data
+      console.log('Generating sample data...');
+      await sampleDataService.generateSampleData({
+        ...quantities,
+        initiatives: quantities.initiatives || 5 // Provide default value if missing
+      });
+      console.log('Sample data generated and saved successfully');
 
-            // Invalidate queries to refresh UI
-            queryClient.invalidateQueries({ queryKey: ['data-counts'] });
-            
-            return true;
-          } catch (error) {
-            console.error('Detailed error in populateStep:', {
-              error,
-              message: error instanceof Error ? error.message : 'Unknown error',
-              stack: error instanceof Error ? error.stack : undefined
-            });
-            return false;
-          }
-        }
-      };
-
-      await executeWithRetry(populateStep);
+      // Invalidate queries to refresh UI
+      await queryClient.invalidateQueries({ queryKey: ['data-counts'] });
+      await queryClient.invalidateQueries({ queryKey: ['initiatives'] });
       
       toast({
         title: "Success",

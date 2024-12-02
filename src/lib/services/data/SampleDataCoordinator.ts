@@ -37,6 +37,8 @@ export class SampleDataCoordinator {
       });
 
       // Add to database in order
+      console.log('Starting database population...');
+
       for (const partner of fortune30Partners) {
         await db.addCollaborator(partner);
       }
