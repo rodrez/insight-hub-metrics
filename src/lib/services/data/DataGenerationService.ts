@@ -23,7 +23,7 @@ export class DataGenerationService {
       await db.init();
       this.showSuccessStep("Database initialized");
 
-      const defaultQuantities: Required<DataQuantities> = {
+      const defaultQuantities: DataQuantities = {
         projects: 10,
         spis: 10,
         objectives: 5,
@@ -42,8 +42,7 @@ export class DataGenerationService {
         ...defaultQuantities,
         departments: Array.from(DEPARTMENTS),
         fortune30Partners: fortune30Partners.slice(0, defaultQuantities.fortune30),
-        collaborators: internalPartners.slice(0, defaultQuantities.internalPartners),
-        initiatives: defaultQuantities.initiatives
+        collaborators: internalPartners.slice(0, defaultQuantities.internalPartners)
       };
 
       const { projects, spis, objectives, sitreps } = await generateSampleProjects(projectInput);

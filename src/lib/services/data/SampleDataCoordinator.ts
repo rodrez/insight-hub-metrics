@@ -12,7 +12,7 @@ export class SampleDataCoordinator {
     this.fortune30Service = new Fortune30GenerationService();
   }
 
-  async generateData(quantities: DataQuantities): Promise<void> {
+  async generateData(quantities: Required<DataQuantities>): Promise<void> {
     try {
       // Generate Fortune 30 partners
       const { data: fortune30Partners } = await this.fortune30Service.generate(quantities.fortune30);
