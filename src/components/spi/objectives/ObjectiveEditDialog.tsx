@@ -37,10 +37,11 @@ export function ObjectiveEditDialog({ objective, onClose, onSave }: ObjectiveEdi
   if (!editedObjective) return null;
 
   const handleSave = () => {
-    onSave({
+    const updatedObjective = {
       ...editedObjective,
       desiredOutcome: `${editedObjective.desiredOutcome}%`
-    });
+    };
+    onSave(updatedObjective);
   };
 
   return (
@@ -48,7 +49,7 @@ export function ObjectiveEditDialog({ objective, onClose, onSave }: ObjectiveEdi
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {editedObjective.id ? 'Edit Objective' : 'Add New Objective'}
+            {objective?.id ? 'Edit Objective' : 'Add New Objective'}
           </DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">

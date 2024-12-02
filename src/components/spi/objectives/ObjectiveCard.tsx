@@ -68,14 +68,22 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
     });
   };
 
-  const handleSaveEdit = (updatedObjective: Objective) => {
-    onEdit(updatedObjective);
-    setShowEditDialog(false);
-    setSelectedObjective(null);
-    toast({
-      title: "Objective updated",
-      description: "The objective has been successfully updated.",
-    });
+  const handleSaveEdit = async (updatedObjective: Objective) => {
+    try {
+      await onEdit(updatedObjective);
+      setShowEditDialog(false);
+      setSelectedObjective(null);
+      toast({
+        title: "Success",
+        description: "Objective updated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update objective",
+        variant: "destructive",
+      });
+    }
   };
 
   const progress = objective.desiredOutcome.includes("%") ? 
