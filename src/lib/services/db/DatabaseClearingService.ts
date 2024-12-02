@@ -2,17 +2,7 @@ import { connectionManager } from './connectionManager';
 import { DatabaseCleaner } from './databaseCleaner';
 import { toast } from "@/components/ui/use-toast";
 import { DatabaseError } from '../../utils/errorHandling';
-
-const STORE_NAMES = [
-  'projects',
-  'collaborators',
-  'sitreps',
-  'spis',
-  'objectives',
-  'initiatives',
-  'smePartners',
-  'teams'
-];
+import { STORE_NAMES } from './stores';
 
 export class DatabaseClearingService {
   constructor(private db: IDBDatabase | null) {}

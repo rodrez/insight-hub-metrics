@@ -31,4 +31,21 @@ export const createStores = (db: IDBDatabase) => {
   if (!db.objectStoreNames.contains('smePartners')) {
     db.createObjectStore('smePartners', { keyPath: 'id' });
   }
+
+  if (!db.objectStoreNames.contains('teams')) {
+    db.createObjectStore('teams', { keyPath: 'id' });
+  }
 };
+
+export const STORE_NAMES = [
+  'projects',
+  'collaborators',
+  'sitreps',
+  'spis',
+  'objectives',
+  'initiatives',
+  'smePartners',
+  'teams'
+] as const;
+
+export type StoreNames = typeof STORE_NAMES[number];
