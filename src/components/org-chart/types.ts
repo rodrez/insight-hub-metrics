@@ -6,4 +6,5 @@ export interface OrgPosition {
   smePartners: string[];
   spis: string[];
   sitreps: string[];
+  isRatMember?: boolean;
 }

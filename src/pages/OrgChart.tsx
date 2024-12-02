@@ -12,7 +12,7 @@ export default function OrgChart() {
       <div className="grid gap-8">
         {/* Director Level */}
         <div className="flex justify-center">
-          <OrgPositionCard title="Director" width="w-96" />
+          <OrgPositionCard title="Director" width="w-96" isRatMember={true} />
         </div>
 
         {/* Senior Manager Level */}
@@ -22,6 +22,7 @@ export default function OrgChart() {
               key={index}
               title={`Senior Manager ${index}`}
               width="w-80"
+              isRatMember={index <= 3}
             />
           ))}
         </div>
@@ -33,6 +34,7 @@ export default function OrgChart() {
               key={index}
               title={`Tech Lead ${index}`}
               width="w-72"
+              isRatMember={index <= 3}
             />
           ))}
         </div>
