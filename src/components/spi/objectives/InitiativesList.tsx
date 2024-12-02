@@ -6,57 +6,78 @@ import { Objective } from "@/lib/types/objective";
 import { useState } from "react";
 import { InitiativeEditDialog } from "./InitiativeEditDialog";
 import { toast } from "@/components/ui/use-toast";
+import { db } from "@/lib/db";
+import { useQuery } from "@tanstack/react-query";
 
 interface InitiativesListProps {
   objectives: Objective[];
 }
 
-export function InitiativesList({ objectives }: InitiativesListProps) {
-  const [selectedInitiative, setSelectedInitiative] = useState<any | null>(null);
-  
-  const initiatives = [
-    {
-      id: '1',
-      initiative: 'Customer Experience Enhancement',
-      desiredOutcome: 'Achieve 95% customer satisfaction rating',
-      objectiveIds: ['1'],
-    },
-    {
-      id: '2',
-      initiative: 'Legacy System Modernization',
-      desiredOutcome: 'Complete migration of core systems to cloud infrastructure',
-      objectiveIds: ['2'],
-    },
-    {
-      id: '3',
-      initiative: 'Process Automation',
-      desiredOutcome: 'Automate 60% of manual processes',
-      objectiveIds: ['2', '3'],
-    },
-  ];
+interface Initiative {
+  id: string;
+  initiative: string;
+  desiredOutcome: string;
+  objectiveIds: string[];
+}
 
-  const handleEdit = (initiative: any) => {
+export function InitiativesList({ objectives }: InitiativesListProps) {
+  const [selectedInitiative, setSelectedInitiative] = useState<Initiative | null>(null);
+  
+  const { data: initiatives = [], refetch } = useQuery({
+    queryKey: ['initiatives'],
+    queryFn: () => db.getAllInitiatives(),
+  });
+
+  const handleEdit = (initiative: Initiative) => {
     setSelectedInitiative(initiative);
   };
 
-  const handleDelete = (id: string) => {
-    toast({
-      title: "Initiative deleted",
-      description: "The initiative has been successfully removed.",
-    });
+  const handleDelete = async (id: string) => {
+    try {
+      await db.deleteInitiative(id);
+      await refetch();
+      toast({
+        title: "Initiative deleted",
+        description: "The initiative has been successfully removed.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete initiative",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleSave = (initiative: any) => {
-    toast({
-      title: "Initiative updated",
-      description: "The initiative has been successfully updated.",
-    });
-    setSelectedInitiative(null);
+  const handleSave = async (initiative: Initiative) => {
+    try {
+      if (initiative.id) {
+        await db.updateInitiative(initiative.id, initiative);
+      } else {
+        const newInitiative = {
+          ...initiative,
+          id: crypto.randomUUID(),
+        };
+        await db.addInitiative(newInitiative);
+      }
+      await refetch();
+      setSelectedInitiative(null);
+      toast({
+        title: "Success",
+        description: "Initiative saved successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save initiative",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleAddNew = () => {
     const newInitiative = {
-      id: crypto.randomUUID(),
+      id: '',
       initiative: '',
       desiredOutcome: '',
       objectiveIds: [],

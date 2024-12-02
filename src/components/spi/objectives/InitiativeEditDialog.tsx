@@ -9,18 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState, useEffect } from "react";
+import { Objective } from "@/lib/types/objective";
 
 interface Initiative {
   id: string;
   initiative: string;
   desiredOutcome: string;
   objectiveIds: string[];
-}
-
-interface Objective {
-  id: string;
-  title: string;
-  desiredOutcome: string;
 }
 
 interface InitiativeEditDialogProps {
@@ -36,7 +31,12 @@ export function InitiativeEditDialog({
   onClose,
   onSave,
 }: InitiativeEditDialogProps) {
-  const [editedInitiative, setEditedInitiative] = useState<Initiative | null>(null);
+  const [editedInitiative, setEditedInitiative] = useState<Initiative>({
+    id: '',
+    initiative: '',
+    desiredOutcome: '',
+    objectiveIds: [],
+  });
 
   useEffect(() => {
     if (initiative) {
@@ -44,19 +44,20 @@ export function InitiativeEditDialog({
     }
   }, [initiative]);
 
-  if (!editedInitiative) return null;
-
   const handleSave = () => {
     onSave(editedInitiative);
   };
 
-  const toggleObjective = (objectiveId: string) => {
+  const handleObjectiveToggle = (objectiveId: string) => {
     setEditedInitiative(prev => {
-      if (!prev) return prev;
       const newObjectiveIds = prev.objectiveIds.includes(objectiveId)
         ? prev.objectiveIds.filter(id => id !== objectiveId)
         : [...prev.objectiveIds, objectiveId];
-      return { ...prev, objectiveIds: newObjectiveIds };
+      
+      return {
+        ...prev,
+        objectiveIds: newObjectiveIds,
+      };
     });
   };
 
@@ -64,48 +65,61 @@ export function InitiativeEditDialog({
     <Dialog open={!!initiative} onOpenChange={() => onClose()}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit Initiative</DialogTitle>
+          <DialogTitle>{initiative?.id ? 'Edit' : 'Add'} Initiative</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 py-4">
+        <div className="grid gap-4 py-4">
           <div className="space-y-2">
             <Input
+              placeholder="Initiative name"
               value={editedInitiative.initiative}
               onChange={(e) =>
-                setEditedInitiative({ ...editedInitiative, initiative: e.target.value })
+                setEditedInitiative((prev) => ({
+                  ...prev,
+                  initiative: e.target.value,
+                }))
               }
-              placeholder="Initiative name"
             />
           </div>
           <div className="space-y-2">
             <Textarea
+              placeholder="Desired outcome"
               value={editedInitiative.desiredOutcome}
               onChange={(e) =>
-                setEditedInitiative({ ...editedInitiative, desiredOutcome: e.target.value })
+                setEditedInitiative((prev) => ({
+                  ...prev,
+                  desiredOutcome: e.target.value,
+                }))
               }
-              placeholder="Desired outcome"
             />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-4">
             <h4 className="font-medium">Aligned Objectives</h4>
-            {objectives.map((objective) => (
-              <div key={objective.id} className="flex items-center space-x-2">
-                <Checkbox
-                  id={objective.id}
-                  checked={editedInitiative.objectiveIds.includes(objective.id)}
-                  onCheckedChange={() => toggleObjective(objective.id)}
-                />
-                <label htmlFor={objective.id} className="text-sm">
-                  {objective.title}
-                </label>
-              </div>
-            ))}
+            <div className="space-y-2">
+              {objectives.map((objective) => (
+                <div key={objective.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={objective.id}
+                    checked={editedInitiative.objectiveIds.includes(objective.id)}
+                    onCheckedChange={() => handleObjectiveToggle(objective.id)}
+                  />
+                  <label
+                    htmlFor={objective.id}
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    {objective.title}
+                  </label>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSave}>Save</Button>
+          <Button onClick={handleSave}>
+            Save
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
