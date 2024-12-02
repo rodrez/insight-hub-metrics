@@ -1,19 +1,24 @@
+import { DataQuantities } from '@/lib/types/data';
+import { errorHandler } from '../error/ErrorHandlingService';
+import { toast } from "@/components/ui/use-toast";
+import { db } from '@/lib/db';
 import { generateFortune30Partners } from './generators/fortune30Generator';
 import { generateInternalPartners } from './generators/internalPartnersGenerator';
 import { generateSMEPartners } from './generators/smePartnersGenerator';
 import { generateSampleProjects } from './generators/projectGenerator';
-import { DataQuantities } from '@/lib/types/data';
-import { errorHandler } from '../error/ErrorHandlingService';
-import { validateCollaborator } from './utils/dataGenerationUtils';
-import { DEPARTMENTS } from '@/lib/constants';
+import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './generators/spiGenerator';
 
 export class SampleDataService {
   async generateSampleData(quantities: DataQuantities) {
     try {
-      const fortune30Partners = generateFortune30Partners().filter(validateCollaborator);
-      const internalPartners = generateInternalPartners().filter(validateCollaborator);
-      const smePartners = generateSMEPartners().filter(validateCollaborator);
+      await db.init();
+      
+      // Generate partners with correct slicing based on quantities
+      const fortune30Partners = generateFortune30Partners().slice(0, quantities.fortune30);
+      const internalPartners = (await generateInternalPartners()).slice(0, quantities.internalPartners);
+      const smePartners = generateSMEPartners().slice(0, quantities.smePartners);
 
+      // Generate projects with the correct input structure
       const projectInput = {
         projects: quantities.projects,
         spis: quantities.spis,
@@ -22,21 +27,28 @@ export class SampleDataService {
         fortune30: quantities.fortune30,
         internalPartners: quantities.internalPartners,
         smePartners: quantities.smePartners,
-        departments: [...DEPARTMENTS],
-        fortune30Partners: fortune30Partners.slice(0, quantities.fortune30),
-        collaborators: internalPartners.slice(0, quantities.internalPartners)
+        fortune30Partners,
+        collaborators: internalPartners
       };
 
-      const { projects, spis, objectives, sitreps } = await generateSampleProjects(projectInput);
+      const { projects } = await generateSampleProjects(projectInput);
+      const spis = generateSampleSPIs(projects.map(p => p.id), quantities.spis);
+      const objectives = generateSampleObjectives(quantities.objectives);
+      const sitreps = generateSampleSitReps(spis, quantities.sitreps);
+
+      toast({
+        title: "Success",
+        description: "Sample data generated successfully",
+      });
 
       return {
-        fortune30Partners: fortune30Partners.slice(0, quantities.fortune30),
-        internalPartners: internalPartners.slice(0, quantities.internalPartners),
-        smePartners: smePartners.slice(0, quantities.smePartners),
-        projects: projects.slice(0, quantities.projects),
-        spis: spis.slice(0, quantities.spis),
-        objectives: objectives.slice(0, quantities.objectives),
-        sitreps: sitreps.slice(0, quantities.sitreps)
+        fortune30Partners,
+        internalPartners,
+        smePartners,
+        projects,
+        spis,
+        objectives,
+        sitreps
       };
     } catch (error) {
       errorHandler.handleError(error, {
