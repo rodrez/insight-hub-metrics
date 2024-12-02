@@ -21,7 +21,8 @@ export class SampleDataCoordinator {
         ...quantities,
         departments: DEPARTMENTS,
         fortune30Partners,
-        collaborators: []
+        collaborators: [],
+        initiatives: quantities.initiatives
       };
 
       const { projects, spis, objectives, initiatives, sitreps } = await generateSampleProjects(projectInput);

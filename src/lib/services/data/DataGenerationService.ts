@@ -30,7 +30,8 @@ export class DataGenerationService {
         sitreps: 10,
         fortune30: 6,
         internalPartners: 20,
-        smePartners: 10
+        smePartners: 10,
+        initiatives: 5
       };
 
       const fortune30Partners = generateFortune30Partners().filter(validateCollaborator);
@@ -41,7 +42,8 @@ export class DataGenerationService {
         ...defaultQuantities,
         departments: Array.from(DEPARTMENTS),
         fortune30Partners: fortune30Partners.slice(0, defaultQuantities.fortune30),
-        collaborators: internalPartners.slice(0, defaultQuantities.internalPartners)
+        collaborators: internalPartners.slice(0, defaultQuantities.internalPartners),
+        initiatives: defaultQuantities.initiatives
       };
 
       const { projects, spis, objectives, sitreps } = await generateSampleProjects(projectInput);
