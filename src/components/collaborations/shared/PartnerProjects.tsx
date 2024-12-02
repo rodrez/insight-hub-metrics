@@ -29,7 +29,9 @@ export function PartnerProjects({ collaborator, type }: PartnerProjectsProps) {
         project.collaborators?.some(c => c.id === collaborator.id && c.type === 'sme')
       );
     }
-    return collaborator.projects || [];
+    return allProjects.filter(project => 
+      project.collaborators?.some(c => c.id === collaborator.id)
+    );
   };
 
   const handleProjectClick = (projectId: string) => {
