@@ -1,77 +1,19 @@
 import { Badge } from "@/components/ui/badge";
-import { UserCog, Building2, Users } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { CollaboratorType } from "@/lib/types/collaboration";
+import { CollaborationType } from "@/lib/types/collaboration";
+import { Collaborator } from "@/lib/types/collaboration";
 
 interface ProjectPartnerBadgeProps {
-  partner: {
-    id: string;
-    name: string;
-    type: CollaboratorType;
-    department: string;
-    color?: string;
-  };
-  departmentColor?: string;
+  collaborator: Collaborator;
 }
 
-export function ProjectPartnerBadge({ partner, departmentColor }: ProjectPartnerBadgeProps) {
-  const getIcon = () => {
-    switch (partner.type) {
-      case 'sme':
-        return <UserCog className="h-3 w-3" />;
-      case 'fortune30':
-        return <Building2 className="h-3 w-3" />;
-      case 'internal':
-        return <Users className="h-3 w-3" />;
-      default:
-        return null;
-    }
-  };
-
-  const getBadgeColor = () => {
-    // For Fortune 30 partners, always use their brand color if available
-    if (partner.type === 'fortune30' && partner.color) {
-      return partner.color;
-    }
-    // For SME partners, use their color if available
-    if (partner.type === 'sme' && partner.color) {
-      return partner.color;
-    }
-    // Fallback to department color or default
-    return departmentColor || '#4B5563';
-  };
-
-  const badgeColor = getBadgeColor();
-
+export function ProjectPartnerBadge({ collaborator }: ProjectPartnerBadgeProps) {
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger>
-          <Badge
-            style={{ 
-              backgroundColor: badgeColor,
-              color: '#FFFFFF',
-              fontWeight: 500,
-              border: 'none'
-            }}
-            className="flex items-center gap-1 hover:opacity-90 transition-opacity shadow-md"
-          >
-            {getIcon()}
-            {partner.name}
-          </Badge>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{partner.type === 'sme' ? 'Small Medium Enterprise' : 
-             partner.type === 'fortune30' ? 'Fortune 30 Partner' : 
-             'Internal Partner'}</p>
-          <p>Department: {partner.department}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Badge
+      style={{ backgroundColor: collaborator.color || "#333" }}
+      className="text-white"
+      title={collaborator.role}
+    >
+      {collaborator.name}
+    </Badge>
   );
 }

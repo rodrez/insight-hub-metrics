@@ -22,7 +22,8 @@ export function useInternalPartners(
       projects: [],
       lastActive: new Date().toISOString(),
       type: "internal",
-      color: department?.color
+      color: department?.color,
+      ratMember: newPartnerName // Using the partner name as the RAT member for internal partners
     };
 
     onUpdate([...initialPartners, newPartner]);
