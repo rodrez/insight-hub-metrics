@@ -19,6 +19,7 @@ import SPI from "./pages/SPI";
 import BackButton from "./components/navigation/BackButton";
 import SME from "./pages/SME";
 import AddProject from "./pages/AddProject";
+import OrgChart from "./pages/OrgChart";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,9 +39,8 @@ const queryClient = new QueryClient({
   }
 });
 
-// Pages that don't need a back button
 const ROOT_PAGES = ['/', '/settings', '/collaborations', '/sme', '/internal-support', 
-  '/wiki', '/glossary', '/sitreps', '/spi'];
+  '/wiki', '/glossary', '/sitreps', '/spi', '/org-chart'];
 
 function AppContent() {
   const location = useLocation();
@@ -66,6 +66,7 @@ function AppContent() {
           <Route path="/departments/:id" element={<DepartmentDetails />} />
           <Route path="/sitreps" element={<SitReps />} />
           <Route path="/spi" element={<SPI />} />
+          <Route path="/org-chart" element={<OrgChart />} />
         </Routes>
       </div>
     </div>

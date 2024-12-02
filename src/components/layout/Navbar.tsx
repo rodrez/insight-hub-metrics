@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { GlobalSearch } from "../search/GlobalSearch";
 import { ThemeToggle } from "../theme/ThemeToggle";
-import { ChartBar, Users, UserCheck, BookOpen, ListTodo, Settings, FileText, TrendingUp, UserCog } from "lucide-react";
+import { ChartBar, Users, UserCheck, BookOpen, ListTodo, Settings, FileText, TrendingUp, UserCog, Network } from "lucide-react";
 import { NavItem } from "./NavItem";
 
 const navItems = [
@@ -9,6 +9,7 @@ const navItems = [
   { icon: Users, label: 'Collaborations', path: '/collaborations' },
   { icon: UserCog, label: 'SME', path: '/sme' },
   { icon: UserCheck, label: 'Internal Support', path: '/internal-support' },
+  { icon: Network, label: 'Org Chart', path: '/org-chart' },
   { icon: FileText, label: 'SitReps', path: '/sitreps' },
   { icon: TrendingUp, label: 'SPI', path: '/spi' },
   { icon: BookOpen, label: 'Wiki', path: '/wiki' },
