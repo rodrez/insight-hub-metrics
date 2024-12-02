@@ -33,9 +33,10 @@ export default function DataManagement() {
   const handleClear = useCallback(async () => {
     try {
       await clearDatabase();
-      await queryClient.invalidateQueries({ queryKey: ['data-counts'] });
+      // Invalidate all queries to refresh the UI
+      await queryClient.invalidateQueries();
       await updateDataCounts();
-      setCurrentPage(1); // Reset to first page after clearing
+      setCurrentPage(1);
     } catch (error) {
       errorHandler.handleError(error, {
         type: 'database',
@@ -46,15 +47,19 @@ export default function DataManagement() {
 
   const handlePopulate = useCallback(async (quantities: DataQuantities) => {
     try {
+      console.log('Starting population with quantities:', quantities);
       await populateSampleData(quantities);
+      // Invalidate all queries to refresh the UI
+      await queryClient.invalidateQueries();
       await updateDataCounts();
     } catch (error) {
+      console.error('Population error:', error);
       errorHandler.handleError(error, {
         type: 'database',
         title: 'Failed to populate data'
       });
     }
-  }, [populateSampleData, updateDataCounts]);
+  }, [populateSampleData, queryClient, updateDataCounts]);
 
   const totalPages = Math.ceil((dataCounts?.projects || 0) / ITEMS_PER_PAGE);
 

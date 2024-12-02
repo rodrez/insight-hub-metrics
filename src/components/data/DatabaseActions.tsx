@@ -8,6 +8,7 @@ import { ExportActions } from "./actions/ExportActions";
 import { toast } from "@/components/ui/use-toast";
 import { DataQuantities } from "./types/dataTypes";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface DatabaseActionsProps {
   isInitialized: boolean;
@@ -26,11 +27,14 @@ export function DatabaseActions({
 }: DatabaseActionsProps) {
   const [error, setError] = useState<string | null>(null);
   const [showQuantityForm, setShowQuantityForm] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleClear = async () => {
     try {
       setError(null);
       await onClear();
+      // Invalidate all queries to refresh the UI
+      await queryClient.invalidateQueries();
       toast({
         title: "Success",
         description: "Database cleared successfully",
@@ -48,14 +52,18 @@ export function DatabaseActions({
 
   const handlePopulate = async (quantities: DataQuantities) => {
     try {
+      console.log('Starting population with quantities:', quantities);
       setError(null);
       await onPopulate(quantities);
+      // Invalidate all queries to refresh the UI
+      await queryClient.invalidateQueries();
       setShowQuantityForm(false);
       toast({
         title: "Success",
         description: "Database populated successfully",
       });
     } catch (err) {
+      console.error('Population error:', err);
       const errorMessage = err instanceof Error ? err.message : "Failed to populate database";
       setError(errorMessage);
       toast({
