@@ -80,6 +80,10 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
                   key={sitrep.id}
                   onClick={() => handleSitRepClick(sitrep.id)}
                   className="p-3 rounded-md bg-accent/50 hover:bg-accent transition-colors cursor-pointer"
+                  style={{ 
+                    borderLeft: `4px solid ${collaborator.color || '#333'}`,
+                    borderColor: collaborator.color || '#333'
+                  }}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-medium">{sitrep.title}</span>
