@@ -5,9 +5,9 @@ import { useState } from "react";
 import { DataQuantityForm } from "./actions/DataQuantityForm";
 import { BackupActions } from "./actions/BackupActions";
 import { ExportActions } from "./actions/ExportActions";
+import { OrgChartDistributionAction } from "./actions/OrgChartDistributionAction";
 import { toast } from "@/components/ui/use-toast";
 import { DataQuantities } from "./types/dataTypes";
-import { db } from "@/lib/db";
 
 interface DatabaseActionsProps {
   isInitialized: boolean;
@@ -26,7 +26,6 @@ export function DatabaseActions({
 }: DatabaseActionsProps) {
   const [error, setError] = useState<string | null>(null);
   const [showQuantityForm, setShowQuantityForm] = useState(false);
-  const [isDistributing, setIsDistributing] = useState(false);
 
   const handleClear = async () => {
     try {
@@ -67,65 +66,6 @@ export function DatabaseActions({
     }
   };
 
-  const handleDistributeOrgChart = async () => {
-    setIsDistributing(true);
-    try {
-      const [projects, spis, sitreps, collaborators] = await Promise.all([
-        db.getAllProjects(),
-        db.getAllSPIs(),
-        db.getAllSitReps(),
-        db.getAllCollaborators()
-      ]);
-
-      const internalCollaborators = collaborators.filter(c => c.type === 'internal');
-      
-      // Distribute items evenly across collaborators
-      const distribution = internalCollaborators.map(collaborator => ({
-        id: collaborator.id,
-        assignedProjects: [] as string[],
-        assignedSpis: [] as string[],
-        assignedSitreps: [] as string[]
-      }));
-
-      // Helper function to distribute items
-      const distributeItems = (items: any[], type: 'assignedProjects' | 'assignedSpis' | 'assignedSitreps') => {
-        let currentIndex = 0;
-        items.forEach(item => {
-          distribution[currentIndex % distribution.length][type].push(item.id);
-          currentIndex++;
-        });
-      };
-
-      distributeItems(projects, 'assignedProjects');
-      distributeItems(spis, 'assignedSpis');
-      distributeItems(sitreps, 'assignedSitreps');
-
-      // Save the distribution
-      for (const position of distribution) {
-        await db.updateCollaborator(position.id, {
-          assignedProjects: position.assignedProjects,
-          assignedSpis: position.assignedSpis,
-          assignedSitreps: position.assignedSitreps
-        });
-      }
-
-      toast({
-        title: "Success",
-        description: "Org chart data distributed successfully",
-      });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to distribute org chart data";
-      setError(errorMessage);
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setIsDistributing(false);
-    }
-  };
-
   if (!isInitialized) {
     return (
       <Alert>
@@ -148,7 +88,7 @@ export function DatabaseActions({
         <Button
           variant="destructive"
           onClick={handleClear}
-          disabled={isClearing || isPopulating || isDistributing}
+          disabled={isClearing || isPopulating}
         >
           {isClearing ? (
             <>
@@ -162,7 +102,7 @@ export function DatabaseActions({
 
         <Button
           onClick={() => setShowQuantityForm(true)}
-          disabled={isClearing || isPopulating || isDistributing}
+          disabled={isClearing || isPopulating}
         >
           {isPopulating ? (
             <>
@@ -174,22 +114,19 @@ export function DatabaseActions({
           )}
         </Button>
 
-        <Button
-          onClick={handleDistributeOrgChart}
-          disabled={isClearing || isPopulating || isDistributing}
-        >
-          {isDistributing ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Distributing...
-            </>
-          ) : (
-            "Distribute Org Chart"
-          )}
-        </Button>
+        <OrgChartDistributionAction 
+          disabled={isClearing || isPopulating} 
+        />
 
-        <BackupActions isInitialized={isInitialized} disabled={isClearing || isPopulating || isDistributing} />
-        <ExportActions isInitialized={isInitialized} disabled={isClearing || isPopulating || isDistributing} />
+        <BackupActions 
+          isInitialized={isInitialized} 
+          disabled={isClearing || isPopulating} 
+        />
+        
+        <ExportActions 
+          isInitialized={isInitialized} 
+          disabled={isClearing || isPopulating} 
+        />
       </div>
 
       {showQuantityForm && (
