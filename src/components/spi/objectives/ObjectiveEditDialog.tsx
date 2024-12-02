@@ -23,15 +23,24 @@ export function ObjectiveEditDialog({ objective, onClose, onSave }: ObjectiveEdi
 
   useEffect(() => {
     if (objective) {
-      setEditedObjective(objective);
+      const progress = objective.desiredOutcome.includes("%") ? 
+        parseInt(objective.desiredOutcome) : 
+        parseInt(objective.desiredOutcome.match(/\d+/)?.[0] || "0");
+        
+      setEditedObjective({
+        ...objective,
+        desiredOutcome: progress.toString()
+      });
     }
   }, [objective]);
 
   if (!editedObjective) return null;
 
   const handleSave = () => {
-    onSave(editedObjective);
-    onClose();
+    onSave({
+      ...editedObjective,
+      desiredOutcome: `${editedObjective.desiredOutcome}%`
+    });
   };
 
   return (
@@ -80,11 +89,11 @@ export function ObjectiveEditDialog({ objective, onClose, onSave }: ObjectiveEdi
               type="number"
               min="0"
               max="100"
-              value={parseInt(editedObjective.desiredOutcome) || 0}
+              value={editedObjective.desiredOutcome}
               onChange={(e) =>
                 setEditedObjective({
                   ...editedObjective,
-                  desiredOutcome: `${e.target.value}%`
+                  desiredOutcome: e.target.value
                 })
               }
             />

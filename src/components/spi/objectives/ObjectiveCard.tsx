@@ -69,7 +69,8 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
     });
   };
 
-  const progress = objective.desiredOutcome.includes("100%") ? 100 : 
+  const progress = objective.desiredOutcome.includes("%") ? 
+    parseInt(objective.desiredOutcome) : 
     parseInt(objective.desiredOutcome.match(/\d+/)?.[0] || "0");
 
   return (
@@ -99,9 +100,9 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
                     value={progress} 
                     className="h-2"
                     style={{ 
-                      backgroundColor: 'hsl(var(--muted))',
-                      ['--progress-background' as any]: statusColors.active 
-                    }}
+                      '--progress-background': statusColors.active,
+                      backgroundColor: 'hsl(var(--muted))'
+                    } as React.CSSProperties}
                   />
                 </div>
               </div>
@@ -111,7 +112,7 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => handleEdit()}
+                onClick={handleEdit}
                 className="text-gray-400 hover:text-green-500 transition-colors"
               >
                 <Pen className="h-4 w-4" />
@@ -119,7 +120,7 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => handleDelete()}
+                onClick={handleDelete}
                 className="text-gray-400 hover:text-red-500 transition-colors"
               >
                 <Trash2 className="h-4 w-4" />
