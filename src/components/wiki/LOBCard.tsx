@@ -107,6 +107,14 @@ export function LOBCard({ lob, category, onUpdate, onDelete }: LOBCardProps) {
     setContacts(contacts.filter(contact => contact.email !== email));
   };
 
+  const handleDelete = () => {
+    onDelete(lob);
+    toast({
+      title: "Success",
+      description: "LOB deleted successfully"
+    });
+  };
+
   return (
     <>
       <LOBDisplay 
