@@ -3,7 +3,7 @@ import { Project, Collaborator, Team } from '../types';
 import { SitRep } from '../types/sitrep';
 import { SPI } from '../types/spi';
 import { Objective } from '../types/objective';
-import { DataQuantities } from '../types/data';
+import { DataQuantities } from '@/components/data/types/dataTypes';
 import { ProjectService } from './db/ProjectService';
 import { CollaboratorService } from './db/CollaboratorService';
 import { SitRepService } from './db/SitRepService';
@@ -140,7 +140,17 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   async populateSampleData(quantities: DataQuantities): Promise<void> {
     try {
       await this.clear();
-      await this.sampleDataService.generateSampleData(quantities);
+      const validatedQuantities: DataQuantities = {
+        projects: quantities.projects,
+        spis: quantities.spis,
+        objectives: quantities.objectives,
+        sitreps: quantities.sitreps,
+        fortune30: quantities.fortune30,
+        internalPartners: quantities.internalPartners,
+        smePartners: quantities.smePartners,
+        initiatives: quantities.initiatives
+      };
+      await this.sampleDataService.generateSampleData(validatedQuantities);
     } catch (error) {
       throw error;
     }
