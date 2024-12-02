@@ -5,7 +5,7 @@ import { toast } from "@/components/ui/use-toast";
 
 export function useDataCounts(isInitialized: boolean) {
   const queryClient = useQueryClient();
-
+  
   const fetchDataCounts = async (): Promise<DataCounts> => {
     if (!isInitialized) {
       console.log('Database not initialized, returning empty counts');
@@ -20,10 +20,13 @@ export function useDataCounts(isInitialized: boolean) {
         initiatives: 0
       };
     }
-    
+
     try {
-      console.log('Initializing database before fetching counts...');
-      await db.init();
+      // Only initialize if not already initialized
+      if (!db.isInitialized()) {
+        console.log('Initializing database before fetching counts...');
+        await db.init();
+      }
       console.log('Database initialized, proceeding to fetch counts');
       
       const [
@@ -99,11 +102,16 @@ export function useDataCounts(isInitialized: boolean) {
     queryKey: ['data-counts'],
     queryFn: fetchDataCounts,
     enabled: isInitialized,
-    staleTime: 1000, // Reduce stale time to 1 second to ensure frequent updates
-    refetchInterval: 2000, // Add polling every 2 seconds while the query is mounted
+    staleTime: 5000, // Increase stale time to 5 seconds to reduce unnecessary fetches
+    refetchInterval: 10000, // Reduce polling frequency to 10 seconds
+    retry: 1, // Only retry once to prevent excessive retries on failure
   });
 
   const updateDataCounts = async () => {
+    if (!isInitialized) {
+      console.log('Skipping data counts update - database not initialized');
+      return;
+    }
     await queryClient.invalidateQueries({ queryKey: ['data-counts'] });
     await refetch();
   };

@@ -33,6 +33,15 @@ export default function DataManagement() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const handleClear = useCallback(async () => {
+    if (!isInitialized) {
+      toast({
+        title: "Error",
+        description: "Database not initialized. Please wait...",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       await clearDatabase();
       // Ensure database is reinitialized after clearing
@@ -41,6 +50,11 @@ export default function DataManagement() {
       await queryClient.invalidateQueries();
       await updateDataCounts();
       setCurrentPage(1);
+      
+      toast({
+        title: "Success",
+        description: "Database cleared successfully",
+      });
     } catch (error) {
       console.error('Clear error:', error);
       errorHandler.handleError(error, {
@@ -48,13 +62,20 @@ export default function DataManagement() {
         title: 'Failed to clear database'
       });
     }
-  }, [clearDatabase, queryClient, updateDataCounts]);
+  }, [clearDatabase, queryClient, updateDataCounts, isInitialized]);
 
   const handlePopulate = useCallback(async (quantities: DataQuantities) => {
+    if (!isInitialized) {
+      toast({
+        title: "Error",
+        description: "Database not initialized. Please wait...",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       console.log('Starting population with quantities:', quantities);
-      // Ensure database is initialized before population
-      await db.init();
       await populateSampleData(quantities);
       
       // Wait a brief moment for the database to settle
@@ -75,7 +96,7 @@ export default function DataManagement() {
         title: 'Failed to populate data'
       });
     }
-  }, [populateSampleData, queryClient, updateDataCounts]);
+  }, [populateSampleData, queryClient, updateDataCounts, isInitialized]);
 
   const totalPages = Math.ceil((dataCounts?.projects || 0) / ITEMS_PER_PAGE);
 
