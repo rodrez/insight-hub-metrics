@@ -14,6 +14,8 @@ export class SampleDataCoordinator {
 
   async generateData(quantities: Required<DataQuantities>): Promise<void> {
     try {
+      console.log('Starting data generation with quantities:', quantities);
+      
       // Generate Fortune 30 partners
       const { data: fortune30Partners } = await this.fortune30Service.generate(quantities.fortune30);
       
@@ -24,11 +26,17 @@ export class SampleDataCoordinator {
         collaborators: []
       };
 
-      console.log('Generating sample data with quantities:', quantities);
       const { projects, spis, objectives, initiatives, sitreps } = await generateSampleProjects(projectInput);
-      console.log('Generated initiatives:', initiatives.length);
+      
+      console.log('Generated data counts:', {
+        projects: projects.length,
+        spis: spis.length,
+        objectives: objectives.length,
+        initiatives: initiatives.length,
+        sitreps: sitreps.length
+      });
 
-      // Add to database
+      // Add to database in order
       for (const partner of fortune30Partners) {
         await db.addCollaborator(partner);
       }
@@ -45,9 +53,15 @@ export class SampleDataCoordinator {
         await db.addObjective(objective);
       }
 
+      console.log('Saving initiatives:', initiatives);
       for (const initiative of initiatives) {
-        console.log('Saving initiative:', initiative.id);
-        await db.addInitiative(initiative);
+        try {
+          await db.addInitiative(initiative);
+          console.log('Successfully saved initiative:', initiative.id);
+        } catch (error) {
+          console.error('Error saving initiative:', error);
+          throw error;
+        }
       }
 
       for (const sitrep of sitreps) {
@@ -56,7 +70,7 @@ export class SampleDataCoordinator {
 
       toast({
         title: "Success",
-        description: "Sample data generated successfully",
+        description: `Generated ${initiatives.length} initiatives and other sample data successfully`,
       });
     } catch (error) {
       console.error('Error generating sample data:', error);

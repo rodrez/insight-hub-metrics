@@ -44,7 +44,8 @@ const initiativeTypes = [
 ];
 
 export const generateSampleInitiatives = (count: number) => {
-  return Array.from({ length: count }, (_, i) => ({
+  console.log('Generating initiatives, count:', count);
+  const initiatives = Array.from({ length: count }, (_, i) => ({
     id: `initiative-${i + 1}`,
     initiative: `${initiativeTypes[i % initiativeTypes.length]} Initiative ${i + 1}`,
     desiredOutcome: `Achieve ${Math.floor(Math.random() * 100)}% completion in ${initiativeTypes[i % initiativeTypes.length].toLowerCase()}`,
@@ -58,10 +59,12 @@ export const generateSampleInitiatives = (count: number) => {
     progress: Math.floor(Math.random() * 100),
     department: Array.from(DEPARTMENTS)[Math.floor(Math.random() * DEPARTMENTS.length)].id
   }));
+  console.log('Generated initiatives:', initiatives);
+  return initiatives;
 };
 
 export const generateSampleSitReps = (spis: SPI[], count: number): SitRep[] => {
-  const departments = DEPARTMENTS;
+  const departments = Array.from(DEPARTMENTS);
   const levels: Array<"CEO" | "SVP" | "CTO"> = ["CEO", "SVP", "CTO"];
   const statuses: Array<'pending-review' | 'ready' | 'submitted'> = ['pending-review', 'ready', 'submitted'];
 
