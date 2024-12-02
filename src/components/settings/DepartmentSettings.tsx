@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,77 +25,112 @@ const DEPARTMENT_DESCRIPTIONS = {
   techlab: "Conducts research and development in emerging technologies"
 };
 
+const defaultDepartments: Department[] = [
+  {
+    id: 'airplanes',
+    name: 'Airplanes',
+    type: 'business',
+    color: '#3B82F6',
+    projectCount: 2,
+    budget: 500000
+  },
+  {
+    id: 'helicopters',
+    name: 'Helicopters',
+    type: 'business',
+    color: '#10B981',
+    projectCount: 2,
+    budget: 400000
+  },
+  {
+    id: 'space',
+    name: 'Space',
+    type: 'business',
+    color: '#8B5CF6',
+    projectCount: 1,
+    budget: 300000
+  },
+  {
+    id: 'energy',
+    name: 'Energy',
+    type: 'business',
+    color: '#F97316',
+    projectCount: 2,
+    budget: 300000
+  },
+  {
+    id: 'it',
+    name: 'IT',
+    type: 'functional',
+    color: '#06B6D4',
+    projectCount: 2,
+    budget: 300000
+  },
+  {
+    id: 'techlab',
+    name: 'Tech Lab',
+    type: 'functional',
+    color: '#EAB308',
+    projectCount: 1,
+    budget: 200000
+  }
+];
+
 export function DepartmentSettings() {
-  const [departments, setDepartments] = useState<Department[]>([
-    {
-      id: 'airplanes',
-      name: 'Airplanes',
-      type: 'business',
-      color: '#3B82F6',
-      projectCount: 2,
-      budget: 500000
-    },
-    {
-      id: 'helicopters',
-      name: 'Helicopters',
-      type: 'business',
-      color: '#10B981',
-      projectCount: 2,
-      budget: 400000
-    },
-    {
-      id: 'space',
-      name: 'Space',
-      type: 'business',
-      color: '#8B5CF6',
-      projectCount: 1,
-      budget: 300000
-    },
-    {
-      id: 'energy',
-      name: 'Energy',
-      type: 'business',
-      color: '#F97316',
-      projectCount: 2,
-      budget: 300000
-    },
-    {
-      id: 'it',
-      name: 'IT',
-      type: 'functional',
-      color: '#06B6D4',
-      projectCount: 2,
-      budget: 300000
-    },
-    {
-      id: 'techlab',
-      name: 'Tech Lab',
-      type: 'functional',
-      color: '#EAB308',
-      projectCount: 1,
-      budget: 200000
-    }
-  ]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editingDept, setEditingDept] = useState<Department | null>(null);
+  const queryClient = useQueryClient();
+
+  // Query for fetching departments
+  const { data: departments = defaultDepartments } = useQuery({
+    queryKey: ['departments'],
+    queryFn: () => {
+      const savedDepartments = localStorage.getItem('departments');
+      return savedDepartments ? JSON.parse(savedDepartments) : defaultDepartments;
+    },
+  });
+
+  // Mutation for updating departments
+  const updateMutation = useMutation({
+    mutationFn: async (updatedDepartments: Department[]) => {
+      localStorage.setItem('departments', JSON.stringify(updatedDepartments));
+      return updatedDepartments;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['departments'] });
+      toast({
+        title: "Success",
+        description: "Department updated successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update department",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleUpdate = (id: string, updates: Partial<Department>) => {
-    setDepartments(deps => 
-      deps.map(d => d.id === id ? { ...d, ...updates } : d)
+    const updatedDepartments = departments.map(d => 
+      d.id === id ? { ...d, ...updates } : d
     );
-    toast({
-      title: "Success",
-      description: "Department updated successfully",
-    });
+    updateMutation.mutate(updatedDepartments);
   };
 
   const handleDelete = (id: string) => {
-    setDepartments(deps => deps.filter(d => d.id !== id));
+    const updatedDepartments = departments.filter(d => d.id !== id);
+    updateMutation.mutate(updatedDepartments);
     setDeleteId(null);
-    toast({
-      title: "Success",
-      description: "Department deleted successfully",
-    });
+  };
+
+  const handleSave = (updatedDept: Department) => {
+    const updatedDepartments = departments.map(d => 
+      d.id === updatedDept.id ? updatedDept : d
+    );
+    updateMutation.mutate(updatedDepartments);
+    setEditingDept(null);
   };
 
   return (
@@ -140,10 +176,7 @@ export function DepartmentSettings() {
       <EditDepartmentDialog
         department={editingDept}
         onClose={() => setEditingDept(null)}
-        onSave={(updatedDept) => {
-          handleUpdate(updatedDept.id, updatedDept);
-          setEditingDept(null);
-        }}
+        onSave={handleSave}
       />
     </div>
   );
