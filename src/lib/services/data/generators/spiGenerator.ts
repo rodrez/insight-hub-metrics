@@ -25,8 +25,20 @@ export const generateSampleObjectives = (count: number): Objective[] => {
     title: `Objective ${i + 1}`,
     description: `Description for Objective ${i + 1}`,
     initiative: `Initiative ${i + 1}`,
-    desiredOutcome: `Desired outcome for Objective ${i + 1}`,
+    desiredOutcome: `${Math.floor(Math.random() * 100)}%`,
     spiIds: []
+  }));
+};
+
+export const generateSampleInitiatives = (count: number) => {
+  return Array.from({ length: count }, (_, i) => ({
+    id: `initiative-${i + 1}`,
+    initiative: `Strategic Initiative ${i + 1}`,
+    desiredOutcome: `Achieve ${Math.floor(Math.random() * 100)}% completion`,
+    objectiveIds: [],
+    status: 'active',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   }));
 };
 
