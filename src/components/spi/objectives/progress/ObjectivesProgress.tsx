@@ -33,11 +33,10 @@ export function ObjectivesProgress({ completionPercentage }: ObjectivesProgressP
       <div className="relative">
         <Progress 
           value={completionPercentage} 
-          className="h-2 mb-2"
+          className={`h-2 mb-2 [&>div]:bg-[${statusColors.active}]`}
           style={{ 
             backgroundColor: 'rgba(255, 255, 255, 0.1)'
           }}
-          indicatorClassName={`bg-[${statusColors.active}]`}
         />
       </div>
       <p className="text-sm text-muted-foreground">{completionPercentage.toFixed(0)}% of objectives completed</p>
