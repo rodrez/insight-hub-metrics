@@ -15,7 +15,7 @@ import { useState, useEffect } from "react";
 interface ObjectiveEditDialogProps {
   objective: Objective | null;
   onClose: () => void;
-  onSave: (objective: Objective) => void;
+  onSave: (objective: Objective) => Promise<void>;
 }
 
 export function ObjectiveEditDialog({ objective, onClose, onSave }: ObjectiveEditDialogProps) {
@@ -36,12 +36,12 @@ export function ObjectiveEditDialog({ objective, onClose, onSave }: ObjectiveEdi
 
   if (!editedObjective) return null;
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const updatedObjective = {
       ...editedObjective,
       desiredOutcome: `${editedObjective.desiredOutcome}%`
     };
-    onSave(updatedObjective);
+    await onSave(updatedObjective);
   };
 
   return (

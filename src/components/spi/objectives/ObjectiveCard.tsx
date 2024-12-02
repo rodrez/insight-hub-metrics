@@ -19,7 +19,7 @@ import {
 
 interface ObjectiveCardProps {
   objective: Objective;
-  onEdit: (objective: Objective) => void;
+  onEdit: (objective: Objective) => Promise<void>;
   onDelete: (id: string) => void;
 }
 
