@@ -9,10 +9,11 @@ import { toast } from "@/components/ui/use-toast";
 
 interface OrgPositionCardProps {
   title: string;
+  name: string;
   width?: string;
 }
 
-export function OrgPositionCard({ title, width = "w-96" }: OrgPositionCardProps) {
+export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [position, setPosition] = useState<OrgPosition>({
     id: crypto.randomUUID(),
@@ -34,8 +35,11 @@ export function OrgPositionCard({ title, width = "w-96" }: OrgPositionCardProps)
 
   return (
     <Card className={`${width} p-6 shadow-lg animate-fade-in`}>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">{title}</h2>
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <h2 className="text-xl font-semibold">{title}</h2>
+          <p className="text-sm text-muted-foreground">{name}</p>
+        </div>
         <Button 
           variant="ghost" 
           size="icon" 

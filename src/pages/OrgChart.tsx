@@ -12,29 +12,49 @@ export default function OrgChart() {
       <div className="grid gap-8">
         {/* Director Level */}
         <div className="flex justify-center">
-          <OrgPositionCard title="Director" width="w-96" />
+          <OrgPositionCard 
+            title="Director" 
+            name="Sarah Johnson"
+            width="w-96" 
+          />
         </div>
 
         {/* Senior Manager Level */}
         <div className="flex justify-center gap-8">
-          {[1, 2, 3].map((index) => (
-            <OrgPositionCard
-              key={index}
-              title={`Senior Manager ${index}`}
-              width="w-80"
-            />
-          ))}
+          <OrgPositionCard
+            title="Senior Manager"
+            name="Michael Chen"
+            width="w-80"
+          />
+          <OrgPositionCard
+            title="Senior Manager"
+            name="Emily Rodriguez"
+            width="w-80"
+          />
+          <OrgPositionCard
+            title="Senior Manager"
+            name="David Kim"
+            width="w-80"
+          />
         </div>
 
         {/* Tech Lead Level */}
         <div className="flex justify-center gap-4">
-          {[1, 2, 3].map((index) => (
-            <OrgPositionCard
-              key={index}
-              title={`Tech Lead ${index}`}
-              width="w-72"
-            />
-          ))}
+          <OrgPositionCard
+            title="Tech Lead"
+            name="James Wilson"
+            width="w-72"
+          />
+          <OrgPositionCard
+            title="Tech Lead"
+            name="Maria Garcia"
+            width="w-72"
+          />
+          <OrgPositionCard
+            title="Tech Lead"
+            name="Robert Taylor"
+            width="w-72"
+          />
         </div>
       </div>
     </div>
