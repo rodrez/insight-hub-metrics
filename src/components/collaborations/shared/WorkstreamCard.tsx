@@ -56,7 +56,7 @@ export function WorkstreamCard({ workstream, formatDate, agreements, color }: Wo
 
   return (
     <Card 
-      className={`${getWarningColor()}`}
+      className={`${getWarningColor()} border-2`}
       style={{ 
         borderColor: color || '#333'
       }}
