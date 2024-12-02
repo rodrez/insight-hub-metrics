@@ -1,20 +1,21 @@
-export interface SitRep {
+export type SitRep = {
   id: string;
   title: string;
   date: string;
   spiId: string;
-  projectId?: string;
   update: string;
-  challenges?: string;
-  nextSteps?: string;
+  challenges: string;
+  nextSteps: string;
   status: 'pending-review' | 'ready' | 'submitted';
+  level: 'CEO' | 'SVP' | 'CTO';
   summary: string;
-  departmentId?: string;
-  level?: "CEO" | "SVP" | "CTO";
-  teams?: string[];
-  pointsOfContact?: string[];
+  projectId?: string;
+  departmentId: string;
   fortune30PartnerId?: string;
   smePartnerId?: string;
+  teams?: string[];
+  pointsOfContact?: string[];
   poc?: string;
   pocDepartment?: string;
-}
+  ratMember: string;
+};

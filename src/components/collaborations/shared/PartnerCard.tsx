@@ -58,6 +58,11 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
           onDelete={onDelete}
           type={type}
         />
+        <div className="mt-2">
+          <Badge variant="secondary" className="bg-purple-100 text-purple-800 border-purple-300">
+            RAT Member: {collaborator.ratMember}
+          </Badge>
+        </div>
       </CardHeader>
       <CardContent className="p-6 pt-0">
         <div className="grid md:grid-cols-2 gap-6">

@@ -12,6 +12,16 @@ import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { useEffect } from "react";
 
+const RAT_MEMBERS = [
+  { id: "director", name: "Director" },
+  { id: "sm1", name: "Senior Manager 1" },
+  { id: "sm2", name: "Senior Manager 2" },
+  { id: "sm3", name: "Senior Manager 3" },
+  { id: "tl1", name: "Tech Lead 1" },
+  { id: "tl2", name: "Tech Lead 2" },
+  { id: "tl3", name: "Tech Lead 3" },
+];
+
 interface SelectFieldsProps {
   status: SPI['status'];
   setStatus: (value: SPI['status']) => void;
@@ -23,6 +33,8 @@ interface SelectFieldsProps {
   setSelectedSME: (value: string) => void;
   selectedDepartment: string;
   setSelectedDepartment: (value: string) => void;
+  selectedRatMember: string;
+  setSelectedRatMember: (value: string) => void;
   projects?: any[];
   fortune30Partners?: any[];
 }
@@ -38,6 +50,8 @@ export function SelectFields({
   setSelectedSME,
   selectedDepartment,
   setSelectedDepartment,
+  selectedRatMember,
+  setSelectedRatMember,
   projects,
   fortune30Partners,
 }: SelectFieldsProps) {
@@ -53,16 +67,11 @@ export function SelectFields({
     },
   });
 
-  // Ensure initial value is set correctly
   useEffect(() => {
     if (selectedFortune30 === undefined) {
       setSelectedFortune30('none');
     }
   }, [selectedFortune30, setSelectedFortune30]);
-
-  const handleFortune30Change = (value: string) => {
-    setSelectedFortune30(value);
-  };
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -100,10 +109,7 @@ export function SelectFields({
 
       <div className="space-y-2">
         <Label htmlFor="fortune30">Fortune 30 Partner</Label>
-        <Select 
-          value={selectedFortune30 || 'none'} 
-          onValueChange={handleFortune30Change}
-        >
+        <Select value={selectedFortune30 || 'none'} onValueChange={setSelectedFortune30}>
           <SelectTrigger id="fortune30">
             <SelectValue placeholder="Fortune 30 Partner" />
           </SelectTrigger>
@@ -129,6 +135,22 @@ export function SelectFields({
             {smePartners.map(partner => (
               <SelectItem key={partner.id} value={partner.id}>
                 {partner.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="ratMember">RAT Member</Label>
+        <Select value={selectedRatMember} onValueChange={setSelectedRatMember}>
+          <SelectTrigger id="ratMember">
+            <SelectValue placeholder="Select RAT Member" />
+          </SelectTrigger>
+          <SelectContent>
+            {RAT_MEMBERS.map(member => (
+              <SelectItem key={member.id} value={member.id}>
+                {member.name}
               </SelectItem>
             ))}
           </SelectContent>
