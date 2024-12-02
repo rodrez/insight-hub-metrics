@@ -3,6 +3,16 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DEPARTMENTS } from "@/lib/constants";
 
+const RAT_MEMBERS = [
+  { id: "director", name: "Director" },
+  { id: "sm1", name: "Senior Manager 1" },
+  { id: "sm2", name: "Senior Manager 2" },
+  { id: "sm3", name: "Senior Manager 3" },
+  { id: "tl1", name: "Tech Lead 1" },
+  { id: "tl2", name: "Tech Lead 2" },
+  { id: "tl3", name: "Tech Lead 3" },
+];
+
 interface BasicProjectInfoProps {
   name: string;
   setName: (value: string) => void;
@@ -14,6 +24,8 @@ interface BasicProjectInfoProps {
   setTechLead: (value: string) => void;
   techLeadDepartment: string;
   setTechLeadDepartment: (value: string) => void;
+  ratMember: string;
+  setRatMember: (value: string) => void;
   budget: string;
   setBudget: (value: string) => void;
 }
@@ -29,6 +41,8 @@ export function BasicProjectInfo({
   setTechLead,
   techLeadDepartment,
   setTechLeadDepartment,
+  ratMember,
+  setRatMember,
   budget,
   setBudget
 }: BasicProjectInfoProps) {
@@ -90,6 +104,22 @@ export function BasicProjectInfo({
             {DEPARTMENTS.map((dept) => (
               <SelectItem key={dept.id} value={dept.id}>
                 {dept.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label htmlFor="ratMember">RAT Member</Label>
+        <Select value={ratMember} onValueChange={setRatMember}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select RAT Member" />
+          </SelectTrigger>
+          <SelectContent>
+            {RAT_MEMBERS.map((member) => (
+              <SelectItem key={member.id} value={member.id}>
+                {member.name}
               </SelectItem>
             ))}
           </SelectContent>
