@@ -80,7 +80,7 @@ export function SPIList() {
             <CardHeader className="flex flex-row items-center justify-between bg-background/50 backdrop-blur-sm">
               <div>
                 <CardTitle className="text-xl font-bold">SPI {spiNumber}</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">Deliverable for SPI {spiNumber}: {spi.deliverable}</p>
+                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">Deliverable: {spi.deliverable}</p>
               </div>
               <div className="flex gap-2">
                 <Button 
@@ -116,7 +116,7 @@ export function SPIList() {
                     <span>Expected completion: {format(new Date(spi.expectedCompletionDate), 'PPP')}</span>
                   </div>
                   {spi.details && (
-                    <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">Details for SPI {spiNumber}: {spi.details}</p>
+                    <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">Details: {spi.details}</p>
                   )}
                 </div>
                 <RelatedEntities
