@@ -7,6 +7,7 @@ import { generateInternalPartners } from './generators/internalPartnersGenerator
 import { generateSMEPartners } from './generators/smePartnersGenerator';
 import { generateSampleProjects } from './generators/projectGenerator';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './generators/spiGenerator';
+import { DEPARTMENTS } from '@/lib/constants';
 
 export class SampleDataService {
   async generateSampleData(quantities: DataQuantities) {
@@ -27,6 +28,7 @@ export class SampleDataService {
         fortune30: quantities.fortune30,
         internalPartners: quantities.internalPartners,
         smePartners: quantities.smePartners,
+        departments: Array.from(DEPARTMENTS),
         fortune30Partners,
         collaborators: internalPartners
       };

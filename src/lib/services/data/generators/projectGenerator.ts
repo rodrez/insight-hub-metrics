@@ -98,9 +98,5 @@ export const generateSampleProjects = async (input: ProjectGenerationInput) => {
     projects.push(project);
   }
 
-  const spis = generateSampleSPIs(projects.map(p => p.id), input.spis);
-  const objectives = generateSampleObjectives(input.objectives);
-  const sitreps = generateSampleSitReps(spis, input.sitreps);
-
-  return { projects, spis, objectives, sitreps };
+  return { projects };
 };
