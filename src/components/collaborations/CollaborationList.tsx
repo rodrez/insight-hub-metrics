@@ -2,6 +2,7 @@ import { Collaborator } from "@/lib/types/collaboration";
 import { TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface CollaborationListProps {
   collaborators: Collaborator[];
@@ -28,7 +29,11 @@ export function CollaborationList({ collaborators, onEdit, onDelete }: Collabora
               <TableCell>{collaborator.name}</TableCell>
               <TableCell>{collaborator.role}</TableCell>
               <TableCell>{collaborator.department}</TableCell>
-              <TableCell>{collaborator.ratMember}</TableCell>
+              <TableCell>
+                <Badge variant="secondary" className="bg-purple-100 text-purple-800 border-purple-300">
+                  {collaborator.ratMember}
+                </Badge>
+              </TableCell>
               <TableCell>
                 <div className="flex gap-2">
                   <Button
