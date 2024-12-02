@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Project } from "@/lib/types";
+import { toast } from "@/components/ui/use-toast";
 
 interface FinancialDetailsProps {
   project: Project;
@@ -18,17 +19,48 @@ interface FinancialDetailsProps {
 export function FinancialDetails({ project, isEditing, onUpdate }: FinancialDetailsProps) {
   const handleBusinessImpactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value);
-    onUpdate({ businessImpact: isNaN(value) ? 0 : value * 1000000 }); // Convert M to actual value
+    if (isNaN(value)) {
+      toast({
+        title: "Invalid input",
+        description: "Please enter a valid number",
+        variant: "destructive",
+      });
+      return;
+    }
+    onUpdate({ businessImpact: value * 1000000 }); // Convert M to actual value
   };
 
   const handleBudgetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value);
-    onUpdate({ budget: isNaN(value) ? 0 : value });
+    if (isNaN(value)) {
+      toast({
+        title: "Invalid input",
+        description: "Please enter a valid number",
+        variant: "destructive",
+      });
+      return;
+    }
+    onUpdate({ budget: value });
   };
 
   const handleSpentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value);
-    onUpdate({ spent: isNaN(value) ? 0 : value });
+    if (isNaN(value)) {
+      toast({
+        title: "Invalid input",
+        description: "Please enter a valid number",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (value > project.budget) {
+      toast({
+        title: "Warning",
+        description: "Spent amount exceeds budget",
+        variant: "destructive",
+      });
+    }
+    onUpdate({ spent: value });
   };
 
   return (
@@ -129,7 +161,7 @@ export function FinancialDetails({ project, isEditing, onUpdate }: FinancialDeta
               </TooltipContent>
             </Tooltip>
             <p className="text-2xl font-bold">${(project.budget - (project.spent || 0)).toLocaleString()}</p>
-            <Progress value={((project.budget - (project.spent || 0)) / project.budget) * 100} className="h-2" />
+            <Progress value={((project.spent || 0) / project.budget) * 100} className="h-2" />
           </div>
         </TooltipProvider>
       </CardContent>
