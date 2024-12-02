@@ -7,6 +7,7 @@ import { generateInternalPartners } from './generators/internalPartnersGenerator
 import { generateSMEPartners } from './generators/smePartnersGenerator';
 import { generateSampleProjects } from './generators/projectGenerator';
 import { DEPARTMENTS } from '@/lib/constants';
+import { ProjectGenerationInput } from './generators/projectGenerator';
 
 export class SampleDataService {
   async generateSampleData(quantities: DataQuantities) {
@@ -18,8 +19,8 @@ export class SampleDataService {
       const internalPartners = (await generateInternalPartners()).slice(0, quantities.internalPartners);
       const smePartners = generateSMEPartners().slice(0, quantities.smePartners);
 
-      // Generate projects with the correct input structure
-      const projectInput = {
+      // Create project input with correct types
+      const projectInput: ProjectGenerationInput = {
         projects: quantities.projects,
         spis: quantities.spis,
         objectives: quantities.objectives,
@@ -28,7 +29,7 @@ export class SampleDataService {
         internalPartners: quantities.internalPartners,
         smePartners: quantities.smePartners,
         departments: Array.from(DEPARTMENTS),
-        fortune30Partners,
+        fortune30Partners: fortune30Partners,
         collaborators: internalPartners
       };
 
