@@ -17,6 +17,7 @@ export function generateInternalPartner(
     type: 'internal',
     projects: [],
     lastActive: new Date().toISOString(),
+    ratMember: name // Using the partner's name as their RAT member designation for internal partners
   };
 }
 

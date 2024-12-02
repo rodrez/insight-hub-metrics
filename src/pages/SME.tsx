@@ -71,6 +71,24 @@ export default function SME() {
     );
   }
 
+  const handleSave = async (collaborator: Collaborator) => {
+    try {
+      await db.addSMEPartner(collaborator);
+      toast({
+        title: "Success",
+        description: "SME partner saved successfully"
+      });
+      // Refresh data
+      queryClient.invalidateQueries({ queryKey: ['collaborators-sme'] });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save SME partner",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 pt-16 pb-8">
       <div className="flex flex-col gap-4">
@@ -164,6 +182,7 @@ export default function SME() {
         <CollaborationDialog
           open={showEditDialog}
           onOpenChange={setShowEditDialog}
+          onSave={handleSave}
           collaboratorId={selectedCollaborator}
           collaborationType="sme"
         />
