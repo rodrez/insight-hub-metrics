@@ -46,7 +46,6 @@ export function ObjectiveEditDialog({ objective, onClose, onSave }: ObjectiveEdi
         desiredOutcome: `${editedObjective.desiredOutcome}%`
       };
       await onSave(updatedObjective);
-      onClose();
     } finally {
       setIsSaving(false);
     }

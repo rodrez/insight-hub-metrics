@@ -71,23 +71,25 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
   };
 
   const handleSaveEdit = async (updatedObjective: Objective) => {
+    if (isEditing) return;
+    
     try {
       setIsEditing(true);
       await onEdit(updatedObjective);
       setShowEditDialog(false);
       setSelectedObjective(null);
-      setIsEditing(false);
       toast({
         title: "Success",
         description: "Objective updated successfully",
       });
     } catch (error) {
-      setIsEditing(false);
       toast({
         title: "Error",
         description: "Failed to update objective",
         variant: "destructive",
       });
+    } finally {
+      setIsEditing(false);
     }
   };
 

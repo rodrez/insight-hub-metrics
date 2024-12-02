@@ -33,10 +33,11 @@ export function ObjectivesProgress({ completionPercentage }: ObjectivesProgressP
       <div className="relative">
         <Progress 
           value={completionPercentage} 
-          className={`h-2 mb-2 [&>div]:bg-[${statusColors.active}]`}
+          className="h-2 mb-2"
           style={{ 
-            backgroundColor: 'rgba(255, 255, 255, 0.1)'
-          }}
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            '--progress-foreground': statusColors.active
+          } as React.CSSProperties}
         />
       </div>
       <p className="text-sm text-muted-foreground">{completionPercentage.toFixed(0)}% of objectives completed</p>
