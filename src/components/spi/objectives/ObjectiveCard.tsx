@@ -155,14 +155,16 @@ export function ObjectiveCard({ objective, onEdit, onDelete }: ObjectiveCardProp
         </AlertDialogContent>
       </AlertDialog>
 
-      <ObjectiveEditDialog
-        objective={selectedObjective}
-        onClose={() => {
-          setShowEditDialog(false);
-          setSelectedObjective(null);
-        }}
-        onSave={handleSaveEdit}
-      />
+      {showEditDialog && (
+        <ObjectiveEditDialog
+          objective={selectedObjective}
+          onClose={() => {
+            setShowEditDialog(false);
+            setSelectedObjective(null);
+          }}
+          onSave={handleSaveEdit}
+        />
+      )}
     </>
   );
 }
