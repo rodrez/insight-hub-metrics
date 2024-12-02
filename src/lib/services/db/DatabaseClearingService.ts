@@ -2,7 +2,17 @@ import { connectionManager } from './connectionManager';
 import { DatabaseCleaner } from './databaseCleaner';
 import { toast } from "@/components/ui/use-toast";
 import { DatabaseError } from '../../utils/errorHandling';
-import { DB_CONFIG } from './stores';
+
+const STORE_NAMES = [
+  'projects',
+  'collaborators',
+  'sitreps',
+  'spis',
+  'objectives',
+  'initiatives',
+  'smePartners',
+  'teams'
+];
 
 export class DatabaseClearingService {
   constructor(private db: IDBDatabase | null) {}
@@ -16,16 +26,13 @@ export class DatabaseClearingService {
       // Close existing connections first
       connectionManager.closeAllConnections();
       
-      // Get all store names from DB_CONFIG.stores
-      const storeNames = Object.values(DB_CONFIG.stores);
-      
-      if (storeNames.length === 0) {
+      if (STORE_NAMES.length === 0) {
         console.warn('No stores found in database');
         return;
       }
 
       // Clear stores sequentially to avoid transaction conflicts
-      for (const storeName of storeNames) {
+      for (const storeName of STORE_NAMES) {
         await this.clearStore(storeName);
       }
 
