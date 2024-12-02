@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 
 type PartnerCardProps = {
   collaborator: Collaborator;
@@ -18,6 +19,8 @@ type PartnerCardProps = {
 };
 
 export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCardProps) {
+  const navigate = useNavigate();
+  
   const { data: sitreps = [] } = useQuery({
     queryKey: ['sitreps'],
     queryFn: () => db.getAllSitReps(),
@@ -31,6 +34,16 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
     )
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 3); // Get only the 3 most recent
+
+  const handleSitRepClick = (sitrepId: string) => {
+    navigate('/sitreps');
+    setTimeout(() => {
+      const element = document.getElementById(`sitrep-${sitrepId}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  };
 
   return (
     <Card className={cn(
@@ -65,7 +78,8 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
               {partnerSitreps.map((sitrep) => (
                 <div 
                   key={sitrep.id}
-                  className="p-3 rounded-md bg-accent/50 hover:bg-accent transition-colors"
+                  onClick={() => handleSitRepClick(sitrep.id)}
+                  className="p-3 rounded-md bg-accent/50 hover:bg-accent transition-colors cursor-pointer"
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-medium">{sitrep.title}</span>
