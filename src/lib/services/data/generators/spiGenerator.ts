@@ -25,13 +25,13 @@ export const generateSampleObjectives = (count: number): Objective[] => {
     title: `Objective ${i + 1}`,
     description: `Description for Objective ${i + 1}`,
     initiative: `Initiative ${i + 1}`,
-    desiredOutcome: `Desired outcome for Objective ${i + 1}`,
+    desiredOutcome: `${Math.floor(Math.random() * 100)}%`,
     spiIds: []
   }));
 };
 
 export const generateSampleSitReps = (spis: SPI[], count: number): SitRep[] => {
-  const departments = DEPARTMENTS;
+  const departments = Array.from(DEPARTMENTS);
   const levels: Array<"CEO" | "SVP" | "CTO"> = ["CEO", "SVP", "CTO"];
   const statuses: Array<'pending-review' | 'ready' | 'submitted'> = ['pending-review', 'ready', 'submitted'];
 
@@ -44,14 +44,14 @@ export const generateSampleSitReps = (spis: SPI[], count: number): SitRep[] => {
 
     return {
       id: `sitrep-${i + 1}`,
-      title: `Strategic Progress Update: ${department.name} Initiative Phase ${i + 1}`,
+      title: `SPI Progress Update: Phase ${i + 1}`,
       date: new Date().toISOString(),
       spiId: spis[i % spis.length].id,
-      update: `Completed milestone ${i + 1} of the strategic initiative. Team has successfully implemented key features and resolved critical technical challenges. Performance metrics show 20% improvement in system efficiency.`,
+      update: `Completed milestone ${i + 1} of the SPI. Team has successfully implemented key features and resolved critical technical challenges. Performance metrics show 20% improvement in system efficiency.`,
       challenges: `Current challenges include: 1) Resource allocation for scaling operations, 2) Integration complexities with legacy systems, 3) Timeline pressure due to market demands.`,
       nextSteps: `1. Finalize implementation of remaining features\n2. Schedule integration testing with partner systems\n3. Prepare documentation for stakeholder review\n4. Plan deployment strategy for next phase`,
       status: statuses[i % statuses.length],
-      summary: `Major progress achieved in ${department.name} initiative with significant technical milestones completed. Team addressing integration challenges while maintaining momentum.`,
+      summary: `Major progress achieved in ${department.name} SPI with significant technical milestones completed. Team addressing integration challenges while maintaining momentum.`,
       departmentId: department.id,
       level: levels[i % levels.length],
       teams: teams,
