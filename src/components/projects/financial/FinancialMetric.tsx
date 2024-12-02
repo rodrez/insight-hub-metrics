@@ -29,7 +29,7 @@ export function FinancialMetric({
   prefix = "$",
   suffix = "",
   type = "number",
-  step = "0.1",
+  step = "1000",
   min = "0"
 }: FinancialMetricProps) {
   return (
@@ -53,10 +53,10 @@ export function FinancialMetric({
             onChange={onChange}
             step={step}
             min={min}
-            className="pl-6 text-xl font-semibold"
+            className={`pl-6 text-xl font-semibold ${suffix ? 'pr-8' : ''}`}
           />
           {prefix && <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xl font-semibold">{prefix}</span>}
-          {suffix && <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xl font-semibold">{suffix}</span>}
+          {suffix && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xl font-semibold">{suffix}</span>}
         </div>
       ) : (
         <p className="text-2xl font-bold">{prefix}{value}{suffix}</p>

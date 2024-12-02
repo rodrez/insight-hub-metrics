@@ -74,6 +74,7 @@ export function FinancialDetails({ project, isEditing, onUpdate }: FinancialDeta
           isEditing={isEditing}
           onChange={handleBusinessImpactChange}
           suffix="M"
+          step="1"
         />
         <FinancialMetric
           label="Total Budget"
@@ -81,6 +82,7 @@ export function FinancialDetails({ project, isEditing, onUpdate }: FinancialDeta
           value={project.budget}
           isEditing={isEditing}
           onChange={handleBudgetChange}
+          step="1000"
         />
         <FinancialMetric
           label="Spent"
@@ -88,6 +90,7 @@ export function FinancialDetails({ project, isEditing, onUpdate }: FinancialDeta
           value={project.spent || 0}
           isEditing={isEditing}
           onChange={handleSpentChange}
+          step="1000"
         />
         <RemainingBudget
           budget={project.budget}
