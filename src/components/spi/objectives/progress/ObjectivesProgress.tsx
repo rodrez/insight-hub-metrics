@@ -15,12 +15,10 @@ export function ObjectivesProgress({ completionPercentage }: ObjectivesProgressP
       const saved = localStorage.getItem('projectStatusColors');
       if (saved) {
         const colors = JSON.parse(saved);
-        const activeColor = colors.find((c: any) => c.id === 'active')?.color;
-        if (activeColor) {
-          setStatusColors({
-            active: activeColor
-          });
-        }
+        const activeColor = colors.find((c: any) => c.id === 'active')?.color || '#10B981';
+        setStatusColors({
+          active: activeColor
+        });
       }
     };
 
@@ -32,14 +30,16 @@ export function ObjectivesProgress({ completionPercentage }: ObjectivesProgressP
   return (
     <div className="bg-card rounded-lg p-4 shadow-sm">
       <h3 className="text-lg font-semibold mb-2">Overall Progress</h3>
-      <Progress 
-        value={completionPercentage} 
-        className="h-2 mb-2"
-        style={{ 
-          '--progress-background': statusColors.active,
-          backgroundColor: 'rgba(255, 255, 255, 0.1)'
-        } as React.CSSProperties}
-      />
+      <div className="relative">
+        <Progress 
+          value={completionPercentage} 
+          className="h-2 mb-2"
+          style={{ 
+            backgroundColor: 'rgba(255, 255, 255, 0.1)'
+          }}
+          indicatorClassName={`bg-[${statusColors.active}]`}
+        />
+      </div>
       <p className="text-sm text-muted-foreground">{completionPercentage.toFixed(0)}% of objectives completed</p>
     </div>
   );

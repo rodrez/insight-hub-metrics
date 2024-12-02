@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -36,7 +37,7 @@ export function ObjectiveEditDialog({ objective, onClose, onSave }: ObjectiveEdi
   if (!editedObjective) return null;
 
   const handleSave = async () => {
-    if (isSaving) return;
+    if (isSaving || !editedObjective) return;
     
     try {
       setIsSaving(true);
@@ -45,16 +46,20 @@ export function ObjectiveEditDialog({ objective, onClose, onSave }: ObjectiveEdi
         desiredOutcome: `${editedObjective.desiredOutcome}%`
       };
       await onSave(updatedObjective);
+      onClose();
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <Dialog open={!!objective} onOpenChange={() => onClose()}>
-      <DialogContent className="sm:max-w-[425px]">
+    <Dialog open={!!objective} onOpenChange={() => !isSaving && onClose()}>
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Objective</DialogTitle>
+          <DialogDescription>
+            Make changes to your objective here. Click save when you're done.
+          </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">

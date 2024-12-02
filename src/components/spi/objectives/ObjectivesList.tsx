@@ -59,7 +59,11 @@ export function ObjectivesList() {
 
   const handleSave = async (objective: Objective) => {
     try {
-      await db.addObjective(objective);
+      if (objective.id) {
+        await db.updateObjective(objective.id, objective);
+      } else {
+        await db.addObjective(objective);
+      }
       await refetch();
       setSelectedObjective(null);
       toast({
