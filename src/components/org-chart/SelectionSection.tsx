@@ -8,9 +8,10 @@ interface SelectionSectionProps {
   title: string;
   type: keyof OrgPosition;
   position: OrgPosition;
+  onPositionChange: (updatedPosition: OrgPosition) => void;
 }
 
-export function SelectionSection({ title, type, position }: SelectionSectionProps) {
+export function SelectionSection({ title, type, position, onPositionChange }: SelectionSectionProps) {
   const { data: items = [] } = useQuery({
     queryKey: [type],
     queryFn: async () => {
@@ -47,16 +48,30 @@ export function SelectionSection({ title, type, position }: SelectionSectionProp
     }
   };
 
+  const handleValueChange = (value: string) => {
+    if (!position[type].includes(value)) {
+      const updatedPosition = {
+        ...position,
+        [type]: [...position[type], value]
+      };
+      onPositionChange(updatedPosition);
+    }
+  };
+
+  const handleRemoveItem = (itemId: string) => {
+    const updatedPosition = {
+      ...position,
+      [type]: position[type].filter((id: string) => id !== itemId)
+    };
+    onPositionChange(updatedPosition);
+  };
+
   return (
     <div>
       <h3 className="text-sm font-medium mb-2">{title}</h3>
       <Select
         value=""
-        onValueChange={(value) => {
-          if (!position[type].includes(value)) {
-            position[type] = [...position[type], value];
-          }
-        }}
+        onValueChange={handleValueChange}
       >
         <SelectTrigger className="w-full">
           <SelectValue placeholder={`Select ${title}`} />
@@ -80,9 +95,7 @@ export function SelectionSection({ title, type, position }: SelectionSectionProp
             >
               {getItemLabel(item)}
               <button
-                onClick={() => {
-                  position[type] = position[type].filter((id: string) => id !== itemId);
-                }}
+                onClick={() => handleRemoveItem(itemId)}
                 className="ml-1 hover:text-destructive"
               >
                 ×
