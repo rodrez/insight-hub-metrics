@@ -46,6 +46,16 @@ const projectTypes = [
   }
 ];
 
+const RAT_MEMBERS = [
+  { id: "director", name: "Director" },
+  { id: "sm1", name: "Senior Manager 1" },
+  { id: "sm2", name: "Senior Manager 2" },
+  { id: "sm3", name: "Senior Manager 3" },
+  { id: "tl1", name: "Tech Lead 1" },
+  { id: "tl2", name: "Tech Lead 2" },
+  { id: "tl3", name: "Tech Lead 3" },
+];
+
 const generateBasicProject = (
   index: number,
   dept: Department,
@@ -57,6 +67,7 @@ const generateBasicProject = (
   const budget = Math.round((dept.budget / dept.projectCount) * (0.8 + Math.random() * 0.4));
   const spent = Math.round(budget * (0.2 + Math.random() * 0.5));
   const today = new Date();
+  const ratMember = RAT_MEMBERS[index % RAT_MEMBERS.length].id;
 
   return {
     id: `${dept.id}-project-${index + 1}`,
@@ -66,6 +77,7 @@ const generateBasicProject = (
     pocDepartment: internalPartner.department,
     techLead: techLead.name,
     techLeadDepartment: techLead.department,
+    ratMember,
     budget,
     spent,
     status: "active",
