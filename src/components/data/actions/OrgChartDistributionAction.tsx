@@ -13,14 +13,16 @@ export function OrgChartDistributionAction({ disabled }: { disabled: boolean }) 
       console.log('Starting org chart distribution...');
       
       // Fetch all data
-      const [projects, spis, sitreps, collaborators] = await Promise.all([
+      const [projects, spis, sitreps, collaborators, smePartners] = await Promise.all([
         db.getAllProjects(),
         db.getAllSPIs(),
         db.getAllSitReps(),
-        db.getAllCollaborators()
+        db.getAllCollaborators(),
+        db.getAllSMEPartners()
       ]);
 
       const internalCollaborators = collaborators.filter(c => c.type === 'internal');
+      const fortune30Partners = collaborators.filter(c => c.type === 'fortune30');
       
       if (internalCollaborators.length === 0) {
         toast({
@@ -31,14 +33,16 @@ export function OrgChartDistributionAction({ disabled }: { disabled: boolean }) 
         return;
       }
 
-      console.log(`Distributing ${projects.length} projects, ${spis.length} SPIs, and ${sitreps.length} sitreps among ${internalCollaborators.length} collaborators`);
+      console.log(`Distributing ${projects.length} projects, ${spis.length} SPIs, ${sitreps.length} sitreps, ${fortune30Partners.length} Fortune 30 partners, and ${smePartners.length} SME partners among ${internalCollaborators.length} collaborators`);
       
       // Reset existing assignments
       for (const collaborator of internalCollaborators) {
         await db.updateCollaborator(collaborator.id, {
           assignedProjects: [],
           assignedSpis: [],
-          assignedSitreps: []
+          assignedSitreps: [],
+          fortune30Partners: [],
+          smePartners: []
         });
       }
       
@@ -47,11 +51,13 @@ export function OrgChartDistributionAction({ disabled }: { disabled: boolean }) 
         id: collaborator.id,
         assignedProjects: [] as string[],
         assignedSpis: [] as string[],
-        assignedSitreps: [] as string[]
+        assignedSitreps: [] as string[],
+        fortune30Partners: [] as string[],
+        smePartners: [] as string[]
       }));
 
       // Helper function to distribute items
-      const distributeItems = (items: any[], type: 'assignedProjects' | 'assignedSpis' | 'assignedSitreps') => {
+      const distributeItems = (items: any[], type: 'assignedProjects' | 'assignedSpis' | 'assignedSitreps' | 'fortune30Partners' | 'smePartners') => {
         let currentIndex = 0;
         items.forEach(item => {
           distribution[currentIndex % distribution.length][type].push(item.id);
@@ -60,6 +66,8 @@ export function OrgChartDistributionAction({ disabled }: { disabled: boolean }) 
       };
 
       distributeItems(projects, 'assignedProjects');
+      distributeItems(fortune30Partners, 'fortune30Partners');
+      distributeItems(smePartners, 'smePartners');
       distributeItems(spis, 'assignedSpis');
       distributeItems(sitreps, 'assignedSitreps');
 
@@ -68,7 +76,9 @@ export function OrgChartDistributionAction({ disabled }: { disabled: boolean }) 
         await db.updateCollaborator(position.id, {
           assignedProjects: position.assignedProjects,
           assignedSpis: position.assignedSpis,
-          assignedSitreps: position.assignedSitreps
+          assignedSitreps: position.assignedSitreps,
+          fortune30Partners: position.fortune30Partners,
+          smePartners: position.smePartners
         });
       }
 

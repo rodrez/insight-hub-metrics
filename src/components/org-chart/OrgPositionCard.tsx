@@ -51,26 +51,31 @@ export function OrgPositionCard({ title, width = "w-96" }: OrgPositionCardProps)
           title="Projects"
           type="assignedProjects"
           itemIds={position.projects}
+          itemType="project"
         />
         <RelationshipDisplay
           title="Fortune 30 Partners"
           type="assignedProjects"
           itemIds={position.fortune30Partners}
+          itemType="fortune30"
         />
         <RelationshipDisplay
           title="SME Partners"
           type="assignedProjects"
           itemIds={position.smePartners}
+          itemType="sme"
         />
         <RelationshipDisplay
           title="SPIs"
           type="assignedSpis"
           itemIds={position.spis}
+          itemType="spi"
         />
         <RelationshipDisplay
           title="SitReps"
           type="assignedSitreps"
           itemIds={position.sitreps}
+          itemType="sitrep"
         />
       </div>
 

@@ -3,28 +3,34 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { format } from "date-fns";
-import { Collaborator } from "@/lib/types/collaboration";
 
 interface RelationshipDisplayProps {
   title: string;
   type: 'assignedProjects' | 'assignedSpis' | 'assignedSitreps';
   itemIds: string[];
+  itemType: 'project' | 'fortune30' | 'sme' | 'spi' | 'sitrep';
 }
 
-export function RelationshipDisplay({ title, type, itemIds }: RelationshipDisplayProps) {
+export function RelationshipDisplay({ title, type, itemIds, itemType }: RelationshipDisplayProps) {
   const { data: items = [] } = useQuery({
-    queryKey: [type, itemIds],
+    queryKey: [type, itemType, itemIds],
     queryFn: async () => {
       if (!itemIds || itemIds.length === 0) return [];
       
-      switch (type) {
-        case 'assignedProjects':
+      switch (itemType) {
+        case 'project':
           const projects = await db.getAllProjects();
           return projects.filter(p => itemIds.includes(p.id));
-        case 'assignedSpis':
+        case 'fortune30':
+          const collaborators = await db.getAllCollaborators();
+          return collaborators.filter(c => c.type === 'fortune30' && itemIds.includes(c.id));
+        case 'sme':
+          const smePartners = await db.getAllSMEPartners();
+          return smePartners.filter(s => itemIds.includes(s.id));
+        case 'spi':
           const spis = await db.getAllSPIs();
           return spis.filter(s => itemIds.includes(s.id));
-        case 'assignedSitreps':
+        case 'sitrep':
           const sitreps = await db.getAllSitReps();
           return sitreps.filter(s => itemIds.includes(s.id))
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -38,7 +44,7 @@ export function RelationshipDisplay({ title, type, itemIds }: RelationshipDispla
   if (!items || items.length === 0) return null;
 
   const getBadgeStyle = (item: any) => {
-    if (type === 'assignedSpis') {
+    if (itemType === 'spi') {
       switch (item.status) {
         case 'completed':
           return { backgroundColor: '#10B981', color: '#FFFFFF' };
@@ -50,14 +56,17 @@ export function RelationshipDisplay({ title, type, itemIds }: RelationshipDispla
           return {};
       }
     }
+    if (itemType === 'fortune30' || itemType === 'sme') {
+      return { backgroundColor: item.color || '#4B5563', color: '#FFFFFF' };
+    }
     return {};
   };
 
   const getItemLabel = (item: any) => {
-    if (type === 'assignedSitreps') {
+    if (itemType === 'sitrep') {
       return `${item.title} (${format(new Date(item.date), 'MMM d, yyyy')})`;
     }
-    if (type === 'assignedSpis') {
+    if (itemType === 'spi') {
       return `${item.name} (Due: ${format(new Date(item.expectedCompletionDate), 'MMM d, yyyy')})`;
     }
     return item.name || item.title;
