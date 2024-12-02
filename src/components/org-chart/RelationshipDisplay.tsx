@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { format } from "date-fns";
+import { OrgPosition } from "./types";
 
 interface RelationshipDisplayProps {
   title: string;

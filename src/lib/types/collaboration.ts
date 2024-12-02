@@ -62,4 +62,8 @@ export type Collaborator = {
   agreements?: CollaboratorAgreements;
   primaryContact?: ContactPerson;
   workstreams?: Workstream[];
+  // New fields for org chart
+  assignedProjects?: string[];
+  assignedSpis?: string[];
+  assignedSitreps?: string[];
 };

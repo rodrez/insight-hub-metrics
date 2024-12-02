@@ -82,13 +82,13 @@ export function DatabaseActions({
       // Distribute items evenly across collaborators
       const distribution = internalCollaborators.map(collaborator => ({
         id: collaborator.id,
-        projects: [],
-        spis: [],
-        sitreps: []
+        assignedProjects: [] as string[],
+        assignedSpis: [] as string[],
+        assignedSitreps: [] as string[]
       }));
 
       // Helper function to distribute items
-      const distributeItems = (items: any[], type: string) => {
+      const distributeItems = (items: any[], type: 'assignedProjects' | 'assignedSpis' | 'assignedSitreps') => {
         let currentIndex = 0;
         items.forEach(item => {
           distribution[currentIndex % distribution.length][type].push(item.id);
@@ -96,16 +96,16 @@ export function DatabaseActions({
         });
       };
 
-      distributeItems(projects, 'projects');
-      distributeItems(spis, 'spis');
-      distributeItems(sitreps, 'sitreps');
+      distributeItems(projects, 'assignedProjects');
+      distributeItems(spis, 'assignedSpis');
+      distributeItems(sitreps, 'assignedSitreps');
 
       // Save the distribution
       for (const position of distribution) {
         await db.updateCollaborator(position.id, {
-          projects: position.projects,
-          spis: position.spis,
-          sitreps: position.sitreps
+          assignedProjects: position.assignedProjects,
+          assignedSpis: position.assignedSpis,
+          assignedSitreps: position.assignedSitreps
         });
       }
 
