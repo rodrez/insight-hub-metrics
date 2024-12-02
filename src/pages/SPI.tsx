@@ -1,70 +1,69 @@
-import { useState } from "react";
-import { SPIForm } from "@/components/spi/SPIForm";
-import { SPIList } from "@/components/spi/SPIList";
-import { ObjectivesList } from "@/components/spi/objectives/ObjectivesList";
-import { SPIAnalytics } from "@/components/spi/analytics/SPIAnalytics";
-import { SPIStats } from "@/components/spi/SPIStats";
-import { useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SPIList } from "@/components/spi/SPIList";
+import { SPIForm } from "@/components/spi/SPIForm";
+import { SPIStats } from "@/components/spi/SPIStats";
+import { SPIAnalytics } from "@/components/spi/analytics/SPIAnalytics";
+import { ObjectivesList } from "@/components/spi/objectives/ObjectivesList";
 
-export default function SPIPage() {
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const queryClient = useQueryClient();
+export default function SPI() {
+  const [statusColors, setStatusColors] = useState({
+    active: '#10B981'
+  });
 
-  const handleFormSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['spis'] });
-    setIsFormOpen(false);
-  };
+  useEffect(() => {
+    const loadStatusColors = () => {
+      const saved = localStorage.getItem('projectStatusColors');
+      if (saved) {
+        const colors = JSON.parse(saved);
+        const activeColor = colors.find((c: any) => c.id === 'active')?.color;
+        if (activeColor) {
+          setStatusColors({
+            active: activeColor
+          });
+        }
+      }
+    };
+
+    loadStatusColors();
+    window.addEventListener('storage', loadStatusColors);
+    return () => window.removeEventListener('storage', loadStatusColors);
+  }, []);
 
   return (
-    <div className="container mx-auto px-4 py-6 lg:py-8 max-w-7xl">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold">Schedule Performance Index</h1>
-        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="icon" className="shrink-0">
-              <Plus className="h-4 w-4" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Add New SPI</DialogTitle>
-            </DialogHeader>
-            <SPIForm onSubmitSuccess={handleFormSuccess} />
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className="mb-6">
-        <SPIStats />
-      </div>
-
-      <Tabs defaultValue="spis" className="space-y-6">
-        <TabsList className="w-full sm:w-auto flex justify-start overflow-x-auto">
-          <TabsTrigger value="spis" className="flex-1 sm:flex-none">SPIs</TabsTrigger>
-          <TabsTrigger value="objectives" className="flex-1 sm:flex-none">Objectives</TabsTrigger>
-          <TabsTrigger value="analytics" className="flex-1 sm:flex-none">Analytics</TabsTrigger>
+    <div className="container mx-auto px-4 py-8">
+      <Tabs defaultValue="list">
+        <TabsList>
+          <TabsTrigger value="list">SPI List</TabsTrigger>
+          <TabsTrigger value="new">New SPI</TabsTrigger>
+          <TabsTrigger value="objectives">Objectives</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="spis" className="min-h-[300px]">
-          <div className="bg-card rounded-lg p-4">
-            <SPIList />
-          </div>
+
+        <div 
+          className="bg-card rounded-lg p-4 mt-4"
+          style={{ 
+            borderLeft: `4px solid ${statusColors.active}`,
+            boxShadow: `0 4px 6px -1px ${statusColors.active}10, 0 2px 4px -1px ${statusColors.active}06`
+          }}
+        >
+          <SPIStats />
+        </div>
+
+        <TabsContent value="list" className="space-y-6">
+          <SPIList />
         </TabsContent>
-        
-        <TabsContent value="objectives" className="min-h-[300px]">
-          <div className="bg-card rounded-lg p-4">
-            <ObjectivesList />
-          </div>
+
+        <TabsContent value="new">
+          <SPIForm />
         </TabsContent>
-        
-        <TabsContent value="analytics" className="min-h-[300px]">
-          <div className="bg-card rounded-lg p-4">
-            <SPIAnalytics />
-          </div>
+
+        <TabsContent value="objectives">
+          <ObjectivesList />
+        </TabsContent>
+
+        <TabsContent value="analytics">
+          <SPIAnalytics />
         </TabsContent>
       </Tabs>
     </div>
