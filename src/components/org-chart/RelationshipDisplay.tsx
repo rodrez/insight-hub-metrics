@@ -2,88 +2,63 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
-import { format } from "date-fns";
+import { OrgPosition } from "./types";
 
 interface RelationshipDisplayProps {
   title: string;
-  type: 'assignedProjects' | 'assignedSpis' | 'assignedSitreps';
+  type: keyof OrgPosition;
   itemIds: string[];
-  itemType: 'project' | 'fortune30' | 'sme' | 'spi' | 'sitrep';
 }
 
-export function RelationshipDisplay({ title, type, itemIds, itemType }: RelationshipDisplayProps) {
+export function RelationshipDisplay({ title, type, itemIds }: RelationshipDisplayProps) {
   const { data: items = [] } = useQuery({
-    queryKey: [type, itemType, itemIds],
+    queryKey: [type],
     queryFn: async () => {
-      if (!itemIds || itemIds.length === 0) return [];
-      
-      switch (itemType) {
-        case 'project':
-          const projects = await db.getAllProjects();
-          return projects.filter(p => itemIds.includes(p.id));
-        case 'fortune30':
+      switch (type) {
+        case 'projects':
+          return db.getAllProjects();
+        case 'fortune30Partners':
           const collaborators = await db.getAllCollaborators();
-          return collaborators.filter(c => c.type === 'fortune30' && itemIds.includes(c.id));
-        case 'sme':
-          const smePartners = await db.getAllSMEPartners();
-          return smePartners.filter(s => itemIds.includes(s.id));
-        case 'spi':
-          const spis = await db.getAllSPIs();
-          return spis.filter(s => itemIds.includes(s.id));
-        case 'sitrep':
-          const sitreps = await db.getAllSitReps();
-          return sitreps.filter(s => itemIds.includes(s.id))
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          return collaborators.filter(c => c.type === 'fortune30');
+        case 'smePartners':
+          return db.getAllSMEPartners();
+        case 'spis':
+          return db.getAllSPIs();
+        case 'sitreps':
+          return db.getAllSitReps();
         default:
           return [];
       }
-    },
-    enabled: itemIds?.length > 0
+    }
   });
 
-  if (!items || items.length === 0) return null;
+  const selectedItems = items.filter((item: any) => itemIds.includes(item.id));
+
+  if (selectedItems.length === 0) return null;
 
   const getBadgeStyle = (item: any) => {
-    if (itemType === 'spi') {
-      switch (item.status) {
-        case 'completed':
-          return { backgroundColor: '#10B981', color: '#FFFFFF' };
-        case 'delayed':
-          return { backgroundColor: '#F59E0B', color: '#FFFFFF' };
-        case 'on-track':
-          return { backgroundColor: '#3B82F6', color: '#FFFFFF' };
-        default:
-          return {};
-      }
-    }
-    if (itemType === 'fortune30' || itemType === 'sme') {
-      return { backgroundColor: item.color || '#4B5563', color: '#FFFFFF' };
+    if (type === 'fortune30Partners' || type === 'smePartners') {
+      return {
+        backgroundColor: item.color || '#4A90E2',
+        color: '#FFFFFF',
+        borderColor: 'transparent'
+      };
     }
     return {};
-  };
-
-  const getItemLabel = (item: any) => {
-    if (itemType === 'sitrep') {
-      return `${item.title} (${format(new Date(item.date), 'MMM d, yyyy')})`;
-    }
-    if (itemType === 'spi') {
-      return `${item.name} (Due: ${format(new Date(item.expectedCompletionDate), 'MMM d, yyyy')})`;
-    }
-    return item.name || item.title;
   };
 
   return (
     <Card className="p-3 bg-card/50">
       <h4 className="text-sm font-medium mb-2">{title}</h4>
       <div className="flex flex-wrap gap-1">
-        {items.map((item: any) => (
+        {selectedItems.map((item: any) => (
           <Badge 
             key={item.id} 
             variant="secondary" 
             className="text-xs"
             style={getBadgeStyle(item)}
           >
-            {getItemLabel(item)}
+            {item.name || item.title}
           </Badge>
         ))}
       </div>

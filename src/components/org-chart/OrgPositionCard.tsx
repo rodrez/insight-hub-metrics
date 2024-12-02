@@ -49,33 +49,28 @@ export function OrgPositionCard({ title, width = "w-96" }: OrgPositionCardProps)
       <div className="grid gap-3">
         <RelationshipDisplay
           title="Projects"
-          type="assignedProjects"
+          type="projects"
           itemIds={position.projects}
-          itemType="project"
         />
         <RelationshipDisplay
           title="Fortune 30 Partners"
-          type="assignedProjects"
+          type="fortune30Partners"
           itemIds={position.fortune30Partners}
-          itemType="fortune30"
         />
         <RelationshipDisplay
           title="SME Partners"
-          type="assignedProjects"
+          type="smePartners"
           itemIds={position.smePartners}
-          itemType="sme"
         />
         <RelationshipDisplay
           title="SPIs"
-          type="assignedSpis"
+          type="spis"
           itemIds={position.spis}
-          itemType="spi"
         />
         <RelationshipDisplay
           title="SitReps"
-          type="assignedSitreps"
+          type="sitreps"
           itemIds={position.sitreps}
-          itemType="sitrep"
         />
       </div>
 

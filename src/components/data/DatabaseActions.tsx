@@ -5,7 +5,6 @@ import { useState } from "react";
 import { DataQuantityForm } from "./actions/DataQuantityForm";
 import { BackupActions } from "./actions/BackupActions";
 import { ExportActions } from "./actions/ExportActions";
-import { OrgChartDistributionAction } from "./actions/OrgChartDistributionAction";
 import { toast } from "@/components/ui/use-toast";
 import { DataQuantities } from "./types/dataTypes";
 
@@ -114,19 +113,8 @@ export function DatabaseActions({
           )}
         </Button>
 
-        <OrgChartDistributionAction 
-          disabled={isClearing || isPopulating} 
-        />
-
-        <BackupActions 
-          isInitialized={isInitialized} 
-          disabled={isClearing || isPopulating} 
-        />
-        
-        <ExportActions 
-          isInitialized={isInitialized} 
-          disabled={isClearing || isPopulating} 
-        />
+        <BackupActions isInitialized={isInitialized} disabled={isClearing || isPopulating} />
+        <ExportActions isInitialized={isInitialized} disabled={isClearing || isPopulating} />
       </div>
 
       {showQuantityForm && (

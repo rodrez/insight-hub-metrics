@@ -62,10 +62,4 @@ export type Collaborator = {
   agreements?: CollaboratorAgreements;
   primaryContact?: ContactPerson;
   workstreams?: Workstream[];
-  // Org chart related fields
-  assignedProjects?: string[];
-  assignedSpis?: string[];
-  assignedSitreps?: string[];
-  fortune30Partners?: string[];
-  smePartners?: string[];
 };
