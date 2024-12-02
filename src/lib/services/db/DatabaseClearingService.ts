@@ -1,4 +1,3 @@
-import { connectionManager } from './connectionManager';
 import { DatabaseCleaner } from './databaseCleaner';
 import { toast } from "@/components/ui/use-toast";
 import { DatabaseError } from '../../utils/errorHandling';
@@ -16,7 +15,7 @@ export class DatabaseClearingService {
       // Close existing connections first
       connectionManager.closeAllConnections();
       
-      if (STORE_NAMES.length === 0) {
+      if (!STORE_NAMES || STORE_NAMES.length === 0) {
         console.warn('No stores found in database');
         return;
       }
