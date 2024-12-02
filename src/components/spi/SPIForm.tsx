@@ -100,13 +100,13 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
             onChange={(e) => setName(e.target.value)}
           />
           <Textarea
-            placeholder="Deliverable for SPI 1"
+            placeholder="Deliverable for SPI #"
             value={deliverable}
             onChange={(e) => setDeliverable(e.target.value)}
             className="h-32"
           />
           <Textarea
-            placeholder="Details for SPI 1"
+            placeholder="Details for SPI #"
             value={details}
             onChange={(e) => setDetails(e.target.value)}
             className="h-32"
