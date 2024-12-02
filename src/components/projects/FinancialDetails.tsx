@@ -84,7 +84,7 @@ export function FinancialDetails({ project, isEditing, onUpdate }: FinancialDeta
                   type="number"
                   value={project.budget}
                   onChange={handleBudgetChange}
-                  step="1000"
+                  step={1000}
                   min="0"
                   className="text-2xl font-bold w-full bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary pl-4"
                 />
@@ -110,7 +110,7 @@ export function FinancialDetails({ project, isEditing, onUpdate }: FinancialDeta
                   type="number"
                   value={project.spent}
                   onChange={handleSpentChange}
-                  step="1000"
+                  step={1000}
                   min="0"
                   className="text-2xl font-bold w-full bg-transparent border-b border-gray-200 focus:outline-none focus:border-primary pl-4"
                 />
