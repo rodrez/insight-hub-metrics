@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { OrgPosition } from "./types";
+import { getRatMemberInfo } from "@/lib/services/data/utils/ratMemberUtils";
 
 interface SelectionSectionProps {
   title: string;
@@ -13,6 +14,7 @@ interface SelectionSectionProps {
 
 export function SelectionSection({ title, type, position, onPositionChange }: SelectionSectionProps) {
   const ratMember = position.title;
+  const ratMemberInfo = getRatMemberInfo(ratMember);
 
   // Query for all relevant data
   const { data: items = [] } = useQuery({
@@ -82,7 +84,14 @@ export function SelectionSection({ title, type, position, onPositionChange }: Se
 
   return (
     <div>
-      <h3 className="text-sm font-medium mb-2">{title}</h3>
+      <div className="flex justify-between items-start mb-2">
+        <h3 className="text-sm font-medium">{title}</h3>
+        {ratMemberInfo && (
+          <Badge variant="outline" className="text-xs">
+            {ratMemberInfo.expertise}
+          </Badge>
+        )}
+      </div>
       <Select
         value=""
         onValueChange={handleValueChange}
