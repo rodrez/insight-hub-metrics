@@ -78,6 +78,9 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
     department: sitrep.teams?.[0] || ''
   })) || [];
 
+  const ratMembers = getAllRatMembers();
+  const displayMember = sitrep.ratMember || ratMembers[Math.floor(Math.random() * ratMembers.length)];
+
   return (
     <>
       <Card>
@@ -86,7 +89,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
             <SitRepHeader
               title={sitrep.title}
               status={sitrep.status}
-              ratMember={sitrep.ratMember}
+              ratMember={displayMember}
               onStatusChange={handleStatusChange}
               onEdit={() => setIsEditDialogOpen(true)}
               onDelete={onDelete ? handleDelete : undefined}
@@ -97,32 +100,27 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
                 <Tooltip>
                   <TooltipTrigger>
                     <Badge 
-                      className={`flex items-center gap-1.5 ${
-                        sitrep.ratMember 
-                          ? 'bg-purple-600 hover:bg-purple-700' 
-                          : 'bg-gray-500 hover:bg-gray-600'
-                      }`}
+                      className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700"
                     >
                       {sitrep.ratMember ? (
                         <>
                           <BadgeCheck className="h-3.5 w-3.5" />
-                          RAT: {sitrep.ratMember}
+                          RAT: {displayMember}
                         </>
                       ) : (
                         <>
                           <AlertCircle className="h-3.5 w-3.5" />
-                          RAT: Unassigned
+                          RAT: {displayMember}
                         </>
                       )}
                     </Badge>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>{sitrep.ratMember ? 'RAT Member assigned to this sitrep' : 'No RAT Member assigned yet'}</p>
+                    <p>{sitrep.ratMember ? 'RAT Member assigned to this sitrep' : 'Suggested RAT Member'}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
-
             <p className="text-muted-foreground">{sitrep.summary}</p>
 
             <div className="flex items-center gap-4 text-sm">

@@ -11,6 +11,7 @@ import { toast } from "@/components/ui/use-toast";
 import { format } from "date-fns";
 import { RelatedEntities } from "./card/RelatedEntities";
 import { Badge } from "@/components/ui/badge";
+import { getAllRatMembers } from "@/lib/services/data/utils/ratMemberUtils";
 
 export function SPIList() {
   const [statusColors, setStatusColors] = useState({
@@ -67,10 +68,13 @@ export function SPIList() {
 
   if (!spis) return null;
 
+  const ratMembers = getAllRatMembers();
+
   return (
     <div className="space-y-4">
       {spis.map((spi, index) => {
         const spiNumber = index + 1;
+        const displayMember = spi.ratMember || ratMembers[Math.floor(Math.random() * ratMembers.length)];
         const relatedProject = projects?.find(p => p.id === spi.projectId);
         const fortune30Partner = collaborators?.find(c => 
           c.type === 'fortune30' && c.id === spi.fortune30PartnerId
@@ -83,21 +87,17 @@ export function SPIList() {
                 <div className="flex items-center gap-3">
                   <CardTitle className="text-xl font-semibold">SPI {spiNumber}</CardTitle>
                   <Badge 
-                    className={`flex items-center gap-1.5 text-sm ${
-                      spi.ratMember 
-                        ? 'bg-purple-600 hover:bg-purple-700' 
-                        : 'bg-gray-500 hover:bg-gray-600'
-                    }`}
+                    className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700"
                   >
                     {spi.ratMember ? (
                       <>
                         <BadgeCheck className="h-4 w-4" />
-                        RAT: {spi.ratMember}
+                        RAT: {displayMember}
                       </>
                     ) : (
                       <>
                         <AlertCircle className="h-4 w-4" />
-                        RAT: Unassigned
+                        RAT: {displayMember}
                       </>
                     )}
                   </Badge>

@@ -63,7 +63,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>RAT Member Position: Technical Program Manager</p>
+                  <p>{project.ratMember ? 'RAT Member assigned' : 'Suggested RAT Member'}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

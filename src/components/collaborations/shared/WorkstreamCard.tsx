@@ -1,6 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Shield, Calendar, BadgeCheck, AlertCircle } from "lucide-react";
 import { Workstream, Agreement, CollaboratorAgreements } from "@/lib/types/collaboration";
 import { AgreementStatus } from "../AgreementStatus";
@@ -38,10 +37,7 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
               <Tooltip>
                 <TooltipTrigger>
                   <Badge 
-                    className={cn(
-                      "flex items-center gap-1.5",
-                      "bg-purple-600 hover:bg-purple-700"
-                    )}
+                    className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700"
                   >
                     {workstream.ratMember ? (
                       <>
