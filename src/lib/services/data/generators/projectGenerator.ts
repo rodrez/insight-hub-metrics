@@ -5,7 +5,6 @@ import { generateNABC } from './templates/projectTemplates';
 import { generateMilestones, generateMetrics } from './templates/metricsTemplates';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiGenerator';
 
-// RAT Members from the org chart
 const ratMembers = [
   "Sarah Johnson",
   "Michael Chen",
@@ -94,21 +93,34 @@ const generateBasicProject = (
 
 export const generateSampleProjects = async (input: ProjectGenerationInput) => {
   const projects: Project[] = [];
+  const usedPartners = new Set<string>();
+
+  // Create a pool of available internal partners that we can reuse if needed
+  const getAvailableInternals = () => {
+    const availableInternals = input.collaborators.filter(p => !usedPartners.has(p.name));
+    if (availableInternals.length < 2) {
+      // Reset the used partners pool if we need more partners
+      usedPartners.clear();
+      return input.collaborators;
+    }
+    return availableInternals;
+  };
 
   for (let i = 0; i < input.projects; i++) {
     const dept = input.departments[i % input.departments.length];
     const fortune30Partner = input.fortune30Partners[i % input.fortune30Partners.length];
-    const availableInternals = input.collaborators.filter(p => !projects.some(proj => 
-      proj.poc === p.name || proj.techLead === p.name
-    ));
-
-    if (availableInternals.length < 2) continue;
-
+    
+    const availableInternals = getAvailableInternals();
     const poc = availableInternals[0];
     const techLead = availableInternals[1];
 
-    const project = generateBasicProject(i, dept, fortune30Partner, poc, techLead);
-    projects.push(project);
+    if (poc && techLead) {
+      usedPartners.add(poc.name);
+      usedPartners.add(techLead.name);
+
+      const project = generateBasicProject(i, dept, fortune30Partner, poc, techLead);
+      projects.push(project);
+    }
   }
 
   const spis = generateSampleSPIs(projects.map(p => p.id), input.spis);
