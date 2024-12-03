@@ -41,7 +41,7 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
       <CardContent className="pt-6">
         <div className="flex justify-between items-start mb-2">
           <div className="space-y-2">
-            <h2 className="font-medium" style={{ color: collaborator.color }}>{collaborator.name}</h2>
+            <h2 className="text-2xl font-medium" style={{ color: collaborator.color }}>{collaborator.name}</h2>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
