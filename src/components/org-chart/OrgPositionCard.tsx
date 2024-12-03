@@ -75,16 +75,28 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
     }
   });
 
-  // Update position when data changes
+  // Update position when data changes, but only if the IDs have changed
   useEffect(() => {
-    setPosition(prev => ({
-      ...prev,
+    const newPosition = {
+      ...position,
       projects: projects.map(p => p.id),
       fortune30Partners: fortune30Partners.map(p => p.id),
       smePartners: smePartners.map(p => p.id),
       spis: spis.map(spi => spi.id),
       sitreps: sitreps.map(sitrep => sitrep.id)
-    }));
+    };
+
+    // Only update if the arrays are different
+    const hasChanges = 
+      JSON.stringify(newPosition.projects) !== JSON.stringify(position.projects) ||
+      JSON.stringify(newPosition.fortune30Partners) !== JSON.stringify(position.fortune30Partners) ||
+      JSON.stringify(newPosition.smePartners) !== JSON.stringify(position.smePartners) ||
+      JSON.stringify(newPosition.spis) !== JSON.stringify(position.spis) ||
+      JSON.stringify(newPosition.sitreps) !== JSON.stringify(position.sitreps);
+
+    if (hasChanges) {
+      setPosition(newPosition);
+    }
   }, [projects, fortune30Partners, smePartners, spis, sitreps]);
 
   const handleSave = (updatedPosition: OrgPosition) => {
