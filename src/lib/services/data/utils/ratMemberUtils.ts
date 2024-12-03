@@ -3,6 +3,7 @@ type RatMemberInfo = {
   expertise: string;
   role: string;
   department: string;
+  fortune30Partner?: string;
   spis: string[];
   sitreps: string[];
 };
@@ -13,6 +14,7 @@ const RAT_MEMBERS: Record<string, RatMemberInfo> = {
     expertise: "Retail Operations",
     role: "Director",
     department: "Retail Innovation",
+    fortune30Partner: "Walmart",
     spis: ["retail-spi-1", "retail-spi-2"],
     sitreps: ["retail-sitrep-1", "retail-sitrep-2"]
   },
@@ -21,6 +23,7 @@ const RAT_MEMBERS: Record<string, RatMemberInfo> = {
     expertise: "Cloud Architecture",
     role: "Senior Manager",
     department: "Technology",
+    fortune30Partner: "Amazon",
     spis: ["cloud-spi-1", "cloud-spi-2"],
     sitreps: ["cloud-sitrep-1", "cloud-sitrep-2"]
   },
@@ -29,6 +32,7 @@ const RAT_MEMBERS: Record<string, RatMemberInfo> = {
     expertise: "Product Innovation",
     role: "Senior Manager",
     department: "R&D",
+    fortune30Partner: "Apple",
     spis: ["product-spi-1", "product-spi-2"],
     sitreps: ["product-sitrep-1", "product-sitrep-2"]
   },
@@ -37,6 +41,7 @@ const RAT_MEMBERS: Record<string, RatMemberInfo> = {
     expertise: "Enterprise Software",
     role: "Senior Manager",
     department: "Software Development",
+    fortune30Partner: "CVS Health",
     spis: ["software-spi-1", "software-spi-2"],
     sitreps: ["software-sitrep-1", "software-sitrep-2"]
   },
@@ -45,6 +50,7 @@ const RAT_MEMBERS: Record<string, RatMemberInfo> = {
     expertise: "AI/ML",
     role: "Tech Lead",
     department: "Advanced Technology",
+    fortune30Partner: "UnitedHealth",
     spis: ["ai-spi-1", "ai-spi-2"],
     sitreps: ["ai-sitrep-1", "ai-sitrep-2"]
   },
@@ -53,6 +59,7 @@ const RAT_MEMBERS: Record<string, RatMemberInfo> = {
     expertise: "Data Science",
     role: "Tech Lead",
     department: "Analytics",
+    fortune30Partner: "Microsoft",
     spis: ["data-spi-1", "data-spi-2"],
     sitreps: ["data-sitrep-1", "data-sitrep-2"]
   },

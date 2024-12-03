@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pen } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { RelationshipSelectionDialog } from "./RelationshipSelectionDialog";
 import { RelationshipDisplay } from "./RelationshipDisplay";
 import { OrgPosition } from "./types";
 import { toast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
+import { getRatMemberInfo } from "@/lib/services/data/utils/ratMemberUtils";
 
 interface OrgPositionCardProps {
   title: string;
@@ -16,25 +18,7 @@ interface OrgPositionCardProps {
 }
 
 export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCardProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [position, setPosition] = useState<OrgPosition>({
-    id: crypto.randomUUID(),
-    title,
-    projects: [],
-    fortune30Partners: [],
-    smePartners: [],
-    spis: [],
-    sitreps: []
-  });
-
-  // Fetch projects where this person is the RAT member
-  const { data: projects = [] } = useQuery({
-    queryKey: ['projects', name],
-    queryFn: async () => {
-      const allProjects = await db.getAllProjects();
-      return allProjects.filter(p => p.ratMember === name);
-    }
-  });
+  const memberInfo = getRatMemberInfo(name);
 
   // Fetch Fortune 30 partners where this person is the RAT member
   const { data: fortune30Partners = [] } = useQuery({
@@ -48,12 +32,12 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
     }
   });
 
-  // Fetch SME partners where this person is the RAT member
-  const { data: smePartners = [] } = useQuery({
-    queryKey: ['sme-partners', name],
+  // Fetch projects where this person is the RAT member
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects', name],
     queryFn: async () => {
-      const allPartners = await db.getAllSMEPartners();
-      return allPartners.filter(p => p.ratMember === name);
+      const allProjects = await db.getAllProjects();
+      return allProjects.filter(p => p.ratMember === name);
     }
   });
 
@@ -75,93 +59,77 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
     }
   });
 
-  useEffect(() => {
-    const newPosition = {
-      ...position,
-      projects: projects.map(p => p.id),
-      fortune30Partners: fortune30Partners.map(p => p.id),
-      smePartners: smePartners.map(p => p.id),
-      spis: spis.map(spi => spi.id),
-      sitreps: sitreps.map(sitrep => sitrep.id)
-    };
-
-    // Only update if the arrays are different
-    const hasChanges = 
-      JSON.stringify(newPosition.projects) !== JSON.stringify(position.projects) ||
-      JSON.stringify(newPosition.fortune30Partners) !== JSON.stringify(position.fortune30Partners) ||
-      JSON.stringify(newPosition.smePartners) !== JSON.stringify(position.smePartners) ||
-      JSON.stringify(newPosition.spis) !== JSON.stringify(position.spis) ||
-      JSON.stringify(newPosition.sitreps) !== JSON.stringify(position.sitreps);
-
-    if (hasChanges) {
-      setPosition(newPosition);
-    }
-  }, [projects, fortune30Partners, smePartners, spis, sitreps]);
-
-  const handleSave = (updatedPosition: OrgPosition) => {
-    setPosition(updatedPosition);
-    toast({
-      title: "Success",
-      description: "Position relationships updated successfully",
-    });
-  };
-
   return (
-    <Card className={`${width} p-6 shadow-lg animate-fade-in`}>
-      <div className="flex justify-between items-start mb-4">
+    <Card className={`${width} p-6 space-y-4 bg-card/50 backdrop-blur-sm border-muted`}>
+      <div className="flex justify-between items-start">
         <div>
           <h2 className="text-xl font-semibold">{title}</h2>
           <p className="text-sm text-muted-foreground">{name}</p>
+          {memberInfo?.expertise && (
+            <Badge variant="secondary" className="mt-2">
+              {memberInfo.expertise}
+            </Badge>
+          )}
         </div>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => setIsEditing(true)}
-          className="text-gray-400 hover:text-green-500 transition-colors"
-        >
-          <Pen className="h-4 w-4" />
-        </Button>
-      </div>
-      
-      <div className="grid gap-3">
-        <RelationshipDisplay
-          title="Projects"
-          type="projects"
-          itemIds={position.projects}
-          items={projects}
-        />
-        <RelationshipDisplay
-          title="Fortune 30 Partners"
-          type="fortune30Partners"
-          itemIds={position.fortune30Partners}
-          items={fortune30Partners}
-        />
-        <RelationshipDisplay
-          title="SME Partners"
-          type="smePartners"
-          itemIds={position.smePartners}
-          items={smePartners}
-        />
-        <RelationshipDisplay
-          title="SPIs"
-          type="spis"
-          itemIds={position.spis}
-          items={spis}
-        />
-        <RelationshipDisplay
-          title="SitReps"
-          type="sitreps"
-          itemIds={position.sitreps}
-          items={sitreps}
-        />
       </div>
 
-      <RelationshipSelectionDialog
-        isOpen={isEditing}
-        onClose={() => setIsEditing(false)}
-        position={position}
-        onSave={handleSave}
-      />
+      <div className="space-y-4">
+        {/* Fortune 30 Partners */}
+        {fortune30Partners.length > 0 && (
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium">Fortune 30 Partners</h3>
+            <div className="flex flex-wrap gap-2">
+              {fortune30Partners.map(partner => (
+                <Badge key={partner.id} variant="outline" style={{ borderColor: partner.color, color: partner.color }}>
+                  {partner.name}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Projects */}
+        {projects.length > 0 && (
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium">Projects</h3>
+            <div className="flex flex-wrap gap-2">
+              {projects.map(project => (
+                <Badge key={project.id} className="bg-purple-600">
+                  {project.name}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* SPIs */}
+        {spis.length > 0 && (
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium">SPIs</h3>
+            <div className="flex flex-wrap gap-2">
+              {spis.map(spi => (
+                <Badge key={spi.id} variant="secondary">
+                  {spi.name}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* SitReps */}
+        {sitreps.length > 0 && (
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium">SitReps</h3>
+            <div className="flex flex-wrap gap-2">
+              {sitreps.map(sitrep => (
+                <Badge key={sitrep.id} variant="outline">
+                  {sitrep.title}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </Card>
   );
 }
