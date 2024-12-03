@@ -4,13 +4,13 @@ import { SPI } from "@/lib/types/spi";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Edit2, Trash2, Calendar } from "lucide-react";
+import { Edit2, Trash2, Calendar, BadgeCheck, AlertCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SPIEditForm } from "./SPIEditForm";
 import { toast } from "@/components/ui/use-toast";
 import { format } from "date-fns";
 import { RelatedEntities } from "./card/RelatedEntities";
-import { RATMemberBadge } from "../sitreps/card/RATMemberBadge";
+import { Badge } from "@/components/ui/badge";
 
 export function SPIList() {
   const [statusColors, setStatusColors] = useState({
@@ -82,7 +82,25 @@ export function SPIList() {
               <div>
                 <div className="flex items-center gap-2">
                   <CardTitle className="text-base font-medium">SPI {spiNumber}</CardTitle>
-                  {spi.ratMember && <RATMemberBadge ratMember={spi.ratMember} />}
+                  <Badge 
+                    className={`flex items-center gap-1.5 ${
+                      spi.ratMember 
+                        ? 'bg-purple-600 hover:bg-purple-700' 
+                        : 'bg-gray-500 hover:bg-gray-600'
+                    }`}
+                  >
+                    {spi.ratMember ? (
+                      <>
+                        <BadgeCheck className="h-3.5 w-3.5" />
+                        RAT: {spi.ratMember}
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="h-3.5 w-3.5" />
+                        RAT: Unassigned
+                      </>
+                    )}
+                  </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">
                   {spi.deliverable}
