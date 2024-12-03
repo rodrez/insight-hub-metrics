@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pen } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { RelationshipSelectionDialog } from "./RelationshipSelectionDialog";
 import { OrgPosition } from "./types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -102,70 +100,8 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
     sitreps: sitreps.map(s => s.id)
   };
 
-  const handleSave = async (updatedPosition: OrgPosition) => {
-    try {
-      // Update projects
-      for (const projectId of updatedPosition.projects) {
-        const project = allProjects.find(p => p.id === projectId);
-        if (project && !project.ratMember) {
-          await db.updateProject(projectId, { ...project, ratMember: name });
-        }
-      }
-
-      // Update Fortune 30 partners
-      for (const partnerId of updatedPosition.fortune30Partners) {
-        const partner = allCollaborators.find(c => c.id === partnerId);
-        if (partner && !partner.ratMember) {
-          await db.updateCollaborator(partnerId, { ...partner, ratMember: name });
-        }
-      }
-
-      // Update SME partners
-      for (const partnerId of updatedPosition.smePartners) {
-        const partner = allSMEPartners.find(p => p.id === partnerId);
-        if (partner && !partner.ratMember) {
-          await db.updateSMEPartner(partnerId, { ...partner, ratMember: name });
-        }
-      }
-
-      // Update SPIs
-      for (const spiId of updatedPosition.spis) {
-        const spi = allSPIs.find(s => s.id === spiId);
-        if (spi && !spi.ratMember) {
-          await db.updateSPI(spiId, { ...spi, ratMember: name });
-        }
-      }
-
-      // Update SitReps
-      for (const sitrepId of updatedPosition.sitreps) {
-        const sitrep = allSitReps.find(s => s.id === sitrepId);
-        if (sitrep && !sitrep.ratMember) {
-          await db.updateSitRep(sitrepId, { ...sitrep, ratMember: name });
-        }
-      }
-
-      // Invalidate queries to refresh the data
-      await queryClient.invalidateQueries({ queryKey: ['projects'] });
-      await queryClient.invalidateQueries({ queryKey: ['collaborators'] });
-      await queryClient.invalidateQueries({ queryKey: ['sme-partners'] });
-      await queryClient.invalidateQueries({ queryKey: ['spis'] });
-      await queryClient.invalidateQueries({ queryKey: ['sitreps'] });
-
-      toast({
-        title: "Changes saved",
-        description: "The relationships have been updated successfully."
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save changes. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
-
   return (
-    <Card className={`${width} p-6 space-y-4 bg-card/50 backdrop-blur-sm border-muted`}>
+    <Card className={`${width} p-6 space-y-4 bg-background/95 backdrop-blur-sm border-muted`}>
       <OrgPositionHeader 
         title={title}
         name={name}
@@ -178,30 +114,35 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
           title="Fortune 30 Partners"
           items={fortune30Partners}
           onItemClick={(id) => handleItemClick('fortune30', id)}
+          color="#8B5CF6"
         />
 
         <RelationshipSection
           title="SME Partners"
           items={smePartners}
           onItemClick={(id) => handleItemClick('sme', id)}
+          color="#6E59A5"
         />
 
         <RelationshipSection
           title="Projects"
           items={projects}
           onItemClick={(id) => handleItemClick('project', id)}
+          color="#4B5563"
         />
 
         <RelationshipSection
           title="SPIs"
           items={spis}
           onItemClick={(id) => handleItemClick('spi', id)}
+          color="#10B981"
         />
 
         <RelationshipSection
           title="SitReps"
           items={sitreps}
           onItemClick={(id) => handleItemClick('sitrep', id)}
+          color="#3B82F6"
         />
       </div>
 
