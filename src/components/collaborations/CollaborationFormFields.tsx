@@ -1,150 +1,147 @@
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Form } from "@/components/ui/form";
+import * as z from "zod";
 import { BasicInfoFields } from "./form/BasicInfoFields";
-import { ContactFields } from "./form/ContactFields";
 import { AgreementFields } from "./form/AgreementFields";
+import { ContactFields } from "./form/ContactFields";
 import { WorkstreamFields } from "./form/WorkstreamFields";
 import { Button } from "@/components/ui/button";
 import { Collaborator } from "@/lib/types/collaboration";
-import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "@/components/ui/use-toast";
 
 export const collaborationFormSchema = z.object({
-  name: z.string().min(1, { message: "Name is required" }),
-  email: z.string().email({ message: "Invalid email address" }),
-  type: z.enum(["fortune30", "sme", "internal"]),
-  department: z.string().optional(),
-  associatedProjects: z.array(z.string()).optional(),
-  role: z.string().optional(),
-  color: z.string().optional(),
-  agreementType: z.enum(["None", "NDA", "JTDA", "Both"]).optional(),
-  signedDate: z.string().optional(),
-  expiryDate: z.string().optional(),
+  name: z.string().min(1, "Company name is required"),
+  email: z.string().email("Invalid email address"),
+  role: z.string().min(1, "Role is required"),
+  department: z.string().min(1, "Department is required"),
+  type: z.enum(["fortune30", "sme"]),
+  color: z.string(),
+  ratMember: z.string().optional(),
+  agreementType: z.enum(["NDA", "JTDA", "Both", "None"]),
   primaryContact: z.object({
-    name: z.string().optional(),
-    role: z.string().optional(),
-    email: z.string().email().optional(),
-    phone: z.string().optional()
-  }).optional(),
-  workstreams: z.array(z.object({
-    id: z.string(),
-    title: z.string(),
-    objectives: z.string(),
-    nextSteps: z.string(),
-    keyContacts: z.array(z.object({
-      name: z.string(),
-      role: z.string(),
-      email: z.string(),
-      phone: z.string().optional()
-    })),
-    status: z.enum(["active", "completed", "on-hold"]),
-    startDate: z.string(),
-    lastUpdated: z.string()
-  })).optional()
+    name: z.string(),
+    role: z.string(),
+    email: z.string(),
+    phone: z.string().optional(),
+  }),
 });
 
 export type CollaborationFormSchema = z.infer<typeof collaborationFormSchema>;
 
-type CollaborationFormFieldsProps = {
-  onSubmit: (data: CollaborationFormSchema) => void;
-  initialData?: Collaborator;
+interface CollaborationFormFieldsProps {
+  onSubmit: () => void;
+  initialData: Collaborator | null;
   collaborationType?: "fortune30" | "sme";
   departmentId?: string;
-};
+}
 
-export function CollaborationFormFields({ 
-  onSubmit, 
+export function CollaborationFormFields({
+  onSubmit,
   initialData,
-  collaborationType = 'fortune30',
-  departmentId 
+  collaborationType = "fortune30",
+  departmentId,
 }: CollaborationFormFieldsProps) {
   const form = useForm<CollaborationFormSchema>({
     resolver: zodResolver(collaborationFormSchema),
     defaultValues: {
+      name: initialData?.name || "",
+      email: initialData?.email || "",
+      role: initialData?.role || "",
+      department: departmentId || initialData?.department || "",
       type: collaborationType,
-      department: departmentId || '',
-      color: initialData?.color || '#4B5563',
-      ...initialData
-    }
+      color: initialData?.color || "#4B5563",
+      ratMember: initialData?.ratMember || "",
+      agreementType: initialData?.agreements?.nda
+        ? initialData?.agreements?.jtda
+          ? "Both"
+          : "NDA"
+        : initialData?.agreements?.jtda
+        ? "JTDA"
+        : "None",
+      primaryContact: initialData?.primaryContact || {
+        name: "",
+        role: "",
+        email: "",
+      },
+    },
   });
 
-  const { data: projects = [] } = useQuery({
-    queryKey: ['projects'],
-    queryFn: () => db.getAllProjects(),
-    enabled: collaborationType === 'sme'
-  });
+  const handleSubmit = async (data: CollaborationFormSchema) => {
+    try {
+      const agreements = {
+        ...(data.agreementType === "NDA" || data.agreementType === "Both"
+          ? {
+              nda: {
+                signedDate: new Date().toISOString(),
+                expiryDate: new Date(
+                  Date.now() + 365 * 24 * 60 * 60 * 1000
+                ).toISOString(),
+                status: "signed" as const,
+              },
+            }
+          : {}),
+        ...(data.agreementType === "JTDA" || data.agreementType === "Both"
+          ? {
+              jtda: {
+                signedDate: new Date().toISOString(),
+                expiryDate: new Date(
+                  Date.now() + 365 * 24 * 60 * 60 * 1000
+                ).toISOString(),
+                status: "signed" as const,
+              },
+            }
+          : {}),
+      };
+
+      const collaborator: Collaborator = {
+        id: initialData?.id || `collaborator-${Date.now()}`,
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        department: data.department,
+        type: data.type,
+        color: data.color,
+        ratMember: data.ratMember,
+        agreements,
+        primaryContact: data.primaryContact,
+        projects: initialData?.projects || [],
+        lastActive: new Date().toISOString(),
+      };
+
+      if (initialData?.id) {
+        await db.updateCollaborator(initialData.id, collaborator);
+      } else {
+        await db.addCollaborator(collaborator);
+      }
+
+      toast({
+        title: "Success",
+        description: `Collaboration ${initialData ? "updated" : "created"} successfully`,
+      });
+
+      onSubmit();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `Failed to ${initialData ? "update" : "create"} collaboration`,
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <BasicInfoFields form={form} departmentId={departmentId} />
-        
-        {collaborationType === 'fortune30' && (
-          <FormField
-            control={form.control}
-            name="color"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Brand Color</FormLabel>
-                <div className="flex gap-4 items-center">
-                  <FormControl>
-                    <Input
-                      type="color"
-                      {...field}
-                      className="w-20 h-10"
-                    />
-                  </FormControl>
-                  <div 
-                    className="w-10 h-10 rounded border"
-                    style={{ backgroundColor: field.value }}
-                  />
-                </div>
-              </FormItem>
-            )}
-          />
-        )}
+    <div className="space-y-6">
+      <BasicInfoFields form={form} departmentId={departmentId} />
+      <AgreementFields form={form} />
+      <ContactFields form={form} />
+      <WorkstreamFields form={form} />
 
-        <ContactFields form={form} index={0} />
-        
-        {/* Show AgreementFields for both Fortune 30 and SME partners */}
-        <AgreementFields form={form} />
-
-        {collaborationType === 'sme' && (
-          <FormField
-            control={form.control}
-            name="associatedProjects"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Associated Projects</FormLabel>
-                <Select
-                  onValueChange={(value) => field.onChange([value])}
-                  value={field.value?.[0]}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a project" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {projects.map((project) => (
-                      <SelectItem key={project.id} value={project.id}>
-                        {project.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
-        )}
-
-        <WorkstreamFields form={form} />
-        
-        <Button type="submit">Save</Button>
-      </form>
-    </Form>
+      <div className="flex justify-end">
+        <Button onClick={form.handleSubmit(handleSubmit)}>
+          {initialData ? "Update" : "Create"} Collaboration
+        </Button>
+      </div>
+    </div>
   );
 }
