@@ -68,7 +68,7 @@ export function SPIList() {
   if (!spis) return null;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {spis.map((spi, index) => {
         const spiNumber = index + 1;
         const relatedProject = projects?.find(p => p.id === spi.projectId);
@@ -77,53 +77,53 @@ export function SPIList() {
         );
 
         return (
-          <Card key={spi.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
-            <CardHeader className="flex flex-row items-center justify-between bg-background/50 backdrop-blur-sm">
+          <Card key={spi.id} className="overflow-hidden hover:shadow-sm transition-shadow duration-200">
+            <CardHeader className="flex flex-row items-center justify-between bg-background/50 backdrop-blur-sm py-3 px-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <CardTitle className="text-xl font-bold">SPI {spiNumber}</CardTitle>
+                  <CardTitle className="text-base font-medium">SPI {spiNumber}</CardTitle>
                   {spi.ratMember && <RATMemberBadge ratMember={spi.ratMember} />}
                 </div>
-                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                  Deliverable for SPI {spiNumber}: {spi.deliverable}
+                <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">
+                  {spi.deliverable}
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-1">
                 <Button 
-                  variant="outline" 
-                  size="icon" 
+                  variant="ghost" 
+                  size="sm"
                   onClick={() => setSelectedSPI(spi)}
-                  className="text-gray-400 hover:text-green-500 hover:border-green-500 transition-colors"
+                  className="text-gray-400 hover:text-green-500 hover:bg-green-50 transition-colors"
                 >
-                  <Edit2 className="h-4 w-4" />
+                  <Edit2 className="h-3.5 w-3.5" />
                 </Button>
                 <Button 
-                  variant="outline" 
-                  size="icon" 
+                  variant="ghost" 
+                  size="sm"
                   onClick={() => handleDelete(spi.id)}
-                  className="text-gray-400 hover:text-red-500 hover:border-red-500 transition-colors"
+                  className="text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="pt-6">
-              <div className="grid gap-6 md:grid-cols-2">
-                <div className="space-y-4">
+            <CardContent className="py-3 px-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm">
                     <div 
-                      className="w-3 h-3 rounded-full" 
+                      className="w-2.5 h-2.5 rounded-full" 
                       style={{ backgroundColor: statusColors[spi.status] }}
                     />
                     <span className="capitalize font-medium">{spi.status}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4" />
-                    <span>Expected completion: {format(new Date(spi.expectedCompletionDate), 'PPP')}</span>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Calendar className="h-3.5 w-3.5" />
+                    <span>Expected: {format(new Date(spi.expectedCompletionDate), 'PP')}</span>
                   </div>
                   {spi.details && (
-                    <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
-                      Details for SPI {spiNumber}: {spi.details}
+                    <p className="text-xs text-muted-foreground bg-muted/30 p-2 rounded-md line-clamp-2">
+                      {spi.details}
                     </p>
                   )}
                 </div>
