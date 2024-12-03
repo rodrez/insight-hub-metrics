@@ -8,6 +8,7 @@ import { OrgPosition } from "./types";
 import { toast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
+import { fortune30Partners } from "@/components/data/fortune30Partners";
 
 interface OrgPositionCardProps {
   title: string;
