@@ -7,6 +7,7 @@ import { BackupActions } from "./actions/BackupActions";
 import { ExportActions } from "./actions/ExportActions";
 import { toast } from "@/components/ui/use-toast";
 import { DataQuantities } from "./types/dataTypes";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface DatabaseActionsProps {
   isInitialized: boolean;
@@ -25,11 +26,23 @@ export function DatabaseActions({
 }: DatabaseActionsProps) {
   const [error, setError] = useState<string | null>(null);
   const [showQuantityForm, setShowQuantityForm] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleClear = async () => {
     try {
       setError(null);
       await onClear();
+      // Invalidate and reset all data count queries
+      await queryClient.invalidateQueries({ queryKey: ['data-counts'] });
+      queryClient.setQueryData(['data-counts'], {
+        projects: 0,
+        spis: 0,
+        objectives: 0,
+        sitreps: 0,
+        fortune30: 0,
+        internalPartners: 0,
+        smePartners: 0
+      });
       toast({
         title: "Success",
         description: "Database cleared successfully",
