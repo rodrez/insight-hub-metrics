@@ -23,6 +23,7 @@ export function useWorkstreamActions(collaboratorId: string) {
         name: "",
         role: "",
         email: "",
+        phone: "",
       },
       workstreams: [],
     }
@@ -59,11 +60,23 @@ export function useWorkstreamActions(collaboratorId: string) {
       const collaborator = await db.getCollaborator(collaboratorId);
       if (!collaborator) return;
 
+      const updatedWorkstreams = collaborator.workstreams?.map(w => 
+        w.id === workstream.id ? workstream : w
+      ) || [];
+
       form.reset({
         ...collaborator,
-        workstreams: collaborator.workstreams?.map(w => 
-          w.id === workstream.id ? workstream : w
-        ) || []
+        workstreams: updatedWorkstreams.map(ws => ({
+          id: ws.id,
+          title: ws.title,
+          objectives: ws.objectives,
+          nextSteps: ws.nextSteps,
+          keyContacts: ws.keyContacts,
+          status: ws.status,
+          startDate: ws.startDate,
+          lastUpdated: ws.lastUpdated,
+          ratMember: ws.ratMember || "",
+        }))
       });
     } catch (error) {
       toast({
@@ -81,7 +94,17 @@ export function useWorkstreamActions(collaboratorId: string) {
 
       const updatedCollaborator = {
         ...collaborator,
-        workstreams: data.workstreams || []
+        workstreams: data.workstreams?.map(ws => ({
+          id: ws.id,
+          title: ws.title,
+          objectives: ws.objectives,
+          nextSteps: ws.nextSteps,
+          keyContacts: ws.keyContacts,
+          status: ws.status,
+          startDate: ws.startDate,
+          lastUpdated: ws.lastUpdated,
+          ratMember: ws.ratMember || "",
+        })) || []
       };
 
       await db.updateCollaborator(collaboratorId, updatedCollaborator);
