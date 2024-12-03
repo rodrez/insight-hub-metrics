@@ -23,7 +23,6 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // Fetch all required data
   const { data: allProjects = [] } = useQuery({
     queryKey: ['projects'],
     queryFn: () => db.getAllProjects()
@@ -49,7 +48,58 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
     queryFn: () => db.getAllSitReps()
   });
 
-  // Filter data for this RAT member
+  const handleSave = async (updatedPosition: OrgPosition) => {
+    try {
+      // Update relationships in the database
+      const promises = [];
+      
+      // Update projects
+      for (const projectId of updatedPosition.projects) {
+        promises.push(db.updateProject(projectId, { ratMember: name }));
+      }
+
+      // Update Fortune 30 partners
+      for (const partnerId of updatedPosition.fortune30Partners) {
+        promises.push(db.updateCollaborator(partnerId, { ratMember: name }));
+      }
+
+      // Update SME partners
+      for (const partnerId of updatedPosition.smePartners) {
+        promises.push(db.updateSMEPartner(partnerId, { ratMember: name }));
+      }
+
+      // Update SPIs
+      for (const spiId of updatedPosition.spis) {
+        promises.push(db.updateSPI(spiId, { ratMember: name }));
+      }
+
+      // Update SitReps
+      for (const sitrepId of updatedPosition.sitreps) {
+        promises.push(db.updateSitRep(sitrepId, { ratMember: name }));
+      }
+
+      await Promise.all(promises);
+
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['collaborators'] });
+      queryClient.invalidateQueries({ queryKey: ['sme-partners'] });
+      queryClient.invalidateQueries({ queryKey: ['spis'] });
+      queryClient.invalidateQueries({ queryKey: ['sitreps'] });
+
+      toast({
+        title: "Success",
+        description: "Relationships updated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update relationships",
+        variant: "destructive",
+      });
+    }
+  };
+
   const fortune30Partners = allCollaborators.filter(c => 
     c.type === 'fortune30' && c.ratMember === name
   );
