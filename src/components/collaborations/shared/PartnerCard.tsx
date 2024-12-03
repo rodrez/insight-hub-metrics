@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { BadgeCheck, Info } from "lucide-react";
+import { BadgeCheck, AlertCircle, Info } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -43,25 +43,36 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
         />
       </CardHeader>
       <CardContent className="p-6 pt-0">
-        {collaborator.ratMember && (
-          <div className="mb-4">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Badge 
-                    className="bg-purple-600 hover:bg-purple-700 flex items-center gap-1.5"
-                  >
-                    <BadgeCheck className="h-3.5 w-3.5" />
-                    RAT: {collaborator.ratMember}
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>RAT Member assigned to this collaboration</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        )}
+        <div className="mb-4">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Badge 
+                  className={`flex items-center gap-1.5 ${
+                    collaborator.ratMember 
+                      ? 'bg-purple-600 hover:bg-purple-700' 
+                      : 'bg-gray-500 hover:bg-gray-600'
+                  }`}
+                >
+                  {collaborator.ratMember ? (
+                    <>
+                      <BadgeCheck className="h-3.5 w-3.5" />
+                      RAT: {collaborator.ratMember}
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="h-3.5 w-3.5" />
+                      RAT: Unassigned
+                    </>
+                  )}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{collaborator.ratMember ? 'RAT Member assigned to this collaboration' : 'No RAT Member assigned yet'}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-6">
             <PartnerContact contact={collaborator.primaryContact} />
