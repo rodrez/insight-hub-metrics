@@ -6,6 +6,8 @@ import { RelationshipSelectionDialog } from "./RelationshipSelectionDialog";
 import { RelationshipDisplay } from "./RelationshipDisplay";
 import { OrgPosition } from "./types";
 import { toast } from "@/components/ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { db } from "@/lib/db";
 
 interface OrgPositionCardProps {
   title: string;
@@ -24,6 +26,66 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
     spis: [],
     sitreps: []
   });
+
+  // Fetch all related data
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const allProjects = await db.getAllProjects();
+      return allProjects.filter(p => 
+        p.poc === name || 
+        p.techLead === name || 
+        p.ratMember === name
+      );
+    }
+  });
+
+  const { data: fortune30Partners = [] } = useQuery({
+    queryKey: ['fortune30-partners'],
+    queryFn: async () => {
+      const allCollaborators = await db.getAllCollaborators();
+      return allCollaborators.filter(c => 
+        c.type === 'fortune30' && 
+        c.ratMember === name
+      );
+    }
+  });
+
+  const { data: smePartners = [] } = useQuery({
+    queryKey: ['sme-partners'],
+    queryFn: async () => {
+      const allPartners = await db.getAllSMEPartners();
+      return allPartners.filter(p => p.ratMember === name);
+    }
+  });
+
+  const { data: spis = [] } = useQuery({
+    queryKey: ['spis'],
+    queryFn: async () => {
+      const allSpis = await db.getAllSPIs();
+      return allSpis.filter(spi => spi.ratMember === name);
+    }
+  });
+
+  const { data: sitreps = [] } = useQuery({
+    queryKey: ['sitreps'],
+    queryFn: async () => {
+      const allSitreps = await db.getAllSitReps();
+      return allSitreps.filter(sitrep => sitrep.ratMember === name);
+    }
+  });
+
+  // Update position state when data is loaded
+  useState(() => {
+    setPosition(prev => ({
+      ...prev,
+      projects: projects.map(p => p.id),
+      fortune30Partners: fortune30Partners.map(p => p.id),
+      smePartners: smePartners.map(p => p.id),
+      spis: spis.map(spi => spi.id),
+      sitreps: sitreps.map(sitrep => sitrep.id)
+    }));
+  }, [projects, fortune30Partners, smePartners, spis, sitreps]);
 
   const handleSave = (updatedPosition: OrgPosition) => {
     setPosition(updatedPosition);
@@ -55,26 +117,31 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
           title="Projects"
           type="projects"
           itemIds={position.projects}
+          items={projects}
         />
         <RelationshipDisplay
           title="Fortune 30 Partners"
           type="fortune30Partners"
           itemIds={position.fortune30Partners}
+          items={fortune30Partners}
         />
         <RelationshipDisplay
           title="SME Partners"
           type="smePartners"
           itemIds={position.smePartners}
+          items={smePartners}
         />
         <RelationshipDisplay
           title="SPIs"
           type="spis"
           itemIds={position.spis}
+          items={spis}
         />
         <RelationshipDisplay
           title="SitReps"
           type="sitreps"
           itemIds={position.sitreps}
+          items={sitreps}
         />
       </div>
 
