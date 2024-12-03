@@ -113,7 +113,7 @@ export function SPIList() {
                         </Badge>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>{spi.ratMember ? `Assigned RAT Member - ${memberRole}` : `Suggested RAT Member - ${memberRole}`}</p>
+                        <p>{memberRole}</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
