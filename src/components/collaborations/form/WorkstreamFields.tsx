@@ -20,6 +20,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// RAT Members from the org chart
+const ratMembers = [
+  "Sarah Johnson",
+  "Michael Chen",
+  "Emily Rodriguez",
+  "David Kim",
+  "James Wilson",
+  "Maria Garcia",
+  "Robert Taylor"
+];
+
 type WorkstreamFieldsProps = {
   form: UseFormReturn<CollaborationFormSchema>;
 };
@@ -37,6 +48,7 @@ export function WorkstreamFields({ form }: WorkstreamFieldsProps) {
       status: 'active' as const,
       startDate: new Date().toISOString().split('T')[0],
       lastUpdated: new Date().toISOString(),
+      ratMember: ''
     };
     form.setValue('workstreams', [...workstreams, newWorkstream]);
   };
@@ -86,6 +98,31 @@ export function WorkstreamFields({ form }: WorkstreamFieldsProps) {
 
               <FormField
                 control={form.control}
+                name={`workstreams.${index}.ratMember`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>RAT Member</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select RAT member" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {ratMembers.map((member) => (
+                          <SelectItem key={member} value={member}>
+                            {member}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name={`workstreams.${index}.objectives`}
                 render={({ field }) => (
                   <FormItem>
@@ -124,7 +161,7 @@ export function WorkstreamFields({ form }: WorkstreamFieldsProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select status" />

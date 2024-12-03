@@ -28,6 +28,7 @@ export type Workstream = {
   status: 'active' | 'completed' | 'on-hold';
   startDate: string;
   lastUpdated: string;
+  ratMember?: string;
 };
 
 export type CollaboratorType = 'fortune30' | 'internal' | 'sme';

@@ -26,6 +26,7 @@ const workstreamSchema = z.object({
   status: z.enum(["active", "completed", "on-hold"]),
   startDate: z.string(),
   lastUpdated: z.string(),
+  ratMember: z.string().optional(),
 });
 
 export const collaborationFormSchema = z.object({
