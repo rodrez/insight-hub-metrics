@@ -9,6 +9,14 @@ import { CompactSitRepForm } from "./CompactSitRepForm";
 import { POCDisplay } from "./card/POCDisplay";
 import { LevelBadge } from "./card/LevelBadge";
 import { SitRepHeader } from "./card/SitRepHeader";
+import { Badge } from "@/components/ui/badge";
+import { BadgeCheck, AlertCircle } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface SitRepCardProps {
   sitrep: SitRep;
@@ -83,6 +91,37 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
               onEdit={() => setIsEditDialogOpen(true)}
               onDelete={onDelete ? handleDelete : undefined}
             />
+
+            <div className="mb-4">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Badge 
+                      className={`flex items-center gap-1.5 ${
+                        sitrep.ratMember 
+                          ? 'bg-purple-600 hover:bg-purple-700' 
+                          : 'bg-gray-500 hover:bg-gray-600'
+                      }`}
+                    >
+                      {sitrep.ratMember ? (
+                        <>
+                          <BadgeCheck className="h-3.5 w-3.5" />
+                          RAT: {sitrep.ratMember}
+                        </>
+                      ) : (
+                        <>
+                          <AlertCircle className="h-3.5 w-3.5" />
+                          RAT: Unassigned
+                        </>
+                      )}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{sitrep.ratMember ? 'RAT Member assigned to this sitrep' : 'No RAT Member assigned yet'}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
 
             <p className="text-muted-foreground">{sitrep.summary}</p>
 
