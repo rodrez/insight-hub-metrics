@@ -39,15 +39,24 @@ const fortune30Companies = [
   }
 ];
 
+const ratMembers = [
+  "Sarah Johnson",
+  "Michael Chen",
+  "Emily Rodriguez",
+  "David Kim",
+  "James Wilson",
+  "Maria Garcia",
+  "Robert Taylor"
+];
+
 export const generateFortune30Partners = (): Collaborator[] => {
   const today = new Date();
   
   return fortune30Companies.map((company, index) => {
     const agreements: { nda?: any; jtda?: any } = {};
     
-    // Generate some agreements that are close to expiry for testing
     if (company.agreementTypes.includes('nda')) {
-      const isExpiring = index === 0 || index === 3; // Make some NDAs expire soon
+      const isExpiring = index === 0 || index === 3;
       agreements.nda = {
         signedDate: new Date(today.getTime() - (90 * 24 * 60 * 60 * 1000)).toISOString(),
         expiryDate: new Date(today.getTime() + (isExpiring ? 85 : 275) * 24 * 60 * 60 * 1000).toISOString(),
@@ -56,7 +65,7 @@ export const generateFortune30Partners = (): Collaborator[] => {
     }
     
     if (company.agreementTypes.includes('jtda')) {
-      const isExpiring = index === 1 || index === 4; // Make some JTDAs expire soon
+      const isExpiring = index === 1 || index === 4;
       agreements.jtda = {
         signedDate: new Date(today.getTime() - (60 * 24 * 60 * 60 * 1000)).toISOString(),
         expiryDate: new Date(today.getTime() + (isExpiring ? 45 : 305) * 24 * 60 * 60 * 1000).toISOString(),
@@ -100,7 +109,8 @@ export const generateFortune30Partners = (): Collaborator[] => {
       ],
       lastActive: today.toISOString(),
       type: "fortune30",
-      agreements
+      agreements,
+      ratMember: ratMembers[index % ratMembers.length]
     };
   });
 };

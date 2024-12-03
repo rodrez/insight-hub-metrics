@@ -62,4 +62,5 @@ export type Collaborator = {
   agreements?: CollaboratorAgreements;
   primaryContact?: ContactPerson;
   workstreams?: Workstream[];
+  ratMember?: string;
 };
