@@ -46,6 +46,7 @@ export function SitRepFormContent({ initialData, onSubmitSuccess, onClose }: Sit
   );
   const [status, setStatus] = useState<'pending-review' | 'ready' | 'submitted'>(initialData?.status || 'pending-review');
   const [level, setLevel] = useState<"CEO" | "SVP" | "CTO">(initialData?.level || "SVP");
+  const [ratMember, setRatMember] = useState(initialData?.ratMember || "");
 
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
@@ -99,8 +100,7 @@ export function SitRepFormContent({ initialData, onSubmitSuccess, onClose }: Sit
         smePartnerId: selectedSME !== "none" ? selectedSME : undefined,
         teams: supportingTeams,
         pointsOfContact: supportingTeams.map(team => teamPOCs[team]?.name || ""),
-        poc: initialData?.poc,
-        pocDepartment: initialData?.pocDepartment
+        ratMember,
       };
 
       if (initialData) {
@@ -143,6 +143,8 @@ export function SitRepFormContent({ initialData, onSubmitSuccess, onClose }: Sit
             setStatus={setStatus}
             level={level}
             setLevel={setLevel}
+            ratMember={ratMember}
+            setRatMember={setRatMember}
           />
           
           <DepartmentFields

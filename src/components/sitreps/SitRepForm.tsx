@@ -28,6 +28,7 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
   const [status, setStatus] = useState<'pending-review' | 'ready' | 'submitted'>('pending-review');
   const [level, setLevel] = useState<"CEO" | "SVP" | "CTO">("SVP");
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [ratMember, setRatMember] = useState("");
 
   const { data: projects } = useQuery({
     queryKey: ['projects'],
@@ -90,6 +91,7 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
       setStatus('pending-review');
       setLevel("SVP");
       setContacts([]);
+      setRatMember("");
       
       onSubmitSuccess();
     } catch (error) {
@@ -113,6 +115,8 @@ export function SitRepForm({ onSubmitSuccess }: SitRepFormProps) {
           setStatus={setStatus}
           level={level}
           setLevel={setLevel}
+          ratMember={ratMember}
+          setRatMember={setRatMember}
         />
         
         <RelationshipFields
