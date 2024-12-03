@@ -24,48 +24,52 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
   const memberInfo = getRatMemberInfo(name);
   const navigate = useNavigate();
 
-  const { data: fortune30Partners = [] } = useQuery({
-    queryKey: ['fortune30-partners', name],
-    queryFn: async () => {
-      const allCollaborators = await db.getAllCollaborators();
-      return allCollaborators.filter(c => 
-        c.type === 'fortune30' && 
-        c.ratMember === name
-      );
-    }
+  // Fetch all required data
+  const { data: allProjects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: () => db.getAllProjects()
   });
 
-  const { data: smePartners = [] } = useQuery({
-    queryKey: ['sme-partners', name],
-    queryFn: async () => {
-      const allSMEPartners = await db.getAllSMEPartners();
-      return allSMEPartners.filter(p => p.ratMember === name);
-    }
+  const { data: allCollaborators = [] } = useQuery({
+    queryKey: ['collaborators'],
+    queryFn: () => db.getAllCollaborators()
   });
 
-  const { data: projects = [] } = useQuery({
-    queryKey: ['projects', name],
-    queryFn: async () => {
-      const allProjects = await db.getAllProjects();
-      return allProjects.filter(p => p.ratMember === name);
-    }
+  const { data: allSMEPartners = [] } = useQuery({
+    queryKey: ['sme-partners'],
+    queryFn: () => db.getAllSMEPartners()
   });
 
-  const { data: spis = [] } = useQuery({
-    queryKey: ['spis', name],
-    queryFn: async () => {
-      const allSpis = await db.getAllSPIs();
-      return allSpis.filter(spi => spi.ratMember === name);
-    }
+  const { data: allSPIs = [] } = useQuery({
+    queryKey: ['spis'],
+    queryFn: () => db.getAllSPIs()
   });
 
-  const { data: sitreps = [] } = useQuery({
-    queryKey: ['sitreps', name],
-    queryFn: async () => {
-      const allSitreps = await db.getAllSitReps();
-      return allSitreps.filter(sitrep => sitrep.ratMember === name);
-    }
+  const { data: allSitReps = [] } = useQuery({
+    queryKey: ['sitreps'],
+    queryFn: () => db.getAllSitReps()
   });
+
+  // Filter data for this RAT member
+  const fortune30Partners = allCollaborators.filter(c => 
+    c.type === 'fortune30' && c.ratMember === name
+  );
+
+  const smePartners = allSMEPartners.filter(p => 
+    p.ratMember === name
+  );
+
+  const projects = allProjects.filter(p => 
+    p.ratMember === name
+  );
+
+  const spis = allSPIs.filter(spi => 
+    spi.ratMember === name
+  );
+
+  const sitreps = allSitReps.filter(sitrep => 
+    sitrep.ratMember === name
+  );
 
   const handleItemClick = (type: string, id: string) => {
     switch (type) {
@@ -158,11 +162,11 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
         onClose={() => setIsDialogOpen(false)}
         position={position}
         onSave={handleSave}
-        allProjects={projects}
-        allFortune30Partners={fortune30Partners}
-        allSMEPartners={smePartners}
-        allSPIs={spis}
-        allSitReps={sitreps}
+        allProjects={allProjects}
+        allFortune30Partners={allCollaborators.filter(c => c.type === 'fortune30')}
+        allSMEPartners={allSMEPartners}
+        allSPIs={allSPIs}
+        allSitReps={allSitReps}
       />
     </Card>
   );
