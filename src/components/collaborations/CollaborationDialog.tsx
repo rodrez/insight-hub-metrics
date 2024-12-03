@@ -5,7 +5,7 @@ import { CollaboratorType } from "@/lib/types/collaboration";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
-import { collaborationFormSchema, type CollaborationFormSchema } from "./CollaborationFormFields";
+import { collaborationFormSchema, type CollaborationFormSchema } from "./form/types";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { Skeleton } from "@/components/ui/skeleton";
