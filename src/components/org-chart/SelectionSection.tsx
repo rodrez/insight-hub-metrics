@@ -12,21 +12,31 @@ interface SelectionSectionProps {
 }
 
 export function SelectionSection({ title, type, position, onPositionChange }: SelectionSectionProps) {
+  const ratMember = position.title;
+
+  // Query for all relevant data
   const { data: items = [] } = useQuery({
-    queryKey: [type],
+    queryKey: [type, ratMember],
     queryFn: async () => {
       switch (type) {
         case 'projects':
-          return db.getAllProjects();
+          const allProjects = await db.getAllProjects();
+          return allProjects.filter(p => p.ratMember === ratMember);
         case 'fortune30Partners':
           const collaborators = await db.getAllCollaborators();
-          return collaborators.filter(c => c.type === 'fortune30');
+          return collaborators.filter(c => 
+            c.type === 'fortune30' && 
+            c.ratMember === ratMember
+          );
         case 'smePartners':
-          return db.getAllSMEPartners();
+          const smePartners = await db.getAllSMEPartners();
+          return smePartners.filter(p => p.ratMember === ratMember);
         case 'spis':
-          return db.getAllSPIs();
+          const spis = await db.getAllSPIs();
+          return spis.filter(spi => spi.ratMember === ratMember);
         case 'sitreps':
-          return db.getAllSitReps();
+          const sitreps = await db.getAllSitReps();
+          return sitreps.filter(sitrep => sitrep.ratMember === ratMember);
         default:
           return [];
       }

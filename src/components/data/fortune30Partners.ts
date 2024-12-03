@@ -11,7 +11,7 @@ export const fortune30Partners: Collaborator[] = [
     email: "partnerships@walmart.com",
     role: "Strategic Partner",
     department: "Retail",
-    ratMember: ratMembers[0],
+    ratMember: "Sarah Johnson", // Retail expertise
     primaryContact: {
       name: "John Smith",
       role: "Director of Innovation",
@@ -23,12 +23,6 @@ export const fortune30Partners: Collaborator[] = [
         id: "retail-project-1",
         name: "Retail Innovation Project 1",
         description: "Developing next-generation retail systems with improved efficiency and reduced environmental impact.",
-        status: "active"
-      },
-      {
-        id: "retail-project-2",
-        name: "Retail Innovation Project 2",
-        description: "Implementing advanced technologies and innovative solutions for retail operations.",
         status: "active"
       }
     ],
@@ -67,7 +61,7 @@ export const fortune30Partners: Collaborator[] = [
     email: "enterprise@amazon.com",
     role: "Technology Partner",
     department: "Cloud Services",
-    ratMember: ratMembers[1],
+    ratMember: "Michael Chen", // Cloud/Tech expertise
     primaryContact: {
       name: "Emily Chen",
       role: "Head of Strategic Partnerships",
@@ -80,24 +74,6 @@ export const fortune30Partners: Collaborator[] = [
         name: "Cloud Services Innovation Project 1",
         description: "Developing next-generation cloud systems with improved efficiency and scalability.",
         status: "active"
-      }
-    ],
-    workstreams: [
-      {
-        id: "ws-2",
-        title: "AWS Integration Framework",
-        objectives: "Develop comprehensive cloud integration strategy",
-        nextSteps: "Complete architecture review and security assessment",
-        keyContacts: [
-          {
-            name: "Michael Wong",
-            role: "Solutions Architect",
-            email: "m.wong@amazon.com"
-          }
-        ],
-        status: "active",
-        startDate: "2024-02-01",
-        lastUpdated: "2024-03-15"
       }
     ],
     lastActive: new Date().toISOString(),
@@ -117,7 +93,7 @@ export const fortune30Partners: Collaborator[] = [
     email: "partnerships@apple.com",
     role: "Innovation Partner",
     department: "Technology",
-    ratMember: ratMembers[2],
+    ratMember: "Emily Rodriguez", // Innovation/Product expertise
     projects: [
       {
         id: "technology-project-1",
@@ -143,7 +119,7 @@ export const fortune30Partners: Collaborator[] = [
     email: "enterprise@microsoft.com",
     role: "Technology Partner",
     department: "Software",
-    ratMember: ratMembers[3],
+    ratMember: "David Kim", // Software/Enterprise expertise
     projects: [
       {
         id: "software-project-1",
@@ -169,7 +145,7 @@ export const fortune30Partners: Collaborator[] = [
     email: "partnerships@google.com",
     role: "Technology Partner",
     department: "Technology",
-    ratMember: ratMembers[4],
+    ratMember: "James Wilson", // AI/ML expertise
     projects: [
       {
         id: "technology-project-2",
