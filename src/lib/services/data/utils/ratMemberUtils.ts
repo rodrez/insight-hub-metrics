@@ -91,3 +91,8 @@ export const getRatMemberSPIs = (name: string): string[] | undefined => {
 export const getRatMemberSitReps = (name: string): string[] | undefined => {
   return RAT_MEMBERS[name]?.sitreps;
 };
+
+export const getRandomRatMember = (): string => {
+  const members = getAllRatMembers();
+  return members[Math.floor(Math.random() * members.length)];
+};
