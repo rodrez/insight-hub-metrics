@@ -4,6 +4,17 @@ import { SitRep } from '@/lib/types/sitrep';
 import { addDays } from 'date-fns';
 import { DEPARTMENTS } from '@/lib/constants';
 
+// RAT Members from the org chart
+const ratMembers = [
+  "Sarah Johnson",
+  "Michael Chen",
+  "Emily Rodriguez",
+  "David Kim",
+  "James Wilson",
+  "Maria Garcia",
+  "Robert Taylor"
+];
+
 export const generateSampleSPIs = (projectIds: string[], count: number): SPI[] => {
   return Array.from({ length: count }, (_, i) => ({
     id: `spi-${i + 1}`,
@@ -59,7 +70,8 @@ export const generateSampleSitReps = (spis: SPI[], count: number): SitRep[] => {
       fortune30PartnerId: `fortune30-partner-${i % 5}`,
       smePartnerId: `sme-partner-${i % 3}`,
       poc: `Department Lead ${i + 1}`,
-      pocDepartment: department.id
+      pocDepartment: department.id,
+      ratMember: ratMembers[i % ratMembers.length]
     };
   });
 };

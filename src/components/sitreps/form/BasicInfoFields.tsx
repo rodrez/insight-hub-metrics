@@ -8,6 +8,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// RAT Members from the org chart
+const ratMembers = [
+  "Sarah Johnson",
+  "Michael Chen",
+  "Emily Rodriguez",
+  "David Kim",
+  "James Wilson",
+  "Maria Garcia",
+  "Robert Taylor"
+];
+
 interface BasicInfoFieldsProps {
   selectedDate: Date | undefined;
   setSelectedDate: (date: Date | undefined) => void;
@@ -17,6 +28,8 @@ interface BasicInfoFieldsProps {
   setStatus: (status: 'pending-review' | 'ready' | 'submitted') => void;
   level: "CEO" | "SVP" | "CTO" | undefined;
   setLevel: (level: "CEO" | "SVP" | "CTO") => void;
+  ratMember: string;
+  setRatMember: (member: string) => void;
 }
 
 export function BasicInfoFields({
@@ -27,7 +40,9 @@ export function BasicInfoFields({
   status,
   setStatus,
   level,
-  setLevel
+  setLevel,
+  ratMember,
+  setRatMember
 }: BasicInfoFieldsProps) {
   return (
     <div className="space-y-4">
@@ -49,6 +64,21 @@ export function BasicInfoFields({
           placeholder="Enter sitrep title"
           required
         />
+      </div>
+      <div>
+        <label className="block text-sm font-medium mb-2">RAT Member</label>
+        <Select value={ratMember} onValueChange={setRatMember}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select RAT member" />
+          </SelectTrigger>
+          <SelectContent>
+            {ratMembers.map((member) => (
+              <SelectItem key={member} value={member}>
+                {member}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div>
         <label className="block text-sm font-medium mb-2">Status</label>
