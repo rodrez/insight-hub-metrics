@@ -9,13 +9,23 @@ interface RelationshipSelectionDialogProps {
   onClose: () => void;
   position: OrgPosition;
   onSave: (position: OrgPosition) => void;
+  allProjects: any[];
+  allFortune30Partners: any[];
+  allSMEPartners: any[];
+  allSPIs: any[];
+  allSitReps: any[];
 }
 
 export function RelationshipSelectionDialog({ 
   isOpen, 
   onClose, 
   position,
-  onSave 
+  onSave,
+  allProjects,
+  allFortune30Partners,
+  allSMEPartners,
+  allSPIs,
+  allSitReps
 }: RelationshipSelectionDialogProps) {
   const [tempPosition, setTempPosition] = useState<OrgPosition>(position);
 
@@ -36,30 +46,35 @@ export function RelationshipSelectionDialog({
             type="projects"
             position={tempPosition}
             onPositionChange={setTempPosition}
+            availableItems={allProjects}
           />
           <SelectionSection
             title="Fortune 30 Partners"
             type="fortune30Partners"
             position={tempPosition}
             onPositionChange={setTempPosition}
+            availableItems={allFortune30Partners}
           />
           <SelectionSection
             title="SME Partners"
             type="smePartners"
             position={tempPosition}
             onPositionChange={setTempPosition}
+            availableItems={allSMEPartners}
           />
           <SelectionSection
             title="SPIs"
             type="spis"
             position={tempPosition}
             onPositionChange={setTempPosition}
+            availableItems={allSPIs}
           />
           <SelectionSection
             title="SitReps"
             type="sitreps"
             position={tempPosition}
             onPositionChange={setTempPosition}
+            availableItems={allSitReps}
           />
         </div>
         <DialogFooter>

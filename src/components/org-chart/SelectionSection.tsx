@@ -1,65 +1,22 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { useQuery } from "@tanstack/react-query";
-import { db } from "@/lib/db";
 import { OrgPosition } from "./types";
-import { getRatMemberInfo } from "@/lib/services/data/utils/ratMemberUtils";
 
 interface SelectionSectionProps {
   title: string;
   type: keyof OrgPosition;
   position: OrgPosition;
   onPositionChange: (updatedPosition: OrgPosition) => void;
+  availableItems: any[];
 }
 
-export function SelectionSection({ title, type, position, onPositionChange }: SelectionSectionProps) {
-  const ratMember = position.title;
-  const ratMemberInfo = getRatMemberInfo(ratMember);
-
-  // Query for all relevant data
-  const { data: items = [] } = useQuery({
-    queryKey: [type, ratMember],
-    queryFn: async () => {
-      switch (type) {
-        case 'projects':
-          const allProjects = await db.getAllProjects();
-          return allProjects.filter(p => p.ratMember === ratMember);
-        case 'fortune30Partners':
-          const collaborators = await db.getAllCollaborators();
-          return collaborators.filter(c => 
-            c.type === 'fortune30' && 
-            c.ratMember === ratMember
-          );
-        case 'smePartners':
-          const smePartners = await db.getAllSMEPartners();
-          return smePartners.filter(p => p.ratMember === ratMember);
-        case 'spis':
-          const spis = await db.getAllSPIs();
-          return spis.filter(spi => spi.ratMember === ratMember);
-        case 'sitreps':
-          const sitreps = await db.getAllSitReps();
-          return sitreps.filter(sitrep => sitrep.ratMember === ratMember);
-        default:
-          return [];
-      }
-    }
-  });
-
-  const getItemLabel = (item: any) => {
-    switch (type) {
-      case 'projects':
-      case 'sitreps':
-        return item.name || item.title;
-      case 'fortune30Partners':
-      case 'smePartners':
-        return item.name;
-      case 'spis':
-        return item.name;
-      default:
-        return '';
-    }
-  };
-
+export function SelectionSection({ 
+  title, 
+  type, 
+  position, 
+  onPositionChange,
+  availableItems
+}: SelectionSectionProps) {
   const handleValueChange = (value: string) => {
     const currentArray = Array.isArray(position[type]) ? position[type] : [];
     if (!currentArray.includes(value)) {
@@ -81,16 +38,12 @@ export function SelectionSection({ title, type, position, onPositionChange }: Se
   };
 
   const selectedIds = Array.isArray(position[type]) ? position[type] : [];
+  const unselectedItems = availableItems.filter(item => !selectedIds.includes(item.id));
 
   return (
     <div>
       <div className="flex justify-between items-start mb-2">
         <h3 className="text-sm font-medium">{title}</h3>
-        {ratMemberInfo && (
-          <Badge variant="outline" className="text-xs">
-            {ratMemberInfo.expertise}
-          </Badge>
-        )}
       </div>
       <Select
         value=""
@@ -100,23 +53,23 @@ export function SelectionSection({ title, type, position, onPositionChange }: Se
           <SelectValue placeholder={`Select ${title}`} />
         </SelectTrigger>
         <SelectContent>
-          {items.map((item: any) => (
+          {unselectedItems.map((item) => (
             <SelectItem key={item.id} value={item.id}>
-              {getItemLabel(item)}
+              {item.name || item.title}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
       <div className="flex flex-wrap gap-2 mt-2">
         {selectedIds.map((itemId: string) => {
-          const item = items.find((i: any) => i.id === itemId);
+          const item = availableItems.find((i: any) => i.id === itemId);
           return item ? (
             <Badge
               key={itemId}
               variant="secondary"
               className="flex items-center gap-1"
             >
-              {getItemLabel(item)}
+              {item.name || item.title}
               <button
                 onClick={() => handleRemoveItem(itemId)}
                 className="ml-1 hover:text-destructive"

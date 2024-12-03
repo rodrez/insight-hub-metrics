@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Pen } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { RelationshipSelectionDialog } from "./RelationshipSelectionDialog";
-import { RelationshipDisplay } from "./RelationshipDisplay";
 import { OrgPosition } from "./types";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { getRatMemberInfo } from "@/lib/services/data/utils/ratMemberUtils";
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { OrgPositionHeader } from "./card/OrgPositionHeader";
+import { RelationshipSection } from "./card/RelationshipSection";
 
 interface OrgPositionCardProps {
   title: string;
@@ -34,7 +35,6 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
     }
   });
 
-  // Fetch SME partners where this person is the RAT member
   const { data: smePartners = [] } = useQuery({
     queryKey: ['sme-partners', name],
     queryFn: async () => {
@@ -43,7 +43,6 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
     }
   });
 
-  // Fetch projects where this person is the RAT member
   const { data: projects = [] } = useQuery({
     queryKey: ['projects', name],
     queryFn: async () => {
@@ -52,7 +51,6 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
     }
   });
 
-  // Fetch SPIs where this person is the RAT member
   const { data: spis = [] } = useQuery({
     queryKey: ['spis', name],
     queryFn: async () => {
@@ -61,7 +59,6 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
     }
   });
 
-  // Fetch SitReps where this person is the RAT member
   const { data: sitreps = [] } = useQuery({
     queryKey: ['sitreps', name],
     queryFn: async () => {
@@ -117,105 +114,43 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
 
   return (
     <Card className={`${width} p-6 space-y-4 bg-card/50 backdrop-blur-sm border-muted`}>
-      <div className="flex justify-between items-start">
-        <div>
-          <h2 className="text-xl font-semibold">{title}</h2>
-          <p className="text-sm text-muted-foreground">{name}</p>
-          {memberInfo?.expertise && (
-            <Badge variant="secondary" className="mt-2">
-              {memberInfo.expertise}
-            </Badge>
-          )}
-        </div>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setIsDialogOpen(true)}
-        >
-          <Pen className="h-4 w-4" />
-        </Button>
-      </div>
+      <OrgPositionHeader 
+        title={title}
+        name={name}
+        memberInfo={memberInfo}
+        onEditClick={() => setIsDialogOpen(true)}
+      />
 
       <div className="space-y-4">
-        {/* Fortune 30 Partners */}
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium">Fortune 30 Partners</h3>
-          <div className="flex flex-wrap gap-2">
-            {fortune30Partners.map(partner => (
-              <Badge
-                key={partner.id}
-                className="cursor-pointer hover:bg-primary/90"
-                onClick={() => handleItemClick('fortune30', partner.id)}
-              >
-                {partner.name}
-              </Badge>
-            ))}
-          </div>
-        </div>
+        <RelationshipSection
+          title="Fortune 30 Partners"
+          items={fortune30Partners}
+          onItemClick={(id) => handleItemClick('fortune30', id)}
+        />
 
-        {/* SME Partners */}
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium">SME Partners</h3>
-          <div className="flex flex-wrap gap-2">
-            {smePartners.map(partner => (
-              <Badge
-                key={partner.id}
-                className="cursor-pointer hover:bg-primary/90"
-                onClick={() => handleItemClick('sme', partner.id)}
-              >
-                {partner.name}
-              </Badge>
-            ))}
-          </div>
-        </div>
+        <RelationshipSection
+          title="SME Partners"
+          items={smePartners}
+          onItemClick={(id) => handleItemClick('sme', id)}
+        />
 
-        {/* Projects */}
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium">Projects</h3>
-          <div className="flex flex-wrap gap-2">
-            {projects.map(project => (
-              <Badge
-                key={project.id}
-                className="cursor-pointer hover:bg-primary/90"
-                onClick={() => handleItemClick('project', project.id)}
-              >
-                {project.name}
-              </Badge>
-            ))}
-          </div>
-        </div>
+        <RelationshipSection
+          title="Projects"
+          items={projects}
+          onItemClick={(id) => handleItemClick('project', id)}
+        />
 
-        {/* SPIs */}
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium">SPIs</h3>
-          <div className="flex flex-wrap gap-2">
-            {spis.map(spi => (
-              <Badge
-                key={spi.id}
-                className="cursor-pointer hover:bg-primary/90"
-                onClick={() => handleItemClick('spi', spi.id)}
-              >
-                {spi.name}
-              </Badge>
-            ))}
-          </div>
-        </div>
+        <RelationshipSection
+          title="SPIs"
+          items={spis}
+          onItemClick={(id) => handleItemClick('spi', id)}
+        />
 
-        {/* SitReps */}
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium">SitReps</h3>
-          <div className="flex flex-wrap gap-2">
-            {sitreps.map(sitrep => (
-              <Badge
-                key={sitrep.id}
-                className="cursor-pointer hover:bg-primary/90"
-                onClick={() => handleItemClick('sitrep', sitrep.id)}
-              >
-                {sitrep.title}  {/* Changed from sitrep.name to sitrep.title */}
-              </Badge>
-            ))}
-          </div>
-        </div>
+        <RelationshipSection
+          title="SitReps"
+          items={sitreps}
+          onItemClick={(id) => handleItemClick('sitrep', id)}
+        />
       </div>
 
       <RelationshipSelectionDialog
@@ -223,6 +158,11 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
         onClose={() => setIsDialogOpen(false)}
         position={position}
         onSave={handleSave}
+        allProjects={projects}
+        allFortune30Partners={fortune30Partners}
+        allSMEPartners={smePartners}
+        allSPIs={spis}
+        allSitReps={sitreps}
       />
     </Card>
   );
