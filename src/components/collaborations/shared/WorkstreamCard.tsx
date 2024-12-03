@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { getAllRatMembers } from "@/lib/services/data/utils/ratMemberUtils";
+import { getAllRatMembers, getRatMemberRole } from "@/lib/services/data/utils/ratMemberUtils";
 
 type WorkstreamCardProps = {
   workstream: Workstream;
@@ -27,6 +27,7 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
 
   const ratMembers = getAllRatMembers();
   const displayMember = workstream.ratMember || ratMembers[Math.floor(Math.random() * ratMembers.length)];
+  const memberRole = getRatMemberRole(displayMember);
 
   return (
     <Card>
@@ -54,7 +55,7 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>{workstream.ratMember ? 'RAT Member assigned to this workstream' : 'Suggested RAT Member'}</p>
+                  <p>{workstream.ratMember ? `Assigned RAT Member - ${memberRole}` : `Suggested RAT Member - ${memberRole}`}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

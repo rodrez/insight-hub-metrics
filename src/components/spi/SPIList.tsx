@@ -11,7 +11,7 @@ import { toast } from "@/components/ui/use-toast";
 import { format } from "date-fns";
 import { RelatedEntities } from "./card/RelatedEntities";
 import { Badge } from "@/components/ui/badge";
-import { getAllRatMembers } from "@/lib/services/data/utils/ratMemberUtils";
+import { getAllRatMembers, getRatMemberRole } from "@/lib/services/data/utils/ratMemberUtils";
 
 export function SPIList() {
   const [statusColors, setStatusColors] = useState({
@@ -75,10 +75,7 @@ export function SPIList() {
       {spis.map((spi, index) => {
         const spiNumber = index + 1;
         const displayMember = spi.ratMember || ratMembers[Math.floor(Math.random() * ratMembers.length)];
-        const relatedProject = projects?.find(p => p.id === spi.projectId);
-        const fortune30Partner = collaborators?.find(c => 
-          c.type === 'fortune30' && c.id === spi.fortune30PartnerId
-        );
+        const memberRole = getRatMemberRole(displayMember);
 
         return (
           <Card key={spi.id} className="overflow-hidden hover:shadow-md transition-shadow duration-200 bg-background/95">
@@ -86,22 +83,32 @@ export function SPIList() {
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
                   <CardTitle className="text-xl font-semibold">SPI {spiNumber}</CardTitle>
-                  <Badge 
-                    className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700"
-                  >
-                    {spi.ratMember ? (
-                      <>
-                        <BadgeCheck className="h-4 w-4" />
-                        RAT: {displayMember}
-                      </>
-                    ) : (
-                      <>
-                        <AlertCircle className="h-4 w-4" />
-                        RAT: {displayMember}
-                      </>
-                    )}
-                  </Badge>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Badge 
+                          className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700"
+                        >
+                          {spi.ratMember ? (
+                            <>
+                              <BadgeCheck className="h-4 w-4" />
+                              RAT: {displayMember}
+                            </>
+                          ) : (
+                            <>
+                              <AlertCircle className="h-4 w-4" />
+                              RAT: {displayMember}
+                            </>
+                          )}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{spi.ratMember ? `Assigned RAT Member - ${memberRole}` : `Suggested RAT Member - ${memberRole}`}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
+
                 <p className="text-lg text-foreground/90 font-medium">
                   {spi.deliverable}
                 </p>

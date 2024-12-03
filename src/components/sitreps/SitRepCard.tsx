@@ -17,7 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getAllRatMembers } from "@/lib/services/data/utils/ratMemberUtils";
+import { getAllRatMembers, getRatMemberRole } from "@/lib/services/data/utils/ratMemberUtils";
 
 interface SitRepCardProps {
   sitrep: SitRep;
@@ -81,6 +81,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
 
   const ratMembers = getAllRatMembers();
   const displayMember = sitrep.ratMember || ratMembers[Math.floor(Math.random() * ratMembers.length)];
+  const memberRole = getRatMemberRole(displayMember);
 
   return (
     <>
@@ -117,11 +118,12 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
                     </Badge>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>{sitrep.ratMember ? 'RAT Member assigned to this sitrep' : 'Suggested RAT Member'}</p>
+                    <p>{sitrep.ratMember ? `Assigned RAT Member - ${memberRole}` : `Suggested RAT Member - ${memberRole}`}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
+
             <p className="text-muted-foreground">{sitrep.summary}</p>
 
             <div className="flex items-center gap-4 text-sm">
@@ -179,4 +181,3 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
     </>
   );
 }
-

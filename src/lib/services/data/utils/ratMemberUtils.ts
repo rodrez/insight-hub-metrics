@@ -1,16 +1,15 @@
-const RAT_MEMBERS = [
-  "Sarah Johnson",
-  "Michael Chen",
-  "Emily Rodriguez", 
-  "David Kim",
-  "James Wilson",
-  "Maria Garcia",
-  "Robert Taylor"
-];
+const ratMembers = {
+  "Sarah Johnson": "Director",
+  "Michael Chen": "Senior Manager",
+  "Emily Rodriguez": "Senior Manager",
+  "David Kim": "Senior Manager",
+  "James Wilson": "Tech Lead",
+  "Maria Garcia": "Tech Lead",
+  "Robert Taylor": "Tech Lead"
+} as const;
 
-export const getRandomRatMember = () => {
-  const randomIndex = Math.floor(Math.random() * RAT_MEMBERS.length);
-  return RAT_MEMBERS[randomIndex];
+export const getAllRatMembers = () => Object.keys(ratMembers);
+
+export const getRatMemberRole = (member: string) => {
+  return ratMembers[member as keyof typeof ratMembers] || "Unknown Role";
 };
-
-export const getAllRatMembers = () => RAT_MEMBERS;
