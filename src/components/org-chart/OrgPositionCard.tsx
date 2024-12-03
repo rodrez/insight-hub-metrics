@@ -23,7 +23,6 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
   const memberInfo = getRatMemberInfo(name);
   const navigate = useNavigate();
 
-  // Fetch Fortune 30 partners where this person is the RAT member
   const { data: fortune30Partners = [] } = useQuery({
     queryKey: ['fortune30-partners', name],
     queryFn: async () => {
@@ -103,7 +102,6 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
 
   const handleSave = async (updatedPosition: OrgPosition) => {
     try {
-      // Here you would typically save the changes to your database
       toast({
         title: "Changes saved",
         description: "The relationships have been updated successfully."
@@ -213,7 +211,7 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
                 className="cursor-pointer hover:bg-primary/90"
                 onClick={() => handleItemClick('sitrep', sitrep.id)}
               >
-                {sitrep.name}
+                {sitrep.title}  {/* Changed from sitrep.name to sitrep.title */}
               </Badge>
             ))}
           </div>
