@@ -26,6 +26,7 @@ export type Project = {
   milestones?: Milestone[];
   metrics?: ProjectMetric[];
   isSampleData?: boolean;
+  ratMember?: string;
 };
 
 export type NABC = {
