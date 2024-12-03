@@ -64,24 +64,22 @@ export function useWorkstreamActions(collaboratorId: string) {
         w.id === workstream.id ? workstream : w
       ) || [];
 
-      form.reset({
+      const updatedCollaborator = {
         ...collaborator,
-        workstreams: updatedWorkstreams.map(ws => ({
-          id: ws.id,
-          title: ws.title,
-          objectives: ws.objectives,
-          nextSteps: ws.nextSteps,
-          keyContacts: ws.keyContacts,
-          status: ws.status,
-          startDate: ws.startDate,
-          lastUpdated: ws.lastUpdated,
-          ratMember: ws.ratMember || "",
-        }))
+        workstreams: updatedWorkstreams
+      };
+
+      await db.updateCollaborator(collaboratorId, updatedCollaborator);
+      queryClient.invalidateQueries({ queryKey: ['collaborators'] });
+
+      toast({
+        title: "Success",
+        description: "Workstream updated successfully",
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to load workstream data",
+        description: "Failed to update workstream",
         variant: "destructive",
       });
     }
@@ -95,11 +93,16 @@ export function useWorkstreamActions(collaboratorId: string) {
       const updatedCollaborator = {
         ...collaborator,
         workstreams: data.workstreams?.map(ws => ({
-          id: ws.id,
+          id: ws.id || `workstream-${Date.now()}`,
           title: ws.title,
           objectives: ws.objectives,
           nextSteps: ws.nextSteps,
-          keyContacts: ws.keyContacts,
+          keyContacts: ws.keyContacts.map(contact => ({
+            name: contact.name,
+            role: contact.role,
+            email: contact.email,
+            phone: contact.phone || "",
+          })),
           status: ws.status,
           startDate: ws.startDate,
           lastUpdated: ws.lastUpdated,
