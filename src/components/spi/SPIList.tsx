@@ -12,6 +12,12 @@ import { format } from "date-fns";
 import { RelatedEntities } from "./card/RelatedEntities";
 import { Badge } from "@/components/ui/badge";
 import { getAllRatMembers, getRatMemberRole } from "@/lib/services/data/utils/ratMemberUtils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function SPIList() {
   const [statusColors, setStatusColors] = useState({
@@ -76,6 +82,10 @@ export function SPIList() {
         const spiNumber = index + 1;
         const displayMember = spi.ratMember || ratMembers[Math.floor(Math.random() * ratMembers.length)];
         const memberRole = getRatMemberRole(displayMember);
+
+        // Find related project and fortune30 partner
+        const relatedProject = projects?.find(p => p.id === spi.projectId);
+        const fortune30Partner = collaborators?.find(c => c.id === spi.fortune30PartnerId);
 
         return (
           <Card key={spi.id} className="overflow-hidden hover:shadow-md transition-shadow duration-200 bg-background/95">

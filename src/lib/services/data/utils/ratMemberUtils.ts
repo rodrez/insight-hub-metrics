@@ -13,3 +13,8 @@ export const getAllRatMembers = () => Object.keys(ratMembers);
 export const getRatMemberRole = (member: string) => {
   return ratMembers[member as keyof typeof ratMembers] || "Unknown Role";
 };
+
+export const getRandomRatMember = () => {
+  const members = getAllRatMembers();
+  return members[Math.floor(Math.random() * members.length)];
+};
