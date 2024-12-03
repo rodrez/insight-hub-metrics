@@ -49,7 +49,7 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
                     className={cn(
                       "flex items-center gap-1.5",
                       collaborator.ratMember 
-                        ? 'bg-purple-600 hover:bg-purple-700' 
+                        ? 'bg-[#8B5CF6] hover:bg-[#7C3AED]' 
                         : 'bg-gray-500 hover:bg-gray-600'
                     )}
                   >
