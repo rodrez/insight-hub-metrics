@@ -4,16 +4,7 @@ import { defaultTechDomains } from '@/lib/types/techDomain';
 import { generateNABC } from './templates/projectTemplates';
 import { generateMilestones, generateMetrics } from './templates/metricsTemplates';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiGenerator';
-
-const ratMembers = [
-  "Sarah Johnson",
-  "Michael Chen",
-  "Emily Rodriguez",
-  "David Kim",
-  "James Wilson",
-  "Maria Garcia",
-  "Robert Taylor"
-];
+import { getRandomRatMember } from '../utils/ratMemberUtils';
 
 export interface ProjectGenerationInput {
   projects: number;
@@ -67,7 +58,6 @@ const generateBasicProject = (
   const budget = Math.round((dept.budget / dept.projectCount) * (0.8 + Math.random() * 0.4));
   const spent = Math.round(budget * (0.2 + Math.random() * 0.5));
   const today = new Date();
-  const ratMember = ratMembers[Math.floor(Math.random() * ratMembers.length)];
 
   return {
     id: `${dept.id}-project-${index + 1}`,
@@ -87,7 +77,7 @@ const generateBasicProject = (
     milestones: generateMilestones(`${dept.id}-project-${index + 1}`),
     metrics: generateMetrics(`${dept.id}-project-${index + 1}`, spent, budget),
     isSampleData: true,
-    ratMember
+    ratMember: getRandomRatMember()
   };
 };
 
@@ -95,7 +85,6 @@ export const generateSampleProjects = async (input: ProjectGenerationInput) => {
   const projects: Project[] = [];
   const usedPartners = new Set<string>();
 
-  // Create a pool of available internal partners that we can reuse if needed
   const getAvailableInternals = () => {
     const availableInternals = input.collaborators.filter(p => !usedPartners.has(p.name));
     if (availableInternals.length < 2) {

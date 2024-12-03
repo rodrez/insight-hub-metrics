@@ -6,16 +6,7 @@ import { DataQuantities } from '@/lib/types/data';
 import { errorHandler } from '../error/ErrorHandlingService';
 import { validateCollaborator } from './utils/dataGenerationUtils';
 import { DEPARTMENTS } from '@/lib/constants';
-
-const RAT_MEMBERS = [
-  "Sarah Johnson",
-  "Michael Chen",
-  "Emily Rodriguez",
-  "David Kim",
-  "James Wilson",
-  "Maria Garcia",
-  "Robert Taylor"
-];
+import { getRandomRatMember } from './utils/ratMemberUtils';
 
 export class SampleDataService {
   async generateSampleData(quantities: DataQuantities) {
@@ -40,40 +31,60 @@ export class SampleDataService {
         smePartners: quantities.smePartners,
         departments: [...DEPARTMENTS],
         fortune30Partners: fortune30Partners.slice(0, quantities.fortune30),
-        collaborators: internalPartners.slice(0, quantities.internalPartners),
-        ratMembers: RAT_MEMBERS
+        collaborators: internalPartners.slice(0, quantities.internalPartners)
       };
 
       const { projects, spis, objectives, sitreps } = await generateSampleProjects(projectInput);
 
-      // Assign RAT members to projects and SPIs
-      const assignRATMember = (index: number) => RAT_MEMBERS[index % RAT_MEMBERS.length];
-      
-      const projectsWithRAT = projects.map((project, index) => ({
+      // Assign RAT members to all entities
+      const projectsWithRAT = projects.map(project => ({
         ...project,
-        ratMember: assignRATMember(index)
+        ratMember: getRandomRatMember()
       }));
 
-      const spisWithRAT = spis.map((spi, index) => ({
+      const spisWithRAT = spis.map(spi => ({
         ...spi,
-        ratMember: assignRATMember(index)
+        ratMember: getRandomRatMember()
       }));
 
-      console.log('Generated data:', {
+      const fortune30WithRAT = fortune30Partners.map(partner => ({
+        ...partner,
+        ratMember: getRandomRatMember(),
+        workstreams: (partner.workstreams || []).map(ws => ({
+          ...ws,
+          ratMember: getRandomRatMember()
+        }))
+      }));
+
+      const smePartnersWithRAT = smePartners.map(partner => ({
+        ...partner,
+        ratMember: getRandomRatMember(),
+        workstreams: (partner.workstreams || []).map(ws => ({
+          ...ws,
+          ratMember: getRandomRatMember()
+        }))
+      }));
+
+      const sitrepsWithRAT = sitreps.map(sitrep => ({
+        ...sitrep,
+        ratMember: getRandomRatMember()
+      }));
+
+      console.log('Generated data with RAT members:', {
         projectCount: projectsWithRAT.length,
         spiCount: spisWithRAT.length,
         objectiveCount: objectives.length,
-        sitrepCount: sitreps.length
+        sitrepCount: sitrepsWithRAT.length
       });
 
       return {
-        fortune30Partners: fortune30Partners.slice(0, quantities.fortune30),
+        fortune30Partners: fortune30WithRAT.slice(0, quantities.fortune30),
         internalPartners: internalPartners.slice(0, quantities.internalPartners),
-        smePartners: smePartners.slice(0, quantities.smePartners),
+        smePartners: smePartnersWithRAT.slice(0, quantities.smePartners),
         projects: projectsWithRAT.slice(0, quantities.projects),
         spis: spisWithRAT.slice(0, quantities.spis),
         objectives: objectives.slice(0, quantities.objectives),
-        sitreps: sitreps.slice(0, quantities.sitreps)
+        sitreps: sitrepsWithRAT.slice(0, quantities.sitreps)
       };
     } catch (error) {
       console.error('Error generating sample data:', error);
