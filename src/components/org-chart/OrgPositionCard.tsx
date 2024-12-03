@@ -75,7 +75,7 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
     }
   });
 
-  // Update position state when data is loaded
+  // Update position when data changes
   useState(() => {
     setPosition(prev => ({
       ...prev,
@@ -85,7 +85,7 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
       spis: spis.map(spi => spi.id),
       sitreps: sitreps.map(sitrep => sitrep.id)
     }));
-  }, [projects, fortune30Partners, smePartners, spis, sitreps]);
+  });
 
   const handleSave = (updatedPosition: OrgPosition) => {
     setPosition(updatedPosition);

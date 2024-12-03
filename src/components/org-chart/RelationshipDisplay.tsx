@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { OrgPosition } from "./types";
 
 interface RelationshipDisplayProps {
   title: string;
