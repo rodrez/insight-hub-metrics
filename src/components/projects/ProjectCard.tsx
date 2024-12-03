@@ -47,11 +47,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
               <Tooltip>
                 <TooltipTrigger>
                   <Badge 
-                    className={`flex items-center gap-1.5 ${
-                      project.ratMember 
-                        ? 'bg-purple-600 hover:bg-purple-700' 
-                        : 'bg-gray-500 hover:bg-gray-600'
-                    }`}
+                    className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700"
                   >
                     {project.ratMember ? (
                       <>
