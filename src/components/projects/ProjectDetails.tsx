@@ -13,6 +13,9 @@ import { ProjectActions } from "./details/ProjectActions";
 import { RelatedSPIs } from "./details/RelatedSPIs";
 import { RelatedSitReps } from "./details/RelatedSitReps";
 import { SMEPartnersSection } from "./SMEPartnersSection";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { getAllRatMembers } from "@/lib/services/data/utils/ratMemberUtils";
 
 const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Project }) => {
   const [project, setProject] = useState(initialProject);
@@ -34,6 +37,24 @@ const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Pr
     setProject(current => ({ ...current, ...updates }));
   };
 
+  const handleRatMemberChange = async (ratMember: string) => {
+    try {
+      const updatedProject = { ...project, ratMember };
+      await db.updateProject(project.id, updatedProject);
+      setProject(updatedProject);
+      toast({
+        title: "Success",
+        description: "RAT member updated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update RAT member",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSaveChanges = async () => {
     try {
       await db.updateProject(project.id, project);
@@ -42,7 +63,6 @@ const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Pr
         title: "Success",
         description: "Project changes have been saved successfully.",
       });
-      // Navigate to dashboard with state to scroll to the project
       navigate('/', { state: { scrollToProject: project.id } });
     } catch (error) {
       toast({
@@ -61,12 +81,32 @@ const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Pr
           isEditing={isEditing} 
           onUpdate={handleProjectUpdate}
         />
-        <ProjectActions
-          isEditing={isEditing}
-          onEdit={() => setIsEditing(true)}
-          onCancel={() => setIsEditing(false)}
-          onUpdate={handleSaveChanges}
-        />
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="rat-member">RAT Member</Label>
+            <Select 
+              value={project.ratMember || ""} 
+              onValueChange={handleRatMemberChange}
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Select RAT member" />
+              </SelectTrigger>
+              <SelectContent>
+                {getAllRatMembers().map((member) => (
+                  <SelectItem key={member} value={member}>
+                    {member}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <ProjectActions
+            isEditing={isEditing}
+            onEdit={() => setIsEditing(true)}
+            onCancel={() => setIsEditing(false)}
+            onUpdate={handleSaveChanges}
+          />
+        </div>
       </div>
       
       <div className="space-y-6">
