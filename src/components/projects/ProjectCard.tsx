@@ -1,6 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { BadgeCheck, AlertCircle } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -11,12 +12,11 @@ import { Project } from '@/lib/types';
 import { Link } from 'react-router-dom';
 import { defaultTechDomains } from "@/lib/types/techDomain";
 import { DEPARTMENTS } from "@/lib/constants";
-import { ProjectPartnerBadge } from './ProjectPartnerBadge';
 import { toast } from "@/components/ui/use-toast";
 import { ProjectCardHeader } from './ProjectCardHeader';
 import { ProjectCardProgress } from './ProjectCardProgress';
 import { ProjectCardPartners } from './ProjectCardPartners';
-import { BadgeCheck, AlertCircle } from 'lucide-react';
+import { getRandomRatMember } from '@/lib/services/data/utils/ratMemberUtils';
 
 interface ProjectCardProps {
   project: Project;
@@ -27,6 +27,8 @@ export function ProjectCard({ project }: ProjectCardProps) {
     const department = DEPARTMENTS.find(d => d.id === departmentId);
     return department?.color || '#333';
   };
+
+  const displayRatMember = project.ratMember || getRandomRatMember();
 
   return (
     <Link 
@@ -54,18 +56,18 @@ export function ProjectCard({ project }: ProjectCardProps) {
                     {project.ratMember ? (
                       <>
                         <BadgeCheck className="h-3.5 w-3.5" />
-                        RAT: {project.ratMember}
+                        RAT: {displayRatMember}
                       </>
                     ) : (
                       <>
                         <AlertCircle className="h-3.5 w-3.5" />
-                        RAT: Unassigned
+                        RAT: {displayRatMember}
                       </>
                     )}
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>{project.ratMember ? 'RAT Member assigned to this project' : 'No RAT Member assigned yet'}</p>
+                  <p>{project.ratMember ? 'RAT Member assigned to this project' : 'Suggested RAT Member'}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
