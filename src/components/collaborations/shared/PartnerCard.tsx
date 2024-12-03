@@ -48,11 +48,12 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
             <Tooltip>
               <TooltipTrigger>
                 <Badge 
-                  className={`flex items-center gap-1.5 ${
+                  className={cn(
+                    "flex items-center gap-1.5",
                     collaborator.ratMember 
                       ? 'bg-purple-600 hover:bg-purple-700' 
                       : 'bg-gray-500 hover:bg-gray-600'
-                  }`}
+                  )}
                 >
                   {collaborator.ratMember ? (
                     <>
@@ -68,7 +69,7 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
                 </Badge>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{collaborator.ratMember ? 'RAT Member assigned to this collaboration' : 'No RAT Member assigned yet'}</p>
+                <p>RAT Member Position: Technical Program Manager</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
