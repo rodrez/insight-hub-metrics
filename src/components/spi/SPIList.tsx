@@ -68,7 +68,7 @@ export function SPIList() {
   if (!spis) return null;
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       {spis.map((spi, index) => {
         const spiNumber = index + 1;
         const relatedProject = projects?.find(p => p.id === spi.projectId);
@@ -77,13 +77,13 @@ export function SPIList() {
         );
 
         return (
-          <Card key={spi.id} className="overflow-hidden hover:shadow-sm transition-shadow duration-200">
-            <CardHeader className="flex flex-row items-center justify-between bg-background/50 backdrop-blur-sm py-3 px-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <CardTitle className="text-base font-medium">SPI {spiNumber}</CardTitle>
+          <Card key={spi.id} className="overflow-hidden hover:shadow-md transition-shadow duration-200 bg-background/95">
+            <CardHeader className="flex flex-row items-start justify-between py-4 px-6 space-y-0">
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <CardTitle className="text-xl font-semibold">SPI {spiNumber}</CardTitle>
                   <Badge 
-                    className={`flex items-center gap-1.5 ${
+                    className={`flex items-center gap-1.5 text-sm ${
                       spi.ratMember 
                         ? 'bg-purple-600 hover:bg-purple-700' 
                         : 'bg-gray-500 hover:bg-gray-600'
@@ -91,67 +91,67 @@ export function SPIList() {
                   >
                     {spi.ratMember ? (
                       <>
-                        <BadgeCheck className="h-3.5 w-3.5" />
+                        <BadgeCheck className="h-4 w-4" />
                         RAT: {spi.ratMember}
                       </>
                     ) : (
                       <>
-                        <AlertCircle className="h-3.5 w-3.5" />
+                        <AlertCircle className="h-4 w-4" />
                         RAT: Unassigned
                       </>
                     )}
                   </Badge>
                 </div>
-                <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">
+                <p className="text-lg text-foreground/90 font-medium">
                   {spi.deliverable}
                 </p>
               </div>
-              <div className="flex gap-1">
+              <div className="flex gap-2">
                 <Button 
                   variant="ghost" 
                   size="sm"
                   onClick={() => setSelectedSPI(spi)}
-                  className="text-gray-400 hover:text-green-500 hover:bg-green-50 transition-colors"
+                  className="text-muted-foreground hover:text-green-500 hover:bg-green-50 transition-colors"
                 >
-                  <Edit2 className="h-3.5 w-3.5" />
+                  <Edit2 className="h-4 w-4" />
                 </Button>
                 <Button 
                   variant="ghost" 
                   size="sm"
                   onClick={() => handleDelete(spi.id)}
-                  className="text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                  className="text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors"
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="py-3 px-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
+            <CardContent className="py-4 px-6 grid md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
                     <div 
-                      className="w-2.5 h-2.5 rounded-full" 
+                      className="w-3 h-3 rounded-full" 
                       style={{ backgroundColor: statusColors[spi.status] }}
                     />
-                    <span className="capitalize font-medium">{spi.status}</span>
+                    <span className="capitalize text-lg font-medium">{spi.status}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Calendar className="h-3.5 w-3.5" />
+                  <div className="flex items-center gap-2 text-base text-muted-foreground">
+                    <Calendar className="h-4 w-4" />
                     <span>Expected: {format(new Date(spi.expectedCompletionDate), 'PP')}</span>
                   </div>
-                  {spi.details && (
-                    <p className="text-xs text-muted-foreground bg-muted/30 p-2 rounded-md line-clamp-2">
-                      {spi.details}
-                    </p>
-                  )}
                 </div>
-                <RelatedEntities
-                  relatedProject={relatedProject}
-                  fortune30Partner={fortune30Partner}
-                  smePartnerId={spi.smePartnerId}
-                  departmentId={spi.departmentId}
-                />
+                {spi.details && (
+                  <p className="text-base text-muted-foreground bg-muted/30 p-3 rounded-lg">
+                    {spi.details}
+                  </p>
+                )}
               </div>
+              <RelatedEntities
+                relatedProject={relatedProject}
+                fortune30Partner={fortune30Partner}
+                smePartnerId={spi.smePartnerId}
+                departmentId={spi.departmentId}
+              />
             </CardContent>
           </Card>
         );
