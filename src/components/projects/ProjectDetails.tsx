@@ -16,6 +16,14 @@ import { SMEPartnersSection } from "./SMEPartnersSection";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { getAllRatMembers } from "@/lib/services/data/utils/ratMemberUtils";
+import { Badge } from "@/components/ui/badge";
+import { BadgeCheck, AlertCircle } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Project }) => {
   const [project, setProject] = useState(initialProject);
@@ -76,11 +84,37 @@ const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Pr
   return (
     <div className="container mx-auto px-4 space-y-6 py-8 animate-fade-in">
       <div className="flex justify-between items-center mb-6">
-        <ProjectHeader 
-          project={editedProject} 
-          isEditing={isEditing} 
-          onUpdate={handleProjectUpdate}
-        />
+        <div className="space-y-2">
+          <ProjectHeader 
+            project={editedProject} 
+            isEditing={isEditing} 
+            onUpdate={handleProjectUpdate}
+          />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Badge 
+                  className="flex items-center gap-1.5 bg-purple-600 hover:bg-purple-700"
+                >
+                  {project.ratMember ? (
+                    <>
+                      <BadgeCheck className="h-3.5 w-3.5" />
+                      RAT: {project.ratMember}
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="h-3.5 w-3.5" />
+                      RAT: Unassigned
+                    </>
+                  )}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>RAT Member Position: Technical Program Manager</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <div className="flex items-center gap-4">
           {isEditing && (
             <div className="flex flex-col gap-2">
