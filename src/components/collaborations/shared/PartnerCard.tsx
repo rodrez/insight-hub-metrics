@@ -37,11 +37,11 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
   const memberRole = getRatMemberRole(displayMember);
 
   return (
-    <Card>
+    <Card className="border-l-4" style={{ borderLeftColor: collaborator.color }}>
       <CardContent className="pt-6">
         <div className="flex justify-between items-start mb-2">
           <div className="space-y-2">
-            <h5 className="font-medium">{collaborator.name}</h5>
+            <h5 className="font-medium" style={{ color: collaborator.color }}>{collaborator.name}</h5>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
