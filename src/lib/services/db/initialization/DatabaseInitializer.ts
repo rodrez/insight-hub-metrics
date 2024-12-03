@@ -1,6 +1,6 @@
+import { toast } from "@/components/ui/use-toast";
 import { DB_CONFIG } from '../stores';
 import { DatabaseError } from '../../../utils/errorHandling';
-import { toast } from "@/components/ui/use-toast";
 import { createStores } from '../stores';
 
 export class DatabaseInitializer {
@@ -48,6 +48,11 @@ export class DatabaseInitializer {
             variant: "destructive",
           });
         };
+
+        toast({
+          title: "Database Initialized",
+          description: "Database connection established successfully",
+        });
         
         resolve(db);
       };
@@ -71,6 +76,11 @@ export class DatabaseInitializer {
           console.log(`Retrying database initialization in ${this.retryDelay}ms...`);
           await new Promise(resolve => setTimeout(resolve, this.retryDelay));
         } else {
+          toast({
+            title: "Database Error",
+            description: `Failed to initialize database after ${this.maxRetries} attempts`,
+            variant: "destructive",
+          });
           throw new DatabaseError(
             `Failed to initialize database after ${this.maxRetries} attempts`,
             error instanceof Error ? error : undefined
