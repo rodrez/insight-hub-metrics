@@ -17,6 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getAllRatMembers } from "@/lib/services/data/utils/ratMemberUtils";
 
 interface SitRepCardProps {
   sitrep: SitRep;
@@ -178,3 +179,4 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
     </>
   );
 }
+
