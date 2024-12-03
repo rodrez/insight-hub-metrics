@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Shield, Calendar } from "lucide-react";
+import { Shield, Calendar, BadgeCheck } from "lucide-react";
 import { Workstream, Agreement } from "@/lib/types/collaboration";
 import { getAgreementWarningSettings, getDaysUntilExpiry } from "@/lib/utils/agreementUtils";
 import {
@@ -57,7 +57,26 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
     <Card className={`${getWarningColor()}`}>
       <CardContent className="pt-6">
         <div className="flex justify-between items-start mb-2">
-          <h5 className="font-medium">{workstream.title}</h5>
+          <div className="space-y-2">
+            <h5 className="font-medium">{workstream.title}</h5>
+            {workstream.ratMember && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Badge 
+                      className="bg-purple-600 hover:bg-purple-700 flex items-center gap-1.5"
+                    >
+                      <BadgeCheck className="h-3.5 w-3.5" />
+                      RAT: {workstream.ratMember}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>RAT Member assigned to this workstream</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
           <Badge variant={
             workstream.status === 'active' ? 'default' :
             workstream.status === 'completed' ? 'secondary' :

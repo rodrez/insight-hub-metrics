@@ -1,17 +1,24 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Collaborator } from "@/lib/types/collaboration";
-import { PartnerHeader } from "./PartnerHeader";
-import { PartnerContact } from "./PartnerContact";
-import { PartnerProjects } from "./PartnerProjects";
-import { PartnerWorkstreams } from "./PartnerWorkstreams";
-import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
-import { db } from "@/lib/db";
-import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
+import { Progress } from "@/components/ui/progress";
+import { BadgeCheck } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Collaborator } from '@/lib/types';
+import { Link } from 'react-router-dom';
+import { defaultTechDomains } from "@/lib/types/techDomain";
+import { DEPARTMENTS } from "@/lib/constants";
+import { ProjectPartnerBadge } from './ProjectPartnerBadge';
+import { toast } from "@/components/ui/use-toast";
+import { ProjectCardHeader } from './ProjectCardHeader';
+import { ProjectCardProgress } from './ProjectCardProgress';
+import { ProjectCardPartners } from './ProjectCardPartners';
 
-type PartnerCardProps = {
+interface PartnerCardProps {
   collaborator: Collaborator;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
@@ -19,32 +26,6 @@ type PartnerCardProps = {
 };
 
 export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCardProps) {
-  const navigate = useNavigate();
-  
-  const { data: sitreps = [] } = useQuery({
-    queryKey: ['sitreps'],
-    queryFn: () => db.getAllSitReps(),
-  });
-
-  // Filter sitreps related to this partner
-  const partnerSitreps = sitreps
-    .filter(sitrep => 
-      (type === 'fortune30' && sitrep.fortune30PartnerId === collaborator.id) ||
-      (type === 'sme' && sitrep.smePartnerId === collaborator.id)
-    )
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 3); // Get only the 3 most recent
-
-  const handleSitRepClick = (sitrepId: string) => {
-    navigate('/sitreps');
-    setTimeout(() => {
-      const element = document.getElementById(`sitrep-${sitrepId}`);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }, 100);
-  };
-
   return (
     <Card className={cn(
       "overflow-hidden transition-all duration-200 hover:shadow-lg",
@@ -60,6 +41,25 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
         />
       </CardHeader>
       <CardContent className="p-6 pt-0">
+        {collaborator.ratMember && (
+          <div className="mb-4">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Badge 
+                    className="bg-purple-600 hover:bg-purple-700 flex items-center gap-1.5"
+                  >
+                    <BadgeCheck className="h-3.5 w-3.5" />
+                    RAT: {collaborator.ratMember}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>RAT Member assigned to this collaboration</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        )}
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-6">
             <PartnerContact contact={collaborator.primaryContact} />
