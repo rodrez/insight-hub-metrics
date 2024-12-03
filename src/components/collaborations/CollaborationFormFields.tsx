@@ -19,9 +19,9 @@ const contactPersonSchema = z.object({
 
 const workstreamSchema = z.object({
   id: z.string(),
-  title: z.string(),
-  objectives: z.string(),
-  nextSteps: z.string(),
+  title: z.string().min(1, "Title is required"),
+  objectives: z.string().min(1, "Objectives are required"),
+  nextSteps: z.string().min(1, "Next steps are required"),
   keyContacts: z.array(contactPersonSchema),
   status: z.enum(["active", "completed", "on-hold"]),
   startDate: z.string(),
@@ -84,7 +84,17 @@ export function CollaborationFormFields({
         email: "",
         phone: "",
       },
-      workstreams: initialData?.workstreams || [],
+      workstreams: initialData?.workstreams?.map(ws => ({
+        id: ws.id,
+        title: ws.title,
+        objectives: ws.objectives,
+        nextSteps: ws.nextSteps,
+        keyContacts: ws.keyContacts,
+        status: ws.status,
+        startDate: ws.startDate,
+        lastUpdated: ws.lastUpdated,
+        ratMember: ws.ratMember || "",
+      })) || [],
     },
   });
 
