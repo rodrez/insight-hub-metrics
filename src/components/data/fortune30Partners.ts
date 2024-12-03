@@ -1,4 +1,7 @@
 import { Collaborator } from "@/lib/types/collaboration";
+import { getAllRatMembers } from "@/lib/services/data/utils/ratMemberUtils";
+
+const ratMembers = getAllRatMembers();
 
 export const fortune30Partners: Collaborator[] = [
   { 
@@ -8,6 +11,7 @@ export const fortune30Partners: Collaborator[] = [
     email: "partnerships@walmart.com",
     role: "Strategic Partner",
     department: "Retail",
+    ratMember: ratMembers[0],
     primaryContact: {
       name: "John Smith",
       role: "Director of Innovation",
@@ -63,6 +67,7 @@ export const fortune30Partners: Collaborator[] = [
     email: "enterprise@amazon.com",
     role: "Technology Partner",
     department: "Cloud Services",
+    ratMember: ratMembers[1],
     primaryContact: {
       name: "Emily Chen",
       role: "Head of Strategic Partnerships",
@@ -112,6 +117,7 @@ export const fortune30Partners: Collaborator[] = [
     email: "partnerships@apple.com",
     role: "Innovation Partner",
     department: "Technology",
+    ratMember: ratMembers[2],
     projects: [
       {
         id: "technology-project-1",
@@ -137,6 +143,7 @@ export const fortune30Partners: Collaborator[] = [
     email: "enterprise@microsoft.com",
     role: "Technology Partner",
     department: "Software",
+    ratMember: ratMembers[3],
     projects: [
       {
         id: "software-project-1",
@@ -162,6 +169,7 @@ export const fortune30Partners: Collaborator[] = [
     email: "partnerships@google.com",
     role: "Technology Partner",
     department: "Technology",
+    ratMember: ratMembers[4],
     projects: [
       {
         id: "technology-project-2",
