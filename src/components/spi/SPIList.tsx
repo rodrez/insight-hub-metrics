@@ -10,6 +10,7 @@ import { SPIEditForm } from "./SPIEditForm";
 import { toast } from "@/components/ui/use-toast";
 import { format } from "date-fns";
 import { RelatedEntities } from "./card/RelatedEntities";
+import { RATMemberBadge } from "../sitreps/card/RATMemberBadge";
 
 export function SPIList() {
   const [statusColors, setStatusColors] = useState({
@@ -79,8 +80,13 @@ export function SPIList() {
           <Card key={spi.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
             <CardHeader className="flex flex-row items-center justify-between bg-background/50 backdrop-blur-sm">
               <div>
-                <CardTitle className="text-xl font-bold">SPI {spiNumber}</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">Deliverable for SPI {spiNumber}: {spi.deliverable}</p>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-xl font-bold">SPI {spiNumber}</CardTitle>
+                  {spi.ratMember && <RATMemberBadge ratMember={spi.ratMember} />}
+                </div>
+                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                  Deliverable for SPI {spiNumber}: {spi.deliverable}
+                </p>
               </div>
               <div className="flex gap-2">
                 <Button 
@@ -116,7 +122,9 @@ export function SPIList() {
                     <span>Expected completion: {format(new Date(spi.expectedCompletionDate), 'PPP')}</span>
                   </div>
                   {spi.details && (
-                    <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">Details for SPI {spiNumber}: {spi.details}</p>
+                    <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
+                      Details for SPI {spiNumber}: {spi.details}
+                    </p>
                   )}
                 </div>
                 <RelatedEntities
