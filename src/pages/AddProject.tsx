@@ -22,6 +22,7 @@ export default function AddProject() {
   const [budget, setBudget] = useState("");
   const [techDomainId, setTechDomainId] = useState("");
   const [selectedSME, setSelectedSME] = useState("none");
+  const [ratMember, setRatMember] = useState("");
   
   // NABC fields
   const [needs, setNeeds] = useState("");
@@ -69,6 +70,7 @@ export default function AddProject() {
         departmentId: pocDepartment,
         collaborators,
         techDomainId,
+        ratMember,
         nabc: {
           needs,
           approach,
@@ -117,6 +119,8 @@ export default function AddProject() {
               setTechLeadDepartment={setTechLeadDepartment}
               budget={budget}
               setBudget={setBudget}
+              ratMember={ratMember}
+              setRatMember={setRatMember}
             />
 
             <div>

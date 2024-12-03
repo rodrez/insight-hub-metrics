@@ -16,7 +16,19 @@ interface BasicProjectInfoProps {
   setTechLeadDepartment: (value: string) => void;
   budget: string;
   setBudget: (value: string) => void;
+  ratMember: string;
+  setRatMember: (value: string) => void;
 }
+
+const ORG_MEMBERS = [
+  "Sarah Johnson",
+  "Michael Chen",
+  "Emily Rodriguez",
+  "David Kim",
+  "James Wilson",
+  "Maria Garcia",
+  "Robert Taylor"
+];
 
 export function BasicProjectInfo({
   name,
@@ -30,7 +42,9 @@ export function BasicProjectInfo({
   techLeadDepartment,
   setTechLeadDepartment,
   budget,
-  setBudget
+  setBudget,
+  ratMember,
+  setRatMember
 }: BasicProjectInfoProps) {
   return (
     <div className="space-y-4">
@@ -42,6 +56,22 @@ export function BasicProjectInfo({
           onChange={(e) => setName(e.target.value)}
           required
         />
+      </div>
+
+      <div>
+        <Label htmlFor="ratMember">RAT Member</Label>
+        <Select value={ratMember} onValueChange={setRatMember}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select RAT member" />
+          </SelectTrigger>
+          <SelectContent>
+            {ORG_MEMBERS.map((member) => (
+              <SelectItem key={member} value={member}>
+                {member}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div>
