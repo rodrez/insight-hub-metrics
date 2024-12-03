@@ -2,6 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { toast } from "@/components/ui/use-toast";
 
 interface QuantityInputsProps {
   onSubmit: (quantities: any) => Promise<void>;
@@ -11,7 +12,7 @@ interface QuantityInputsProps {
 
 export function DataQuantityForm({ onSubmit, onCancel, isLoading }: QuantityInputsProps) {
   const [quantities, setQuantities] = useState({
-    projects: 5,
+    projects: 5, // Minimum of 5 projects
     fortune30: 6,
     internalPartners: 20,
     smePartners: 10,
@@ -22,6 +23,17 @@ export function DataQuantityForm({ onSubmit, onCancel, isLoading }: QuantityInpu
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Ensure minimum of 5 projects
+    if (quantities.projects < 5) {
+      toast({
+        title: "Validation Error",
+        description: "Minimum of 5 projects required",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     onSubmit(quantities);
   };
 
@@ -35,7 +47,10 @@ export function DataQuantityForm({ onSubmit, onCancel, isLoading }: QuantityInpu
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {Object.entries(quantities).map(([key, value]) => (
           <div key={key} className="space-y-2">
-            <Label htmlFor={key}>{key.charAt(0).toUpperCase() + key.slice(1)}</Label>
+            <Label htmlFor={key}>
+              {key.charAt(0).toUpperCase() + key.slice(1)}
+              {key === 'projects' && " (min: 5)"}
+            </Label>
             <Input
               id={key}
               type="number"

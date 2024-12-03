@@ -20,12 +20,15 @@ const RAT_MEMBERS = [
 export class SampleDataService {
   async generateSampleData(quantities: DataQuantities) {
     try {
+      console.log('Starting sample data generation with quantities:', quantities);
+      
       const fortune30Partners = generateFortune30Partners().filter(validateCollaborator);
       const internalPartners = generateInternalPartners().filter(validateCollaborator);
       const smePartners = generateSMEPartners().filter(validateCollaborator);
 
       // Ensure we generate at least 5 projects
       const minProjects = Math.max(5, quantities.projects);
+      console.log('Generating minimum projects:', minProjects);
 
       const projectInput = {
         projects: minProjects,
@@ -56,6 +59,13 @@ export class SampleDataService {
         ratMember: assignRATMember(index)
       }));
 
+      console.log('Generated data:', {
+        projectCount: projectsWithRAT.length,
+        spiCount: spisWithRAT.length,
+        objectiveCount: objectives.length,
+        sitrepCount: sitreps.length
+      });
+
       return {
         fortune30Partners: fortune30Partners.slice(0, quantities.fortune30),
         internalPartners: internalPartners.slice(0, quantities.internalPartners),
@@ -66,6 +76,7 @@ export class SampleDataService {
         sitreps: sitreps.slice(0, quantities.sitreps)
       };
     } catch (error) {
+      console.error('Error generating sample data:', error);
       errorHandler.handleError(error, {
         type: 'database',
         title: 'Sample Data Generation Failed',
