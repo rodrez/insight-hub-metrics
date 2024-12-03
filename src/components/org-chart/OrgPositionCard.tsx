@@ -27,21 +27,18 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
     sitreps: []
   });
 
-  // Fetch all related data
+  // Fetch projects where this person is the RAT member
   const { data: projects = [] } = useQuery({
-    queryKey: ['projects'],
+    queryKey: ['projects', name],
     queryFn: async () => {
       const allProjects = await db.getAllProjects();
-      return allProjects.filter(p => 
-        p.poc === name || 
-        p.techLead === name || 
-        p.ratMember === name
-      );
+      return allProjects.filter(p => p.ratMember === name);
     }
   });
 
+  // Fetch Fortune 30 partners where this person is the RAT member
   const { data: fortune30Partners = [] } = useQuery({
-    queryKey: ['fortune30-partners'],
+    queryKey: ['fortune30-partners', name],
     queryFn: async () => {
       const allCollaborators = await db.getAllCollaborators();
       return allCollaborators.filter(c => 
@@ -51,24 +48,27 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
     }
   });
 
+  // Fetch SME partners where this person is the RAT member
   const { data: smePartners = [] } = useQuery({
-    queryKey: ['sme-partners'],
+    queryKey: ['sme-partners', name],
     queryFn: async () => {
       const allPartners = await db.getAllSMEPartners();
       return allPartners.filter(p => p.ratMember === name);
     }
   });
 
+  // Fetch SPIs where this person is the RAT member
   const { data: spis = [] } = useQuery({
-    queryKey: ['spis'],
+    queryKey: ['spis', name],
     queryFn: async () => {
       const allSpis = await db.getAllSPIs();
       return allSpis.filter(spi => spi.ratMember === name);
     }
   });
 
+  // Fetch SitReps where this person is the RAT member
   const { data: sitreps = [] } = useQuery({
-    queryKey: ['sitreps'],
+    queryKey: ['sitreps', name],
     queryFn: async () => {
       const allSitreps = await db.getAllSitReps();
       return allSitreps.filter(sitrep => sitrep.ratMember === name);
@@ -76,7 +76,7 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
   });
 
   // Update position when data changes
-  useState(() => {
+  useEffect(() => {
     setPosition(prev => ({
       ...prev,
       projects: projects.map(p => p.id),
@@ -85,7 +85,7 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
       spis: spis.map(spi => spi.id),
       sitreps: sitreps.map(sitrep => sitrep.id)
     }));
-  });
+  }, [projects, fortune30Partners, smePartners, spis, sitreps]);
 
   const handleSave = (updatedPosition: OrgPosition) => {
     setPosition(updatedPosition);

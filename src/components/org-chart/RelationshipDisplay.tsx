@@ -31,7 +31,7 @@ export function RelationshipDisplay({ title, type, itemIds, items }: Relationshi
           <Badge 
             key={item.id} 
             variant="secondary"
-            className="text-xs"
+            className="text-xs bg-purple-600 hover:bg-purple-700 text-white"
           >
             {getItemName(item)}
             {getItemDate(item) && (
