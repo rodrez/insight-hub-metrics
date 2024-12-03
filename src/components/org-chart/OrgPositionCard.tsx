@@ -5,7 +5,7 @@ import { Pen } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { RelationshipSelectionDialog } from "./RelationshipSelectionDialog";
 import { OrgPosition } from "./types";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { getRatMemberInfo } from "@/lib/services/data/utils/ratMemberUtils";
 import { toast } from "@/components/ui/use-toast";
@@ -23,6 +23,7 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const memberInfo = getRatMemberInfo(name);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // Fetch all required data
   const { data: allProjects = [] } = useQuery({
@@ -103,6 +104,53 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
 
   const handleSave = async (updatedPosition: OrgPosition) => {
     try {
+      // Update projects
+      for (const projectId of updatedPosition.projects) {
+        const project = allProjects.find(p => p.id === projectId);
+        if (project && !project.ratMember) {
+          await db.updateProject({ ...project, ratMember: name });
+        }
+      }
+
+      // Update Fortune 30 partners
+      for (const partnerId of updatedPosition.fortune30Partners) {
+        const partner = allCollaborators.find(c => c.id === partnerId);
+        if (partner && !partner.ratMember) {
+          await db.updateCollaborator({ ...partner, ratMember: name });
+        }
+      }
+
+      // Update SME partners
+      for (const partnerId of updatedPosition.smePartners) {
+        const partner = allSMEPartners.find(p => p.id === partnerId);
+        if (partner && !partner.ratMember) {
+          await db.updateSMEPartner({ ...partner, ratMember: name });
+        }
+      }
+
+      // Update SPIs
+      for (const spiId of updatedPosition.spis) {
+        const spi = allSPIs.find(s => s.id === spiId);
+        if (spi && !spi.ratMember) {
+          await db.updateSPI({ ...spi, ratMember: name });
+        }
+      }
+
+      // Update SitReps
+      for (const sitrepId of updatedPosition.sitreps) {
+        const sitrep = allSitReps.find(s => s.id === sitrepId);
+        if (sitrep && !sitrep.ratMember) {
+          await db.updateSitRep({ ...sitrep, ratMember: name });
+        }
+      }
+
+      // Invalidate queries to refresh the data
+      await queryClient.invalidateQueries({ queryKey: ['projects'] });
+      await queryClient.invalidateQueries({ queryKey: ['collaborators'] });
+      await queryClient.invalidateQueries({ queryKey: ['sme-partners'] });
+      await queryClient.invalidateQueries({ queryKey: ['spis'] });
+      await queryClient.invalidateQueries({ queryKey: ['sitreps'] });
+
       toast({
         title: "Changes saved",
         description: "The relationships have been updated successfully."
