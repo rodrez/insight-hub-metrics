@@ -62,6 +62,8 @@ export function DatabaseActions({
     try {
       setError(null);
       await onPopulate(quantities);
+      // Invalidate queries to refresh counts
+      await queryClient.invalidateQueries({ queryKey: ['data-counts'] });
       setShowQuantityForm(false);
       toast({
         title: "Success",
