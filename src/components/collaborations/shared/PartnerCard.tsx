@@ -19,6 +19,7 @@ import { PartnerHeader } from "./PartnerHeader";
 import { PartnerContact } from "./PartnerContact";
 import { PartnerProjects } from "./PartnerProjects";
 import { PartnerWorkstreams } from "./PartnerWorkstreams";
+import { getAllRatMembers, getRatMemberRole } from '@/lib/services/data/utils/ratMemberUtils';
 
 interface PartnerCardProps {
   collaborator: Collaborator;
@@ -28,52 +29,59 @@ interface PartnerCardProps {
 }
 
 export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCardProps) {
+  const getDepartmentColor = (departmentId: string) => {
+    const department = DEPARTMENTS.find(d => d.id === departmentId);
+    return department?.color || '#333';
+  };
+
+  const displayMember = collaborator.ratMember || getAllRatMembers()[Math.floor(Math.random() * getAllRatMembers().length)];
+  const memberRole = getRatMemberRole(displayMember);
+
   return (
-    <Card className={cn(
-      "overflow-hidden transition-all duration-200 hover:shadow-lg",
-      "animate-fade-in group",
-      type === 'fortune30' ? 'hover:border-blue-500/50' : 'hover:border-purple-500/50'
-    )}>
-      <CardHeader className="p-6">
-        <PartnerHeader
-          collaborator={collaborator}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          type={type}
-        />
-      </CardHeader>
-      <CardContent className="p-6 pt-0">
-        <div className="mb-4">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <Badge 
-                  className={cn(
-                    "flex items-center gap-1.5",
-                    collaborator.ratMember 
-                      ? 'bg-purple-600 hover:bg-purple-700' 
-                      : 'bg-gray-500 hover:bg-gray-600'
-                  )}
-                >
-                  {collaborator.ratMember ? (
-                    <>
-                      <BadgeCheck className="h-3.5 w-3.5" />
-                      RAT: {collaborator.ratMember}
-                    </>
-                  ) : (
-                    <>
-                      <AlertCircle className="h-3.5 w-3.5" />
-                      RAT: Unassigned
-                    </>
-                  )}
-                </Badge>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>RAT Member Position: Technical Program Manager</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+    <Card>
+      <CardContent className="pt-6">
+        <div className="flex justify-between items-start mb-2">
+          <div className="space-y-2">
+            <h5 className="font-medium">{collaborator.title}</h5>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Badge 
+                    className={cn(
+                      "flex items-center gap-1.5",
+                      collaborator.ratMember 
+                        ? 'bg-purple-600 hover:bg-purple-700' 
+                        : 'bg-gray-500 hover:bg-gray-600'
+                    )}
+                  >
+                    {collaborator.ratMember ? (
+                      <>
+                        <BadgeCheck className="h-3.5 w-3.5" />
+                        RAT: {displayMember}
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="h-3.5 w-3.5" />
+                        RAT: {displayMember}
+                      </>
+                    )}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{memberRole}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <Badge variant={
+            collaborator.status === 'active' ? 'default' :
+            collaborator.status === 'completed' ? 'secondary' :
+            'outline'
+          }>
+            {collaborator.status}
+          </Badge>
         </div>
+
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-6">
             <PartnerContact contact={collaborator.primaryContact} />
