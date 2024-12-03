@@ -82,24 +82,26 @@ const ProjectDetailsComponent = memo(({ project: initialProject }: { project: Pr
           onUpdate={handleProjectUpdate}
         />
         <div className="flex items-center gap-4">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="rat-member">RAT Member</Label>
-            <Select 
-              value={project.ratMember || ""} 
-              onValueChange={handleRatMemberChange}
-            >
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Select RAT member" />
-              </SelectTrigger>
-              <SelectContent>
-                {getAllRatMembers().map((member) => (
-                  <SelectItem key={member} value={member}>
-                    {member}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {isEditing && (
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="rat-member">RAT Member</Label>
+              <Select 
+                value={project.ratMember || ""} 
+                onValueChange={handleRatMemberChange}
+              >
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Select RAT member" />
+                </SelectTrigger>
+                <SelectContent>
+                  {getAllRatMembers().map((member) => (
+                    <SelectItem key={member} value={member}>
+                      {member}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <ProjectActions
             isEditing={isEditing}
             onEdit={() => setIsEditing(true)}
