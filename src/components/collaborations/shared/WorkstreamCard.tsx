@@ -55,7 +55,7 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>{workstream.ratMember ? `Assigned RAT Member - ${memberRole}` : `Suggested RAT Member - ${memberRole}`}</p>
+                  <p>{memberRole}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
