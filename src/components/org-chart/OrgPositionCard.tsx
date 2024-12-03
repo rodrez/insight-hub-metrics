@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { getRatMemberInfo } from "@/lib/services/data/utils/ratMemberUtils";
 import { toast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface OrgPositionCardProps {
   title: string;
@@ -20,6 +21,7 @@ interface OrgPositionCardProps {
 export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const memberInfo = getRatMemberInfo(name);
+  const navigate = useNavigate();
 
   // Fetch Fortune 30 partners where this person is the RAT member
   const { data: fortune30Partners = [] } = useQuery({
@@ -30,6 +32,15 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
         c.type === 'fortune30' && 
         c.ratMember === name
       );
+    }
+  });
+
+  // Fetch SME partners where this person is the RAT member
+  const { data: smePartners = [] } = useQuery({
+    queryKey: ['sme-partners', name],
+    queryFn: async () => {
+      const allSMEPartners = await db.getAllSMEPartners();
+      return allSMEPartners.filter(p => p.ratMember === name);
     }
   });
 
@@ -60,12 +71,32 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
     }
   });
 
+  const handleItemClick = (type: string, id: string) => {
+    switch (type) {
+      case 'project':
+        navigate('/', { state: { scrollToProject: id } });
+        break;
+      case 'fortune30':
+        navigate('/collaborations', { state: { scrollToCollaborator: id } });
+        break;
+      case 'sme':
+        navigate('/sme', { state: { scrollToPartner: id } });
+        break;
+      case 'spi':
+        navigate('/spi', { state: { scrollToSPI: id } });
+        break;
+      case 'sitrep':
+        navigate('/sitreps', { state: { scrollToSitRep: id } });
+        break;
+    }
+  };
+
   const position: OrgPosition = {
     id: name,
     title: title,
     projects: projects.map(p => p.id),
     fortune30Partners: fortune30Partners.map(p => p.id),
-    smePartners: [],
+    smePartners: smePartners.map(p => p.id),
     spis: spis.map(s => s.id),
     sitreps: sitreps.map(s => s.id)
   };
@@ -109,36 +140,84 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
 
       <div className="space-y-4">
         {/* Fortune 30 Partners */}
-        <RelationshipDisplay
-          title="Fortune 30 Partners"
-          type="fortune30Partners"
-          itemIds={position.fortune30Partners}
-          items={fortune30Partners}
-        />
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium">Fortune 30 Partners</h3>
+          <div className="flex flex-wrap gap-2">
+            {fortune30Partners.map(partner => (
+              <Badge
+                key={partner.id}
+                className="cursor-pointer hover:bg-primary/90"
+                onClick={() => handleItemClick('fortune30', partner.id)}
+              >
+                {partner.name}
+              </Badge>
+            ))}
+          </div>
+        </div>
+
+        {/* SME Partners */}
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium">SME Partners</h3>
+          <div className="flex flex-wrap gap-2">
+            {smePartners.map(partner => (
+              <Badge
+                key={partner.id}
+                className="cursor-pointer hover:bg-primary/90"
+                onClick={() => handleItemClick('sme', partner.id)}
+              >
+                {partner.name}
+              </Badge>
+            ))}
+          </div>
+        </div>
 
         {/* Projects */}
-        <RelationshipDisplay
-          title="Projects"
-          type="projects"
-          itemIds={position.projects}
-          items={projects}
-        />
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium">Projects</h3>
+          <div className="flex flex-wrap gap-2">
+            {projects.map(project => (
+              <Badge
+                key={project.id}
+                className="cursor-pointer hover:bg-primary/90"
+                onClick={() => handleItemClick('project', project.id)}
+              >
+                {project.name}
+              </Badge>
+            ))}
+          </div>
+        </div>
 
         {/* SPIs */}
-        <RelationshipDisplay
-          title="SPIs"
-          type="spis"
-          itemIds={position.spis}
-          items={spis}
-        />
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium">SPIs</h3>
+          <div className="flex flex-wrap gap-2">
+            {spis.map(spi => (
+              <Badge
+                key={spi.id}
+                className="cursor-pointer hover:bg-primary/90"
+                onClick={() => handleItemClick('spi', spi.id)}
+              >
+                {spi.name}
+              </Badge>
+            ))}
+          </div>
+        </div>
 
         {/* SitReps */}
-        <RelationshipDisplay
-          title="SitReps"
-          type="sitreps"
-          itemIds={position.sitreps}
-          items={sitreps}
-        />
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium">SitReps</h3>
+          <div className="flex flex-wrap gap-2">
+            {sitreps.map(sitrep => (
+              <Badge
+                key={sitrep.id}
+                className="cursor-pointer hover:bg-primary/90"
+                onClick={() => handleItemClick('sitrep', sitrep.id)}
+              >
+                {sitrep.name}
+              </Badge>
+            ))}
+          </div>
+        </div>
       </div>
 
       <RelationshipSelectionDialog
