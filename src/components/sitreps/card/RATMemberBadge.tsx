@@ -6,24 +6,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
-
-// RAT Members from the org chart
-const ratMembers = [
-  "Sarah Johnson",
-  "Michael Chen",
-  "Emily Rodriguez",
-  "David Kim",
-  "James Wilson",
-  "Maria Garcia",
-  "Robert Taylor"
-];
+import { getAllRatMembers, getRatMemberRole } from '@/lib/services/data/utils/ratMemberUtils';
 
 interface RATMemberBadgeProps {
   ratMember: string;
 }
 
 export function RATMemberBadge({ ratMember }: RATMemberBadgeProps) {
+  const ratMembers = getAllRatMembers();
   const displayMember = ratMember || ratMembers[Math.floor(Math.random() * ratMembers.length)];
+  const memberRole = getRatMemberRole(displayMember);
 
   return (
     <TooltipProvider>
@@ -50,7 +42,7 @@ export function RATMemberBadge({ ratMember }: RATMemberBadgeProps) {
           </Badge>
         </TooltipTrigger>
         <TooltipContent>
-          <p>{ratMember ? 'RAT Member assigned to this SitRep' : 'Suggested RAT Member'}</p>
+          <p>{memberRole}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
