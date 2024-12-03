@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Shield, Calendar, BadgeCheck } from "lucide-react";
+import { Shield, Calendar, BadgeCheck, AlertCircle } from "lucide-react";
 import { Workstream, Agreement, CollaboratorAgreements } from "@/lib/types/collaboration";
 import { AgreementStatus } from "../AgreementStatus";
 import {
@@ -10,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 type WorkstreamCardProps = {
   workstream: Workstream;
@@ -29,23 +30,35 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
         <div className="flex justify-between items-start mb-2">
           <div className="space-y-2">
             <h5 className="font-medium">{workstream.title}</h5>
-            {workstream.ratMember && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Badge 
-                      className="bg-purple-600 hover:bg-purple-700 flex items-center gap-1.5"
-                    >
-                      <BadgeCheck className="h-3.5 w-3.5" />
-                      RAT: {workstream.ratMember}
-                    </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>RAT Member assigned to this workstream</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Badge 
+                    className={cn(
+                      "flex items-center gap-1.5",
+                      workstream.ratMember 
+                        ? 'bg-purple-600 hover:bg-purple-700' 
+                        : 'bg-gray-500 hover:bg-gray-600'
+                    )}
+                  >
+                    {workstream.ratMember ? (
+                      <>
+                        <BadgeCheck className="h-3.5 w-3.5" />
+                        RAT: {workstream.ratMember}
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="h-3.5 w-3.5" />
+                        RAT: Unassigned
+                      </>
+                    )}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>RAT Member Position: Technical Program Manager</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <Badge variant={
             workstream.status === 'active' ? 'default' :
