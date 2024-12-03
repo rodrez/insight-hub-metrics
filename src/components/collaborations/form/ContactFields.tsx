@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
-import { CollaborationFormSchema } from "../CollaborationFormFields";
+import { CollaborationFormSchema } from "./types";
 
 type ContactFieldsProps = {
   form: UseFormReturn<CollaborationFormSchema>;

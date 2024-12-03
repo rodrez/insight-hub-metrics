@@ -3,7 +3,7 @@ import { Workstream, Agreement } from "@/lib/types/collaboration";
 import { WorkstreamCard } from "../shared/WorkstreamCard";
 import { WorkstreamActions } from "./WorkstreamActions";
 import { UseFormReturn } from "react-hook-form";
-import { CollaborationFormSchema } from "../CollaborationFormFields";
+import { CollaborationFormSchema } from "../form/types";
 
 type WorkstreamListProps = {
   workstreams: Workstream[];

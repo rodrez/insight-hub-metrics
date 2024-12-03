@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
 import { Workstream } from "@/lib/types/collaboration";
-import { CollaborationFormSchema, collaborationFormSchema } from "../CollaborationFormFields";
+import { CollaborationFormSchema, collaborationFormSchema } from "../form/types";
 
 export function useWorkstreamActions(collaboratorId: string) {
   const queryClient = useQueryClient();

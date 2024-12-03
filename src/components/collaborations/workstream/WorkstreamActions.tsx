@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { WorkstreamForm } from "./WorkstreamForm";
 import { UseFormReturn } from "react-hook-form";
-import { CollaborationFormSchema } from "../CollaborationFormFields";
+import { CollaborationFormSchema } from "../form/types";
 import { Workstream } from "@/lib/types/collaboration";
 
 type WorkstreamActionsProps = {

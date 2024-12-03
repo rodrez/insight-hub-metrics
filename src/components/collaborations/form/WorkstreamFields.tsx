@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Trash2 } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
-import { CollaborationFormSchema } from "../CollaborationFormFields";
+import { CollaborationFormSchema } from "./types";
 import {
   Select,
   SelectContent,

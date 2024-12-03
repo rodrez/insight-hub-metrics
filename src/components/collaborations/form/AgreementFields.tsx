@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
-import { CollaborationFormSchema } from "../CollaborationFormFields";
+import { CollaborationFormSchema } from "./types";
 
 type AgreementFieldsProps = {
   form: UseFormReturn<CollaborationFormSchema>;

@@ -2,7 +2,7 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { WorkstreamFields } from "../form/WorkstreamFields";
 import { UseFormReturn } from "react-hook-form";
-import { CollaborationFormSchema } from "../CollaborationFormFields";
+import { CollaborationFormSchema } from "../form/types";
 
 type WorkstreamFormProps = {
   form: UseFormReturn<CollaborationFormSchema>;
