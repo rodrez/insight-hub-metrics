@@ -1,23 +1,14 @@
 import { format } from "date-fns";
-import { Pen, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { SitRep } from "@/lib/types/sitrep";
 import { db } from "@/lib/db";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
-import { StatusIcon } from "./card/StatusIcon";
-import { LevelBadge } from "./card/LevelBadge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { CompactSitRepForm } from "./CompactSitRepForm";
 import { POCDisplay } from "./card/POCDisplay";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { LevelBadge } from "./card/LevelBadge";
+import { SitRepHeader } from "./card/SitRepHeader";
 
 interface SitRepCardProps {
   sitrep: SitRep;
@@ -52,19 +43,6 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
     enabled: !!sitrep.fortune30PartnerId && sitrep.fortune30PartnerId !== 'none'
   });
 
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case 'submitted':
-        return 'bg-green-500/10 text-green-500 border-green-500/20';
-      case 'pending-review':
-        return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
-      case 'ready':
-        return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
-      default:
-        return 'bg-gray-500/10 text-gray-500 border-gray-500/20';
-    }
-  };
-
   const handleDelete = () => {
     if (onDelete) {
       onDelete(sitrep.id);
@@ -77,19 +55,6 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
       queryClient.invalidateQueries({ queryKey: ['sitreps'] });
     } catch (error) {
       console.error('Failed to update status:', error);
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'submitted':
-        return 'Submitted';
-      case 'pending-review':
-        return 'Pending Review';
-      case 'ready':
-        return 'Ready';
-      default:
-        return status;
     }
   };
 
@@ -110,53 +75,14 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
       <Card>
         <CardContent className="pt-6">
           <div className="space-y-4">
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-2">
-                <h3 className="text-xl font-semibold">{sitrep.title}</h3>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Badge 
-                      variant="outline" 
-                      className={`${getStatusBadgeColor(sitrep.status)} cursor-pointer hover:opacity-80`}
-                    >
-                      {getStatusLabel(sitrep.status)}
-                    </Badge>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
-                    <DropdownMenuItem onClick={() => handleStatusChange('pending-review')}>
-                      Pending Review
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleStatusChange('ready')}>
-                      Ready
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleStatusChange('submitted')}>
-                      Submitted
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                <StatusIcon status={sitrep.status} />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsEditDialogOpen(true)}
-                  className="text-muted-foreground hover:text-green-500 transition-colors"
-                >
-                  <Pen className="h-4 w-4" />
-                </Button>
-                {onDelete && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleDelete}
-                    className="text-muted-foreground hover:text-red-500"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            </div>
+            <SitRepHeader
+              title={sitrep.title}
+              status={sitrep.status}
+              ratMember={sitrep.ratMember}
+              onStatusChange={handleStatusChange}
+              onEdit={() => setIsEditDialogOpen(true)}
+              onDelete={onDelete ? handleDelete : undefined}
+            />
 
             <p className="text-muted-foreground">{sitrep.summary}</p>
 
