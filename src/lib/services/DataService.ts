@@ -45,5 +45,6 @@ export interface DataService {
   getAllSMEPartners(): Promise<Collaborator[]>;
   getSMEPartner(id: string): Promise<Collaborator | undefined>;
   addSMEPartner(partner: Collaborator): Promise<void>;
+  updateSMEPartner(id: string, updates: Partial<Collaborator>): Promise<void>;
   getDatabase(): IDBDatabase | null;
 }

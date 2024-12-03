@@ -108,7 +108,7 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
       for (const projectId of updatedPosition.projects) {
         const project = allProjects.find(p => p.id === projectId);
         if (project && !project.ratMember) {
-          await db.updateProject({ ...project, ratMember: name });
+          await db.updateProject(projectId, { ...project, ratMember: name });
         }
       }
 
@@ -116,7 +116,7 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
       for (const partnerId of updatedPosition.fortune30Partners) {
         const partner = allCollaborators.find(c => c.id === partnerId);
         if (partner && !partner.ratMember) {
-          await db.updateCollaborator({ ...partner, ratMember: name });
+          await db.updateCollaborator(partnerId, { ...partner, ratMember: name });
         }
       }
 
@@ -124,7 +124,7 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
       for (const partnerId of updatedPosition.smePartners) {
         const partner = allSMEPartners.find(p => p.id === partnerId);
         if (partner && !partner.ratMember) {
-          await db.updateSMEPartner({ ...partner, ratMember: name });
+          await db.updateSMEPartner(partnerId, { ...partner, ratMember: name });
         }
       }
 
@@ -132,7 +132,7 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
       for (const spiId of updatedPosition.spis) {
         const spi = allSPIs.find(s => s.id === spiId);
         if (spi && !spi.ratMember) {
-          await db.updateSPI({ ...spi, ratMember: name });
+          await db.updateSPI(spiId, { ...spi, ratMember: name });
         }
       }
 
@@ -140,7 +140,7 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
       for (const sitrepId of updatedPosition.sitreps) {
         const sitrep = allSitReps.find(s => s.id === sitrepId);
         if (sitrep && !sitrep.ratMember) {
-          await db.updateSitRep({ ...sitrep, ratMember: name });
+          await db.updateSitRep(sitrepId, { ...sitrep, ratMember: name });
         }
       }
 
