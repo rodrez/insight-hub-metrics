@@ -8,6 +8,18 @@ import { SPI } from "@/lib/types/spi";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { SelectFields } from "./form/SelectFields";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+// RAT Members from the org chart
+const ratMembers = [
+  "Sarah Johnson",
+  "Michael Chen",
+  "Emily Rodriguez",
+  "David Kim",
+  "James Wilson",
+  "Maria Garcia",
+  "Robert Taylor"
+];
 
 interface SPIFormProps {
   onSubmitSuccess: () => void;
@@ -23,6 +35,7 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
   const [selectedFortune30, setSelectedFortune30] = useState<string>("none");
   const [selectedSME, setSelectedSME] = useState<string>("none");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("none");
+  const [ratMember, setRatMember] = useState<string>("");
 
   const { data: projects } = useQuery({
     queryKey: ['projects'],
@@ -59,7 +72,8 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
         departmentId: selectedDepartment !== "none" ? selectedDepartment : "default",
         smePartnerId: selectedSME !== "none" ? selectedSME : undefined,
         sitrepIds: [],
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        ratMember: ratMember || undefined
       };
 
       await db.addSPI(newSPI);
@@ -79,6 +93,7 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
       setSelectedFortune30("none");
       setSelectedSME("none");
       setSelectedDepartment("none");
+      setRatMember("");
       
       onSubmitSuccess();
     } catch (error) {
@@ -95,18 +110,33 @@ export function SPIForm({ onSubmitSuccess }: SPIFormProps) {
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-4">
           <Input
-            placeholder="SPI 1"
+            placeholder="SPI Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
+          <div>
+            <label className="block text-sm font-medium mb-2">RAT Member</label>
+            <Select value={ratMember} onValueChange={setRatMember}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select RAT member" />
+              </SelectTrigger>
+              <SelectContent>
+                {ratMembers.map((member) => (
+                  <SelectItem key={member} value={member}>
+                    {member}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Textarea
-            placeholder="Deliverable for SPI #"
+            placeholder="Deliverable for SPI"
             value={deliverable}
             onChange={(e) => setDeliverable(e.target.value)}
             className="h-32"
           />
           <Textarea
-            placeholder="Details for SPI #"
+            placeholder="Details for SPI"
             value={details}
             onChange={(e) => setDetails(e.target.value)}
             className="h-32"

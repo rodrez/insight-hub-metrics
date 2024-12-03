@@ -11,4 +11,5 @@ export type SPI = {
   fortune30PartnerId?: string;
   sitrepIds: string[];
   createdAt: string;
+  ratMember?: string;
 };

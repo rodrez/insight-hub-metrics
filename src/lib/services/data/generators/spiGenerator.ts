@@ -2,7 +2,6 @@ import { SPI } from '@/lib/types/spi';
 import { Objective } from '@/lib/types/objective';
 import { SitRep } from '@/lib/types/sitrep';
 import { addDays } from 'date-fns';
-import { DEPARTMENTS } from '@/lib/constants';
 
 // RAT Members from the org chart
 const ratMembers = [
@@ -26,7 +25,8 @@ export const generateSampleSPIs = (projectIds: string[], count: number): SPI[] =
     projectId: projectIds[i % projectIds.length],
     departmentId: 'engineering',
     sitrepIds: [],
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    ratMember: ratMembers[i % ratMembers.length]
   }));
 };
 
@@ -42,36 +42,16 @@ export const generateSampleObjectives = (count: number): Objective[] => {
 };
 
 export const generateSampleSitReps = (spis: SPI[], count: number): SitRep[] => {
-  const departments = DEPARTMENTS;
-  const levels: Array<"CEO" | "SVP" | "CTO"> = ["CEO", "SVP", "CTO"];
-  const statuses: Array<'pending-review' | 'ready' | 'submitted'> = ['pending-review', 'ready', 'submitted'];
-
-  return Array.from({ length: count }, (_, i) => {
-    const department = departments[i % departments.length];
-    const teams = departments
-      .filter(d => d.id !== department.id)
-      .slice(0, 3)
-      .map(d => d.id);
-
-    return {
-      id: `sitrep-${i + 1}`,
-      title: `Strategic Progress Update: ${department.name} Initiative Phase ${i + 1}`,
-      date: new Date().toISOString(),
-      spiId: spis[i % spis.length].id,
-      update: `Completed milestone ${i + 1} of the strategic initiative. Team has successfully implemented key features and resolved critical technical challenges. Performance metrics show 20% improvement in system efficiency.`,
-      challenges: `Current challenges include: 1) Resource allocation for scaling operations, 2) Integration complexities with legacy systems, 3) Timeline pressure due to market demands.`,
-      nextSteps: `1. Finalize implementation of remaining features\n2. Schedule integration testing with partner systems\n3. Prepare documentation for stakeholder review\n4. Plan deployment strategy for next phase`,
-      status: statuses[i % statuses.length],
-      summary: `Major progress achieved in ${department.name} initiative with significant technical milestones completed. Team addressing integration challenges while maintaining momentum.`,
-      departmentId: department.id,
-      level: levels[i % levels.length],
-      teams: teams,
-      pointsOfContact: teams.map(teamId => `poc-${teamId}`),
-      fortune30PartnerId: `fortune30-partner-${i % 5}`,
-      smePartnerId: `sme-partner-${i % 3}`,
-      poc: `Department Lead ${i + 1}`,
-      pocDepartment: department.id,
-      ratMember: ratMembers[i % ratMembers.length]
-    };
-  });
+  return Array.from({ length: count }, (_, i) => ({
+    id: `sitrep-${i + 1}`,
+    title: `SitRep ${i + 1}`,
+    date: new Date().toISOString(),
+    spiId: spis[i % spis.length].id,
+    update: `Update for SitRep ${i + 1}`,
+    challenges: `Challenges for SitRep ${i + 1}`,
+    nextSteps: `Next steps for SitRep ${i + 1}`,
+    status: 'pending-review',
+    summary: `Summary for SitRep ${i + 1}`,
+    departmentId: 'engineering'
+  }));
 };
