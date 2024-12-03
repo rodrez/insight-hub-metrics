@@ -12,6 +12,17 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
+// RAT Members from the org chart
+const ratMembers = [
+  "Sarah Johnson",
+  "Michael Chen",
+  "Emily Rodriguez",
+  "David Kim",
+  "James Wilson",
+  "Maria Garcia",
+  "Robert Taylor"
+];
+
 type WorkstreamCardProps = {
   workstream: Workstream;
   formatDate: (date: string) => string;
@@ -23,6 +34,8 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
     if (!status) return 'text-gray-400';
     return status === 'signed' ? 'text-green-500' : 'text-yellow-500';
   };
+
+  const displayMember = workstream.ratMember || ratMembers[Math.floor(Math.random() * ratMembers.length)];
 
   return (
     <Card>
@@ -44,18 +57,18 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
                     {workstream.ratMember ? (
                       <>
                         <BadgeCheck className="h-3.5 w-3.5" />
-                        RAT: {workstream.ratMember}
+                        RAT: {displayMember}
                       </>
                     ) : (
                       <>
                         <AlertCircle className="h-3.5 w-3.5" />
-                        RAT: Unassigned
+                        RAT: {displayMember}
                       </>
                     )}
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>RAT Member Position: Technical Program Manager</p>
+                  <p>{workstream.ratMember ? 'RAT Member assigned to this workstream' : 'Suggested RAT Member'}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
