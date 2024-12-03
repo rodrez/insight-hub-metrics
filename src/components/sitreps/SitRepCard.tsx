@@ -118,7 +118,7 @@ export function SitRepCard({ sitrep, onEdit, onDelete }: SitRepCardProps) {
                     </Badge>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>{sitrep.ratMember ? `Assigned RAT Member - ${memberRole}` : `Suggested RAT Member - ${memberRole}`}</p>
+                    <p>{memberRole}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
