@@ -27,6 +27,18 @@ const workstreamSchema = z.object({
   startDate: z.string(),
   lastUpdated: z.string(),
   ratMember: z.string().optional(),
+  agreements: z.object({
+    nda: z.object({
+      signedDate: z.string(),
+      expiryDate: z.string(),
+      status: z.enum(["signed", "pending", "expired"])
+    }).optional(),
+    jtda: z.object({
+      signedDate: z.string(),
+      expiryDate: z.string(),
+      status: z.enum(["signed", "pending", "expired"])
+    }).optional()
+  }).optional(),
 });
 
 export const collaborationFormSchema = z.object({
@@ -99,6 +111,7 @@ export function CollaborationFormFields({
         startDate: ws.startDate,
         lastUpdated: ws.lastUpdated,
         ratMember: ws.ratMember || "",
+        agreements: ws.agreements, // Added agreements to workstream default values
       })) || [],
     },
   });
@@ -161,6 +174,7 @@ export function CollaborationFormFields({
           startDate: ws.startDate,
           lastUpdated: ws.lastUpdated,
           ratMember: ws.ratMember,
+          agreements: ws.agreements // Include workstream agreements here
         })) || [],
         projects: initialData?.projects || [],
         lastActive: new Date().toISOString(),

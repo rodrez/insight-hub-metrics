@@ -4,6 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { Shield, Calendar, BadgeCheck } from "lucide-react";
 import { Workstream, Agreement } from "@/lib/types/collaboration";
 import { getAgreementWarningSettings, getDaysUntilExpiry } from "@/lib/utils/agreementUtils";
+import { AgreementStatus } from "../AgreementStatus";
 import {
   Tooltip,
   TooltipContent,
@@ -14,47 +15,16 @@ import {
 type WorkstreamCardProps = {
   workstream: Workstream;
   formatDate: (date: string) => string;
-  agreements?: {
-    nda?: Agreement;
-    jtda?: Agreement;
-  };
 };
 
-export function WorkstreamCard({ workstream, formatDate, agreements }: WorkstreamCardProps) {
+export function WorkstreamCard({ workstream, formatDate }: WorkstreamCardProps) {
   const getStatusColor = (status?: string) => {
     if (!status) return 'text-gray-400';
     return status === 'signed' ? 'text-green-500' : 'text-yellow-500';
   };
 
-  const getWarningColor = () => {
-    if (!agreements) return '';
-
-    const settings = getAgreementWarningSettings();
-    let ndaDays, jtdaDays;
-
-    if (agreements.nda) {
-      ndaDays = getDaysUntilExpiry(agreements.nda.expiryDate);
-    }
-    if (agreements.jtda) {
-      jtdaDays = getDaysUntilExpiry(agreements.jtda.expiryDate);
-    }
-
-    const minDays = Math.min(
-      ndaDays !== undefined ? ndaDays : Infinity,
-      jtdaDays !== undefined ? jtdaDays : Infinity
-    );
-
-    if (minDays <= settings.criticalDays) {
-      return 'bg-red-500/10 border-red-500';
-    }
-    if (minDays <= settings.warningDays) {
-      return 'bg-yellow-500/10 border-yellow-500';
-    }
-    return '';
-  };
-
   return (
-    <Card className={`${getWarningColor()}`}>
+    <Card>
       <CardContent className="pt-6">
         <div className="flex justify-between items-start mb-2">
           <div className="space-y-2">
@@ -85,6 +55,28 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
             {workstream.status}
           </Badge>
         </div>
+
+        {workstream.agreements && (
+          <div className="space-y-2 mb-4">
+            {workstream.agreements.nda && (
+              <AgreementStatus
+                type="nda"
+                agreement={workstream.agreements.nda}
+                formatDate={formatDate}
+                workstreamTitle={workstream.title}
+              />
+            )}
+            {workstream.agreements.jtda && (
+              <AgreementStatus
+                type="jtda"
+                agreement={workstream.agreements.jtda}
+                formatDate={formatDate}
+                workstreamTitle={workstream.title}
+              />
+            )}
+          </div>
+        )}
+
         <div className="space-y-2 text-sm">
           <div>
             <p className="font-medium">Objectives:</p>

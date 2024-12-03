@@ -11,9 +11,10 @@ interface AgreementStatusProps {
   type: 'nda' | 'jtda';
   agreement: Agreement;
   formatDate: (date: string) => string;
+  workstreamTitle?: string;
 }
 
-export function AgreementStatus({ type, agreement, formatDate }: AgreementStatusProps) {
+export function AgreementStatus({ type, agreement, formatDate, workstreamTitle }: AgreementStatusProps) {
   return (
     <div className="flex items-center gap-2 text-muted-foreground">
       <Shield className={`h-4 w-4 ${
@@ -23,7 +24,9 @@ export function AgreementStatus({ type, agreement, formatDate }: AgreementStatus
             ? 'text-red-500'
             : 'text-yellow-500'
       }`} />
-      <span>{type.toUpperCase()}: {agreement.status}</span>
+      <span>
+        {workstreamTitle ? `${workstreamTitle} - ` : ''}{type.toUpperCase()}: {agreement.status}
+      </span>
       <TooltipProvider delayDuration={0}>
         <Tooltip>
           <TooltipTrigger asChild>
