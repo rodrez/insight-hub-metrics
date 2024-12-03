@@ -1,34 +1,32 @@
-import { Collaborator } from "../../types";
-import { BaseIndexedDBService } from "./base/BaseIndexedDBService";
+import { BaseDBService } from './base/BaseDBService';
+import { Collaborator } from '../../types';
 
-export class CollaboratorService extends BaseIndexedDBService {
-  public async getAllCollaborators(): Promise<Collaborator[]> {
-    return this.transactionService.performTransaction('collaborators', 'readonly', store => store.getAll());
+export class CollaboratorService extends BaseDBService {
+  async getAllSMEPartners(): Promise<Collaborator[]> {
+    return this.getStore('smePartners').getAll();
   }
 
-  public async getCollaborator(id: string): Promise<Collaborator | undefined> {
-    return this.transactionService.performTransaction('collaborators', 'readonly', store => store.get(id));
+  async getSMEPartner(id: string): Promise<Collaborator | undefined> {
+    return this.performTransaction('smePartners', 'readonly', (store) => {
+      return store.get(id);
+    });
   }
 
-  public async addCollaborator(collaborator: Collaborator): Promise<void> {
-    await this.transactionService.performTransaction('collaborators', 'readwrite', store => store.put(collaborator));
+  async addSMEPartner(partner: Collaborator): Promise<void> {
+    return this.performTransaction('smePartners', 'readwrite', (store) => {
+      return store.add(partner);
+    });
   }
 
-  public async updateCollaborator(id: string, updates: Partial<Collaborator>): Promise<void> {
-    const collaborator = await this.getCollaborator(id);
-    if (!collaborator) throw new Error('Collaborator not found');
-    await this.addCollaborator({ ...collaborator, ...updates });
+  async updateSMEPartner(id: string, updates: Partial<Collaborator>): Promise<void> {
+    return this.performTransaction('smePartners', 'readwrite', (store) => {
+      return store.put({ ...updates, id });
+    });
   }
 
-  public async getAllSMEPartners(): Promise<Collaborator[]> {
-    return this.transactionService.performTransaction('smePartners', 'readonly', store => store.getAll());
-  }
-
-  public async getSMEPartner(id: string): Promise<Collaborator | undefined> {
-    return this.transactionService.performTransaction('smePartners', 'readonly', store => store.get(id));
-  }
-
-  public async addSMEPartner(partner: Collaborator): Promise<void> {
-    await this.transactionService.performTransaction('smePartners', 'readwrite', store => store.put(partner));
+  async deleteSMEPartner(id: string): Promise<void> {
+    return this.performTransaction('smePartners', 'readwrite', (store) => {
+      return store.delete(id);
+    });
   }
 }

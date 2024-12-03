@@ -110,6 +110,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   getAllSMEPartners = () => this.collaboratorService.getAllSMEPartners();
   getSMEPartner = (id: string) => this.collaboratorService.getSMEPartner(id);
   addSMEPartner = (partner: Collaborator) => this.collaboratorService.addSMEPartner(partner);
+  updateSMEPartner = (id: string, updates: Partial<Collaborator>) => this.collaboratorService.updateSMEPartner(id, updates);
 
   // Data operations
   exportData = async () => {
