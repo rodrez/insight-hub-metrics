@@ -66,7 +66,7 @@ const RAT_MEMBERS: Record<string, RatMemberInfo> = {
   }
 };
 
-export const getAllRatMembers = () => Object.keys(RAT_MEMBERS);
+export const getAllRatMembers = (): string[] => Object.keys(RAT_MEMBERS);
 
 export const getRatMemberInfo = (name: string): RatMemberInfo | undefined => {
   return RAT_MEMBERS[name];
