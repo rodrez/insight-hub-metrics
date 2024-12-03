@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CollaborationFormFields } from "./CollaborationFormFields";
-import { CollaboratorType } from "@/lib/types/collaboration";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -34,18 +33,21 @@ export function CollaborationDialog({
   const form = useForm<CollaborationFormSchema>({
     resolver: zodResolver(collaborationFormSchema),
     defaultValues: {
-      name: collaborator?.name || "",
-      email: collaborator?.email || "",
-      role: collaborator?.role || "",
-      department: departmentId || collaborator?.department || "",
+      name: "",
+      email: "",
+      role: "",
+      department: departmentId || "",
       type: collaborationType,
-      color: collaborator?.color || "#4B5563", // Default color
+      color: "#4B5563",
+      ratMember: "",
       agreementType: "None",
-      primaryContact: collaborator?.primaryContact || {
+      primaryContact: {
         name: "",
         role: "",
         email: "",
+        phone: "",
       },
+      workstreams: [],
     },
   });
 
@@ -58,11 +60,24 @@ export function CollaborationDialog({
         role: collaborator.role,
         department: collaborator.department,
         type: collaborator.type,
-        color: collaborator.color,
-        agreementType: collaborator.agreements?.nda ? "NDA" : 
-                      collaborator.agreements?.jtda ? "JTDA" : 
-                      (collaborator.agreements?.nda && collaborator.agreements?.jtda) ? "Both" : "None",
-        primaryContact: collaborator.primaryContact,
+        color: collaborator.color || "#4B5563",
+        ratMember: collaborator.ratMember || "",
+        agreementType: collaborator.agreements?.nda && collaborator.agreements?.jtda 
+          ? "Both"
+          : collaborator.agreements?.nda 
+            ? "NDA" 
+            : collaborator.agreements?.jtda 
+              ? "JTDA" 
+              : "None",
+        signedDate: collaborator.agreements?.nda?.signedDate || collaborator.agreements?.jtda?.signedDate || "",
+        expiryDate: collaborator.agreements?.nda?.expiryDate || collaborator.agreements?.jtda?.expiryDate || "",
+        primaryContact: {
+          name: collaborator.primaryContact?.name || "",
+          role: collaborator.primaryContact?.role || "",
+          email: collaborator.primaryContact?.email || "",
+          phone: collaborator.primaryContact?.phone || "",
+        },
+        workstreams: collaborator.workstreams || [],
       });
     }
   }, [collaborator, form]);
