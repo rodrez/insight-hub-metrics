@@ -57,11 +57,11 @@ export type Collaborator = {
   email: string;
   role: string;
   department: string;
-  projects: CollaboratorProject[];
-  lastActive: string;
   type: CollaboratorType;
   color?: string;
   agreements?: CollaboratorAgreements;
+  projects: CollaboratorProject[];
+  lastActive: string;
   primaryContact?: ContactPerson;
   workstreams?: Workstream[];
   ratMember?: string;

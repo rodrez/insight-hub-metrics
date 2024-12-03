@@ -185,7 +185,7 @@ export function CollaborationFormFields({
           startDate: ws.startDate,
           lastUpdated: ws.lastUpdated,
           ratMember: ws.ratMember,
-          agreements: ws.agreements // Include workstream agreements here
+          agreements: ws.agreements
         })) || [],
         projects: initialData?.projects || [],
         lastActive: new Date().toISOString(),
