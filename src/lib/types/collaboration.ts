@@ -29,7 +29,7 @@ export type Workstream = {
   startDate: string;
   lastUpdated: string;
   ratMember?: string;
-  agreements?: CollaboratorAgreements; // Added agreements at workstream level
+  agreements?: CollaboratorAgreements;
 };
 
 export type CollaboratorType = 'fortune30' | 'internal' | 'sme';

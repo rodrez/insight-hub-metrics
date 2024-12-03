@@ -111,7 +111,18 @@ export function CollaborationFormFields({
         startDate: ws.startDate,
         lastUpdated: ws.lastUpdated,
         ratMember: ws.ratMember || "",
-        agreements: ws.agreements, // Added agreements to workstream default values
+        agreements: ws.agreements ? {
+          nda: ws.agreements.nda ? {
+            signedDate: ws.agreements.nda.signedDate,
+            expiryDate: ws.agreements.nda.expiryDate,
+            status: ws.agreements.nda.status
+          } : undefined,
+          jtda: ws.agreements.jtda ? {
+            signedDate: ws.agreements.jtda.signedDate,
+            expiryDate: ws.agreements.jtda.expiryDate,
+            status: ws.agreements.jtda.status
+          } : undefined
+        } : undefined,
       })) || [],
     },
   });

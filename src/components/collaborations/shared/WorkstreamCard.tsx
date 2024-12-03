@@ -2,8 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Shield, Calendar, BadgeCheck } from "lucide-react";
-import { Workstream, Agreement } from "@/lib/types/collaboration";
-import { getAgreementWarningSettings, getDaysUntilExpiry } from "@/lib/utils/agreementUtils";
+import { Workstream, Agreement, CollaboratorAgreements } from "@/lib/types/collaboration";
 import { AgreementStatus } from "../AgreementStatus";
 import {
   Tooltip,
@@ -15,9 +14,10 @@ import {
 type WorkstreamCardProps = {
   workstream: Workstream;
   formatDate: (date: string) => string;
+  agreements?: CollaboratorAgreements;
 };
 
-export function WorkstreamCard({ workstream, formatDate }: WorkstreamCardProps) {
+export function WorkstreamCard({ workstream, formatDate, agreements }: WorkstreamCardProps) {
   const getStatusColor = (status?: string) => {
     if (!status) return 'text-gray-400';
     return status === 'signed' ? 'text-green-500' : 'text-yellow-500';
@@ -56,20 +56,20 @@ export function WorkstreamCard({ workstream, formatDate }: WorkstreamCardProps) 
           </Badge>
         </div>
 
-        {workstream.agreements && (
+        {(workstream.agreements || agreements) && (
           <div className="space-y-2 mb-4">
-            {workstream.agreements.nda && (
+            {(workstream.agreements?.nda || agreements?.nda) && (
               <AgreementStatus
                 type="nda"
-                agreement={workstream.agreements.nda}
+                agreement={workstream.agreements?.nda || agreements?.nda!}
                 formatDate={formatDate}
                 workstreamTitle={workstream.title}
               />
             )}
-            {workstream.agreements.jtda && (
+            {(workstream.agreements?.jtda || agreements?.jtda) && (
               <AgreementStatus
                 type="jtda"
-                agreement={workstream.agreements.jtda}
+                agreement={workstream.agreements?.jtda || agreements?.jtda!}
                 formatDate={formatDate}
                 workstreamTitle={workstream.title}
               />
