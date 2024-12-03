@@ -50,7 +50,7 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
                       "flex items-center gap-1.5",
                       collaborator.ratMember 
                         ? 'bg-[#8B5CF6] hover:bg-[#7C3AED]' 
-                        : 'bg-gray-500 hover:bg-gray-600'
+                        : 'bg-muted-foreground hover:bg-muted-foreground/90'
                     )}
                   >
                     {collaborator.ratMember ? (
