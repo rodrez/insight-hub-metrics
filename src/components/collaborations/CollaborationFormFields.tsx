@@ -10,21 +10,37 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "@/components/ui/use-toast";
 
+const contactPersonSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  role: z.string().min(1, "Role is required"),
+  email: z.string().email("Invalid email"),
+  phone: z.string().optional(),
+});
+
+const workstreamSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  objectives: z.string(),
+  nextSteps: z.string(),
+  keyContacts: z.array(contactPersonSchema),
+  status: z.enum(["active", "completed", "on-hold"]),
+  startDate: z.string(),
+  lastUpdated: z.string(),
+});
+
 export const collaborationFormSchema = z.object({
   name: z.string().min(1, "Company name is required"),
   email: z.string().email("Invalid email address"),
   role: z.string().min(1, "Role is required"),
   department: z.string().min(1, "Department is required"),
-  type: z.enum(["fortune30", "sme"]),
+  type: z.enum(["fortune30", "sme", "internal"]),
   color: z.string(),
   ratMember: z.string().optional(),
   agreementType: z.enum(["NDA", "JTDA", "Both", "None"]),
-  primaryContact: z.object({
-    name: z.string(),
-    role: z.string(),
-    email: z.string(),
-    phone: z.string().optional(),
-  }),
+  signedDate: z.string().optional(),
+  expiryDate: z.string().optional(),
+  primaryContact: contactPersonSchema,
+  workstreams: z.array(workstreamSchema).optional(),
 });
 
 export type CollaborationFormSchema = z.infer<typeof collaborationFormSchema>;
@@ -59,11 +75,15 @@ export function CollaborationFormFields({
         : initialData?.agreements?.jtda
         ? "JTDA"
         : "None",
+      signedDate: initialData?.agreements?.nda?.signedDate || initialData?.agreements?.jtda?.signedDate || "",
+      expiryDate: initialData?.agreements?.nda?.expiryDate || initialData?.agreements?.jtda?.expiryDate || "",
       primaryContact: initialData?.primaryContact || {
         name: "",
         role: "",
         email: "",
+        phone: "",
       },
+      workstreams: initialData?.workstreams || [],
     },
   });
 
@@ -73,8 +93,8 @@ export function CollaborationFormFields({
         ...(data.agreementType === "NDA" || data.agreementType === "Both"
           ? {
               nda: {
-                signedDate: new Date().toISOString(),
-                expiryDate: new Date(
+                signedDate: data.signedDate || new Date().toISOString(),
+                expiryDate: data.expiryDate || new Date(
                   Date.now() + 365 * 24 * 60 * 60 * 1000
                 ).toISOString(),
                 status: "signed" as const,
@@ -84,8 +104,8 @@ export function CollaborationFormFields({
         ...(data.agreementType === "JTDA" || data.agreementType === "Both"
           ? {
               jtda: {
-                signedDate: new Date().toISOString(),
-                expiryDate: new Date(
+                signedDate: data.signedDate || new Date().toISOString(),
+                expiryDate: data.expiryDate || new Date(
                   Date.now() + 365 * 24 * 60 * 60 * 1000
                 ).toISOString(),
                 status: "signed" as const,
@@ -105,6 +125,7 @@ export function CollaborationFormFields({
         ratMember: data.ratMember,
         agreements,
         primaryContact: data.primaryContact,
+        workstreams: data.workstreams || [],
         projects: initialData?.projects || [],
         lastActive: new Date().toISOString(),
       };

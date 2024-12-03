@@ -12,7 +12,19 @@ export function useWorkstreamActions(collaboratorId: string) {
   const form = useForm<CollaborationFormSchema>({
     resolver: zodResolver(collaborationFormSchema),
     defaultValues: {
-      workstreams: []
+      name: "",
+      email: "",
+      role: "",
+      department: "",
+      type: "fortune30",
+      color: "#4B5563",
+      agreementType: "None",
+      primaryContact: {
+        name: "",
+        role: "",
+        email: "",
+      },
+      workstreams: [],
     }
   });
 
@@ -26,7 +38,7 @@ export function useWorkstreamActions(collaboratorId: string) {
         workstreams: collaborator.workstreams?.filter(w => w.id !== workstreamId) || []
       };
 
-      await db.addCollaborator(updatedCollaborator);
+      await db.updateCollaborator(collaboratorId, updatedCollaborator);
       queryClient.invalidateQueries({ queryKey: ['collaborators'] });
       
       toast({
@@ -44,22 +56,14 @@ export function useWorkstreamActions(collaboratorId: string) {
 
   const handleEdit = async (workstream: Workstream) => {
     try {
+      const collaborator = await db.getCollaborator(collaboratorId);
+      if (!collaborator) return;
+
       form.reset({
-        workstreams: [{
-          id: workstream.id,
-          title: workstream.title,
-          objectives: workstream.objectives,
-          nextSteps: workstream.nextSteps,
-          keyContacts: workstream.keyContacts.map(contact => ({
-            name: contact.name,
-            email: contact.email,
-            role: contact.role,
-            phone: contact.phone || ''
-          })),
-          status: workstream.status,
-          startDate: workstream.startDate,
-          lastUpdated: workstream.lastUpdated
-        }]
+        ...collaborator,
+        workstreams: collaborator.workstreams?.map(w => 
+          w.id === workstream.id ? workstream : w
+        ) || []
       });
     } catch (error) {
       toast({
@@ -75,34 +79,12 @@ export function useWorkstreamActions(collaboratorId: string) {
       const collaborator = await db.getCollaborator(collaboratorId);
       if (!collaborator) return;
 
-      const updatedWorkstream = data.workstreams?.[0];
-      if (!updatedWorkstream) return;
-
-      const newWorkstream: Workstream = {
-        id: updatedWorkstream.id,
-        title: updatedWorkstream.title,
-        objectives: updatedWorkstream.objectives,
-        nextSteps: updatedWorkstream.nextSteps,
-        keyContacts: updatedWorkstream.keyContacts.map(contact => ({
-          name: contact.name,
-          email: contact.email,
-          role: contact.role,
-          phone: contact.phone || ''
-        })),
-        status: updatedWorkstream.status,
-        startDate: updatedWorkstream.startDate,
-        lastUpdated: new Date().toISOString()
+      const updatedCollaborator = {
+        ...collaborator,
+        workstreams: data.workstreams || []
       };
 
-      const updatedWorkstreams = collaborator.workstreams?.map(w => 
-        w.id === newWorkstream.id ? newWorkstream : w
-      ) || [];
-
-      await db.addCollaborator({
-        ...collaborator,
-        workstreams: updatedWorkstreams
-      });
-
+      await db.updateCollaborator(collaboratorId, updatedCollaborator);
       queryClient.invalidateQueries({ queryKey: ['collaborators'] });
       
       toast({

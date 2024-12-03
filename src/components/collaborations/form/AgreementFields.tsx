@@ -54,7 +54,7 @@ export function AgreementFields({ form }: AgreementFieldsProps) {
           <FormItem>
             <FormLabel>Date Signed</FormLabel>
             <FormControl>
-              <Input type="date" {...field} />
+              <Input type="date" {...field} value={field.value || ''} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -68,7 +68,7 @@ export function AgreementFields({ form }: AgreementFieldsProps) {
           <FormItem>
             <FormLabel>Expiry Date</FormLabel>
             <FormControl>
-              <Input type="date" {...field} />
+              <Input type="date" {...field} value={field.value || ''} />
             </FormControl>
             <FormMessage />
           </FormItem>

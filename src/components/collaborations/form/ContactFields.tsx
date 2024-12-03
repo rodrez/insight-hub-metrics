@@ -7,18 +7,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
+import { CollaborationFormSchema } from "../CollaborationFormFields";
 
 type ContactFieldsProps = {
-  form: UseFormReturn<any>;
-  index: number;
+  form: UseFormReturn<CollaborationFormSchema>;
 };
 
-export function ContactFields({ form, index }: ContactFieldsProps) {
+export function ContactFields({ form }: ContactFieldsProps) {
   return (
     <div className="space-y-3">
       <FormField
         control={form.control}
-        name={`contacts.${index}.primaryContact.name`}
+        name="primaryContact.name"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Contact Name</FormLabel>
@@ -32,7 +32,7 @@ export function ContactFields({ form, index }: ContactFieldsProps) {
 
       <FormField
         control={form.control}
-        name={`contacts.${index}.primaryContact.role`}
+        name="primaryContact.role"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Contact Role</FormLabel>
@@ -46,7 +46,7 @@ export function ContactFields({ form, index }: ContactFieldsProps) {
 
       <FormField
         control={form.control}
-        name={`contacts.${index}.primaryContact.email`}
+        name="primaryContact.email"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Contact Email</FormLabel>
@@ -60,7 +60,7 @@ export function ContactFields({ form, index }: ContactFieldsProps) {
 
       <FormField
         control={form.control}
-        name={`contacts.${index}.primaryContact.phone`}
+        name="primaryContact.phone"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Contact Phone (Optional)</FormLabel>
