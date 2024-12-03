@@ -1,4 +1,4 @@
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, AlertCircle } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -7,26 +7,50 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 
+// RAT Members from the org chart
+const ratMembers = [
+  "Sarah Johnson",
+  "Michael Chen",
+  "Emily Rodriguez",
+  "David Kim",
+  "James Wilson",
+  "Maria Garcia",
+  "Robert Taylor"
+];
+
 interface RATMemberBadgeProps {
   ratMember: string;
 }
 
 export function RATMemberBadge({ ratMember }: RATMemberBadgeProps) {
-  if (!ratMember) return null;
+  const displayMember = ratMember || ratMembers[Math.floor(Math.random() * ratMembers.length)];
 
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger>
           <Badge 
-            className="bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-200 transition-colors flex items-center gap-1"
+            className={`flex items-center gap-1.5 ${
+              ratMember 
+                ? 'bg-purple-600 hover:bg-purple-700' 
+                : 'bg-gray-500 hover:bg-gray-600'
+            }`}
           >
-            <BadgeCheck className="h-3.5 w-3.5" />
-            RAT: {ratMember}
+            {ratMember ? (
+              <>
+                <BadgeCheck className="h-3.5 w-3.5" />
+                RAT: {displayMember}
+              </>
+            ) : (
+              <>
+                <AlertCircle className="h-3.5 w-3.5" />
+                RAT: {displayMember}
+              </>
+            )}
           </Badge>
         </TooltipTrigger>
         <TooltipContent>
-          <p>RAT Member assigned to this SitRep</p>
+          <p>{ratMember ? 'RAT Member assigned to this SitRep' : 'Suggested RAT Member'}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
