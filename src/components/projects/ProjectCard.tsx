@@ -16,7 +16,7 @@ import { toast } from "@/components/ui/use-toast";
 import { ProjectCardHeader } from './ProjectCardHeader';
 import { ProjectCardProgress } from './ProjectCardProgress';
 import { ProjectCardPartners } from './ProjectCardPartners';
-import { getRandomRatMember } from '@/lib/services/data/utils/ratMemberUtils';
+import { getAllRatMembers, getRatMemberRole } from '@/lib/services/data/utils/ratMemberUtils';
 
 interface ProjectCardProps {
   project: Project;
@@ -28,7 +28,8 @@ export function ProjectCard({ project }: ProjectCardProps) {
     return department?.color || '#333';
   };
 
-  const displayRatMember = project.ratMember || getRandomRatMember();
+  const displayRatMember = project.ratMember || getAllRatMembers()[Math.floor(Math.random() * getAllRatMembers().length)];
+  const memberRole = getRatMemberRole(displayRatMember);
 
   return (
     <Link 
@@ -63,7 +64,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>{project.ratMember ? 'RAT Member assigned' : 'Suggested RAT Member'}</p>
+                  <p>{project.ratMember ? `Assigned RAT Member - ${memberRole}` : `Suggested RAT Member - ${memberRole}`}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
