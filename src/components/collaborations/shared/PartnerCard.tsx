@@ -48,9 +48,7 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
                   <Badge 
                     className={cn(
                       "flex items-center gap-1.5",
-                      collaborator.ratMember 
-                        ? 'bg-[#8B5CF6] hover:bg-[#7C3AED]' 
-                        : 'bg-muted-foreground hover:bg-muted-foreground/90'
+                      "bg-[#8B5CF6] hover:bg-[#7C3AED]"
                     )}
                   >
                     {collaborator.ratMember ? (
