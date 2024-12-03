@@ -9,6 +9,18 @@ import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { SelectFields } from "./form/SelectFields";
 import { format } from "date-fns";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+// RAT Members from the org chart
+const ratMembers = [
+  "Sarah Johnson",
+  "Michael Chen",
+  "Emily Rodriguez",
+  "David Kim",
+  "James Wilson",
+  "Maria Garcia",
+  "Robert Taylor"
+];
 
 interface SPIEditFormProps {
   spi: SPI;
@@ -25,6 +37,7 @@ export function SPIEditForm({ spi, onSuccess }: SPIEditFormProps) {
   const [selectedFortune30, setSelectedFortune30] = useState<string>(spi.fortune30PartnerId || "none");
   const [selectedSME, setSelectedSME] = useState<string>(spi.smePartnerId || "none");
   const [selectedDepartment, setSelectedDepartment] = useState<string>(spi.departmentId);
+  const [ratMember, setRatMember] = useState<string>(spi.ratMember || "");
 
   const { data: projects } = useQuery({
     queryKey: ['projects'],
@@ -61,6 +74,7 @@ export function SPIEditForm({ spi, onSuccess }: SPIEditFormProps) {
         departmentId: selectedDepartment !== "none" ? selectedDepartment : "default",
         smePartnerId: selectedSME !== "none" ? selectedSME : undefined,
         fortune30PartnerId: selectedFortune30 !== "none" ? selectedFortune30 : undefined,
+        ratMember: ratMember || undefined
       };
 
       await db.updateSPI(spi.id, updatedSPI);
@@ -91,6 +105,21 @@ export function SPIEditForm({ spi, onSuccess }: SPIEditFormProps) {
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">RAT Member</label>
+            <Select value={ratMember} onValueChange={setRatMember}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select RAT member" />
+              </SelectTrigger>
+              <SelectContent>
+                {ratMembers.map((member) => (
+                  <SelectItem key={member} value={member}>
+                    {member}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Deliverable</label>
