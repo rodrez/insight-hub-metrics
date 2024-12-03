@@ -1,7 +1,6 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { BadgeCheck, AlertCircle, Info } from "lucide-react";
+import { BadgeCheck, AlertCircle } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -42,7 +41,7 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
       <CardContent className="pt-6">
         <div className="flex justify-between items-start mb-2">
           <div className="space-y-2">
-            <h5 className="font-medium">{collaborator.title}</h5>
+            <h5 className="font-medium">{collaborator.name}</h5>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
@@ -74,11 +73,11 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
             </TooltipProvider>
           </div>
           <Badge variant={
-            collaborator.status === 'active' ? 'default' :
-            collaborator.status === 'completed' ? 'secondary' :
+            collaborator.projects?.[0]?.status === 'active' ? 'default' :
+            collaborator.projects?.[0]?.status === 'completed' ? 'secondary' :
             'outline'
           }>
-            {collaborator.status}
+            {collaborator.projects?.[0]?.status || 'pending'}
           </Badge>
         </div>
 
