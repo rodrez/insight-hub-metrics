@@ -11,17 +11,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-
-// RAT Members from the org chart
-const ratMembers = [
-  "Sarah Johnson",
-  "Michael Chen",
-  "Emily Rodriguez",
-  "David Kim",
-  "James Wilson",
-  "Maria Garcia",
-  "Robert Taylor"
-];
+import { getAllRatMembers } from "@/lib/services/data/utils/ratMemberUtils";
 
 type WorkstreamCardProps = {
   workstream: Workstream;
@@ -35,6 +25,7 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
     return status === 'signed' ? 'text-green-500' : 'text-yellow-500';
   };
 
+  const ratMembers = getAllRatMembers();
   const displayMember = workstream.ratMember || ratMembers[Math.floor(Math.random() * ratMembers.length)];
 
   return (
@@ -49,9 +40,7 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
                   <Badge 
                     className={cn(
                       "flex items-center gap-1.5",
-                      workstream.ratMember 
-                        ? 'bg-purple-600 hover:bg-purple-700' 
-                        : 'bg-gray-500 hover:bg-gray-600'
+                      "bg-purple-600 hover:bg-purple-700"
                     )}
                   >
                     {workstream.ratMember ? (
