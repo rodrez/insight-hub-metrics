@@ -5,6 +5,17 @@ import { generateNABC } from './templates/projectTemplates';
 import { generateMilestones, generateMetrics } from './templates/metricsTemplates';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from './spiGenerator';
 
+// RAT Members from the org chart
+const ratMembers = [
+  "Sarah Johnson",
+  "Michael Chen",
+  "Emily Rodriguez",
+  "David Kim",
+  "James Wilson",
+  "Maria Garcia",
+  "Robert Taylor"
+];
+
 export interface ProjectGenerationInput {
   projects: number;
   spis: number;
@@ -57,6 +68,7 @@ const generateBasicProject = (
   const budget = Math.round((dept.budget / dept.projectCount) * (0.8 + Math.random() * 0.4));
   const spent = Math.round(budget * (0.2 + Math.random() * 0.5));
   const today = new Date();
+  const ratMember = ratMembers[Math.floor(Math.random() * ratMembers.length)];
 
   return {
     id: `${dept.id}-project-${index + 1}`,
@@ -75,7 +87,8 @@ const generateBasicProject = (
     nabc: generateNABC(dept.name, projectType.name),
     milestones: generateMilestones(`${dept.id}-project-${index + 1}`),
     metrics: generateMetrics(`${dept.id}-project-${index + 1}`, spent, budget),
-    isSampleData: true
+    isSampleData: true,
+    ratMember
   };
 };
 
