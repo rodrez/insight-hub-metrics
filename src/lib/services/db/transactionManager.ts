@@ -1,10 +1,17 @@
 export class TransactionManager {
   private db: IDBDatabase;
   private readonly TRANSACTION_TIMEOUT = 30000; // 30 seconds timeout
-  private activeTransactions: Set<IDBTransaction> = new Set();
+  private activeTransactions: Map<IDBTransaction, {
+    timeoutId: NodeJS.Timeout,
+    cleanup: () => void
+  }> = new Map();
 
   constructor(db: IDBDatabase) {
     this.db = db;
+    // Cleanup on window unload
+    if (typeof window !== 'undefined') {
+      window.addEventListener('unload', () => this.cleanupAllTransactions());
+    }
   }
 
   async performTransaction<T>(
@@ -13,24 +20,21 @@ export class TransactionManager {
     operation: (store: IDBObjectStore) => IDBRequest<T>
   ): Promise<T> {
     return new Promise<T>((resolve, reject) => {
-      let isCompleted = false;
       const transaction = this.db.transaction(storeName, mode);
-      this.activeTransactions.add(transaction);
       const store = transaction.objectStore(storeName);
 
       const timeoutId = setTimeout(() => {
-        if (!isCompleted) {
-          console.error(`Transaction timeout for ${storeName} after ${this.TRANSACTION_TIMEOUT}ms`);
-          this.rollbackTransaction(transaction);
-          reject(new Error(`Transaction timeout for ${storeName}`));
-        }
+        this.handleTransactionTimeout(transaction, storeName);
+        reject(new Error(`Transaction timeout for ${storeName}`));
       }, this.TRANSACTION_TIMEOUT);
 
       const cleanup = () => {
-        isCompleted = true;
-        clearTimeout(timeoutId);
-        this.activeTransactions.delete(transaction);
-        
+        if (this.activeTransactions.has(transaction)) {
+          const { timeoutId } = this.activeTransactions.get(transaction)!;
+          clearTimeout(timeoutId);
+          this.activeTransactions.delete(transaction);
+        }
+
         transaction.removeEventListener('complete', onComplete);
         transaction.removeEventListener('error', onError);
         transaction.removeEventListener('abort', onAbort);
@@ -54,6 +58,9 @@ export class TransactionManager {
         console.warn(`Transaction aborted on ${storeName}`);
         reject(new Error(`Transaction aborted on ${storeName}`));
       };
+
+      // Store cleanup information
+      this.activeTransactions.set(transaction, { timeoutId, cleanup });
 
       transaction.addEventListener('complete', onComplete);
       transaction.addEventListener('error', onError);
@@ -83,6 +90,15 @@ export class TransactionManager {
     });
   }
 
+  private handleTransactionTimeout(transaction: IDBTransaction, storeName: string) {
+    console.error(`Transaction timeout for ${storeName}`);
+    this.rollbackTransaction(transaction);
+    if (this.activeTransactions.has(transaction)) {
+      const { cleanup } = this.activeTransactions.get(transaction)!;
+      cleanup();
+    }
+  }
+
   private rollbackTransaction(transaction: IDBTransaction): void {
     try {
       if (transaction.mode === 'readwrite') {
@@ -99,24 +115,21 @@ export class TransactionManager {
     operation: (store: IDBObjectStore, item: T) => IDBRequest
   ): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      let isCompleted = false;
       const transaction = this.db.transaction(storeName, 'readwrite');
-      this.activeTransactions.add(transaction);
       const store = transaction.objectStore(storeName);
 
       const timeoutId = setTimeout(() => {
-        if (!isCompleted) {
-          console.error(`Batch operation timeout for ${storeName} after ${this.TRANSACTION_TIMEOUT}ms`);
-          this.rollbackTransaction(transaction);
-          reject(new Error(`Batch operation timeout for ${storeName}`));
-        }
+        this.handleTransactionTimeout(transaction, storeName);
+        reject(new Error(`Batch operation timeout for ${storeName}`));
       }, this.TRANSACTION_TIMEOUT);
 
       const cleanup = () => {
-        isCompleted = true;
-        clearTimeout(timeoutId);
-        this.activeTransactions.delete(transaction);
-        
+        if (this.activeTransactions.has(transaction)) {
+          const { timeoutId } = this.activeTransactions.get(transaction)!;
+          clearTimeout(timeoutId);
+          this.activeTransactions.delete(transaction);
+        }
+
         transaction.removeEventListener('complete', onComplete);
         transaction.removeEventListener('error', onError);
         transaction.removeEventListener('abort', onAbort);
@@ -142,6 +155,9 @@ export class TransactionManager {
         reject(new Error(`Batch operation aborted on ${storeName}`));
       };
 
+      // Store cleanup information
+      this.activeTransactions.set(transaction, { timeoutId, cleanup });
+
       transaction.addEventListener('complete', onComplete);
       transaction.addEventListener('error', onError);
       transaction.addEventListener('abort', onAbort);
@@ -160,16 +176,18 @@ export class TransactionManager {
     });
   }
 
-  public cleanupHangingTransactions(): void {
-    this.activeTransactions.forEach(transaction => {
+  public cleanupAllTransactions(): void {
+    this.activeTransactions.forEach(({ timeoutId, cleanup }, transaction) => {
+      clearTimeout(timeoutId);
+      cleanup();
       if (transaction.mode === 'readwrite') {
         try {
           transaction.abort();
         } catch (error) {
-          console.error('Error cleaning up hanging transaction:', error);
+          console.error('Error cleaning up transaction:', error);
         }
       }
-      this.activeTransactions.delete(transaction);
     });
+    this.activeTransactions.clear();
   }
 }
