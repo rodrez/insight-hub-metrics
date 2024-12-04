@@ -33,14 +33,16 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
     loadStatusColors();
   }, []);
 
-  const getStatusColor = (status: string) => {
-    const colorConfig = statusColors.find((config: any) => config.id === status);
-    return colorConfig ? colorConfig.color : undefined;
-  };
-
-  const getStatusColor = (status?: string) => {
-    if (!status) return 'text-gray-400';
-    return status === 'signed' ? 'text-green-500' : 'text-yellow-500';
+  const getStatusColor = (status: string, type: 'project' | 'agreement' = 'project') => {
+    if (type === 'agreement') {
+      if (!status) return 'text-gray-400';
+      return status === 'signed' ? 'text-green-500' : 'text-yellow-500';
+    }
+    
+    const colorConfig = statusColors && Array.isArray(statusColors) 
+      ? statusColors.find((config: any) => config.id === status)
+      : null;
+    return colorConfig?.color;
   };
 
   const ratMembers = getAllRatMembers();
@@ -85,8 +87,8 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
               'outline'
             }
             style={
-              workstream.status === 'active' 
-                ? { backgroundColor: getStatusColor('active') }
+              workstream.status === 'active' && workstream.status
+                ? { backgroundColor: getStatusColor(workstream.status) }
                 : undefined
             }
           >

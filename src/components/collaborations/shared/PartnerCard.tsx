@@ -8,12 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Collaborator } from '@/lib/types';
-import { Link } from 'react-router-dom';
-import { defaultTechDomains } from "@/lib/types/techDomain";
 import { DEPARTMENTS } from "@/lib/constants";
-import { toast } from "@/components/ui/use-toast";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 import { PartnerHeader } from "./PartnerHeader";
 import { PartnerContact } from "./PartnerContact";
 import { PartnerProjects } from "./PartnerProjects";
@@ -50,8 +45,10 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
   const memberRole = getRatMemberRole(displayMember);
 
   const getStatusColor = (status: string) => {
-    const colorConfig = statusColors.find((config: any) => config.id === status);
-    return colorConfig ? colorConfig.color : undefined;
+    const colorConfig = statusColors && Array.isArray(statusColors) 
+      ? statusColors.find((config: any) => config.id === status)
+      : null;
+    return colorConfig?.color;
   };
 
   return (
@@ -95,8 +92,8 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
               'outline'
             }
             style={
-              collaborator.projects?.[0]?.status === 'active' 
-                ? { backgroundColor: getStatusColor('active') }
+              collaborator.projects?.[0]?.status === 'active' && collaborator.projects?.[0]?.status
+                ? { backgroundColor: getStatusColor(collaborator.projects[0].status) }
                 : undefined
             }
           >
