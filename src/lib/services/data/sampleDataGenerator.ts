@@ -8,6 +8,7 @@ import { validateCollaborator } from './utils/dataGenerationUtils';
 import { getRandomRatMember, getAllRatMembers } from './utils/ratMemberUtils';
 import { DEPARTMENTS } from '@/lib/constants';
 import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } from '../sampleData/spiData';
+import { Department } from '@/lib/types';
 
 export const generateSampleData = async (internalPartners: any[], quantities: DataQuantities) => {
   try {
@@ -16,6 +17,9 @@ export const generateSampleData = async (internalPartners: any[], quantities: Da
     // Get all RAT members upfront
     const ratMembers = getAllRatMembers();
     console.log('Available RAT members:', ratMembers);
+
+    // Convert readonly array to mutable array
+    const departments: Department[] = [...DEPARTMENTS];
 
     // Generate partners with explicit RAT member assignment
     const fortune30Partners = generateFortune30Partners()
@@ -35,7 +39,7 @@ export const generateSampleData = async (internalPartners: any[], quantities: Da
       }));
 
     // Generate exactly the requested number of projects
-    const projects = generateProjects(DEPARTMENTS, quantities.projects)
+    const projects = generateProjects(departments, quantities.projects)
       .map(project => ({
         ...project,
         ratMember: getRandomRatMember()
