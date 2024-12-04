@@ -1,26 +1,31 @@
 import { DataQuantities } from '@/lib/types/data';
-import { DataGenerationService } from './data/DataGenerationService';
+import { SampleDataCoordinator } from './data/SampleDataCoordinator';
 import { errorHandler } from './error/ErrorHandlingService';
 
 export class SampleDataService {
-  private dataGenerationService: DataGenerationService;
+  private coordinator: SampleDataCoordinator;
 
   constructor() {
-    this.dataGenerationService = new DataGenerationService();
+    this.coordinator = new SampleDataCoordinator();
   }
 
-  async generateSampleData(quantities: DataQuantities): Promise<void> {
+  async generateSampleData(quantities: Partial<DataQuantities> = {}): Promise<void> {
     try {
-      console.log('Starting sample data generation with quantities:', quantities);
-      const result = await this.dataGenerationService.generateAndSaveData(quantities);
-      
-      if (!result.success) {
-        throw result.error || new Error('Failed to generate and save data');
-      }
+      const validatedQuantities = {
+        projects: quantities.projects ?? 10,
+        spis: quantities.spis ?? 10,
+        objectives: quantities.objectives ?? 5,
+        sitreps: quantities.sitreps ?? 10,
+        fortune30: quantities.fortune30 ?? 6,
+        internalPartners: quantities.internalPartners ?? 20,
+        smePartners: quantities.smePartners ?? 10
+      };
+
+      await this.coordinator.generateData(validatedQuantities);
     } catch (error) {
       errorHandler.handleError(error, {
         type: 'database',
-        title: 'Sample Data Generation Failed'
+        title: 'Sample Data Generation Failed',
       });
       throw error;
     }
