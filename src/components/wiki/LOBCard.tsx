@@ -58,23 +58,18 @@ export function LOBCard({ lob, category, onUpdate, onDelete }: LOBCardProps) {
     });
   };
 
-  const handleAddContact = () => {
-    if (!newContact.name || !newContact.email || !newContact.role) {
-      toast({
-        title: "Error",
-        description: "Name, email, and role are required",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setContacts([...contacts, { ...newContact }]);
+  const handleAddContact = (contact: Contact) => {
+    setContacts([...contacts, contact]);
     setNewContact({
       name: '',
       role: '',
       email: '',
       phone: '',
       notes: ''
+    });
+    toast({
+      title: "Success",
+      description: "Contact added successfully"
     });
   };
 
@@ -83,24 +78,22 @@ export function LOBCard({ lob, category, onUpdate, onDelete }: LOBCardProps) {
     setNewContact(contact);
   };
 
-  const handleUpdateContact = () => {
-    if (editingContact) {
-      setContacts(contacts.map(c => 
-        c.email === editingContact.email ? newContact : c
-      ));
-      setEditingContact(null);
-      setNewContact({
-        name: '',
-        role: '',
-        email: '',
-        phone: '',
-        notes: ''
-      });
-      toast({
-        title: "Success",
-        description: "Contact updated successfully"
-      });
-    }
+  const handleUpdateContact = (updatedContact: Contact) => {
+    setContacts(contacts.map(c => 
+      c.email === editingContact?.email ? updatedContact : c
+    ));
+    setEditingContact(null);
+    setNewContact({
+      name: '',
+      role: '',
+      email: '',
+      phone: '',
+      notes: ''
+    });
+    toast({
+      title: "Success",
+      description: "Contact updated successfully"
+    });
   };
 
   const handleDeleteContact = (email: string) => {
@@ -163,7 +156,6 @@ export function LOBCard({ lob, category, onUpdate, onDelete }: LOBCardProps) {
               <div className="border-t pt-4">
                 <ContactForm
                   contact={newContact}
-                  onChange={setNewContact}
                   onSubmit={editingContact ? handleUpdateContact : handleAddContact}
                   isEditing={!!editingContact}
                 />

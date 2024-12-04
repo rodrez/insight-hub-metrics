@@ -4,24 +4,19 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { contactSchema, type ContactFormData } from "@/lib/validations/formSchemas";
+import { contactSchema } from "@/lib/validations/formSchemas";
+import { Contact } from "../types/contact";
 
 interface ContactFormProps {
-  contact?: ContactFormData;
-  onSubmit: (data: ContactFormData) => void;
+  contact: Contact;
+  onSubmit: (data: Contact) => void;
   isEditing?: boolean;
 }
 
 export function ContactForm({ contact, onSubmit, isEditing = false }: ContactFormProps) {
-  const form = useForm<ContactFormData>({
+  const form = useForm<Contact>({
     resolver: zodResolver(contactSchema),
-    defaultValues: contact || {
-      name: "",
-      email: "",
-      role: "",
-      phone: "",
-      department: "",
-    },
+    defaultValues: contact,
   });
 
   return (
@@ -83,21 +78,21 @@ export function ContactForm({ contact, onSubmit, isEditing = false }: ContactFor
               </FormItem>
             )}
           />
-
-          <FormField
-            control={form.control}
-            name="department"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Department</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter department" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         </div>
+
+        <FormField
+          control={form.control}
+          name="notes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Notes (Optional)</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Enter any additional notes" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <Button type="submit" className="w-full">
           {isEditing ? 'Update Contact' : 'Add Contact'}
