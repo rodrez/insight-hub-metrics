@@ -27,7 +27,7 @@ export function RelationshipsContainer({
 
   return (
     <div className="space-y-4">
-      {fortune30Partners.length > 0 && (
+      {fortune30Partners && fortune30Partners.length > 0 && (
         <RelationshipSection
           title="Fortune 30 Partners"
           items={fortune30Partners}
@@ -36,7 +36,7 @@ export function RelationshipsContainer({
         />
       )}
 
-      {smePartners.length > 0 && (
+      {smePartners && smePartners.length > 0 && (
         <RelationshipSection
           title="SME Partners"
           items={smePartners}
@@ -45,7 +45,7 @@ export function RelationshipsContainer({
         />
       )}
 
-      {projects.length > 0 && (
+      {projects && projects.length > 0 && (
         <RelationshipSection
           title="Projects"
           items={projects}
@@ -54,7 +54,7 @@ export function RelationshipsContainer({
         />
       )}
 
-      {spis.length > 0 && (
+      {spis && spis.length > 0 && (
         <RelationshipSection
           title="SPIs"
           items={spis}
@@ -63,7 +63,7 @@ export function RelationshipsContainer({
         />
       )}
 
-      {sitreps.length > 0 && (
+      {sitreps && sitreps.length > 0 && (
         <RelationshipSection
           title="SitReps"
           items={sitreps}

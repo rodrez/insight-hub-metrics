@@ -25,6 +25,10 @@ export function RelationshipSection({
     );
   }
 
+  const getItemName = (item: any) => {
+    return item.name || item.title || item.deliverable || 'Unnamed';
+  };
+
   return (
     <div className="space-y-2">
       <h3 className="text-sm font-medium">{title}</h3>
@@ -40,7 +44,7 @@ export function RelationshipSection({
             style={!badgeClassName ? { backgroundColor: item.color || color, color: 'white' } : undefined}
             onClick={() => onItemClick(item.id)}
           >
-            {item.name || item.title || item.deliverable}
+            {getItemName(item)}
           </Badge>
         ))}
       </div>
