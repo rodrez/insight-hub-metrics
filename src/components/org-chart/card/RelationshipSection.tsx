@@ -6,9 +6,16 @@ interface RelationshipSectionProps {
   items: any[];
   onItemClick: (id: string) => void;
   color?: string;
+  badgeClassName?: string;
 }
 
-export function RelationshipSection({ title, items, onItemClick, color }: RelationshipSectionProps) {
+export function RelationshipSection({ 
+  title, 
+  items, 
+  onItemClick, 
+  color = "#6E59A5",
+  badgeClassName
+}: RelationshipSectionProps) {
   if (!items?.length) {
     return (
       <div className="space-y-2">
@@ -27,9 +34,10 @@ export function RelationshipSection({ title, items, onItemClick, color }: Relati
             key={item.id}
             className={cn(
               "cursor-pointer transition-colors",
-              color ? "hover:opacity-90" : "hover:bg-primary/90"
+              badgeClassName,
+              !badgeClassName && "hover:opacity-90"
             )}
-            style={color ? { backgroundColor: color, color: 'white' } : undefined}
+            style={!badgeClassName ? { backgroundColor: item.color || color, color: 'white' } : undefined}
             onClick={() => onItemClick(item.id)}
           >
             {item.name || item.title || item.deliverable}

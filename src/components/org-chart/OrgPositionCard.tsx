@@ -3,13 +3,12 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RelationshipSelectionDialog } from "./RelationshipSelectionDialog";
 import { OrgPosition } from "./types";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { db } from "@/lib/db";
 import { getRatMemberInfo } from "@/lib/services/data/utils/ratMemberUtils";
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { OrgPositionHeader } from "./card/OrgPositionHeader";
 import { RelationshipSection } from "./card/RelationshipSection";
+import { useOrgPositionData } from "./hooks/useOrgPositionData";
 
 interface OrgPositionCardProps {
   title: string;
@@ -21,32 +20,44 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const memberInfo = getRatMemberInfo(name);
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
-  const { data: allProjects = [] } = useQuery({
-    queryKey: ['projects'],
-    queryFn: () => db.getAllProjects()
-  });
+  const {
+    fortune30Partners,
+    smePartners,
+    projects,
+    spis,
+    sitreps
+  } = useOrgPositionData(name);
 
-  const { data: allCollaborators = [] } = useQuery({
-    queryKey: ['collaborators'],
-    queryFn: () => db.getAllCollaborators()
-  });
+  const handleItemClick = (type: string, id: string) => {
+    switch (type) {
+      case 'project':
+        navigate('/', { state: { scrollToProject: id } });
+        break;
+      case 'fortune30':
+        navigate('/collaborations', { state: { scrollToCollaborator: id } });
+        break;
+      case 'sme':
+        navigate('/sme', { state: { scrollToPartner: id } });
+        break;
+      case 'spi':
+        navigate('/spi', { state: { scrollToSPI: id } });
+        break;
+      case 'sitrep':
+        navigate('/sitreps', { state: { scrollToSitRep: id } });
+        break;
+    }
+  };
 
-  const { data: allSMEPartners = [] } = useQuery({
-    queryKey: ['sme-partners'],
-    queryFn: () => db.getAllSMEPartners()
-  });
-
-  const { data: allSPIs = [] } = useQuery({
-    queryKey: ['spis'],
-    queryFn: () => db.getAllSPIs()
-  });
-
-  const { data: allSitReps = [] } = useQuery({
-    queryKey: ['sitreps'],
-    queryFn: () => db.getAllSitReps()
-  });
+  const position: OrgPosition = {
+    id: name,
+    title: title,
+    projects: projects.map(p => p.id),
+    fortune30Partners: fortune30Partners.map(p => p.id),
+    smePartners: smePartners.map(p => p.id),
+    spis: spis.map(s => s.id),
+    sitreps: sitreps.map(s => s.id)
+  };
 
   const handleSave = async (updatedPosition: OrgPosition) => {
     try {
@@ -80,13 +91,6 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
 
       await Promise.all(promises);
 
-      // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
-      queryClient.invalidateQueries({ queryKey: ['collaborators'] });
-      queryClient.invalidateQueries({ queryKey: ['sme-partners'] });
-      queryClient.invalidateQueries({ queryKey: ['spis'] });
-      queryClient.invalidateQueries({ queryKey: ['sitreps'] });
-
       toast({
         title: "Success",
         description: "Relationships updated successfully",
@@ -98,56 +102,6 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
         variant: "destructive",
       });
     }
-  };
-
-  const fortune30Partners = allCollaborators.filter(c => 
-    c.type === 'fortune30' && c.ratMember === name
-  );
-
-  const smePartners = allSMEPartners.filter(p => 
-    p.ratMember === name
-  );
-
-  const projects = allProjects.filter(p => 
-    p.ratMember === name
-  );
-
-  const spis = allSPIs.filter(spi => 
-    spi.ratMember === name
-  );
-
-  const sitreps = allSitReps.filter(sitrep => 
-    sitrep.ratMember === name
-  );
-
-  const handleItemClick = (type: string, id: string) => {
-    switch (type) {
-      case 'project':
-        navigate('/', { state: { scrollToProject: id } });
-        break;
-      case 'fortune30':
-        navigate('/collaborations', { state: { scrollToCollaborator: id } });
-        break;
-      case 'sme':
-        navigate('/sme', { state: { scrollToPartner: id } });
-        break;
-      case 'spi':
-        navigate('/spi', { state: { scrollToSPI: id } });
-        break;
-      case 'sitrep':
-        navigate('/sitreps', { state: { scrollToSitRep: id } });
-        break;
-    }
-  };
-
-  const position: OrgPosition = {
-    id: name,
-    title: title,
-    projects: projects.map(p => p.id),
-    fortune30Partners: fortune30Partners.map(p => p.id),
-    smePartners: smePartners.map(p => p.id),
-    spis: spis.map(s => s.id),
-    sitreps: sitreps.map(s => s.id)
   };
 
   return (
@@ -185,14 +139,14 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
           title="SPIs"
           items={spis}
           onItemClick={(id) => handleItemClick('spi', id)}
-          color="#10B981"
+          badgeClassName="bg-emerald-500 hover:bg-emerald-600"
         />
 
         <RelationshipSection
           title="SitReps"
           items={sitreps}
           onItemClick={(id) => handleItemClick('sitrep', id)}
-          color="#3B82F6"
+          badgeClassName="bg-blue-500 hover:bg-blue-600"
         />
       </div>
 
@@ -201,11 +155,11 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
         onClose={() => setIsDialogOpen(false)}
         position={position}
         onSave={handleSave}
-        allProjects={allProjects}
-        allFortune30Partners={allCollaborators.filter(c => c.type === 'fortune30')}
-        allSMEPartners={allSMEPartners}
-        allSPIs={allSPIs}
-        allSitReps={allSitReps}
+        allProjects={projects}
+        allFortune30Partners={fortune30Partners}
+        allSMEPartners={smePartners}
+        allSPIs={spis}
+        allSitReps={sitreps}
       />
     </Card>
   );
