@@ -42,9 +42,17 @@ export const generateSMEPartners = (): Collaborator[] => {
       role: "SME Partner",
       department: company.department,
       ratMember: company.ratMember,
-      type: "sme",
+      type: "sme" as const,
       lastActive: today.toISOString(),
-      color: '#6E59A5'
+      color: '#6E59A5',
+      projects: [
+        {
+          id: `${company.department.toLowerCase().replace(/\s+/g, '-')}-1`,
+          name: `${company.department} Innovation Project`,
+          description: `Advanced research and development in ${company.department}`,
+          status: 'active' as const
+        }
+      ]
     };
   });
 };
