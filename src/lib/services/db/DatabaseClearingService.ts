@@ -3,9 +3,16 @@ import { connectionManager } from './connectionManager';
 import { DatabaseCleaner } from './databaseCleaner';
 import { DatabaseError } from '../../utils/errorHandling';
 import { DB_CONFIG } from './stores';
+import { TransactionQueueManager } from './TransactionQueueManager';
 
 export class DatabaseClearingService {
-  constructor(private db: IDBDatabase | null) {}
+  private db: IDBDatabase | null;
+  private transactionQueue: TransactionQueueManager;
+
+  constructor(db: IDBDatabase | null) {
+    this.db = db;
+    this.transactionQueue = TransactionQueueManager.getInstance();
+  }
 
   private async validateConnection(): Promise<boolean> {
     if (!this.db) {
@@ -14,7 +21,6 @@ export class DatabaseClearingService {
     }
 
     try {
-      // Try a simple transaction to verify connection
       const transaction = this.db.transaction(['projects'], 'readonly');
       const store = transaction.objectStore('projects');
       await new Promise((resolve, reject) => {
@@ -34,7 +40,6 @@ export class DatabaseClearingService {
     try {
       console.log('Starting database clearing process...');
       
-      // Validate or establish connection
       const isConnected = await this.validateConnection();
       if (!isConnected) {
         console.log('Attempting to establish new database connection...');
@@ -55,7 +60,6 @@ export class DatabaseClearingService {
       console.log('Closing existing connections...');
       connectionManager.closeAllConnections();
       
-      // Get all store names from DB_CONFIG.stores
       const storeNames = Object.values(DB_CONFIG.stores);
       
       if (storeNames.length === 0) {
@@ -64,13 +68,15 @@ export class DatabaseClearingService {
       }
 
       console.log('Clearing stores sequentially...');
-      // Clear stores sequentially to avoid transaction conflicts
       for (const storeName of storeNames) {
         await this.clearStore(storeName);
       }
 
       console.log('Cleaning up database...');
       await DatabaseCleaner.clearDatabase();
+      
+      // Clear the transaction queue after successful database clearing
+      this.transactionQueue.clearQueue();
       
       toast({
         title: "Success",
@@ -97,35 +103,32 @@ export class DatabaseClearingService {
         return;
       }
 
-      try {
-        console.log(`Clearing store: ${storeName}`);
-        const transaction = this.db.transaction(storeName, 'readwrite');
-        const store = transaction.objectStore(storeName);
+      this.transactionQueue.enqueueTransaction(async () => {
+        try {
+          console.log(`Clearing store: ${storeName}`);
+          const transaction = this.db!.transaction(storeName, 'readwrite');
+          const store = transaction.objectStore(storeName);
 
-        const request = store.clear();
+          await new Promise<void>((resolveStore, rejectStore) => {
+            const request = store.clear();
 
-        request.onsuccess = () => {
-          console.log(`Store ${storeName} cleared successfully`);
+            request.onsuccess = () => {
+              console.log(`Store ${storeName} cleared successfully`);
+              resolveStore();
+            };
+
+            request.onerror = () => {
+              console.error(`Error clearing store ${storeName}:`, request.error);
+              rejectStore(new DatabaseError(`Failed to clear store ${storeName}`));
+            };
+          });
+
           resolve();
-        };
-
-        request.onerror = () => {
-          console.error(`Error clearing store ${storeName}:`, request.error);
-          reject(new DatabaseError(`Failed to clear store ${storeName}`));
-        };
-
-        transaction.oncomplete = () => {
-          resolve();
-        };
-
-        transaction.onerror = () => {
-          console.error(`Transaction error clearing store ${storeName}`);
-          reject(new DatabaseError(`Transaction error clearing store ${storeName}`));
-        };
-      } catch (error) {
-        console.error(`Error accessing store ${storeName}:`, error);
-        reject(new DatabaseError(`Error accessing store ${storeName}`));
-      }
+        } catch (error) {
+          console.error(`Error accessing store ${storeName}:`, error);
+          reject(new DatabaseError(`Error accessing store ${storeName}`));
+        }
+      }, 2); // Higher priority for clearing operations
     });
   }
 }
