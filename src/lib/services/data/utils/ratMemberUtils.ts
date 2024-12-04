@@ -81,15 +81,27 @@ const RAT_MEMBERS: Record<string, RatMemberInfo> = {
   }
 };
 
-export const getAllRatMembers = (): string[] => Object.keys(RAT_MEMBERS);
+export const getAllRatMembers = (): string[] => {
+  console.log('Getting all RAT members');
+  const members = Object.keys(RAT_MEMBERS);
+  console.log('Available RAT members:', members);
+  return members;
+};
 
 export const getRatMemberInfo = (name: string): RatMemberInfo | undefined => {
-  return RAT_MEMBERS[name];
+  console.log('Getting info for RAT member:', name);
+  const info = RAT_MEMBERS[name];
+  console.log('Found member info:', info);
+  return info;
 };
 
 export const getRatMemberRelationships = async (name: string, db: any) => {
+  console.log('Getting relationships for RAT member:', name);
   const memberInfo = RAT_MEMBERS[name];
-  if (!memberInfo) return null;
+  if (!memberInfo) {
+    console.log('No member info found for:', name);
+    return null;
+  }
 
   const fortune30Partners = await db.getAllCollaborators();
   const smePartners = await db.getAllSMEPartners();
@@ -97,13 +109,16 @@ export const getRatMemberRelationships = async (name: string, db: any) => {
   const spis = await db.getAllSPIs();
   const sitreps = await db.getAllSitReps();
 
-  return {
+  const relationships = {
     fortune30Partners: fortune30Partners.filter(p => p.ratMember === name),
     smePartners: smePartners.filter(p => p.ratMember === name),
     projects: projects.filter(p => p.ratMember === name),
     spis: spis.filter(s => s.ratMember === name),
     sitreps: sitreps.filter(s => s.ratMember === name)
   };
+
+  console.log('Found relationships:', relationships);
+  return relationships;
 };
 
 export const getRatMemberRole = (name: string): string | undefined => {

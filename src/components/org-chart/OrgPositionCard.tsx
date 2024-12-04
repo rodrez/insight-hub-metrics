@@ -20,12 +20,21 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
   const memberInfo = getRatMemberInfo(name);
   const navigate = useNavigate();
 
+  console.log('Rendering OrgPositionCard for:', name);
+  console.log('Member Info:', memberInfo);
+
   const { data: relationships, isLoading } = useQuery({
     queryKey: ['rat-member-relationships', name],
-    queryFn: async () => getRatMemberRelationships(name, db)
+    queryFn: async () => {
+      console.log('Fetching relationships for:', name);
+      const data = await getRatMemberRelationships(name, db);
+      console.log('Fetched relationships:', data);
+      return data;
+    }
   });
 
   const handleItemClick = (type: string, id: string) => {
+    console.log('Item clicked:', { type, id });
     switch (type) {
       case 'project':
         navigate('/', { state: { scrollToProject: id } });
@@ -46,8 +55,11 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
   };
 
   if (isLoading) {
+    console.log('Loading relationships for:', name);
     return <Card className={`${width} p-6 animate-pulse`}>Loading...</Card>;
   }
+
+  console.log('Rendering relationships for:', name, relationships);
 
   const position: OrgPosition = {
     id: name,
@@ -82,7 +94,7 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
         onClose={() => setIsDialogOpen(false)}
         position={position}
         onSave={async (updatedPosition) => {
-          // Handle save logic
+          console.log('Saving updated position:', updatedPosition);
           setIsDialogOpen(false);
         }}
         allProjects={[]}
