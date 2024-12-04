@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { db } from "@/lib/db";
-import { LoadingStep } from "@/lib/utils/loadingRetry";
 import { useQueryClient } from "@tanstack/react-query";
-import { DatabaseError } from "@/lib/utils/errorHandling";
-import { DatabaseOperations } from "../operations/DatabaseOperations";
 import { DataQuantities } from "../SampleData";
 import { toast } from "@/components/ui/use-toast";
 import { generateSampleData } from "@/lib/services/data/sampleDataGenerator";
@@ -13,14 +10,13 @@ export function useDataPopulation() {
   const [isPopulating, setIsPopulating] = useState(false);
   const [progress, setProgress] = useState(0);
   const queryClient = useQueryClient();
-  const databaseOps = new DatabaseOperations();
 
   const populateSampleData = async (quantities: DataQuantities) => {
     setIsPopulating(true);
     setProgress(0);
     
     try {
-      console.log('Starting sample data population with quantities:', quantities);
+      console.log('Starting data population with quantities:', quantities);
       
       // Initialize database
       await db.init();
@@ -40,32 +36,42 @@ export function useDataPopulation() {
       
       console.log('Generated data:', data);
       
-      // Add data to database in sequence
-      console.log('Adding projects to database...');
-      for (const project of data.projects) {
-        await db.addProject(project);
-      }
+      // Use Promise.all for parallel database operations
+      const operations = [];
+      
+      // Add projects in parallel
+      operations.push(Promise.all(data.projects.map(project => {
+        console.log('Adding project:', project.id);
+        return db.addProject(project);
+      })));
       setProgress(60);
       
-      console.log('Adding SPIs to database...');
-      for (const spi of data.spis) {
-        await db.addSPI(spi);
-      }
+      // Add SPIs in parallel
+      operations.push(Promise.all(data.spis.map(spi => {
+        console.log('Adding SPI:', spi.id);
+        return db.addSPI(spi);
+      })));
       setProgress(70);
       
-      console.log('Adding objectives to database...');
-      for (const objective of data.objectives) {
-        await db.addObjective(objective);
-      }
+      // Add objectives in parallel
+      operations.push(Promise.all(data.objectives.map(objective => {
+        console.log('Adding objective:', objective.id);
+        return db.addObjective(objective);
+      })));
       setProgress(80);
       
-      console.log('Adding sitreps to database...');
-      for (const sitrep of data.sitreps) {
-        await db.addSitRep(sitrep);
-      }
+      // Add sitreps in parallel
+      operations.push(Promise.all(data.sitreps.map(sitrep => {
+        console.log('Adding sitrep:', sitrep.id);
+        return db.addSitRep(sitrep);
+      })));
       setProgress(90);
       
-      // Force immediate data refresh
+      // Wait for all database operations to complete
+      await Promise.all(operations);
+      console.log('All database operations completed');
+      
+      // Force immediate data refresh AFTER all operations are complete
       await queryClient.invalidateQueries();
       await queryClient.refetchQueries({ queryKey: ['data-counts'] });
       setProgress(100);
@@ -86,9 +92,6 @@ export function useDataPopulation() {
     } finally {
       setIsPopulating(false);
       setProgress(0);
-      // Force one final refresh to ensure UI is up to date
-      queryClient.invalidateQueries();
-      queryClient.refetchQueries({ queryKey: ['data-counts'] });
     }
   };
 

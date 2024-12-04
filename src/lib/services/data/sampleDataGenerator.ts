@@ -13,7 +13,7 @@ import { toast } from "@/components/ui/use-toast";
 
 export const generateSampleData = async (internalPartners: any[], quantities: DataQuantities) => {
   try {
-    console.log('Starting sample data generation with quantities:', quantities);
+    console.log('Starting sample data generation with exact quantities:', quantities);
     
     // Get all RAT members upfront
     const ratMembers = getAllRatMembers();
@@ -31,7 +31,7 @@ export const generateSampleData = async (internalPartners: any[], quantities: Da
         ...partner,
         ratMember: getRandomRatMember()
       }));
-    console.log(`Generated ${fortune30Partners.length} Fortune 30 partners`);
+    console.log(`Generated exactly ${fortune30Partners.length} Fortune 30 partners (requested: ${quantities.fortune30})`);
 
     console.log('Generating SME partners...');
     const smePartners = generateSMEPartners()
@@ -41,34 +41,37 @@ export const generateSampleData = async (internalPartners: any[], quantities: Da
         ...partner,
         ratMember: getRandomRatMember()
       }));
-    console.log(`Generated ${smePartners.length} SME partners`);
+    console.log(`Generated exactly ${smePartners.length} SME partners (requested: ${quantities.smePartners})`);
 
     // Generate exactly the requested number of projects
-    console.log(`Generating ${quantities.projects} projects...`);
+    console.log(`Generating exactly ${quantities.projects} projects...`);
     const projects = generateProjects(departments, quantities.projects)
+      .slice(0, quantities.projects)
       .map(project => ({
         ...project,
         ratMember: getRandomRatMember()
       }));
-    console.log(`Generated ${projects.length} projects`);
+    console.log(`Generated exactly ${projects.length} projects (requested: ${quantities.projects})`);
 
     // Generate SPIs, objectives, and sitreps with exact counts
-    console.log(`Generating ${quantities.spis} SPIs...`);
+    console.log(`Generating exactly ${quantities.spis} SPIs...`);
     const spis = generateSampleSPIs(
       projects.map(p => p.id),
       quantities.spis
-    );
-    console.log(`Generated ${spis.length} SPIs`);
+    ).slice(0, quantities.spis);
+    console.log(`Generated exactly ${spis.length} SPIs (requested: ${quantities.spis})`);
 
-    console.log(`Generating ${quantities.objectives} objectives...`);
-    const objectives = generateSampleObjectives(quantities.objectives);
-    console.log(`Generated ${objectives.length} objectives`);
+    console.log(`Generating exactly ${quantities.objectives} objectives...`);
+    const objectives = generateSampleObjectives(quantities.objectives)
+      .slice(0, quantities.objectives);
+    console.log(`Generated exactly ${objectives.length} objectives (requested: ${quantities.objectives})`);
 
-    console.log(`Generating ${quantities.sitreps} sitreps...`);
-    const sitreps = generateSampleSitReps(spis, quantities.sitreps);
-    console.log(`Generated ${sitreps.length} sitreps`);
+    console.log(`Generating exactly ${quantities.sitreps} sitreps...`);
+    const sitreps = generateSampleSitReps(spis, quantities.sitreps)
+      .slice(0, quantities.sitreps);
+    console.log(`Generated exactly ${sitreps.length} sitreps (requested: ${quantities.sitreps})`);
 
-    // Log final counts for verification
+    // Verify exact counts match requested quantities
     const finalCounts = {
       fortune30: fortune30Partners.length,
       internalPartners: internalPartners.length,
@@ -80,6 +83,7 @@ export const generateSampleData = async (internalPartners: any[], quantities: Da
     };
 
     console.log('Final generated data counts:', finalCounts);
+    console.log('Requested quantities:', quantities);
     
     // Verify counts match requested quantities
     const mismatches = Object.entries(finalCounts).filter(
@@ -87,19 +91,11 @@ export const generateSampleData = async (internalPartners: any[], quantities: Da
     );
 
     if (mismatches.length > 0) {
-      console.warn('Some quantities do not match requested amounts:', mismatches);
-      toast({
-        title: "Warning",
-        description: "Some data quantities don't match requested amounts. Check the console for details.",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Success",
-        description: "Generated exact quantities of all requested data",
-      });
+      console.error('Quantity mismatches:', mismatches);
+      throw new Error(`Generated quantities don't match requested amounts: ${JSON.stringify(mismatches)}`);
     }
 
+    console.log('All quantities match exactly as requested');
     return {
       projects,
       spis,
