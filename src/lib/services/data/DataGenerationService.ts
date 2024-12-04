@@ -9,6 +9,7 @@ import { db } from "@/lib/db";
 import { errorHandler } from '../error/ErrorHandlingService';
 import { validateCollaborator, validateProject } from './utils/dataGenerationUtils';
 import { DEPARTMENTS } from '@/lib/constants';
+import { Department } from '@/lib/types';
 
 export class DataGenerationService {
   private showSuccessStep(step: string) {
@@ -37,6 +38,9 @@ export class DataGenerationService {
       await this.clearAllData();
       this.showSuccessStep("Cleared existing data");
 
+      // Convert readonly array to mutable array
+      const departments: Department[] = [...DEPARTMENTS];
+
       // Generate all data
       console.log('Generating partners...');
       const fortune30Partners = generateFortune30Partners().slice(0, quantities.fortune30);
@@ -44,7 +48,7 @@ export class DataGenerationService {
       const smePartners = generateSMEPartners().slice(0, quantities.smePartners);
       
       console.log('Generating projects...');
-      const projects = generateProjects(DEPARTMENTS, quantities.projects);
+      const projects = generateProjects(departments, quantities.projects);
       
       console.log('Generating SPIs and related data...');
       const spis = generateSampleSPIs(projects.map(p => p.id), quantities.spis);
