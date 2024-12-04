@@ -32,3 +32,5 @@ export const getRatMemberDepartment = (name: string): string | undefined => {
 export const getRandomRatMember = (): string => {
   return cachedRatMembers[Math.floor(Math.random() * cachedRatMembers.length)];
 };
+
+export { RAT_MEMBERS };
