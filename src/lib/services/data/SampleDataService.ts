@@ -6,6 +6,7 @@ import { DataQuantities } from '@/lib/types/data';
 import { errorHandler } from '../error/ErrorHandlingService';
 import { validateCollaborator } from './utils/dataGenerationUtils';
 import { getRandomRatMember } from './utils/ratMemberUtils';
+import { DEPARTMENTS } from '@/lib/constants';
 
 export class SampleDataService {
   async generateSampleData(quantities: DataQuantities) {
@@ -22,12 +23,6 @@ export class SampleDataService {
 
       const projectInput = {
         projects: minProjects,
-        spis: quantities.spis,
-        objectives: quantities.objectives,
-        sitreps: quantities.sitreps,
-        fortune30: quantities.fortune30,
-        internalPartners: quantities.internalPartners,
-        smePartners: quantities.smePartners,
         departments: [...DEPARTMENTS],
         fortune30Partners: fortune30Partners.slice(0, quantities.fortune30),
         collaborators: internalPartners.slice(0, quantities.internalPartners)
@@ -43,11 +38,7 @@ export class SampleDataService {
 
       const fortune30WithRAT = fortune30Partners.map(partner => ({
         ...partner,
-        ratMember: getRandomRatMember(),
-        workstreams: (partner.workstreams || []).map(ws => ({
-          ...ws,
-          ratMember: getRandomRatMember()
-        }))
+        ratMember: getRandomRatMember()
       }));
 
       const smePartnersWithRAT = smePartners.map(partner => ({
