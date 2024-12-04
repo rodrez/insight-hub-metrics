@@ -5,7 +5,7 @@ import { generateProjects } from './generators/projectGenerator';
 import { DataQuantities } from '@/lib/types/data';
 import { errorHandler } from '../error/ErrorHandlingService';
 import { validateCollaborator } from './utils/dataGenerationUtils';
-import { getRandomRatMember } from './utils/ratMemberUtils';
+import { getRandomRatMember, getAllRatMembers } from './utils/ratMemberUtils';
 import { DEPARTMENTS } from '@/lib/constants';
 
 export class SampleDataService {
@@ -13,44 +13,47 @@ export class SampleDataService {
     try {
       console.log('Starting sample data generation with quantities:', quantities);
       
-      const fortune30Partners = generateFortune30Partners().filter(validateCollaborator);
-      const internalPartners = generateInternalPartners().filter(validateCollaborator);
-      const smePartners = generateSMEPartners().filter(validateCollaborator);
+      // Get all RAT members upfront
+      const ratMembers = getAllRatMembers();
+      console.log('Available RAT members:', ratMembers);
 
-      // Ensure we generate at least 5 projects
-      const minProjects = Math.max(5, quantities.projects);
-      console.log('Generating minimum projects:', minProjects);
+      // Generate partners with explicit RAT member assignment
+      const fortune30Partners = generateFortune30Partners().filter(validateCollaborator)
+        .map(partner => ({
+          ...partner,
+          ratMember: getRandomRatMember()
+        }));
 
-      const projectInput = {
-        projects: minProjects,
-        departments: [...DEPARTMENTS],
-        fortune30Partners: fortune30Partners.slice(0, quantities.fortune30),
-        collaborators: internalPartners.slice(0, quantities.internalPartners)
-      };
+      const internalPartners = generateInternalPartners().filter(validateCollaborator)
+        .map(partner => ({
+          ...partner,
+          ratMember: getRandomRatMember()
+        }));
 
-      const projects = generateProjects(projectInput.departments, projectInput.projects);
+      const smePartners = generateSMEPartners().filter(validateCollaborator)
+        .map(partner => ({
+          ...partner,
+          ratMember: getRandomRatMember()
+        }));
 
-      // Assign RAT members to all entities
-      const projectsWithRAT = projects.map(project => ({
-        ...project,
-        ratMember: getRandomRatMember()
-      }));
+      // Generate projects with explicit RAT member assignment
+      const projects = generateProjects([...DEPARTMENTS], quantities.projects)
+        .map(project => ({
+          ...project,
+          ratMember: getRandomRatMember()
+        }));
 
-      const fortune30WithRAT = fortune30Partners.map(partner => ({
-        ...partner,
-        ratMember: getRandomRatMember()
-      }));
-
-      const smePartnersWithRAT = smePartners.map(partner => ({
-        ...partner,
-        ratMember: getRandomRatMember()
-      }));
+      // Log generated data for verification
+      console.log('Generated Fortune 30 partners:', fortune30Partners.length);
+      console.log('Generated internal partners:', internalPartners.length);
+      console.log('Generated SME partners:', smePartners.length);
+      console.log('Generated projects:', projects.length);
 
       return {
-        fortune30Partners: fortune30WithRAT.slice(0, quantities.fortune30),
+        fortune30Partners: fortune30Partners.slice(0, quantities.fortune30),
         internalPartners: internalPartners.slice(0, quantities.internalPartners),
-        smePartners: smePartnersWithRAT.slice(0, quantities.smePartners),
-        projects: projectsWithRAT.slice(0, quantities.projects)
+        smePartners: smePartners.slice(0, quantities.smePartners),
+        projects: projects.slice(0, quantities.projects)
       };
     } catch (error) {
       console.error('Error generating sample data:', error);
