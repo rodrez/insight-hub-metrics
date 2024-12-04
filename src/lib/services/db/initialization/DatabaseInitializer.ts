@@ -1,94 +1,82 @@
 import { toast } from "@/components/ui/use-toast";
-import { DB_CONFIG } from '../stores';
-import { DatabaseError } from '../../../utils/errorHandling';
-import { createStores } from '../stores';
 
 export class DatabaseInitializer {
-  private maxRetries: number = 3;
-  private retryDelay: number = 1000;
+  private dbName: string;
+  private version: number;
 
-  async initializeDatabase(): Promise<IDBDatabase> {
-    console.log('Starting database initialization');
+  constructor(dbName: string, version: number) {
+    this.dbName = dbName;
+    this.version = version;
+  }
+
+  async initDatabase(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
-
-      request.onerror = () => {
-        const error = request.error;
-        console.error('Failed to open database:', error);
-        reject(new DatabaseError('Failed to open database', error));
+      console.info('Starting database initialization');
+      
+      const request = indexedDB.open(this.dbName, this.version);
+      
+      request.onerror = (event) => {
+        console.error('Failed to open database:', event);
+        // Check if private browsing mode is enabled
+        if (request.error?.name === 'SecurityError' || !window.indexedDB) {
+          toast({
+            title: "Database Error",
+            description: "IndexedDB access is restricted. This may happen in private browsing mode.",
+            variant: "destructive",
+          });
+        }
+        reject(new Error('Failed to open database'));
       };
 
-      request.onblocked = () => {
-        console.warn('Database opening blocked - closing other connections');
-        reject(new DatabaseError('Database opening blocked'));
+      request.onsuccess = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        console.info('Database initialized successfully');
+        resolve(db);
       };
 
       request.onupgradeneeded = (event) => {
-        console.log('Database upgrade needed - creating stores');
         const db = (event.target as IDBOpenDBRequest).result;
-        try {
-          createStores(db);
-          console.log('Stores created successfully');
-        } catch (error) {
-          console.error('Error creating stores:', error);
-          reject(new DatabaseError('Failed to create database stores', error));
-        }
-      };
-
-      request.onsuccess = () => {
-        console.log('Database opened successfully');
-        const db = request.result;
-        
-        db.onversionchange = () => {
-          console.log('Database version change detected');
-          db.close();
-          toast({
-            title: "Database Update Required",
-            description: "Please reload the application",
-            variant: "destructive",
-          });
-        };
-
-        toast({
-          title: "Database Initialized",
-          description: "Database connection established successfully",
-        });
-        
-        resolve(db);
+        this.createStores(db);
       };
     });
   }
 
-  async initWithRetry(): Promise<IDBDatabase> {
-    let retryCount = 0;
-    
-    while (retryCount < this.maxRetries) {
+  async initWithRetry(maxRetries: number = 3, delay: number = 1000): Promise<IDBDatabase> {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        console.log(`Database initialization attempt ${retryCount + 1}`);
-        const db = await this.initializeDatabase();
-        console.log('Database initialized successfully');
+        console.info(`Database initialization attempt ${attempt}`);
+        const db = await this.initDatabase();
         return db;
       } catch (error) {
-        retryCount++;
-        console.error(`Database initialization attempt ${retryCount} failed:`, error);
+        console.error(`Database initialization attempt ${attempt} failed:`, error);
         
-        if (retryCount < this.maxRetries) {
-          console.log(`Retrying database initialization in ${this.retryDelay}ms...`);
-          await new Promise(resolve => setTimeout(resolve, this.retryDelay));
-        } else {
-          toast({
-            title: "Database Error",
-            description: `Failed to initialize database after ${this.maxRetries} attempts`,
-            variant: "destructive",
-          });
-          throw new DatabaseError(
-            `Failed to initialize database after ${this.maxRetries} attempts`,
-            error instanceof Error ? error : undefined
-          );
+        if (attempt === maxRetries) {
+          throw error;
         }
+        
+        console.info(`Retrying database initialization in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
+    throw new Error('Database initialization failed after all retries');
+  }
 
-    throw new DatabaseError('Database initialization failed');
+  private createStores(db: IDBDatabase) {
+    // Create object stores if they don't exist
+    if (!db.objectStoreNames.contains('projects')) {
+      db.createObjectStore('projects', { keyPath: 'id' });
+    }
+    if (!db.objectStoreNames.contains('collaborators')) {
+      db.createObjectStore('collaborators', { keyPath: 'id' });
+    }
+    if (!db.objectStoreNames.contains('smePartners')) {
+      db.createObjectStore('smePartners', { keyPath: 'id' });
+    }
+    if (!db.objectStoreNames.contains('spis')) {
+      db.createObjectStore('spis', { keyPath: 'id' });
+    }
+    if (!db.objectStoreNames.contains('sitreps')) {
+      db.createObjectStore('sitreps', { keyPath: 'id' });
+    }
   }
 }

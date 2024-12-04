@@ -1,91 +1,65 @@
-import { DatabaseError } from '../../utils/errorHandling';
-import { connectionManager } from './connectionManager';
 import { DatabaseInitializer } from './initialization/DatabaseInitializer';
-import { DatabaseCleanup } from './cleanup/DatabaseCleanup';
+import { toast } from "@/components/ui/use-toast";
 
 export class DatabaseConnectionService {
+  private dbName: string;
+  private version: number;
   private db: IDBDatabase | null = null;
-  private initialized: boolean = false;
-  private initializationPromise: Promise<void> | null = null;
-  private databaseInitializer: DatabaseInitializer;
-  private databaseCleanup: DatabaseCleanup;
+  private connectionPromise: Promise<void> | null = null;
 
-  constructor() {
-    this.databaseInitializer = new DatabaseInitializer();
-    this.databaseCleanup = new DatabaseCleanup(this.db);
-    
-    if (typeof window !== 'undefined') {
-      window.addEventListener('unload', () => this.cleanup());
-    }
+  constructor(dbName: string, version: number) {
+    this.dbName = dbName;
+    this.version = version;
   }
 
   async init(): Promise<void> {
-    if (this.initializationPromise) {
-      console.log('Database initialization already in progress');
-      return this.initializationPromise;
+    if (this.connectionPromise) {
+      return this.connectionPromise;
     }
 
-    if (this.initialized && this.db) {
-      console.log('Database already initialized');
-      return;
-    }
-
-    this.initializationPromise = this.initializeDatabase();
-
-    try {
-      await this.initializationPromise;
-    } finally {
-      this.initializationPromise = null;
-    }
+    this.connectionPromise = this.initializeDatabase();
+    return this.connectionPromise;
   }
 
   private async initializeDatabase(): Promise<void> {
     try {
-      await this.cleanupExistingConnections();
-      this.db = await this.databaseInitializer.initWithRetry();
-      this.initialized = true;
-      connectionManager.addConnection(this.db);
-      this.databaseCleanup = new DatabaseCleanup(this.db);
-      this.databaseCleanup.startCleanupInterval();
-      console.log('Database initialization completed successfully');
+      const initializer = new DatabaseInitializer(this.dbName, this.version);
+      this.db = await initializer.initWithRetry();
+      
+      // Add connection error handler
+      this.db.onerror = (event) => {
+        console.error('Database error:', event);
+        toast({
+          title: "Database Error",
+          description: "An error occurred while accessing the database",
+          variant: "destructive",
+        });
+      };
+
     } catch (error) {
-      this.initialized = false;
-      this.db = null;
+      console.error('Database initialization failed:', error);
+      this.connectionPromise = null;
+      toast({
+        title: "Database Error",
+        description: "Failed to initialize the database. Please refresh the page.",
+        variant: "destructive",
+      });
       throw error;
     }
   }
 
-  private async cleanupExistingConnections(): Promise<void> {
-    if (this.db) {
-      console.log('Cleaning up existing database connection');
-      try {
-        await this.cleanup();
-        await new Promise(resolve => setTimeout(resolve, 100));
-      } catch (error) {
-        console.warn('Error during connection cleanup:', error);
-      }
-    }
-    connectionManager.closeAllConnections();
-  }
-
-  async cleanup(): Promise<void> {
-    await this.databaseCleanup.cleanup();
-    this.db = null;
-    this.initialized = false;
-  }
-
-  getDatabase(): IDBDatabase | null {
-    if (!this.initialized || !this.db) {
-      console.warn('Attempting to get database before initialization');
+  getDatabase(): IDBDatabase {
+    if (!this.db) {
+      throw new Error('Database not initialized');
     }
     return this.db;
   }
 
-  isInitialized(): boolean {
-    return this.initialized && this.db !== null;
-  }
-
-  async close(): Promise<void> {
-    await this.cleanup();
+  close(): void {
+    if (this.db) {
+      this.db.close();
+      this.db = null;
+      this.connectionPromise = null;
+    }
   }
 }
