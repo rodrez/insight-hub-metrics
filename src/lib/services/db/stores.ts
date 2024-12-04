@@ -1,6 +1,6 @@
 export const DB_CONFIG = {
   name: 'projectManagementDB',
-  version: 2, // Increment version to trigger upgrade
+  version: 3, // Increment version to trigger upgrade
   stores: {
     projects: 'projects',
     collaborators: 'collaborators',
