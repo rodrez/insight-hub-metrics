@@ -44,9 +44,9 @@ export class DatabaseTransactionService {
         this.transactionQueue.enqueueTransaction(
           async () => {
             const result = await this.executeTransaction(storeName, mode, operation);
-            return result;
+            resolve(result);
           }
-        ).then((result) => resolve(result as T)).catch(reject);
+        ).catch(reject);
       });
     }
 
