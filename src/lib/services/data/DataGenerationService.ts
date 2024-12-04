@@ -20,67 +20,90 @@ export class DataGenerationService {
     });
   }
 
-  async generateAndSaveData(): Promise<{ success: boolean; error?: any }> {
+  async generateAndSaveData(quantities: DataQuantities = {
+    projects: 10,
+    spis: 10,
+    objectives: 5,
+    sitreps: 10,
+    fortune30: 6,
+    internalPartners: 20,
+    smePartners: 10
+  }): Promise<{ success: boolean; error?: any }> {
     try {
+      console.log('Starting data generation with quantities:', quantities);
       await db.init();
-      this.showSuccessStep("Database initialized");
+      
+      // Clear existing data
+      await this.clearAllData();
+      this.showSuccessStep("Cleared existing data");
 
-      const defaultQuantities: Required<DataQuantities> = {
-        projects: 10,
-        spis: 10,
-        objectives: 5,
-        sitreps: 10,
-        fortune30: 6,
-        internalPartners: 20,
-        smePartners: 10
-      };
-
-      // Generate all data first
+      // Generate all data
       console.log('Generating partners...');
-      const fortune30Partners = generateFortune30Partners().slice(0, defaultQuantities.fortune30);
-      const internalPartners = (await generateInternalPartners()).slice(0, defaultQuantities.internalPartners);
-      const smePartners = generateSMEPartners().slice(0, defaultQuantities.smePartners);
+      const fortune30Partners = generateFortune30Partners().slice(0, quantities.fortune30);
+      const internalPartners = (await generateInternalPartners()).slice(0, quantities.internalPartners);
+      const smePartners = generateSMEPartners().slice(0, quantities.smePartners);
       
       console.log('Generating projects...');
-      const projects = generateProjects(Array.from(DEPARTMENTS), defaultQuantities.projects);
+      const projects = generateProjects(DEPARTMENTS, quantities.projects);
       
       console.log('Generating SPIs and related data...');
-      const spis = generateSampleSPIs(projects.map(p => p.id), defaultQuantities.spis);
-      const objectives = generateSampleObjectives(defaultQuantities.objectives);
-      const sitreps = generateSampleSitReps(spis, defaultQuantities.sitreps);
+      const spis = generateSampleSPIs(projects.map(p => p.id), quantities.spis);
+      const objectives = generateSampleObjectives(quantities.objectives);
+      const sitreps = generateSampleSitReps(spis, quantities.sitreps);
 
-      // Save all data in sequence
-      const database = db.getDatabase();
-      if (!database) throw new Error('Database not initialized');
+      // Save Fortune 30 partners
+      console.log('Saving Fortune 30 partners...');
+      for (const partner of fortune30Partners) {
+        await db.addCollaborator(partner);
+      }
+      this.showSuccessStep("Saved Fortune 30 partners");
 
-      // Clear existing data
-      await Promise.all([
-        this.clearStore(database, 'collaborators'),
-        this.clearStore(database, 'smePartners'),
-        this.clearStore(database, 'projects'),
-        this.clearStore(database, 'spis'),
-        this.clearStore(database, 'objectives'),
-        this.clearStore(database, 'sitreps')
-      ]);
+      // Save internal partners
+      console.log('Saving internal partners...');
+      for (const partner of internalPartners) {
+        await db.addCollaborator(partner);
+      }
+      this.showSuccessStep("Saved internal partners");
 
-      // Save new data
-      await this.saveToStore(database, 'collaborators', [...fortune30Partners, ...internalPartners]);
-      this.showSuccessStep("Saved partners");
-
-      await this.saveToStore(database, 'smePartners', smePartners);
+      // Save SME partners
+      console.log('Saving SME partners...');
+      for (const partner of smePartners) {
+        await db.addSMEPartner(partner);
+      }
       this.showSuccessStep("Saved SME partners");
 
-      await this.saveToStore(database, 'projects', projects);
+      // Save projects
+      console.log('Saving projects...');
+      for (const project of projects) {
+        await db.addProject(project);
+      }
       this.showSuccessStep("Saved projects");
 
-      await this.saveToStore(database, 'spis', spis);
+      // Save SPIs
+      console.log('Saving SPIs...');
+      for (const spi of spis) {
+        await db.addSPI(spi);
+      }
       this.showSuccessStep("Saved SPIs");
 
-      await this.saveToStore(database, 'objectives', objectives);
+      // Save objectives
+      console.log('Saving objectives...');
+      for (const objective of objectives) {
+        await db.addObjective(objective);
+      }
       this.showSuccessStep("Saved objectives");
 
-      await this.saveToStore(database, 'sitreps', sitreps);
+      // Save sitreps
+      console.log('Saving sitreps...');
+      for (const sitrep of sitreps) {
+        await db.addSitRep(sitrep);
+      }
       this.showSuccessStep("Saved sitreps");
+
+      toast({
+        title: "Success",
+        description: "All data generated and saved successfully",
+      });
 
       return { success: true };
     } catch (error) {
@@ -93,6 +116,17 @@ export class DataGenerationService {
     }
   }
 
+  private async clearAllData(): Promise<void> {
+    const database = db.getDatabase();
+    if (!database) throw new Error('Database not initialized');
+
+    const stores = ['collaborators', 'smePartners', 'projects', 'spis', 'objectives', 'sitreps'];
+    
+    for (const store of stores) {
+      await this.clearStore(database, store);
+    }
+  }
+
   private async clearStore(database: IDBDatabase, storeName: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const transaction = database.transaction(storeName, 'readwrite');
@@ -101,40 +135,6 @@ export class DataGenerationService {
 
       request.onsuccess = () => resolve();
       request.onerror = () => reject(new Error(`Failed to clear ${storeName}`));
-    });
-  }
-
-  private async saveToStore(database: IDBDatabase, storeName: string, data: any[]): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const transaction = database.transaction(storeName, 'readwrite');
-      const store = transaction.objectStore(storeName);
-      
-      let completed = 0;
-      const total = data.length;
-      
-      if (total === 0) {
-        resolve();
-        return;
-      }
-
-      data.forEach(item => {
-        const request = store.add(item);
-        request.onsuccess = () => {
-          completed++;
-          if (completed === total) {
-            console.log(`Successfully saved ${total} items to ${storeName}`);
-            resolve();
-          }
-        };
-        request.onerror = () => {
-          console.error(`Failed to save item to ${storeName}:`, item);
-          reject(new Error(`Failed to save item to ${storeName}`));
-        };
-      });
-
-      transaction.onerror = () => {
-        reject(new Error(`Transaction failed for ${storeName}`));
-      };
     });
   }
 }
