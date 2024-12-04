@@ -68,10 +68,11 @@ export const getRatMemberRelationships = async (name: string, db: any) => {
   console.log('Getting relationships for RAT member:', name);
 
   try {
+    // Only fetch records where ratMember field matches exactly
     const [fortune30Partners, smePartners, projects, spis, sitreps] = await Promise.all([
       db.getAllCollaborators().then(partners => {
         console.log(`Fortune 30 partners for ${name}:`, partners);
-        return partners.filter((p: any) => p.ratMember === name);
+        return partners.filter((p: any) => p.ratMember === name && p.type === 'fortune30');
       }).catch(() => []),
       db.getAllSMEPartners().then(partners => {
         console.log(`SME partners for ${name}:`, partners);
