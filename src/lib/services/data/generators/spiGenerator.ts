@@ -2,17 +2,9 @@ import { SPI } from '@/lib/types/spi';
 import { Objective } from '@/lib/types/objective';
 import { SitRep } from '@/lib/types/sitrep';
 import { addDays } from 'date-fns';
+import { getAllRatMembers } from '../utils/ratMemberUtils';
 
-// RAT Members from the org chart
-const ratMembers = [
-  "Sarah Johnson",
-  "Michael Chen",
-  "Emily Rodriguez",
-  "David Kim",
-  "James Wilson",
-  "Maria Garcia",
-  "Robert Taylor"
-];
+const ratMembers = getAllRatMembers();
 
 export const generateSampleSPIs = (projectIds: string[], count: number): SPI[] => {
   return Array.from({ length: count }, (_, i) => ({
@@ -52,6 +44,7 @@ export const generateSampleSitReps = (spis: SPI[], count: number): SitRep[] => {
     nextSteps: `Next steps for SitRep ${i + 1}`,
     status: 'pending-review',
     summary: `Summary for SitRep ${i + 1}`,
-    departmentId: 'engineering'
+    departmentId: 'engineering',
+    ratMember: spis[i % spis.length].ratMember // Inherit RAT member from associated SPI
   }));
 };
