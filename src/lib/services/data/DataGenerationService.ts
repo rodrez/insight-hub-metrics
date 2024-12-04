@@ -12,11 +12,11 @@ import { DEPARTMENTS } from '@/lib/constants';
 import { Department } from '@/lib/types';
 
 export class DataGenerationService {
-  private showSuccessStep(step: string) {
-    console.log(`Completed step: ${step}`);
+  private showProgress(step: string, count: number) {
+    console.log(`${step}: Generated ${count} items`);
     toast({
       title: step,
-      description: "Completed successfully",
+      description: `Generated ${count} items`,
       duration: 2000
     });
   }
@@ -31,82 +31,81 @@ export class DataGenerationService {
     smePartners: 10
   }): Promise<{ success: boolean; error?: any }> {
     try {
-      console.log('Starting data generation with quantities:', quantities);
+      console.log('Starting sequential data generation with quantities:', quantities);
       await db.init();
       
       // Clear existing data
       await this.clearAllData();
-      this.showSuccessStep("Cleared existing data");
+      this.showProgress("Database cleared", 0);
 
       // Convert readonly array to mutable array
       const departments: Department[] = [...DEPARTMENTS];
 
-      // Generate all data
-      console.log('Generating partners...');
+      // Step 1: Generate and save Fortune 30 partners
+      console.log('Generating Fortune 30 partners...');
       const fortune30Partners = generateFortune30Partners().slice(0, quantities.fortune30);
-      const internalPartners = (await generateInternalPartners()).slice(0, quantities.internalPartners);
-      const smePartners = generateSMEPartners().slice(0, quantities.smePartners);
-      
-      console.log('Generating projects...');
-      const projects = generateProjects(departments, quantities.projects);
-      
-      console.log('Generating SPIs and related data...');
-      const spis = generateSampleSPIs(projects.map(p => p.id), quantities.spis);
-      const objectives = generateSampleObjectives(quantities.objectives);
-      const sitreps = generateSampleSitReps(spis, quantities.sitreps);
-
-      // Save Fortune 30 partners
-      console.log('Saving Fortune 30 partners...');
       for (const partner of fortune30Partners) {
         await db.addCollaborator(partner);
       }
-      this.showSuccessStep("Saved Fortune 30 partners");
+      this.showProgress("Fortune 30 Partners", fortune30Partners.length);
 
-      // Save internal partners
-      console.log('Saving internal partners...');
-      for (const partner of internalPartners) {
+      // Step 2: Generate and save internal partners
+      console.log('Generating internal partners...');
+      const internalPartners = await generateInternalPartners();
+      const selectedInternalPartners = internalPartners.slice(0, quantities.internalPartners);
+      for (const partner of selectedInternalPartners) {
         await db.addCollaborator(partner);
       }
-      this.showSuccessStep("Saved internal partners");
+      this.showProgress("Internal Partners", selectedInternalPartners.length);
 
-      // Save SME partners
-      console.log('Saving SME partners...');
+      // Step 3: Generate and save SME partners
+      console.log('Generating SME partners...');
+      const smePartners = generateSMEPartners().slice(0, quantities.smePartners);
       for (const partner of smePartners) {
         await db.addSMEPartner(partner);
       }
-      this.showSuccessStep("Saved SME partners");
+      this.showProgress("SME Partners", smePartners.length);
 
-      // Save projects
-      console.log('Saving projects...');
+      // Step 4: Generate and save projects
+      console.log('Generating projects...');
+      const projects = generateProjects(departments, quantities.projects);
       for (const project of projects) {
+        console.log('Saving project:', project.id);
         await db.addProject(project);
       }
-      this.showSuccessStep("Saved projects");
+      this.showProgress("Projects", projects.length);
 
-      // Save SPIs
-      console.log('Saving SPIs...');
+      // Step 5: Generate and save SPIs using project IDs
+      console.log('Generating SPIs...');
+      const spis = generateSampleSPIs(projects.map(p => p.id), quantities.spis);
       for (const spi of spis) {
+        console.log('Saving SPI:', spi.id);
         await db.addSPI(spi);
       }
-      this.showSuccessStep("Saved SPIs");
+      this.showProgress("SPIs", spis.length);
 
-      // Save objectives
-      console.log('Saving objectives...');
+      // Step 6: Generate and save objectives
+      console.log('Generating objectives...');
+      const objectives = generateSampleObjectives(quantities.objectives);
       for (const objective of objectives) {
+        console.log('Saving objective:', objective.id);
         await db.addObjective(objective);
       }
-      this.showSuccessStep("Saved objectives");
+      this.showProgress("Objectives", objectives.length);
 
-      // Save sitreps
-      console.log('Saving sitreps...');
+      // Step 7: Generate and save sitreps using SPI IDs
+      console.log('Generating sitreps...');
+      const sitreps = generateSampleSitReps(spis, quantities.sitreps);
       for (const sitrep of sitreps) {
+        console.log('Saving sitrep:', sitrep.id);
         await db.addSitRep(sitrep);
       }
-      this.showSuccessStep("Saved sitreps");
+      this.showProgress("SitReps", sitreps.length);
 
+      // Final success notification
       toast({
         title: "Success",
-        description: "All data generated and saved successfully",
+        description: `Generated ${projects.length} projects, ${spis.length} SPIs, ${objectives.length} objectives, ${sitreps.length} sitreps, ${fortune30Partners.length} Fortune 30 partners, ${selectedInternalPartners.length} internal partners, and ${smePartners.length} SME partners`,
       });
 
       return { success: true };
