@@ -42,8 +42,11 @@ export class DatabaseTransactionService {
       console.log('Database not ready, queueing transaction');
       return new Promise<T>((resolve, reject) => {
         this.transactionQueue.enqueueTransaction(
-          async () => this.executeTransaction(storeName, mode, operation)
-        ).then((result: unknown) => resolve(result as T)).catch(reject);
+          async () => {
+            const result = await this.executeTransaction(storeName, mode, operation);
+            return result;
+          }
+        ).then((result) => resolve(result as T)).catch(reject);
       });
     }
 
