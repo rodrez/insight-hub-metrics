@@ -49,11 +49,11 @@ export class DatabaseStateManager {
 
   async ensureInitialized(): Promise<void> {
     if (this.state === 'initialized' && this.database) {
-      return;
+      return Promise.resolve();
     }
 
     if (this.state === 'initializing') {
-      return this.initializationPromise;
+      return this.initializationPromise || Promise.resolve();
     }
 
     return this.initializeDatabase();
@@ -69,7 +69,7 @@ export class DatabaseStateManager {
     
     console.log(`Attempting database initialization (attempt ${this.initializationAttempts}/${this.MAX_INITIALIZATION_ATTEMPTS})`);
     
-    this.initializationPromise = new Promise((resolve, reject) => {
+    this.initializationPromise = new Promise<void>((resolve, reject) => {
       try {
         const request = indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
 
@@ -89,7 +89,7 @@ export class DatabaseStateManager {
               description: "Failed to initialize database after multiple attempts",
               variant: "destructive",
             });
-            reject(request.error);
+            reject(new Error('Database initialization failed after max attempts'));
           }
         };
 
@@ -162,7 +162,7 @@ export class DatabaseStateManager {
       return operation();
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       this.operationQueue.push(async () => {
         try {
           await operation();
@@ -173,7 +173,7 @@ export class DatabaseStateManager {
       });
 
       if (this.state === 'uninitialized') {
-        this.ensureInitialized();
+        this.ensureInitialized().catch(reject);
       }
     });
   }
