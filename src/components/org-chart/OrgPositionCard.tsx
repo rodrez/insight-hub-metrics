@@ -3,13 +3,12 @@ import { Card } from "@/components/ui/card";
 import { RelationshipSelectionDialog } from "./RelationshipSelectionDialog";
 import { OrgPosition } from "./types";
 import { getRatMemberInfo } from "@/lib/services/data/utils/ratMemberUtils";
-import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { OrgPositionHeader } from "./card/OrgPositionHeader";
-import { RelationshipSection } from "./card/RelationshipSection";
 import { useOrgPositionData } from "./hooks/useOrgPositionData";
-import { db } from "@/lib/db";
-import { useQuery } from "@tanstack/react-query";
+import { useAvailableItems } from "./hooks/useAvailableItems";
+import { useRelationshipUpdates } from "./hooks/useRelationshipUpdates";
+import { RelationshipsContainer } from "./card/RelationshipsContainer";
 
 interface OrgPositionCardProps {
   title: string;
@@ -22,7 +21,6 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
   const memberInfo = getRatMemberInfo(name);
   const navigate = useNavigate();
 
-  // Get assigned items for this RAT member
   const {
     fortune30Partners,
     smePartners,
@@ -32,34 +30,15 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
     isLoading
   } = useOrgPositionData(name);
 
-  // Get all available items for selection
-  const { data: allProjects = [] } = useQuery({
-    queryKey: ['projects'],
-    queryFn: () => db.getAllProjects()
-  });
+  const {
+    allProjects,
+    allFortune30Partners,
+    allSMEPartners,
+    allSPIs,
+    allSitReps
+  } = useAvailableItems();
 
-  const { data: allFortune30Partners = [] } = useQuery({
-    queryKey: ['collaborators-fortune30'],
-    queryFn: async () => {
-      const collaborators = await db.getAllCollaborators();
-      return collaborators.filter(c => c.type === 'fortune30');
-    }
-  });
-
-  const { data: allSMEPartners = [] } = useQuery({
-    queryKey: ['sme-partners'],
-    queryFn: () => db.getAllSMEPartners()
-  });
-
-  const { data: allSPIs = [] } = useQuery({
-    queryKey: ['spis'],
-    queryFn: () => db.getAllSPIs()
-  });
-
-  const { data: allSitReps = [] } = useQuery({
-    queryKey: ['sitreps'],
-    queryFn: () => db.getAllSitReps()
-  });
+  const { handleSave } = useRelationshipUpdates();
 
   const handleItemClick = (type: string, id: string) => {
     switch (type) {
@@ -91,51 +70,6 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
     sitreps: sitreps.map(s => s.id)
   };
 
-  const handleSave = async (updatedPosition: OrgPosition) => {
-    try {
-      const promises = [];
-      
-      // Update projects
-      for (const projectId of updatedPosition.projects) {
-        promises.push(db.updateProject(projectId, { ratMember: name }));
-      }
-
-      // Update Fortune 30 partners
-      for (const partnerId of updatedPosition.fortune30Partners) {
-        promises.push(db.updateCollaborator(partnerId, { ratMember: name }));
-      }
-
-      // Update SME partners
-      for (const partnerId of updatedPosition.smePartners) {
-        promises.push(db.updateSMEPartner(partnerId, { ratMember: name }));
-      }
-
-      // Update SPIs
-      for (const spiId of updatedPosition.spis) {
-        promises.push(db.updateSPI(spiId, { ratMember: name }));
-      }
-
-      // Update SitReps
-      for (const sitrepId of updatedPosition.sitreps) {
-        promises.push(db.updateSitRep(sitrepId, { ratMember: name }));
-      }
-
-      await Promise.all(promises);
-
-      toast({
-        title: "Success",
-        description: "Relationships updated successfully",
-      });
-    } catch (error) {
-      console.error('Error updating relationships:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update relationships",
-        variant: "destructive"
-      });
-    }
-  };
-
   if (isLoading) {
     return <Card className={`${width} p-6 animate-pulse`}>Loading...</Card>;
   }
@@ -149,48 +83,20 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
         onEditClick={() => setIsDialogOpen(true)}
       />
 
-      <div className="space-y-4">
-        <RelationshipSection
-          title="Fortune 30 Partners"
-          items={fortune30Partners}
-          onItemClick={(id) => handleItemClick('fortune30', id)}
-          color="#8B5CF6"
-        />
-
-        <RelationshipSection
-          title="SME Partners"
-          items={smePartners}
-          onItemClick={(id) => handleItemClick('sme', id)}
-          color="#6E59A5"
-        />
-
-        <RelationshipSection
-          title="Projects"
-          items={projects}
-          onItemClick={(id) => handleItemClick('project', id)}
-          color="#4B5563"
-        />
-
-        <RelationshipSection
-          title="SPIs"
-          items={spis}
-          onItemClick={(id) => handleItemClick('spi', id)}
-          badgeClassName="bg-emerald-500 hover:bg-emerald-600"
-        />
-
-        <RelationshipSection
-          title="SitReps"
-          items={sitreps}
-          onItemClick={(id) => handleItemClick('sitrep', id)}
-          badgeClassName="bg-blue-500 hover:bg-blue-600"
-        />
-      </div>
+      <RelationshipsContainer
+        fortune30Partners={fortune30Partners}
+        smePartners={smePartners}
+        projects={projects}
+        spis={spis}
+        sitreps={sitreps}
+        onItemClick={handleItemClick}
+      />
 
       <RelationshipSelectionDialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
         position={position}
-        onSave={handleSave}
+        onSave={(updatedPosition) => handleSave(name, updatedPosition)}
         allProjects={allProjects}
         allFortune30Partners={allFortune30Partners}
         allSMEPartners={allSMEPartners}
