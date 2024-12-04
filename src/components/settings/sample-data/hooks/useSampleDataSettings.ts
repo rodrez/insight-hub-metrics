@@ -1,26 +1,12 @@
 import { useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
-import { DataCounts, DataQuantities } from "@/components/data/types/dataTypes";
+import { DataCounts } from "@/components/data/types/dataTypes";
 
 export function useSampleDataSettings() {
   const [isClearing, setIsClearing] = useState(false);
   const [isPopulating, setIsPopulating] = useState(false);
-  const [quantities, setQuantities] = useState<DataQuantities>({
-    projects: 5,
-    fortune30: 5,
-    internalPartners: 20,
-    smePartners: 10,
-    spis: 5,
-    objectives: 3,
-    sitreps: 5
-  });
   const [generatedCounts, setGeneratedCounts] = useState<DataCounts | null>(null);
-
-  const updateQuantity = (key: string, value: string) => {
-    const numValue = parseInt(value) || 0;
-    setQuantities(prev => ({ ...prev, [key]: numValue }));
-  };
 
   const clearDatabase = async () => {
     setIsClearing(true);
@@ -46,6 +32,16 @@ export function useSampleDataSettings() {
   const populateDatabase = async () => {
     setIsPopulating(true);
     try {
+      const quantities = {
+        projects: 5,
+        fortune30: 6,
+        internalPartners: 20,
+        smePartners: 6,
+        spis: 10,
+        objectives: 5,
+        sitreps: 10
+      };
+
       await db.populateSampleData(quantities);
       
       const counts: DataCounts = {
@@ -59,23 +55,10 @@ export function useSampleDataSettings() {
       };
 
       setGeneratedCounts(counts);
-
-      const mismatches = Object.entries(counts).filter(
-        ([key, count]) => count !== quantities[key as keyof typeof quantities]
-      );
-
-      if (mismatches.length > 0) {
-        toast({
-          title: "Warning",
-          description: "Some data quantities don't match requested amounts. Check the generated counts.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: "Sample data generated successfully with requested quantities",
-        });
-      }
+      toast({
+        title: "Success",
+        description: "Sample data generated successfully",
+      });
     } catch (error) {
       console.error('Error populating database:', error);
       toast({
@@ -91,9 +74,7 @@ export function useSampleDataSettings() {
   return {
     isClearing,
     isPopulating,
-    quantities,
     generatedCounts,
-    updateQuantity,
     clearDatabase,
     populateDatabase
   };
