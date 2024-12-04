@@ -65,7 +65,7 @@ export const validateDataQuantities = (
     toast({
       title: "Quantity Adjustment",
       description: `${type} quantity adjusted from ${requested} to ${validated}`,
-      variant: "warning",
+      variant: "default",
     });
   } else {
     console.log(`${type} quantity validated successfully: ${validated}`);
