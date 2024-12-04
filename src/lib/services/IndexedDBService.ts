@@ -182,6 +182,20 @@ export class IndexedDBService implements DataService {
 
   async updateSMEPartner(id: string, updates: Partial<Collaborator>): Promise<void> {}
 
+  async deleteSMEPartner(id: string): Promise<void> {
+    const db = this.stateManager.getDatabase();
+    if (!db) throw new Error('Database not initialized');
+
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction('smePartners', 'readwrite');
+      const store = transaction.objectStore('smePartners');
+      const request = store.delete(id);
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(new Error(`Failed to delete SME partner ${id}`));
+    });
+  }
+
   getDatabase(): IDBDatabase | null {
     return this.stateManager.getDatabase();
   }
