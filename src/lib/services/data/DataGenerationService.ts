@@ -12,13 +12,123 @@ import { DEPARTMENTS } from '@/lib/constants';
 import { Department } from '@/lib/types';
 
 export class DataGenerationService {
-  private showProgress(step: string, count: number) {
-    console.log(`${step}: Generated ${count} items`);
-    toast({
-      title: step,
-      description: `Generated ${count} items`,
-      duration: 2000
-    });
+  private async verifyDatabaseConnection(): Promise<void> {
+    console.log('Verifying database connection...');
+    if (!db.getDatabase()) {
+      console.log('Database not initialized, initializing...');
+      await db.init();
+    }
+    console.log('Database connection verified');
+  }
+
+  private async clearExistingData(): Promise<void> {
+    console.log('Clearing existing data...');
+    await db.clear();
+    console.log('Existing data cleared successfully');
+  }
+
+  private async generateAndSaveInternalPartners(quantity: number) {
+    console.log(`Generating ${quantity} internal partners...`);
+    const internalPartners = await generateInternalPartners();
+    const selectedPartners = internalPartners.slice(0, quantity);
+    
+    console.log(`Saving ${selectedPartners.length} internal partners...`);
+    for (const partner of selectedPartners) {
+      if (!validateCollaborator(partner)) {
+        throw new Error(`Invalid internal partner data: ${partner.name}`);
+      }
+      await db.addCollaborator(partner);
+    }
+    
+    console.log('Internal partners saved successfully');
+    return selectedPartners;
+  }
+
+  private async generateAndSaveFortune30Partners(quantity: number) {
+    console.log(`Generating ${quantity} Fortune 30 partners...`);
+    const fortune30Partners = generateFortune30Partners().slice(0, quantity);
+    
+    console.log(`Saving ${fortune30Partners.length} Fortune 30 partners...`);
+    for (const partner of fortune30Partners) {
+      if (!validateCollaborator(partner)) {
+        throw new Error(`Invalid Fortune 30 partner data: ${partner.name}`);
+      }
+      await db.addCollaborator(partner);
+    }
+    
+    console.log('Fortune 30 partners saved successfully');
+    return fortune30Partners;
+  }
+
+  private async generateAndSaveSMEPartners(quantity: number) {
+    console.log(`Generating ${quantity} SME partners...`);
+    const smePartners = generateSMEPartners().slice(0, quantity);
+    
+    console.log(`Saving ${smePartners.length} SME partners...`);
+    for (const partner of smePartners) {
+      if (!validateCollaborator(partner)) {
+        throw new Error(`Invalid SME partner data: ${partner.name}`);
+      }
+      await db.addSMEPartner(partner);
+    }
+    
+    console.log('SME partners saved successfully');
+    return smePartners;
+  }
+
+  private async generateAndSaveProjects(quantity: number, departments: Department[]) {
+    console.log(`Generating ${quantity} projects...`);
+    const projects = generateProjects(departments, quantity);
+    
+    console.log(`Saving ${projects.length} projects...`);
+    for (const project of projects) {
+      if (!validateProject(project)) {
+        throw new Error(`Invalid project data: ${project.name}`);
+      }
+      await db.addProject(project);
+    }
+    
+    console.log('Projects saved successfully');
+    return projects;
+  }
+
+  private async generateAndSaveSPIs(quantity: number, projectIds: string[]) {
+    console.log(`Generating ${quantity} SPIs...`);
+    const spis = generateSampleSPIs(projectIds, quantity);
+    
+    console.log(`Saving ${spis.length} SPIs...`);
+    for (const spi of spis) {
+      await db.addSPI(spi);
+    }
+    
+    console.log('SPIs saved successfully');
+    return spis;
+  }
+
+  private async generateAndSaveObjectives(quantity: number) {
+    console.log(`Generating ${quantity} objectives...`);
+    const objectives = generateSampleObjectives(quantity);
+    
+    console.log(`Saving ${objectives.length} objectives...`);
+    for (const objective of objectives) {
+      await db.addObjective(objective);
+    }
+    
+    console.log('Objectives saved successfully');
+    return objectives;
+  }
+
+  private async generateAndSaveSitReps(spis: any[], quantity: number) {
+    console.log(`Generating ${quantity} sitreps...`);
+    const sitreps = generateSampleSitReps(spis, quantity);
+    
+    console.log(`Saving ${sitreps.length} sitreps...`);
+    for (const sitrep of sitreps) {
+      await db.addSitRep(sitrep);
+    }
+    
+    console.log('SitReps saved successfully');
+    return sitreps;
   }
 
   async generateAndSaveData(quantities: DataQuantities = {
@@ -32,116 +142,50 @@ export class DataGenerationService {
   }): Promise<{ success: boolean; error?: any }> {
     try {
       console.log('Starting sequential data generation with quantities:', quantities);
-      await db.init();
-      console.log('Database initialized successfully');
       
-      // Clear existing data
-      await this.clearAllData();
-      console.log('Database cleared successfully');
-      this.showProgress("Database cleared", 0);
+      // Step 1: Verify database connection
+      await this.verifyDatabaseConnection();
+      
+      // Step 2: Clear existing data
+      await this.clearExistingData();
+      toast({ title: "Database cleared", description: "Starting data generation..." });
 
-      // Convert readonly array to mutable array
+      // Step 3: Generate and save internal partners (required for projects)
+      const internalPartners = await this.generateAndSaveInternalPartners(quantities.internalPartners);
+      toast({ title: "Progress", description: `Generated ${internalPartners.length} internal partners` });
+
+      // Step 4: Generate and save Fortune 30 partners
+      const fortune30Partners = await this.generateAndSaveFortune30Partners(quantities.fortune30);
+      toast({ title: "Progress", description: `Generated ${fortune30Partners.length} Fortune 30 partners` });
+
+      // Step 5: Generate and save SME partners
+      const smePartners = await this.generateAndSaveSMEPartners(quantities.smePartners);
+      toast({ title: "Progress", description: `Generated ${smePartners.length} SME partners` });
+
+      // Step 6: Generate and save projects (depends on partners)
       const departments: Department[] = [...DEPARTMENTS];
-      console.log('Departments loaded:', departments.length);
+      const projects = await this.generateAndSaveProjects(quantities.projects, departments);
+      toast({ title: "Progress", description: `Generated ${projects.length} projects` });
 
-      // Step 1: Generate and save Fortune 30 partners
-      console.log('Starting Fortune 30 partners generation...');
-      const fortune30Partners = generateFortune30Partners().slice(0, quantities.fortune30);
-      console.log(`Generated ${fortune30Partners.length} Fortune 30 partners`);
-      
-      for (const partner of fortune30Partners) {
-        console.log(`Adding Fortune 30 partner: ${partner.name}`);
-        if (!validateCollaborator(partner)) {
-          throw new Error(`Invalid Fortune 30 partner data: ${partner.name}`);
-        }
-        await db.addCollaborator(partner);
-      }
-      this.showProgress("Fortune 30 Partners", fortune30Partners.length);
+      // Step 7: Generate and save SPIs (depends on projects)
+      const spis = await this.generateAndSaveSPIs(
+        quantities.spis,
+        projects.map(p => p.id)
+      );
+      toast({ title: "Progress", description: `Generated ${spis.length} SPIs` });
 
-      // Step 2: Generate and save internal partners
-      console.log('Starting internal partners generation...');
-      const internalPartners = await generateInternalPartners();
-      const selectedInternalPartners = internalPartners.slice(0, quantities.internalPartners);
-      console.log(`Generated ${selectedInternalPartners.length} internal partners`);
-      
-      for (const partner of selectedInternalPartners) {
-        console.log(`Adding internal partner: ${partner.name}`);
-        if (!validateCollaborator(partner)) {
-          throw new Error(`Invalid internal partner data: ${partner.name}`);
-        }
-        await db.addCollaborator(partner);
-      }
-      this.showProgress("Internal Partners", selectedInternalPartners.length);
+      // Step 8: Generate and save objectives
+      const objectives = await this.generateAndSaveObjectives(quantities.objectives);
+      toast({ title: "Progress", description: `Generated ${objectives.length} objectives` });
 
-      // Step 3: Generate and save SME partners
-      console.log('Starting SME partners generation...');
-      const smePartners = generateSMEPartners().slice(0, quantities.smePartners);
-      console.log(`Generated ${smePartners.length} SME partners`);
-      
-      for (const partner of smePartners) {
-        console.log(`Adding SME partner: ${partner.name}`);
-        if (!validateCollaborator(partner)) {
-          throw new Error(`Invalid SME partner data: ${partner.name}`);
-        }
-        await db.addSMEPartner(partner);
-      }
-      this.showProgress("SME Partners", smePartners.length);
-
-      // Step 4: Generate and save projects
-      console.log('Starting projects generation...');
-      const projects = generateProjects(departments, quantities.projects);
-      const projectIds: string[] = [];
-      console.log(`Generated ${projects.length} projects`);
-      
-      for (const project of projects) {
-        console.log(`Adding project: ${project.name}`);
-        if (!validateProject(project)) {
-          throw new Error(`Invalid project data: ${project.name}`);
-        }
-        await db.addProject(project);
-        projectIds.push(project.id);
-      }
-      this.showProgress("Projects", projects.length);
-
-      // Step 5: Generate and save SPIs using project IDs
-      console.log('Starting SPIs generation...');
-      const spis = generateSampleSPIs(projectIds, quantities.spis);
-      const spiIds: string[] = [];
-      console.log(`Generated ${spis.length} SPIs`);
-      
-      for (const spi of spis) {
-        console.log(`Adding SPI: ${spi.name}`);
-        await db.addSPI(spi);
-        spiIds.push(spi.id);
-      }
-      this.showProgress("SPIs", spis.length);
-
-      // Step 6: Generate and save objectives
-      console.log('Starting objectives generation...');
-      const objectives = generateSampleObjectives(quantities.objectives);
-      console.log(`Generated ${objectives.length} objectives`);
-      
-      for (const objective of objectives) {
-        console.log(`Adding objective: ${objective.title}`);
-        await db.addObjective(objective);
-      }
-      this.showProgress("Objectives", objectives.length);
-
-      // Step 7: Generate and save sitreps using SPI IDs
-      console.log('Starting sitreps generation...');
-      const sitreps = generateSampleSitReps(spis, quantities.sitreps);
-      console.log(`Generated ${sitreps.length} sitreps`);
-      
-      for (const sitrep of sitreps) {
-        console.log(`Adding sitrep: ${sitrep.title}`);
-        await db.addSitRep(sitrep);
-      }
-      this.showProgress("SitReps", sitreps.length);
+      // Step 9: Generate and save sitreps (depends on SPIs)
+      const sitreps = await this.generateAndSaveSitReps(spis, quantities.sitreps);
+      toast({ title: "Progress", description: `Generated ${sitreps.length} sitreps` });
 
       // Final success notification
       toast({
         title: "Success",
-        description: `Generated ${projects.length} projects, ${spis.length} SPIs, ${objectives.length} objectives, ${sitreps.length} sitreps, ${fortune30Partners.length} Fortune 30 partners, ${selectedInternalPartners.length} internal partners, and ${smePartners.length} SME partners`,
+        description: "All data generated and saved successfully",
       });
 
       console.log('Data generation completed successfully');
@@ -156,7 +200,7 @@ export class DataGenerationService {
       
       // Attempt to clean up on failure
       try {
-        await this.clearAllData();
+        await this.clearExistingData();
         console.log('Cleaned up data after failure');
       } catch (cleanupError) {
         console.error('Error during cleanup:', cleanupError);
@@ -164,34 +208,5 @@ export class DataGenerationService {
       
       return { success: false, error };
     }
-  }
-
-  private async clearAllData(): Promise<void> {
-    const database = db.getDatabase();
-    if (!database) throw new Error('Database not initialized');
-
-    const stores = ['collaborators', 'smePartners', 'projects', 'spis', 'objectives', 'sitreps'];
-    
-    for (const store of stores) {
-      await this.clearStore(database, store);
-      console.log(`Cleared store: ${store}`);
-    }
-  }
-
-  private async clearStore(database: IDBDatabase, storeName: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const transaction = database.transaction(storeName, 'readwrite');
-      const store = transaction.objectStore(storeName);
-      const request = store.clear();
-
-      request.onsuccess = () => {
-        console.log(`Successfully cleared store: ${storeName}`);
-        resolve();
-      };
-      request.onerror = () => {
-        console.error(`Failed to clear ${storeName}`);
-        reject(new Error(`Failed to clear ${storeName}`));
-      };
-    });
   }
 }
