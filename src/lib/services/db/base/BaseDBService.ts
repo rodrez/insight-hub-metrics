@@ -29,6 +29,11 @@ export class BaseDBService {
           // Set up error handling for the database
           this.db.onerror = (event) => {
             console.error('Database error:', event);
+            toast({
+              title: "Database Error",
+              description: "An error occurred while accessing the database",
+              variant: "destructive",
+            });
           };
           
           resolve();
@@ -75,19 +80,32 @@ export class BaseDBService {
     await this.ensureInitialized();
     
     return new Promise((resolve, reject) => {
+      if (!this.db) {
+        reject(new DatabaseError('Database not initialized'));
+        return;
+      }
+
       try {
         console.log(`Starting ${mode} transaction on ${storeName}`);
-        const transaction = this.db!.transaction(storeName, mode);
+        
+        // Check if store exists
+        if (!this.db.objectStoreNames.contains(storeName)) {
+          console.error(`Store ${storeName} does not exist`);
+          reject(new DatabaseError(`Store ${storeName} does not exist`));
+          return;
+        }
+
+        const transaction = this.db.transaction(storeName, mode);
         const store = transaction.objectStore(storeName);
 
-        transaction.onerror = () => {
+        transaction.onerror = (event) => {
           const error = transaction.error?.message || `Transaction error on ${storeName}`;
-          console.error(`Transaction error in ${storeName}:`, error);
+          console.error(`Transaction error in ${storeName}:`, error, event);
           reject(new DatabaseError(error));
         };
 
-        transaction.onabort = () => {
-          console.warn(`Transaction aborted on ${storeName}`);
+        transaction.onabort = (event) => {
+          console.warn(`Transaction aborted on ${storeName}`, event);
           reject(new DatabaseError(`Transaction aborted on ${storeName}`));
         };
 
@@ -98,11 +116,17 @@ export class BaseDBService {
           resolve(request.result);
         };
         
-        request.onerror = () => {
+        request.onerror = (event) => {
           const error = request.error?.message || `Operation error on ${storeName}`;
-          console.error(`Operation error in ${storeName}:`, error);
+          console.error(`Operation error in ${storeName}:`, error, event);
           reject(new DatabaseError(error));
         };
+
+        // Add transaction complete handler
+        transaction.oncomplete = () => {
+          console.log(`Transaction completed on ${storeName}`);
+        };
+
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         console.error(`Unexpected error in ${storeName} operation:`, error);
