@@ -12,6 +12,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { getAllRatMembers, getRatMemberRole } from "@/lib/services/data/utils/ratMemberUtils";
+import { useState, useEffect } from 'react';
 
 type WorkstreamCardProps = {
   workstream: Workstream;
@@ -20,6 +21,23 @@ type WorkstreamCardProps = {
 };
 
 export function WorkstreamCard({ workstream, formatDate, agreements }: WorkstreamCardProps) {
+  const [statusColors, setStatusColors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const loadStatusColors = () => {
+      const saved = localStorage.getItem('projectStatusColors');
+      if (saved) {
+        setStatusColors(JSON.parse(saved));
+      }
+    };
+    loadStatusColors();
+  }, []);
+
+  const getStatusColor = (status: string) => {
+    const colorConfig = statusColors.find((config: any) => config.id === status);
+    return colorConfig ? colorConfig.color : undefined;
+  };
+
   const getStatusColor = (status?: string) => {
     if (!status) return 'text-gray-400';
     return status === 'signed' ? 'text-green-500' : 'text-yellow-500';
@@ -60,11 +78,18 @@ export function WorkstreamCard({ workstream, formatDate, agreements }: Workstrea
               </Tooltip>
             </TooltipProvider>
           </div>
-          <Badge variant={
-            workstream.status === 'active' ? 'default' :
-            workstream.status === 'completed' ? 'secondary' :
-            'outline'
-          }>
+          <Badge 
+            variant={
+              workstream.status === 'active' ? 'default' :
+              workstream.status === 'completed' ? 'secondary' :
+              'outline'
+            }
+            style={
+              workstream.status === 'active' 
+                ? { backgroundColor: getStatusColor('active') }
+                : undefined
+            }
+          >
             {workstream.status}
           </Badge>
         </div>

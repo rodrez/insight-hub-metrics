@@ -19,6 +19,7 @@ import { PartnerContact } from "./PartnerContact";
 import { PartnerProjects } from "./PartnerProjects";
 import { PartnerWorkstreams } from "./PartnerWorkstreams";
 import { getAllRatMembers, getRatMemberRole } from '@/lib/services/data/utils/ratMemberUtils';
+import { useState, useEffect } from 'react';
 
 interface PartnerCardProps {
   collaborator: Collaborator;
@@ -28,6 +29,18 @@ interface PartnerCardProps {
 }
 
 export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCardProps) {
+  const [statusColors, setStatusColors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const loadStatusColors = () => {
+      const saved = localStorage.getItem('projectStatusColors');
+      if (saved) {
+        setStatusColors(JSON.parse(saved));
+      }
+    };
+    loadStatusColors();
+  }, []);
+
   const getDepartmentColor = (departmentId: string) => {
     const department = DEPARTMENTS.find(d => d.id === departmentId);
     return department?.color || '#333';
@@ -35,6 +48,11 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
 
   const displayMember = collaborator.ratMember || getAllRatMembers()[Math.floor(Math.random() * getAllRatMembers().length)];
   const memberRole = getRatMemberRole(displayMember);
+
+  const getStatusColor = (status: string) => {
+    const colorConfig = statusColors.find((config: any) => config.id === status);
+    return colorConfig ? colorConfig.color : undefined;
+  };
 
   return (
     <Card className="border-l-4" style={{ borderLeftColor: collaborator.color }}>
@@ -70,11 +88,18 @@ export function PartnerCard({ collaborator, onEdit, onDelete, type }: PartnerCar
               </Tooltip>
             </TooltipProvider>
           </div>
-          <Badge variant={
-            collaborator.projects?.[0]?.status === 'active' ? 'default' :
-            collaborator.projects?.[0]?.status === 'completed' ? 'secondary' :
-            'outline'
-          }>
+          <Badge 
+            variant={
+              collaborator.projects?.[0]?.status === 'active' ? 'default' :
+              collaborator.projects?.[0]?.status === 'completed' ? 'secondary' :
+              'outline'
+            }
+            style={
+              collaborator.projects?.[0]?.status === 'active' 
+                ? { backgroundColor: getStatusColor('active') }
+                : undefined
+            }
+          >
             {collaborator.projects?.[0]?.status || 'pending'}
           </Badge>
         </div>
