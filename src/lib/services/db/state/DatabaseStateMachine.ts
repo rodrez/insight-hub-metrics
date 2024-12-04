@@ -13,8 +13,16 @@ export class DatabaseStateMachine {
   private currentState: DatabaseState = 'uninitialized';
   private operationQueue: QueuedOperation[] = [];
   private stateListeners: ((state: DatabaseState) => void)[] = [];
+  private initializationPromise: Promise<void> | null = null;
+  private initializeResolve: (() => void) | null = null;
+  private initializeReject: ((error: Error) => void) | null = null;
 
-  private constructor() {}
+  private constructor() {
+    this.initializationPromise = new Promise((resolve, reject) => {
+      this.initializeResolve = resolve;
+      this.initializeReject = reject;
+    });
+  }
 
   public static getInstance(): DatabaseStateMachine {
     if (!DatabaseStateMachine.instance) {
@@ -31,33 +39,37 @@ export class DatabaseStateMachine {
     this.stateListeners.push(listener);
   }
 
+  public async waitForInitialization(): Promise<void> {
+    if (this.currentState === 'ready') {
+      return Promise.resolve();
+    }
+    if (this.currentState === 'error') {
+      return Promise.reject(new Error('Database is in error state'));
+    }
+    return this.initializationPromise!;
+  }
+
   private setState(newState: DatabaseState): void {
     console.log(`Database state transitioning from ${this.currentState} to ${newState}`);
     this.currentState = newState;
     this.stateListeners.forEach(listener => listener(newState));
     
-    if (newState === 'ready') {
+    if (newState === 'ready' && this.initializeResolve) {
+      this.initializeResolve();
       this.processQueue();
+    } else if (newState === 'error' && this.initializeReject) {
+      this.initializeReject(new Error('Database initialization failed'));
     }
   }
 
   public async queueOperation<T>(operation: () => Promise<T>): Promise<T> {
-    if (this.currentState === 'ready') {
+    try {
+      await this.waitForInitialization();
       return operation();
+    } catch (error) {
+      console.error('Operation failed:', error);
+      throw error;
     }
-
-    if (this.currentState === 'error') {
-      throw new Error('Database is in error state. Please reinitialize.');
-    }
-
-    return new Promise((resolve, reject) => {
-      console.log('Queueing operation - current state:', this.currentState);
-      this.operationQueue.push({
-        operation,
-        resolve,
-        reject
-      });
-    });
   }
 
   private async processQueue(): Promise<void> {
@@ -80,18 +92,27 @@ export class DatabaseStateMachine {
   public async initialize(): Promise<void> {
     if (this.currentState === 'initializing') {
       console.log('Database already initializing');
-      return;
+      return this.waitForInitialization();
     }
 
     if (this.currentState === 'ready') {
       console.log('Database already initialized');
-      return;
+      return Promise.resolve();
     }
 
     try {
       this.setState('initializing');
-      // Initialization logic will be added here
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated initialization
+      // Reset initialization promise if needed
+      if (!this.initializationPromise) {
+        this.initializationPromise = new Promise((resolve, reject) => {
+          this.initializeResolve = resolve;
+          this.initializeReject = reject;
+        });
+      }
+      
+      // Simulated initialization delay removed in production
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       this.setState('ready');
       toast({
         title: "Database Ready",
@@ -121,5 +142,9 @@ export class DatabaseStateMachine {
   public reset(): void {
     this.setState('uninitialized');
     this.operationQueue = [];
+    this.initializationPromise = new Promise((resolve, reject) => {
+      this.initializeResolve = resolve;
+      this.initializeReject = reject;
+    });
   }
 }

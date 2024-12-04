@@ -1,34 +1,32 @@
 import { DatabaseError } from '../../utils/errorHandling';
 import { TransactionQueueManager } from './TransactionQueueManager';
 import { DatabaseEventEmitter } from './events/DatabaseEventEmitter';
+import { DatabaseStateMachine } from './state/DatabaseStateMachine';
 import { toast } from "@/components/ui/use-toast";
 
 export class DatabaseTransactionService {
   private db: IDBDatabase | null;
   private transactionQueue: TransactionQueueManager;
   private eventEmitter: DatabaseEventEmitter;
+  private stateMachine: DatabaseStateMachine;
   private readonly TRANSACTION_TIMEOUT = 30000;
-  private isReady: boolean = false;
 
   constructor(db: IDBDatabase | null) {
     this.db = db;
     this.transactionQueue = TransactionQueueManager.getInstance();
     this.eventEmitter = DatabaseEventEmitter.getInstance();
+    this.stateMachine = DatabaseStateMachine.getInstance();
     
-    // Listen for database events
     this.eventEmitter.on('ready', () => {
       console.log('Transaction service: Database ready');
-      this.isReady = true;
       this.transactionQueue.setInitialized(true);
     });
 
     this.eventEmitter.on('error', () => {
-      this.isReady = false;
       this.transactionQueue.clearQueue();
     });
 
     this.eventEmitter.on('cleanup', () => {
-      this.isReady = false;
       this.transactionQueue.clearQueue();
     });
   }
@@ -38,18 +36,7 @@ export class DatabaseTransactionService {
     mode: IDBTransactionMode,
     operation: (store: IDBObjectStore) => IDBRequest<T>
   ): Promise<T> {
-    if (!this.isReady) {
-      console.log('Database not ready, queueing transaction');
-      return new Promise<T>((resolve, reject) => {
-        this.transactionQueue.enqueueTransaction(
-          async () => {
-            const result = await this.executeTransaction(storeName, mode, operation);
-            resolve(result);
-          }
-        ).catch(reject);
-      });
-    }
-
+    await this.stateMachine.waitForInitialization();
     return this.executeTransaction(storeName, mode, operation);
   }
 
@@ -112,7 +99,6 @@ export class DatabaseTransactionService {
 
   setDatabase(db: IDBDatabase | null) {
     this.db = db;
-    this.isReady = !!db;
     if (db) {
       this.eventEmitter.emit('ready');
     }
