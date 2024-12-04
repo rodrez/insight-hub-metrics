@@ -11,21 +11,25 @@ export function useDataClearing() {
   const clearDatabase = async () => {
     setIsClearing(true);
     try {
+      console.log('Starting database clearing process...');
+      
       // Initialize database first
       await db.init();
       
-      // Create a new instance of DatabaseClearingService with the initialized db
+      // Create a new instance of DatabaseClearingService
       const clearingService = new DatabaseClearingService((db as any).getDatabase());
       await clearingService.clearDatabase();
       
-      // Force immediate invalidation of all queries
-      await queryClient.resetQueries();
-      
-      // Reset all query cache
+      // Clear all query cache
       queryClient.clear();
       
-      // Reinitialize after clearing
+      // Reset all queries
+      await queryClient.resetQueries();
+      
+      // Force a fresh initialization
       await db.init();
+      
+      console.log('Database clearing completed successfully');
       
       toast({
         title: "Success",
@@ -38,6 +42,7 @@ export function useDataClearing() {
         description: "Failed to clear database",
         variant: "destructive",
       });
+      throw error;
     } finally {
       setIsClearing(false);
     }

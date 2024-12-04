@@ -24,9 +24,22 @@ export class DatabaseStateManager {
   }
 
   setDatabase(db: IDBDatabase | null) {
+    if (this.database && this.database !== db) {
+      // Close the old connection if it exists and is different
+      try {
+        this.database.close();
+      } catch (error) {
+        console.warn('Error closing old database connection:', error);
+      }
+    }
+    
     this.database = db;
     if (db) {
       this.state = 'initialized';
+      console.log('Database state updated: initialized');
+    } else {
+      this.state = 'uninitialized';
+      console.log('Database state updated: uninitialized');
     }
   }
 
