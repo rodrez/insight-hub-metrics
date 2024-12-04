@@ -48,6 +48,13 @@ export const ProjectHeader = memo(({ project, isEditing, onUpdate }: ProjectHead
     onUpdate({ techLead: value });
   };
 
+  const getStatusColor = (status: string) => {
+    if (status === 'active' && statusColors['active']) {
+      return { backgroundColor: statusColors['active'], color: 'white' };
+    }
+    return undefined;
+  };
+
   if (!isEditing) {
     return (
       <div className="flex items-center justify-between">
@@ -75,10 +82,7 @@ export const ProjectHeader = memo(({ project, isEditing, onUpdate }: ProjectHead
           </div>
         </div>
         <Badge 
-          style={project.status === 'active' && statusColors['active'] ? 
-            { backgroundColor: statusColors['active'], color: 'white' } : 
-            undefined
-          }
+          style={getStatusColor(project.status)}
           variant={
             project.status === 'completed' ? 'secondary' :
             project.status === 'delayed' ? 'destructive' :
