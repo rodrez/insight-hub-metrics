@@ -1,46 +1,36 @@
-interface RetryOptions {
+const DEFAULT_MAX_RETRIES = 3;
+const DEFAULT_INITIAL_DELAY = 1000; // 1 second
+
+export interface RetryOptions {
   maxRetries?: number;
-  delayMs?: number;
-  backoff?: number;
+  initialDelay?: number;
   onRetry?: (attempt: number, error: Error) => void;
-  shouldRetry?: (error: Error) => boolean;
 }
 
 export async function withRetry<T>(
-  action: () => Promise<T>,
+  operation: () => Promise<T>,
   options: RetryOptions = {}
 ): Promise<T> {
-  const {
-    maxRetries = 3,
-    delayMs = 1000,
-    backoff = 1.5,
-    onRetry,
-    shouldRetry = () => true
-  } = options;
-
-  let lastError: Error | null = null;
-  let currentDelay = delayMs;
-
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+  const maxRetries = options.maxRetries ?? DEFAULT_MAX_RETRIES;
+  const initialDelay = options.initialDelay ?? DEFAULT_INITIAL_DELAY;
+  
+  let lastError: Error;
+  
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      return await action();
+      return await operation();
     } catch (error) {
-      lastError = error instanceof Error ? error : new Error('Unknown error');
-      console.error(`Attempt ${attempt} failed:`, error);
+      lastError = error instanceof Error ? error : new Error(String(error));
       
-      if (attempt === maxRetries || !shouldRetry(lastError)) {
-        break;
+      if (attempt === maxRetries - 1) {
+        throw lastError;
       }
-
-      if (onRetry) {
-        onRetry(attempt, lastError);
-      }
-
-      console.info(`Waiting ${currentDelay}ms before retry...`);
-      await new Promise(resolve => setTimeout(resolve, currentDelay));
-      currentDelay *= backoff;
+      
+      const delay = initialDelay * Math.pow(2, attempt);
+      options.onRetry?.(attempt + 1, lastError);
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
-
-  throw lastError || new Error('Operation failed after all retries');
+  
+  throw lastError!;
 }

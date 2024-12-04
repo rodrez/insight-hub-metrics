@@ -1,12 +1,15 @@
-import { Project, Department } from '@/lib/types';
-import { generateNABC } from './templates/projectTemplates';
-import { generateMilestones, generateMetrics } from './templates/metricsTemplates';
+import { Project } from '@/lib/types';
+import { Department } from '@/lib/types';
+import { getAllRatMembers } from '../utils/ratMemberUtils';
+
+const ratMembers = getAllRatMembers();
 
 export const generateProjects = (departments: Department[], count: number = 5): Project[] => {
-  console.log(`Generating exactly ${count} projects...`);
+  console.log(`Attempting to generate ${count} projects`);
   
   return Array.from({ length: count }, (_, index) => {
     const dept = departments[index % departments.length];
+    const ratMember = ratMembers[index % ratMembers.length];
     
     const project: Project = {
       id: `project-${index + 1}`,
@@ -20,12 +23,10 @@ export const generateProjects = (departments: Department[], count: number = 5): 
       spent: (50000 + (index * 20000)),
       status: 'active',
       collaborators: [],
-      nabc: generateNABC(dept.name, `Project ${index + 1}`),
-      milestones: generateMilestones(`project-${index + 1}`),
-      metrics: generateMetrics(`project-${index + 1}`, 50000 + (index * 20000), 100000 + (index * 50000))
+      ratMember: ratMember
     };
     
-    console.log(`Generated project ${index + 1}/${count}: ${project.id}`);
+    console.log(`Generated project: ${project.id}`);
     return project;
   });
 };

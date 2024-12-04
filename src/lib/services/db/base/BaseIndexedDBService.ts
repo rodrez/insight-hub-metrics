@@ -11,7 +11,7 @@ export class BaseIndexedDBService {
   private initPromise: Promise<void> | null = null;
 
   constructor() {
-    this.connectionService = new DatabaseConnectionService('projectManagementDB', 1);
+    this.connectionService = new DatabaseConnectionService();
     this.transactionService = new DatabaseTransactionService(null);
   }
 
@@ -45,16 +45,7 @@ export class BaseIndexedDBService {
         },
         {
           maxRetries: 3,
-          delayMs: 1000,
-          backoff: 1.5,
-          shouldRetry: (error) => {
-            // Don't retry certain errors
-            if (error instanceof DatabaseError) {
-              return !error.message.includes('SecurityError') && 
-                     !error.message.includes('not supported');
-            }
-            return true;
-          },
+          initialDelay: 1000,
           onRetry: (attempt, error) => {
             console.warn(`Retry attempt ${attempt} for database initialization:`, error);
             toast({
@@ -71,6 +62,11 @@ export class BaseIndexedDBService {
       });
     } catch (error) {
       console.error('Error initializing base service:', error);
+      toast({
+        title: "Database Error",
+        description: "Failed to initialize database after multiple retries. Please refresh the page.",
+        variant: "destructive",
+      });
       this.initPromise = null;
       throw error;
     }
@@ -84,8 +80,7 @@ export class BaseIndexedDBService {
       operation,
       {
         maxRetries: 3,
-        delayMs: 1000,
-        backoff: 1.5,
+        initialDelay: 1000,
         onRetry: (attempt, error) => {
           console.warn(`Retry attempt ${attempt} for ${operationName}:`, error);
           toast({
