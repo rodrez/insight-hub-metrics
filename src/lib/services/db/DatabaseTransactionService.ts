@@ -19,7 +19,7 @@ export class DatabaseTransactionService {
     this.eventEmitter.on('ready', () => {
       console.log('Transaction service: Database ready');
       this.isReady = true;
-      this.transactionQueue.processQueue();
+      this.transactionQueue.setInitialized(true);
     });
 
     this.eventEmitter.on('error', () => {
@@ -40,11 +40,10 @@ export class DatabaseTransactionService {
   ): Promise<T> {
     if (!this.isReady) {
       console.log('Database not ready, queueing transaction');
-      return new Promise((resolve, reject) => {
+      return new Promise<T>((resolve, reject) => {
         this.transactionQueue.enqueueTransaction(
-          async () => this.executeTransaction(storeName, mode, operation),
-          1
-        ).then(resolve).catch(reject);
+          async () => this.executeTransaction(storeName, mode, operation)
+        ).then((result: unknown) => resolve(result as T)).catch(reject);
       });
     }
 
@@ -61,7 +60,7 @@ export class DatabaseTransactionService {
       throw new DatabaseError('Database not initialized');
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise<T>((resolve, reject) => {
       console.log(`Starting transaction on store: ${storeName}`);
       let isCompleted = false;
       const timeoutId = setTimeout(() => {
