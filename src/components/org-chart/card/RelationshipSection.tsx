@@ -7,6 +7,7 @@ interface RelationshipSectionProps {
   onItemClick: (id: string) => void;
   color?: string;
   badgeClassName?: string;
+  getDepartmentColor: (departmentId: string) => string;
 }
 
 export function RelationshipSection({ 
@@ -14,7 +15,8 @@ export function RelationshipSection({
   items, 
   onItemClick, 
   color = "#6E59A5",
-  badgeClassName
+  badgeClassName,
+  getDepartmentColor
 }: RelationshipSectionProps) {
   if (!items?.length) {
     return (
@@ -29,6 +31,13 @@ export function RelationshipSection({
     return item.name || item.title || item.deliverable || 'Unnamed';
   };
 
+  const getItemColor = (item: any) => {
+    if (item.department) {
+      return getDepartmentColor(item.department);
+    }
+    return item.color || color;
+  };
+
   return (
     <div className="space-y-2">
       <h3 className="text-sm font-medium">{title}</h3>
@@ -41,7 +50,7 @@ export function RelationshipSection({
               badgeClassName,
               !badgeClassName && "hover:opacity-90"
             )}
-            style={!badgeClassName ? { backgroundColor: item.color || color, color: 'white' } : undefined}
+            style={!badgeClassName ? { backgroundColor: getItemColor(item), color: 'white' } : undefined}
             onClick={() => onItemClick(item.id)}
           >
             {getItemName(item)}
