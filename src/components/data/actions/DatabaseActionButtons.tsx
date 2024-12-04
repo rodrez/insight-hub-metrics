@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { BackupActions } from "./BackupActions";
 import { ExportActions } from "./ExportActions";
+import { memo } from "react";
 
 interface DatabaseActionButtonsProps {
   isClearing: boolean;
@@ -10,18 +11,20 @@ interface DatabaseActionButtonsProps {
   onShowQuantityForm: () => void;
 }
 
-export function DatabaseActionButtons({
+const DatabaseActionButtonsComponent = ({
   isClearing,
   isPopulating,
   onClear,
   onShowQuantityForm,
-}: DatabaseActionButtonsProps) {
+}: DatabaseActionButtonsProps) => {
+  const isDisabled = isClearing || isPopulating;
+
   return (
     <div className="flex flex-wrap gap-4">
       <Button
         variant="destructive"
         onClick={onClear}
-        disabled={isClearing || isPopulating}
+        disabled={isDisabled}
       >
         {isClearing ? (
           <>
@@ -35,7 +38,7 @@ export function DatabaseActionButtons({
 
       <Button
         onClick={onShowQuantityForm}
-        disabled={isClearing || isPopulating}
+        disabled={isDisabled}
       >
         {isPopulating ? (
           <>
@@ -47,8 +50,11 @@ export function DatabaseActionButtons({
         )}
       </Button>
 
-      <BackupActions isInitialized={true} disabled={isClearing || isPopulating} />
-      <ExportActions isInitialized={true} disabled={isClearing || isPopulating} />
+      <BackupActions isInitialized={true} disabled={isDisabled} />
+      <ExportActions isInitialized={true} disabled={isDisabled} />
     </div>
   );
-}
+};
+
+// Memoize the buttons component to prevent unnecessary re-renders
+export const DatabaseActionButtons = memo(DatabaseActionButtonsComponent);
