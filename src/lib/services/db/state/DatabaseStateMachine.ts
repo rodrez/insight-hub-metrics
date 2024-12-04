@@ -2,6 +2,7 @@ import { QueueManager } from "./queue/QueueManager";
 import { StateEventEmitter, DatabaseState } from "./events/StateEventEmitter";
 import { InitializationManager } from "./initialization/InitializationManager";
 import { toast } from "@/components/ui/use-toast";
+import { db } from "@/lib/db";
 
 export class DatabaseStateMachine {
   private static instance: DatabaseStateMachine;
@@ -19,7 +20,6 @@ export class DatabaseStateMachine {
       console.log(`Database state changed to: ${state}`);
       this.initManager.handleStateChange(state);
       
-      // Process queue when database is ready
       if (state === 'ready') {
         console.log('Database ready, processing queued operations');
         this.queueManager.processQueue(true);
@@ -122,7 +122,10 @@ export class DatabaseStateMachine {
     try {
       this.stateEmitter.setState('initializing');
       console.log('Starting database initialization process');
-      await this.initializeDatabase();
+      
+      // Actually initialize the database
+      await db.init();
+      
       console.log('Database initialization successful');
       this.stateEmitter.setState('ready');
     } catch (error) {
@@ -130,13 +133,6 @@ export class DatabaseStateMachine {
       this.stateEmitter.setState('error');
       throw error;
     }
-  }
-
-  private async initializeDatabase(): Promise<void> {
-    console.log('Performing database initialization steps...');
-    // Add a small delay to simulate initialization process
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log('Database initialization steps completed');
   }
 
   public markAsError(error: Error): void {

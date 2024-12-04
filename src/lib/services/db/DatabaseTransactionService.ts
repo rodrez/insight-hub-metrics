@@ -39,7 +39,10 @@ export class DatabaseTransactionService {
     return this.stateMachine.queueOperation(async () => {
       if (!this.db) {
         console.error('Database not initialized in executeTransaction');
-        throw new DatabaseError('Database not initialized');
+        await this.stateMachine.initialize();
+        if (!this.db) {
+          throw new DatabaseError('Database not initialized');
+        }
       }
 
       return new Promise<T>((resolve, reject) => {
