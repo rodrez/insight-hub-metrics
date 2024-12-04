@@ -36,64 +36,57 @@ export class DatabaseTransactionService {
     mode: IDBTransactionMode,
     operation: (store: IDBObjectStore) => IDBRequest<T>
   ): Promise<T> {
-    await this.stateMachine.waitForInitialization();
-    return this.executeTransaction(storeName, mode, operation);
-  }
-
-  private async executeTransaction<T>(
-    storeName: string,
-    mode: IDBTransactionMode,
-    operation: (store: IDBObjectStore) => IDBRequest<T>
-  ): Promise<T> {
-    if (!this.db) {
-      console.error('Database not initialized in executeTransaction');
-      throw new DatabaseError('Database not initialized');
-    }
-
-    return new Promise<T>((resolve, reject) => {
-      console.log(`Starting transaction on store: ${storeName}`);
-      let isCompleted = false;
-      const timeoutId = setTimeout(() => {
-        if (!isCompleted) {
-          console.error(`Transaction timeout for ${storeName}`);
-          reject(new DatabaseError(`Transaction timeout for ${storeName}`));
-        }
-      }, this.TRANSACTION_TIMEOUT);
-
-      try {
-        const transaction = this.db!.transaction(storeName, mode);
-        const store = transaction.objectStore(storeName);
-
-        transaction.oncomplete = () => {
-          isCompleted = true;
-          clearTimeout(timeoutId);
-          console.log(`Transaction completed on store: ${storeName}`);
-        };
-
-        transaction.onerror = (event) => {
-          isCompleted = true;
-          clearTimeout(timeoutId);
-          console.error(`Transaction error on ${storeName}:`, transaction.error);
-          reject(new DatabaseError(transaction.error?.message || `Transaction error on ${storeName}`));
-        };
-
-        const request = operation(store);
-        
-        request.onsuccess = () => {
-          console.log(`Operation successful on store: ${storeName}`);
-          resolve(request.result);
-        };
-        
-        request.onerror = () => {
-          console.error(`Operation error on ${storeName}:`, request.error);
-          reject(new DatabaseError(request.error?.message || `Operation error on ${storeName}`));
-        };
-      } catch (error) {
-        isCompleted = true;
-        clearTimeout(timeoutId);
-        console.error(`Unexpected error in transaction on ${storeName}:`, error);
-        reject(new DatabaseError(error instanceof Error ? error.message : 'Unknown error'));
+    return this.stateMachine.queueOperation(async () => {
+      if (!this.db) {
+        console.error('Database not initialized in executeTransaction');
+        throw new DatabaseError('Database not initialized');
       }
+
+      return new Promise<T>((resolve, reject) => {
+        console.log(`Starting transaction on store: ${storeName}`);
+        let isCompleted = false;
+        const timeoutId = setTimeout(() => {
+          if (!isCompleted) {
+            console.error(`Transaction timeout for ${storeName}`);
+            reject(new DatabaseError(`Transaction timeout for ${storeName}`));
+          }
+        }, this.TRANSACTION_TIMEOUT);
+
+        try {
+          const transaction = this.db!.transaction(storeName, mode);
+          const store = transaction.objectStore(storeName);
+
+          transaction.oncomplete = () => {
+            isCompleted = true;
+            clearTimeout(timeoutId);
+            console.log(`Transaction completed on store: ${storeName}`);
+          };
+
+          transaction.onerror = (event) => {
+            isCompleted = true;
+            clearTimeout(timeoutId);
+            console.error(`Transaction error on ${storeName}:`, transaction.error);
+            reject(new DatabaseError(transaction.error?.message || `Transaction error on ${storeName}`));
+          };
+
+          const request = operation(store);
+          
+          request.onsuccess = () => {
+            console.log(`Operation successful on store: ${storeName}`);
+            resolve(request.result);
+          };
+          
+          request.onerror = () => {
+            console.error(`Operation error on ${storeName}:`, request.error);
+            reject(new DatabaseError(request.error?.message || `Operation error on ${storeName}`));
+          };
+        } catch (error) {
+          isCompleted = true;
+          clearTimeout(timeoutId);
+          console.error(`Unexpected error in transaction on ${storeName}:`, error);
+          reject(new DatabaseError(error instanceof Error ? error.message : 'Unknown error'));
+        }
+      });
     });
   }
 

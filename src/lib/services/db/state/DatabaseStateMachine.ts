@@ -6,6 +6,7 @@ interface QueuedOperation {
   operation: () => Promise<any>;
   resolve: (value: any) => void;
   reject: (error: any) => void;
+  retryCount: number;
 }
 
 export class DatabaseStateMachine {
@@ -16,6 +17,8 @@ export class DatabaseStateMachine {
   private initializationPromise: Promise<void> | null = null;
   private initializeResolve: (() => void) | null = null;
   private initializeReject: ((error: Error) => void) | null = null;
+  private readonly MAX_RETRIES = 3;
+  private readonly RETRY_DELAY = 1000;
 
   private constructor() {
     this.initializationPromise = new Promise((resolve, reject) => {
@@ -63,13 +66,33 @@ export class DatabaseStateMachine {
   }
 
   public async queueOperation<T>(operation: () => Promise<T>): Promise<T> {
-    try {
-      await this.waitForInitialization();
-      return operation();
-    } catch (error) {
-      console.error('Operation failed:', error);
-      throw error;
+    if (this.currentState === 'ready') {
+      try {
+        return await operation();
+      } catch (error) {
+        console.error('Operation failed:', error);
+        throw error;
+      }
     }
+
+    return new Promise((resolve, reject) => {
+      const queuedOperation: QueuedOperation = {
+        operation: async () => operation(),
+        resolve,
+        reject,
+        retryCount: 0
+      };
+      
+      console.log('Queueing operation, current state:', this.currentState);
+      this.operationQueue.push(queuedOperation);
+      
+      if (this.currentState === 'uninitialized') {
+        this.initialize().catch(error => {
+          console.error('Initialization failed:', error);
+          reject(error);
+        });
+      }
+    });
   }
 
   private async processQueue(): Promise<void> {
@@ -82,9 +105,23 @@ export class DatabaseStateMachine {
       try {
         const result = await operation.operation();
         operation.resolve(result);
+        console.log('Operation completed successfully');
       } catch (error) {
         console.error('Error executing queued operation:', error);
-        operation.reject(error);
+        
+        if (operation.retryCount < this.MAX_RETRIES) {
+          operation.retryCount++;
+          console.log(`Retrying operation (attempt ${operation.retryCount}/${this.MAX_RETRIES})`);
+          this.operationQueue.unshift(operation);
+          await new Promise(resolve => setTimeout(resolve, this.RETRY_DELAY * operation.retryCount));
+        } else {
+          operation.reject(error);
+          toast({
+            title: "Operation Failed",
+            description: "The operation failed after multiple retry attempts",
+            variant: "destructive",
+          });
+        }
       }
     }
   }
@@ -102,7 +139,6 @@ export class DatabaseStateMachine {
 
     try {
       this.setState('initializing');
-      // Reset initialization promise if needed
       if (!this.initializationPromise) {
         this.initializationPromise = new Promise((resolve, reject) => {
           this.initializeResolve = resolve;
@@ -110,7 +146,6 @@ export class DatabaseStateMachine {
         });
       }
       
-      // Simulated initialization delay removed in production
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       this.setState('ready');
