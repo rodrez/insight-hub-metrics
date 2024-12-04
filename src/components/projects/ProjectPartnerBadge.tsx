@@ -35,8 +35,8 @@ export function ProjectPartnerBadge({ partner, departmentColor }: ProjectPartner
 
   const getBadgeColor = () => {
     // For Fortune 30 partners, always use their brand color
-    if (partner.type === 'fortune30' && partner.color) {
-      return partner.color;
+    if (partner.type === 'fortune30') {
+      return partner.color || departmentColor || '#4B5563';
     }
     // For SME partners, use their color if available
     if (partner.type === 'sme' && partner.color) {
