@@ -2,57 +2,52 @@ import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 
 export function useOrgPositionData(name: string) {
-  const { data: allProjects = [] } = useQuery({
-    queryKey: ['projects'],
-    queryFn: () => db.getAllProjects()
+  const { data: allProjects = [], isLoading: projectsLoading } = useQuery({
+    queryKey: ['projects', name],
+    queryFn: async () => {
+      const projects = await db.getAllProjects();
+      return projects.filter(p => p.ratMember === name);
+    }
   });
 
-  const { data: allCollaborators = [] } = useQuery({
-    queryKey: ['collaborators'],
-    queryFn: () => db.getAllCollaborators()
+  const { data: allCollaborators = [], isLoading: collaboratorsLoading } = useQuery({
+    queryKey: ['collaborators', name],
+    queryFn: async () => {
+      const collaborators = await db.getAllCollaborators();
+      return collaborators.filter(c => c.ratMember === name && c.type === 'fortune30');
+    }
   });
 
-  const { data: allSMEPartners = [] } = useQuery({
-    queryKey: ['sme-partners'],
-    queryFn: () => db.getAllSMEPartners()
+  const { data: allSMEPartners = [], isLoading: smeLoading } = useQuery({
+    queryKey: ['sme-partners', name],
+    queryFn: async () => {
+      const partners = await db.getAllSMEPartners();
+      return partners.filter(p => p.ratMember === name);
+    }
   });
 
-  const { data: allSPIs = [] } = useQuery({
-    queryKey: ['spis'],
-    queryFn: () => db.getAllSPIs()
+  const { data: allSPIs = [], isLoading: spisLoading } = useQuery({
+    queryKey: ['spis', name],
+    queryFn: async () => {
+      const spis = await db.getAllSPIs();
+      return spis.filter(spi => spi.ratMember === name);
+    }
   });
 
-  const { data: allSitReps = [] } = useQuery({
-    queryKey: ['sitreps'],
-    queryFn: () => db.getAllSitReps()
+  const { data: allSitReps = [], isLoading: sitrepsLoading } = useQuery({
+    queryKey: ['sitreps', name],
+    queryFn: async () => {
+      const sitreps = await db.getAllSitReps();
+      return sitreps.filter(sitrep => sitrep.ratMember === name);
+    }
   });
-
-  const fortune30Partners = allCollaborators.filter(c => 
-    c.type === 'fortune30' && c.ratMember === name
-  );
-
-  const smePartners = allSMEPartners.filter(p => 
-    p.ratMember === name
-  );
-
-  const projects = allProjects.filter(p => 
-    p.ratMember === name
-  );
-
-  const spis = allSPIs.filter(spi => 
-    spi.ratMember === name
-  );
-
-  const sitreps = allSitReps.filter(sitrep => 
-    sitrep.ratMember === name
-  );
 
   return {
-    fortune30Partners,
-    smePartners,
-    projects,
-    spis,
-    sitreps,
-    isLoading: false // Add proper loading state if needed
+    fortune30Partners: allCollaborators,
+    smePartners: allSMEPartners,
+    projects: allProjects,
+    spis: allSPIs,
+    sitreps: allSitReps,
+    isLoading: projectsLoading || collaboratorsLoading || smeLoading || spisLoading || sitrepsLoading
   };
 }

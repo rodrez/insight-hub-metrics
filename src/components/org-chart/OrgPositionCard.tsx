@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { RelationshipSelectionDialog } from "./RelationshipSelectionDialog";
 import { OrgPosition } from "./types";
 import { getRatMemberInfo } from "@/lib/services/data/utils/ratMemberUtils";
@@ -10,6 +9,7 @@ import { OrgPositionHeader } from "./card/OrgPositionHeader";
 import { RelationshipSection } from "./card/RelationshipSection";
 import { useOrgPositionData } from "./hooks/useOrgPositionData";
 import { db } from "@/lib/db";
+import { useQuery } from "@tanstack/react-query";
 
 interface OrgPositionCardProps {
   title: string;
@@ -22,13 +22,44 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
   const memberInfo = getRatMemberInfo(name);
   const navigate = useNavigate();
 
+  // Get assigned items for this RAT member
   const {
     fortune30Partners,
     smePartners,
     projects,
     spis,
-    sitreps
+    sitreps,
+    isLoading
   } = useOrgPositionData(name);
+
+  // Get all available items for selection
+  const { data: allProjects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: () => db.getAllProjects()
+  });
+
+  const { data: allFortune30Partners = [] } = useQuery({
+    queryKey: ['collaborators-fortune30'],
+    queryFn: async () => {
+      const collaborators = await db.getAllCollaborators();
+      return collaborators.filter(c => c.type === 'fortune30');
+    }
+  });
+
+  const { data: allSMEPartners = [] } = useQuery({
+    queryKey: ['sme-partners'],
+    queryFn: () => db.getAllSMEPartners()
+  });
+
+  const { data: allSPIs = [] } = useQuery({
+    queryKey: ['spis'],
+    queryFn: () => db.getAllSPIs()
+  });
+
+  const { data: allSitReps = [] } = useQuery({
+    queryKey: ['sitreps'],
+    queryFn: () => db.getAllSitReps()
+  });
 
   const handleItemClick = (type: string, id: string) => {
     switch (type) {
@@ -62,7 +93,6 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
 
   const handleSave = async (updatedPosition: OrgPosition) => {
     try {
-      // Update relationships in the database
       const promises = [];
       
       // Update projects
@@ -97,13 +127,18 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
         description: "Relationships updated successfully",
       });
     } catch (error) {
+      console.error('Error updating relationships:', error);
       toast({
         title: "Error",
         description: "Failed to update relationships",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
+
+  if (isLoading) {
+    return <Card className={`${width} p-6 animate-pulse`}>Loading...</Card>;
+  }
 
   return (
     <Card className={`${width} p-6 space-y-4 bg-background/95 backdrop-blur-sm border-muted`}>
@@ -156,11 +191,11 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
         onClose={() => setIsDialogOpen(false)}
         position={position}
         onSave={handleSave}
-        allProjects={projects}
-        allFortune30Partners={fortune30Partners}
-        allSMEPartners={smePartners}
-        allSPIs={spis}
-        allSitReps={sitreps}
+        allProjects={allProjects}
+        allFortune30Partners={allFortune30Partners}
+        allSMEPartners={allSMEPartners}
+        allSPIs={allSPIs}
+        allSitReps={allSitReps}
       />
     </Card>
   );
