@@ -47,6 +47,14 @@ export class BaseIndexedDBService {
           maxRetries: 3,
           delayMs: 1000,
           backoff: 1.5,
+          shouldRetry: (error) => {
+            // Don't retry certain errors
+            if (error instanceof DatabaseError) {
+              return !error.message.includes('SecurityError') && 
+                     !error.message.includes('not supported');
+            }
+            return true;
+          },
           onRetry: (attempt, error) => {
             console.warn(`Retry attempt ${attempt} for database initialization:`, error);
             toast({
@@ -63,11 +71,6 @@ export class BaseIndexedDBService {
       });
     } catch (error) {
       console.error('Error initializing base service:', error);
-      toast({
-        title: "Database Error",
-        description: "Failed to initialize database after multiple retries. Please refresh the page.",
-        variant: "destructive",
-      });
       this.initPromise = null;
       throw error;
     }

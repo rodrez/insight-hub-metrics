@@ -3,6 +3,7 @@ interface RetryOptions {
   delayMs?: number;
   backoff?: number;
   onRetry?: (attempt: number, error: Error) => void;
+  shouldRetry?: (error: Error) => boolean;
 }
 
 export async function withRetry<T>(
@@ -13,7 +14,8 @@ export async function withRetry<T>(
     maxRetries = 3,
     delayMs = 1000,
     backoff = 1.5,
-    onRetry
+    onRetry,
+    shouldRetry = () => true
   } = options;
 
   let lastError: Error | null = null;
@@ -26,7 +28,7 @@ export async function withRetry<T>(
       lastError = error instanceof Error ? error : new Error('Unknown error');
       console.error(`Attempt ${attempt} failed:`, error);
       
-      if (attempt === maxRetries) {
+      if (attempt === maxRetries || !shouldRetry(lastError)) {
         break;
       }
 
