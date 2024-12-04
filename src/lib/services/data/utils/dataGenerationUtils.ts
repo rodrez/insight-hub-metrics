@@ -44,11 +44,34 @@ export const validateDataQuantities = (
   available: number,
   type: string
 ): number => {
-  if (requested > available) {
-    console.warn(`${type} quantity limited to ${available} (requested: ${requested})`);
-    return available;
+  console.log(`Validating ${type} quantity - Requested: ${requested}, Available: ${available}`);
+  
+  // Ensure minimum quantities for essential data
+  const minimumQuantities: { [key: string]: number } = {
+    projects: 5,
+    fortune30: 1,
+    internalPartners: 2,
+    smePartners: 1
+  };
+
+  const minimum = minimumQuantities[type] || 0;
+  const validated = Math.max(minimum, Math.min(requested, available));
+
+  if (validated !== requested) {
+    console.warn(
+      `${type} quantity adjusted from ${requested} to ${validated} ` +
+      `(min: ${minimum}, max: ${available})`
+    );
+    toast({
+      title: "Quantity Adjustment",
+      description: `${type} quantity adjusted from ${requested} to ${validated}`,
+      variant: "warning",
+    });
+  } else {
+    console.log(`${type} quantity validated successfully: ${validated}`);
   }
-  return requested;
+
+  return validated;
 };
 
 export const validateCollaborator = (collaborator: Collaborator): boolean => {
@@ -125,6 +148,7 @@ export const validateDataConsistency = <T extends { id: string }>(
   data: T[],
   type: string
 ): boolean => {
+  console.log(`Validating ${type} data consistency - Count: ${data.length}`);
   const uniqueIds = new Set(data.map(item => item.id));
   const isValid = uniqueIds.size === data.length;
   
@@ -135,6 +159,8 @@ export const validateDataConsistency = <T extends { id: string }>(
       description: `Duplicate IDs found in ${type} data`,
       variant: "destructive",
     });
+  } else {
+    console.log(`${type} data consistency validated successfully`);
   }
   
   return isValid;
