@@ -43,13 +43,15 @@ export const RAT_MEMBERS = {
   }
 } as const;
 
+export type RatMemberInfo = typeof RAT_MEMBERS[keyof typeof RAT_MEMBERS];
+
 const cachedRatMembers = Object.keys(RAT_MEMBERS);
 
 export const getAllRatMembers = (): string[] => {
   return cachedRatMembers;
 };
 
-export const getRatMemberInfo = (name: string): typeof RAT_MEMBERS[keyof typeof RAT_MEMBERS] | undefined => {
+export const getRatMemberInfo = (name: string): RatMemberInfo | undefined => {
   return RAT_MEMBERS[name as keyof typeof RAT_MEMBERS];
 };
 
