@@ -8,6 +8,9 @@ import { generateSampleSPIs, generateSampleObjectives, generateSampleSitReps } f
 import { DataQuantities } from '@/lib/types/data';
 import { db } from "@/lib/db";
 import { toast } from "@/components/ui/use-toast";
+import { Project } from "@/lib/types";
+import { SPI } from "@/lib/types/spi";
+import { DEPARTMENTS } from "@/lib/constants";
 
 export class SequentialDataGenerator {
   static async generateData(quantities: DataQuantities) {

@@ -42,8 +42,8 @@ export class DataIntegrityChecker {
   static validateSPIs(spis: SPI[]): boolean {
     return spis.every(spi => 
       spi.id &&
-      spi.projectId &&
-      spi.title
+      spi.name &&
+      spi.deliverable
     );
   }
 
@@ -59,7 +59,7 @@ export class DataIntegrityChecker {
     return sitreps.every(sitrep => 
       sitrep.id &&
       sitrep.title &&
-      sitrep.content
+      sitrep.update
     );
   }
 }
