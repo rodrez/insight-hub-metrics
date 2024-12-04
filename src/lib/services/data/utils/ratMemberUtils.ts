@@ -106,11 +106,26 @@ export const getRatMemberRelationships = async (name: string, db: any) => {
   try {
     // Wait for all promises to resolve
     const [fortune30Partners, smePartners, projects, spis, sitreps] = await Promise.all([
-      db.getAllCollaborators().catch(() => []),
-      db.getAllSMEPartners().catch(() => []),
-      db.getAllProjects().catch(() => []),
-      db.getAllSPIs().catch(() => []),
-      db.getAllSitReps().catch(() => [])
+      db.getAllCollaborators().then(partners => {
+        console.log(`Fortune 30 partners for ${name}:`, partners);
+        return partners;
+      }).catch(() => []),
+      db.getAllSMEPartners().then(partners => {
+        console.log(`SME partners for ${name}:`, partners);
+        return partners;
+      }).catch(() => []),
+      db.getAllProjects().then(projs => {
+        console.log(`Projects for ${name}:`, projs);
+        return projs;
+      }).catch(() => []),
+      db.getAllSPIs().then(spiList => {
+        console.log(`SPIs for ${name}:`, spiList);
+        return spiList;
+      }).catch(() => []),
+      db.getAllSitReps().then(sitreps => {
+        console.log(`SitReps for ${name}:`, sitreps);
+        return sitreps;
+      }).catch(() => [])
     ]);
 
     const relationships = {
@@ -121,7 +136,7 @@ export const getRatMemberRelationships = async (name: string, db: any) => {
       sitreps: sitreps.filter((s: any) => s.ratMember === name) || []
     };
 
-    console.log('Found relationships:', relationships);
+    console.log('Found relationships for ${name}:', relationships);
     return relationships;
   } catch (error) {
     console.error('Error fetching relationships:', error);
