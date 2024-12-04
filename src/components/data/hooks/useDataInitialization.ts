@@ -20,6 +20,7 @@ export function useDataInitialization() {
       action: async () => {
         try {
           console.log('Starting database initialization...');
+          // Only initialize database structure without populating data
           await db.init();
           console.log('Database initialization completed');
           setIsInitialized(true);
