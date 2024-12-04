@@ -1,92 +1,56 @@
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { DataQuantityForm } from "./actions/DataQuantityForm";
-import { DatabaseActionButtons } from "./actions/DatabaseActionButtons";
-import { useDatabaseActions } from "./hooks/useDatabaseActions";
-import { DataQuantities } from "./types/dataTypes";
-import { memo, useMemo } from "react";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface DatabaseActionsProps {
   isInitialized: boolean;
   isClearing: boolean;
   isPopulating: boolean;
   onClear: () => Promise<void>;
-  onPopulate: (quantities: DataQuantities) => Promise<void>;
+  onPopulate: (quantities: any) => Promise<void>;
 }
 
-const DatabaseActionsComponent = ({
+export function DatabaseActions({
   isInitialized,
   isClearing,
   isPopulating,
   onClear,
   onPopulate,
-}: DatabaseActionsProps) => {
-  const {
-    error,
-    showQuantityForm,
-    setShowQuantityForm,
-    handleClear,
-    handlePopulate
-  } = useDatabaseActions(onClear, onPopulate);
-
-  // Memoize the initialization alert to prevent unnecessary re-renders
-  const initializationAlert = useMemo(() => {
-    if (!isInitialized) {
-      return (
-        <Alert>
-          <AlertDescription>
-            Database is not initialized. Please wait...
-          </AlertDescription>
-        </Alert>
-      );
-    }
-    return null;
-  }, [isInitialized]);
-
-  // Memoize the error alert
-  const errorAlert = useMemo(() => {
-    if (error) {
-      return (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      );
-    }
-    return null;
-  }, [error]);
-
-  // Memoize the form component to prevent unnecessary re-renders
-  const quantityForm = useMemo(() => {
-    if (showQuantityForm) {
-      return (
-        <DataQuantityForm
-          onSubmit={handlePopulate}
-          onCancel={() => setShowQuantityForm(false)}
-          isLoading={isPopulating}
-        />
-      );
-    }
-    return null;
-  }, [showQuantityForm, handlePopulate, setShowQuantityForm, isPopulating]);
-
-  if (!isInitialized) {
-    return initializationAlert;
-  }
+}: DatabaseActionsProps) {
+  const [showQuantityForm, setShowQuantityForm] = useState(false);
 
   return (
-    <div className="space-y-4">
-      {errorAlert}
+    <div className="flex gap-4">
+      <Button
+        variant="destructive"
+        onClick={onClear}
+        disabled={!isInitialized || isClearing || isPopulating}
+      >
+        Clear Database
+      </Button>
+      <Button
+        onClick={() => setShowQuantityForm(true)}
+        disabled={!isInitialized || isClearing || isPopulating}
+      >
+        Generate Sample Data
+      </Button>
 
-      <DatabaseActionButtons
-        isClearing={isClearing}
-        isPopulating={isPopulating}
-        onClear={handleClear}
-        onShowQuantityForm={() => setShowQuantityForm(true)}
-      />
-
-      {quantityForm}
+      <Dialog open={showQuantityForm} onOpenChange={setShowQuantityForm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Generate Sample Data</DialogTitle>
+          </DialogHeader>
+          <DataQuantityForm
+            onSubmit={async (quantities) => {
+              await onPopulate(quantities);
+              setShowQuantityForm(false);
+            }}
+            onCancel={() => setShowQuantityForm(false)}
+            isLoading={isPopulating}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
-};
-
-// Memoize the entire component to prevent unnecessary re-renders
-export const DatabaseActions = memo(DatabaseActionsComponent);
+}
