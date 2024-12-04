@@ -2,7 +2,7 @@ import { toast } from "@/components/ui/use-toast";
 import { generateFortune30Partners } from './generators/fortune30Generator';
 import { generateInternalPartners } from './generators/internalPartnersGenerator';
 import { generateSMEPartners } from './generators/smePartnersGenerator';
-import { generateSampleProjects } from './generators/projectGenerator';
+import { generateProjects } from './generators/projectGenerator';
 import { DataQuantities } from '@/lib/types/data';
 import { db } from "@/lib/db";
 import { errorHandler } from '../error/ErrorHandlingService';
@@ -37,24 +37,14 @@ export class DataGenerationService {
       const internalPartners = generateInternalPartners().filter(validateCollaborator);
       const smePartners = generateSMEPartners().filter(validateCollaborator);
 
-      const projectInput = {
-        ...defaultQuantities,
-        departments: Array.from(DEPARTMENTS),
-        fortune30Partners: fortune30Partners.slice(0, defaultQuantities.fortune30),
-        collaborators: internalPartners.slice(0, defaultQuantities.internalPartners)
-      };
+      const projects = generateProjects(Array.from(DEPARTMENTS), defaultQuantities.projects);
 
-      const { projects, spis, objectives, sitreps } = await generateSampleProjects(projectInput);
-
-      const stores = ['collaborators', 'smePartners', 'projects', 'spis', 'objectives', 'sitreps'];
+      const stores = ['collaborators', 'smePartners', 'projects'];
       const transaction = db.getDatabase().transaction(stores, 'readwrite');
 
       await this.saveToDatabase(transaction, 'collaborators', [...fortune30Partners, ...internalPartners]);
       await this.saveToDatabase(transaction, 'smePartners', smePartners);
       await this.saveToDatabase(transaction, 'projects', projects);
-      await this.saveToDatabase(transaction, 'spis', spis);
-      await this.saveToDatabase(transaction, 'objectives', objectives);
-      await this.saveToDatabase(transaction, 'sitreps', sitreps);
 
       this.showSuccessStep("All data saved successfully");
       return { success: true };

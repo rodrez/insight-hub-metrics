@@ -7,6 +7,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { CollaboratorType } from "@/lib/types/collaboration";
+import { useQuery } from "@tanstack/react-query";
+import { db } from "@/lib/db";
 
 interface ProjectPartnerBadgeProps {
   partner: {
@@ -20,6 +22,17 @@ interface ProjectPartnerBadgeProps {
 }
 
 export function ProjectPartnerBadge({ partner, departmentColor }: ProjectPartnerBadgeProps) {
+  // Fetch Fortune 30 partner details if needed
+  const { data: fortune30Partner } = useQuery({
+    queryKey: ['collaborators-fortune30', partner.id],
+    queryFn: async () => {
+      if (partner.type !== 'fortune30') return null;
+      const allCollaborators = await db.getAllCollaborators();
+      return allCollaborators.find(c => c.id === partner.id) || null;
+    },
+    enabled: partner.type === 'fortune30'
+  });
+
   const getIcon = () => {
     switch (partner.type) {
       case 'sme':
@@ -34,9 +47,10 @@ export function ProjectPartnerBadge({ partner, departmentColor }: ProjectPartner
   };
 
   const getBadgeColor = () => {
-    // For Fortune 30 partners, always use their brand color if available
-    if (partner.type === 'fortune30' && partner.color) {
-      return partner.color;
+    // For Fortune 30 partners, use their color from settings
+    if (partner.type === 'fortune30') {
+      console.log('Fortune 30 partner color:', fortune30Partner?.color);
+      return fortune30Partner?.color || '#4B5563';
     }
     // For SME partners, use their color if available
     if (partner.type === 'sme' && partner.color) {
@@ -47,6 +61,7 @@ export function ProjectPartnerBadge({ partner, departmentColor }: ProjectPartner
   };
 
   const badgeColor = getBadgeColor();
+  console.log('Badge color for', partner.name, ':', badgeColor);
 
   return (
     <TooltipProvider>
@@ -57,7 +72,8 @@ export function ProjectPartnerBadge({ partner, departmentColor }: ProjectPartner
               backgroundColor: badgeColor,
               color: '#FFFFFF',
               fontWeight: 500,
-              border: 'none'
+              border: 'none',
+              textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
             }}
             className="flex items-center gap-1 hover:opacity-90 transition-opacity shadow-md"
           >

@@ -33,7 +33,7 @@ export function useDataPopulation() {
             console.log('Sample data generated:', data);
 
             // Add data to database in sequence with progress updates
-            const totalSteps = 7;
+            const totalSteps = 4;
             let currentStep = 0;
 
             // Add Fortune 30 partners
@@ -65,30 +65,6 @@ export function useDataPopulation() {
             console.log('Adding projects...', data.projects);
             for (const project of data.projects) {
               await db.addProject(project);
-            }
-            currentStep++;
-            setProgress((currentStep / totalSteps) * 100);
-
-            // Add SPIs
-            console.log('Adding SPIs...');
-            for (const spi of data.spis) {
-              await db.addSPI(spi);
-            }
-            currentStep++;
-            setProgress((currentStep / totalSteps) * 100);
-
-            // Add objectives
-            console.log('Adding objectives...');
-            for (const objective of data.objectives) {
-              await db.addObjective(objective);
-            }
-            currentStep++;
-            setProgress((currentStep / totalSteps) * 100);
-
-            // Add sitreps
-            console.log('Adding sitreps...');
-            for (const sitrep of data.sitreps) {
-              await db.addSitRep(sitrep);
             }
             currentStep++;
             setProgress((currentStep / totalSteps) * 100);

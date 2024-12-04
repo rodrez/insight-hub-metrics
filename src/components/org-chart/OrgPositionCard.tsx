@@ -23,14 +23,29 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
   const navigate = useNavigate();
   const { handleSave } = useRelationshipUpdates();
 
+  // Add retry logic and better error handling
   const { data: relationships, isLoading, error } = useQuery({
     queryKey: ['rat-member-relationships', name],
     queryFn: async () => {
       console.log('Fetching relationships for:', name);
       try {
+        // Initialize relationships with empty arrays
+        const defaultRelationships = {
+          fortune30Partners: [],
+          smePartners: [],
+          projects: [],
+          spis: [],
+          sitreps: []
+        };
+
         const data = await getRatMemberRelationships(name, db);
         console.log('Successfully fetched relationships for', name, ':', data);
-        return data;
+        
+        // Merge with defaults to ensure all properties exist
+        return {
+          ...defaultRelationships,
+          ...data
+        };
       } catch (error) {
         console.error('Error fetching relationships:', error);
         toast({
@@ -38,7 +53,6 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
           description: "Failed to fetch relationships",
           variant: "destructive",
         });
-        // Return empty arrays instead of throwing
         return {
           fortune30Partners: [],
           smePartners: [],
@@ -48,15 +62,7 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
         };
       }
     },
-    retry: 1,
-    // Initialize with empty arrays
-    initialData: {
-      fortune30Partners: [],
-      smePartners: [],
-      projects: [],
-      spis: [],
-      sitreps: []
-    }
+    retry: 1
   });
 
   const handleItemClick = (type: string, id: string) => {
@@ -96,11 +102,11 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
   const position: OrgPosition = {
     id: name,
     title: title,
-    projects: relationships.projects?.map(p => p.id) || [],
-    fortune30Partners: relationships.fortune30Partners?.map(p => p.id) || [],
-    smePartners: relationships.smePartners?.map(p => p.id) || [],
-    spis: relationships.spis?.map(s => s.id) || [],
-    sitreps: relationships.sitreps?.map(s => s.id) || []
+    projects: relationships?.projects?.map(p => p.id) || [],
+    fortune30Partners: relationships?.fortune30Partners?.map(p => p.id) || [],
+    smePartners: relationships?.smePartners?.map(p => p.id) || [],
+    spis: relationships?.spis?.map(s => s.id) || [],
+    sitreps: relationships?.sitreps?.map(s => s.id) || []
   };
 
   return (
@@ -113,11 +119,11 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
       />
 
       <RelationshipsContainer
-        fortune30Partners={relationships.fortune30Partners || []}
-        smePartners={relationships.smePartners || []}
-        projects={relationships.projects || []}
-        spis={relationships.spis || []}
-        sitreps={relationships.sitreps || []}
+        fortune30Partners={relationships?.fortune30Partners || []}
+        smePartners={relationships?.smePartners || []}
+        projects={relationships?.projects || []}
+        spis={relationships?.spis || []}
+        sitreps={relationships?.sitreps || []}
         onItemClick={handleItemClick}
       />
 
@@ -130,11 +136,11 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
           await handleSave(name, updatedPosition);
           setIsDialogOpen(false);
         }}
-        allProjects={relationships.projects || []}
-        allFortune30Partners={relationships.fortune30Partners || []}
-        allSMEPartners={relationships.smePartners || []}
-        allSPIs={relationships.spis || []}
-        allSitReps={relationships.sitreps || []}
+        allProjects={relationships?.projects || []}
+        allFortune30Partners={relationships?.fortune30Partners || []}
+        allSMEPartners={relationships?.smePartners || []}
+        allSPIs={relationships?.spis || []}
+        allSitReps={relationships?.sitreps || []}
       />
     </Card>
   );

@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Project } from "@/lib/types";
 import { DEPARTMENTS } from "@/lib/constants";
 import { toast } from "@/components/ui/use-toast";
-import { memo } from "react";
+import { memo, useEffect, useState } from "react";
 
 interface ProjectHeaderProps {
   project: Project;
@@ -11,6 +11,22 @@ interface ProjectHeaderProps {
 }
 
 export const ProjectHeader = memo(({ project, isEditing, onUpdate }: ProjectHeaderProps) => {
+  const [statusColors, setStatusColors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const savedColors = localStorage.getItem('projectStatusColors');
+    if (savedColors) {
+      const colors = JSON.parse(savedColors);
+      // Convert array format to object format
+      const colorMap = colors.reduce((acc: Record<string, string>, curr: any) => {
+        acc[curr.id] = curr.color;
+        return acc;
+      }, {});
+      console.log('Loaded status colors:', colorMap);
+      setStatusColors(colorMap);
+    }
+  }, []);
+
   const getDepartmentColor = (id: string) => {
     return DEPARTMENTS.find(d => d.id === id)?.color;
   };
@@ -39,6 +55,23 @@ export const ProjectHeader = memo(({ project, isEditing, onUpdate }: ProjectHead
     onUpdate({ techLead: value });
   };
 
+  const getStatusColor = (status: string) => {
+    console.log('Current status:', status);
+    console.log('Current statusColors:', statusColors);
+    const color = statusColors[status];
+    if (color) {
+      return { backgroundColor: color, color: 'white' };
+    }
+    // Provide default colors if none are set
+    const defaultColors: Record<string, string> = {
+      active: '#10B981',
+      completed: '#3B82F6',
+      delayed: '#F59E0B',
+      'action-needed': '#991B1B'
+    };
+    return { backgroundColor: defaultColors[status] || '#666666', color: 'white' };
+  };
+
   if (!isEditing) {
     return (
       <div className="flex items-center justify-between">
@@ -65,12 +98,15 @@ export const ProjectHeader = memo(({ project, isEditing, onUpdate }: ProjectHead
             </p>
           </div>
         </div>
-        <Badge variant={
-          project.status === 'active' ? 'default' :
-          project.status === 'completed' ? 'secondary' :
-          project.status === 'delayed' ? 'destructive' :
-          'destructive'
-        }>
+        <Badge 
+          style={getStatusColor(project.status)}
+          variant={
+            project.status === 'completed' ? 'secondary' :
+            project.status === 'delayed' ? 'destructive' :
+            project.status === 'action-needed' ? 'destructive' :
+            'default'
+          }
+        >
           {project.status}
         </Badge>
       </div>
