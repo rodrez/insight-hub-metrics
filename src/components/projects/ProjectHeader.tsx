@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Project } from "@/lib/types";
 import { DEPARTMENTS } from "@/lib/constants";
 import { toast } from "@/components/ui/use-toast";
-import { memo } from "react";
+import { memo, useEffect, useState } from "react";
 
 interface ProjectHeaderProps {
   project: Project;
@@ -11,6 +11,15 @@ interface ProjectHeaderProps {
 }
 
 export const ProjectHeader = memo(({ project, isEditing, onUpdate }: ProjectHeaderProps) => {
+  const [statusColors, setStatusColors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const savedColors = localStorage.getItem('projectStatusColors');
+    if (savedColors) {
+      setStatusColors(JSON.parse(savedColors));
+    }
+  }, []);
+
   const getDepartmentColor = (id: string) => {
     return DEPARTMENTS.find(d => d.id === id)?.color;
   };
@@ -65,12 +74,18 @@ export const ProjectHeader = memo(({ project, isEditing, onUpdate }: ProjectHead
             </p>
           </div>
         </div>
-        <Badge variant={
-          project.status === 'active' ? 'default' :
-          project.status === 'completed' ? 'secondary' :
-          project.status === 'delayed' ? 'destructive' :
-          'destructive'
-        }>
+        <Badge 
+          style={project.status === 'active' && statusColors['active'] ? 
+            { backgroundColor: statusColors['active'], color: 'white' } : 
+            undefined
+          }
+          variant={
+            project.status === 'completed' ? 'secondary' :
+            project.status === 'delayed' ? 'destructive' :
+            project.status === 'action-needed' ? 'destructive' :
+            'default'
+          }
+        >
           {project.status}
         </Badge>
       </div>
