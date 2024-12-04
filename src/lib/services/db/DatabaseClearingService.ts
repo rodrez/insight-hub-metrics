@@ -8,11 +8,22 @@ export class DatabaseClearingService {
   constructor(private db: IDBDatabase | null) {}
 
   async clearDatabase(): Promise<void> {
-    if (!this.db) {
-      throw new DatabaseError('Database not initialized');
-    }
-
     try {
+      // Initialize database if not already initialized
+      if (!this.db) {
+        console.log('Database not initialized, attempting initialization...');
+        const request = indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
+        
+        this.db = await new Promise((resolve, reject) => {
+          request.onerror = () => reject(new DatabaseError('Failed to initialize database'));
+          request.onsuccess = () => {
+            console.log('Database initialized successfully');
+            resolve(request.result);
+          };
+        });
+      }
+
+      console.log('Closing existing connections...');
       // Close existing connections first
       connectionManager.closeAllConnections();
       
@@ -24,11 +35,13 @@ export class DatabaseClearingService {
         return;
       }
 
+      console.log('Clearing stores sequentially...');
       // Clear stores sequentially to avoid transaction conflicts
       for (const storeName of storeNames) {
         await this.clearStore(storeName);
       }
 
+      console.log('Cleaning up database...');
       // Delete and recreate the database
       await DatabaseCleaner.clearDatabase();
       
@@ -51,8 +64,14 @@ export class DatabaseClearingService {
 
   private clearStore(storeName: string): Promise<void> {
     return new Promise((resolve, reject) => {
+      if (!this.db) {
+        reject(new DatabaseError('Database not initialized'));
+        return;
+      }
+
       try {
-        const transaction = this.db!.transaction(storeName, 'readwrite');
+        console.log(`Clearing store: ${storeName}`);
+        const transaction = this.db.transaction(storeName, 'readwrite');
         const store = transaction.objectStore(storeName);
 
         const request = store.clear();
