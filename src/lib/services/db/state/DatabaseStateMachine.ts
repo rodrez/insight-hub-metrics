@@ -63,6 +63,23 @@ export class DatabaseStateMachine {
     } else if (newState === 'error' && this.initializeReject) {
       this.initializeReject(new Error('Database initialization failed'));
     }
+
+    // Show toast notifications for state changes
+    switch (newState) {
+      case 'ready':
+        toast({
+          title: "Database Ready",
+          description: "Database is now ready for operations",
+        });
+        break;
+      case 'error':
+        toast({
+          title: "Database Error",
+          description: "An error occurred with the database",
+          variant: "destructive",
+        });
+        break;
+    }
   }
 
   public async queueOperation<T>(operation: () => Promise<T>): Promise<T> {
@@ -114,6 +131,10 @@ export class DatabaseStateMachine {
           console.log(`Retrying operation (attempt ${operation.retryCount}/${this.MAX_RETRIES})`);
           this.operationQueue.unshift(operation);
           await new Promise(resolve => setTimeout(resolve, this.RETRY_DELAY * operation.retryCount));
+          toast({
+            title: "Retrying Operation",
+            description: `Attempt ${operation.retryCount} of ${this.MAX_RETRIES}`,
+          });
         } else {
           operation.reject(error);
           toast({
@@ -139,30 +160,18 @@ export class DatabaseStateMachine {
 
     try {
       this.setState('initializing');
-      if (!this.initializationPromise) {
-        this.initializationPromise = new Promise((resolve, reject) => {
-          this.initializeResolve = resolve;
-          this.initializeReject = reject;
-        });
-      }
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await this.initializeDatabase();
       this.setState('ready');
-      toast({
-        title: "Database Ready",
-        description: "Database initialized successfully",
-      });
     } catch (error) {
       console.error('Database initialization failed:', error);
       this.setState('error');
-      toast({
-        title: "Database Error",
-        description: "Failed to initialize database",
-        variant: "destructive",
-      });
       throw error;
     }
+  }
+
+  private async initializeDatabase(): Promise<void> {
+    // Simulate database initialization with a delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
   }
 
   public markAsError(error: Error): void {
