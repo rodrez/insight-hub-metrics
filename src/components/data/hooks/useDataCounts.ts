@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { db } from "@/lib/db";
-import { DataCounts } from "../types/dataTypes";
 import { toast } from "@/components/ui/use-toast";
+import { DataCounts } from "../types/dataTypes";
 
 export function useDataCounts(isInitialized: boolean) {
   const queryClient = useQueryClient();
@@ -60,15 +60,6 @@ export function useDataCounts(isInitialized: boolean) {
         })
       ]);
 
-      console.log('Data fetched successfully:', {
-        projectsCount: projects.length,
-        spisCount: spis.length,
-        objectivesCount: objectives.length,
-        sitrepsCount: sitreps.length,
-        collaboratorsCount: collaborators.length,
-        smePartnersCount: smePartners.length
-      });
-
       const counts = {
         projects: projects.length,
         spis: spis.length,
@@ -79,11 +70,7 @@ export function useDataCounts(isInitialized: boolean) {
         smePartners: smePartners.length
       };
 
-      // Update individual count queries
-      Object.entries(counts).forEach(([key, value]) => {
-        queryClient.setQueryData(['data-count', key], value);
-      });
-
+      console.log('Data fetched successfully:', counts);
       return counts;
     } catch (error) {
       console.error('Error in fetchDataCounts:', error);
@@ -108,10 +95,10 @@ export function useDataCounts(isInitialized: boolean) {
     queryKey: ['data-counts'],
     queryFn: fetchDataCounts,
     enabled: isInitialized,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    gcTime: 1000 * 60 * 30, // 30 minutes
-    retry: 3,
-    retryDelay: 1000
+    staleTime: 0, // Always fetch fresh data
+    gcTime: 0, // Don't cache the data
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
 
   const updateDataCounts = async () => {
