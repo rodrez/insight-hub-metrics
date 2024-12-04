@@ -38,7 +38,14 @@ export function SelectionSection({
   };
 
   const selectedIds = Array.isArray(position[type]) ? position[type] : [];
-  const unselectedItems = availableItems.filter(item => !selectedIds.includes(item.id));
+  
+  // Filter out items that are already selected
+  const availableForSelection = availableItems.filter(item => !selectedIds.includes(item.id));
+
+  // Get the selected items' full data
+  const selectedItems = selectedIds
+    .map(id => availableItems.find(item => item.id === id))
+    .filter(item => item); // Remove any undefined items
 
   return (
     <div>
@@ -53,32 +60,35 @@ export function SelectionSection({
           <SelectValue placeholder={`Select ${title}`} />
         </SelectTrigger>
         <SelectContent>
-          {unselectedItems.map((item) => (
-            <SelectItem key={item.id} value={item.id}>
-              {item.name || item.title}
-            </SelectItem>
-          ))}
+          {availableForSelection.length > 0 ? (
+            availableForSelection.map((item) => (
+              <SelectItem key={item.id} value={item.id}>
+                {item.name || item.title}
+              </SelectItem>
+            ))
+          ) : (
+            <SelectItem value="none" disabled>No available items</SelectItem>
+          )}
         </SelectContent>
       </Select>
       <div className="flex flex-wrap gap-2 mt-2">
-        {selectedIds.map((itemId: string) => {
-          const item = availableItems.find((i: any) => i.id === itemId);
-          return item ? (
+        {selectedItems.map((item) => (
+          item && (
             <Badge
-              key={itemId}
+              key={item.id}
               variant="secondary"
               className="flex items-center gap-1"
             >
               {item.name || item.title}
               <button
-                onClick={() => handleRemoveItem(itemId)}
+                onClick={() => handleRemoveItem(item.id)}
                 className="ml-1 hover:text-destructive"
               >
                 ×
               </button>
             </Badge>
-          ) : null;
-        })}
+          )
+        ))}
       </div>
     </div>
   );

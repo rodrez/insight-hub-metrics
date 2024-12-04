@@ -34,6 +34,14 @@ export function RelationshipSelectionDialog({
     onClose();
   };
 
+  console.log('Dialog received data:', {
+    projects: allProjects,
+    fortune30: allFortune30Partners,
+    sme: allSMEPartners,
+    spis: allSPIs,
+    sitreps: allSitReps
+  });
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
