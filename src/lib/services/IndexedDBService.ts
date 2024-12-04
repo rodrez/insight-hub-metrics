@@ -13,8 +13,12 @@ import { SampleDataService } from './data/SampleDataService';
 import { ServiceInitializationManager } from './db/initialization/ServiceInitializationManager';
 import { DataExportService } from './db/operations/DataExportService';
 import { DatabaseClearingService } from './db/operations/DatabaseClearingService';
+import { DatabaseTransactionService } from './DatabaseTransactionService';
+import { DatabaseError } from '../utils/errorHandling';
+import { withRetry } from '../utils/retryUtils';
+import { toast } from "@/components/ui/use-toast";
 
-export class IndexedDBService extends BaseIndexedDBService implements DataService {
+export class IndexedDBService implements DataService {
   private static instance: IndexedDBService | null = null;
   private projectService: ProjectService;
   private collaboratorService: CollaboratorService;
@@ -24,9 +28,10 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   private dataExportService: DataExportService;
   private databaseClearingService: DatabaseClearingService;
   private initManager: ServiceInitializationManager;
+  protected database: IDBDatabase | null = null;
+  private initPromise: Promise<void> | null = null;
 
   private constructor() {
-    super();
     this.projectService = new ProjectService();
     this.collaboratorService = new CollaboratorService();
     this.sitRepService = new SitRepService();
@@ -57,15 +62,13 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     try {
       await withRetry(
         async () => {
-          console.log('Initializing base IndexedDB service...');
-          await this.connectionService.init();
-          this.database = this.connectionService.getDatabase();
+          console.log('Initializing IndexedDB service...');
+          const transactionService = new DatabaseTransactionService(this.database);
           
           if (!this.database) {
             throw new DatabaseError('Database initialization failed - database is null');
           }
           
-          this.transactionService = new DatabaseTransactionService(this.database);
           console.log('Database connection established');
         },
         {
@@ -86,7 +89,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
         description: "Database connection established and ready for use",
       });
     } catch (error) {
-      console.error('Error initializing base service:', error);
+      console.error('Error initializing service:', error);
       toast({
         title: "Database Error",
         description: "Failed to initialize database after multiple retries. Please refresh the page.",
@@ -185,5 +188,13 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     } catch (error) {
       throw error;
     }
+  }
+
+  public getDatabase(): IDBDatabase | null {
+    return this.database;
+  }
+
+  public setDatabase(db: IDBDatabase | null): void {
+    this.database = db;
   }
 }

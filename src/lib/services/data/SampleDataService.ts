@@ -1,6 +1,6 @@
 import { DataQuantities } from '@/lib/types/data';
 import { SampleDataCoordinator } from './SampleDataCoordinator';
-import { errorHandler } from './error/ErrorHandlingService';
+import { errorHandler } from '@/lib/services/error/ErrorHandlingService';
 
 export class SampleDataService {
   private coordinator: SampleDataCoordinator;
