@@ -1,6 +1,7 @@
 import { toast } from "@/components/ui/use-toast";
 import { ServiceInitializationManager } from "../initialization/ServiceInitializationManager";
 import { DB_CONFIG } from '../stores';
+import { connectionManager } from '../connectionManager';
 
 export class DatabaseClearingService {
   constructor(
@@ -14,13 +15,25 @@ export class DatabaseClearingService {
     }
 
     try {
-      // First, close all active transactions
+      // First, close all active connections
+      console.log('Closing all active connections...');
+      connectionManager.closeAllConnections();
+      
+      // Wait a bit to ensure connections are closed
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       const stores = Object.values(DB_CONFIG.stores);
       
       // Clear each store sequentially to avoid transaction conflicts
       for (const storeName of stores) {
         await this.clearStore(storeName);
       }
+
+      // Close current database connection
+      this.db.close();
+      
+      // Wait for any pending transactions
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Delete and recreate the database
       await this.recreateDatabase();
@@ -79,28 +92,45 @@ export class DatabaseClearingService {
 
   private async recreateDatabase(): Promise<void> {
     return new Promise((resolve, reject) => {
-      // Close the current database connection
-      if (this.db) {
-        this.db.close();
-      }
+      const maxRetries = 3;
+      let currentRetry = 0;
 
-      const deleteRequest = indexedDB.deleteDatabase(DB_CONFIG.name);
+      const attemptDeletion = () => {
+        currentRetry++;
+        console.log(`Attempting database deletion (attempt ${currentRetry}/${maxRetries})...`);
 
-      deleteRequest.onerror = () => {
-        console.error('Error deleting database:', deleteRequest.error);
-        reject(deleteRequest.error);
+        // Ensure all connections are closed before deletion
+        connectionManager.closeAllConnections();
+        
+        const deleteRequest = indexedDB.deleteDatabase(DB_CONFIG.name);
+
+        deleteRequest.onerror = () => {
+          console.error('Error deleting database:', deleteRequest.error);
+          if (currentRetry < maxRetries) {
+            setTimeout(attemptDeletion, 1000);
+          } else {
+            reject(new Error(`Failed to delete database after ${maxRetries} attempts`));
+          }
+        };
+
+        deleteRequest.onsuccess = () => {
+          console.log('Database deleted successfully');
+          resolve();
+        };
+
+        deleteRequest.onblocked = () => {
+          console.warn('Database deletion blocked - closing all connections');
+          connectionManager.closeAllConnections();
+          if (currentRetry < maxRetries) {
+            setTimeout(attemptDeletion, 1000);
+          } else {
+            reject(new Error(`Database deletion blocked after ${maxRetries} attempts`));
+          }
+        };
       };
 
-      deleteRequest.onsuccess = () => {
-        console.log('Database deleted successfully');
-        resolve();
-      };
-
-      deleteRequest.onblocked = () => {
-        console.warn('Database deletion blocked - closing all connections');
-        // The database will be deleted once all connections are closed
-        resolve();
-      };
+      // Start deletion attempt after ensuring connections are closed
+      setTimeout(attemptDeletion, 100);
     });
   }
 }
