@@ -87,6 +87,25 @@ export const getRatMemberInfo = (name: string): RatMemberInfo | undefined => {
   return RAT_MEMBERS[name];
 };
 
+export const getRatMemberRelationships = async (name: string, db: any) => {
+  const memberInfo = RAT_MEMBERS[name];
+  if (!memberInfo) return null;
+
+  const fortune30Partners = await db.getAllCollaborators();
+  const smePartners = await db.getAllSMEPartners();
+  const projects = await db.getAllProjects();
+  const spis = await db.getAllSPIs();
+  const sitreps = await db.getAllSitReps();
+
+  return {
+    fortune30Partners: fortune30Partners.filter(p => p.ratMember === name),
+    smePartners: smePartners.filter(p => p.ratMember === name),
+    projects: projects.filter(p => p.ratMember === name),
+    spis: spis.filter(s => s.ratMember === name),
+    sitreps: sitreps.filter(s => s.ratMember === name)
+  };
+};
+
 export const getRatMemberRole = (name: string): string | undefined => {
   return RAT_MEMBERS[name]?.role;
 };

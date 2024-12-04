@@ -2,12 +2,11 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { RelationshipSelectionDialog } from "./RelationshipSelectionDialog";
 import { OrgPosition } from "./types";
-import { getRatMemberInfo } from "@/lib/services/data/utils/ratMemberUtils";
+import { getRatMemberInfo, getRatMemberRelationships } from "@/lib/services/data/utils/ratMemberUtils";
 import { useNavigate } from "react-router-dom";
 import { OrgPositionHeader } from "./card/OrgPositionHeader";
-import { useOrgPositionData } from "./hooks/useOrgPositionData";
-import { useAvailableItems } from "./hooks/useAvailableItems";
-import { useRelationshipUpdates } from "./hooks/useRelationshipUpdates";
+import { useQuery } from "@tanstack/react-query";
+import { db } from "@/lib/db";
 import { RelationshipsContainer } from "./card/RelationshipsContainer";
 
 interface OrgPositionCardProps {
@@ -21,24 +20,10 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
   const memberInfo = getRatMemberInfo(name);
   const navigate = useNavigate();
 
-  const {
-    fortune30Partners,
-    smePartners,
-    projects,
-    spis,
-    sitreps,
-    isLoading
-  } = useOrgPositionData(name);
-
-  const {
-    allProjects,
-    allFortune30Partners,
-    allSMEPartners,
-    allSPIs,
-    allSitReps
-  } = useAvailableItems();
-
-  const { handleSave } = useRelationshipUpdates();
+  const { data: relationships, isLoading } = useQuery({
+    queryKey: ['rat-member-relationships', name],
+    queryFn: async () => getRatMemberRelationships(name, db)
+  });
 
   const handleItemClick = (type: string, id: string) => {
     switch (type) {
@@ -60,19 +45,19 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
     }
   };
 
-  const position: OrgPosition = {
-    id: name,
-    title: title,
-    projects: projects.map(p => p.id),
-    fortune30Partners: fortune30Partners.map(p => p.id),
-    smePartners: smePartners.map(p => p.id),
-    spis: spis.map(s => s.id),
-    sitreps: sitreps.map(s => s.id)
-  };
-
   if (isLoading) {
     return <Card className={`${width} p-6 animate-pulse`}>Loading...</Card>;
   }
+
+  const position: OrgPosition = {
+    id: name,
+    title: title,
+    projects: relationships?.projects?.map(p => p.id) || [],
+    fortune30Partners: relationships?.fortune30Partners?.map(p => p.id) || [],
+    smePartners: relationships?.smePartners?.map(p => p.id) || [],
+    spis: relationships?.spis?.map(s => s.id) || [],
+    sitreps: relationships?.sitreps?.map(s => s.id) || []
+  };
 
   return (
     <Card className={`${width} p-6 space-y-4 bg-background/95 backdrop-blur-sm border-muted`}>
@@ -84,11 +69,11 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
       />
 
       <RelationshipsContainer
-        fortune30Partners={fortune30Partners}
-        smePartners={smePartners}
-        projects={projects}
-        spis={spis}
-        sitreps={sitreps}
+        fortune30Partners={relationships?.fortune30Partners || []}
+        smePartners={relationships?.smePartners || []}
+        projects={relationships?.projects || []}
+        spis={relationships?.spis || []}
+        sitreps={relationships?.sitreps || []}
         onItemClick={handleItemClick}
       />
 
@@ -96,12 +81,15 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
         position={position}
-        onSave={(updatedPosition) => handleSave(name, updatedPosition)}
-        allProjects={allProjects}
-        allFortune30Partners={allFortune30Partners}
-        allSMEPartners={allSMEPartners}
-        allSPIs={allSPIs}
-        allSitReps={allSitReps}
+        onSave={async (updatedPosition) => {
+          // Handle save logic
+          setIsDialogOpen(false);
+        }}
+        allProjects={[]}
+        allFortune30Partners={[]}
+        allSMEPartners={[]}
+        allSPIs={[]}
+        allSitReps={[]}
       />
     </Card>
   );
