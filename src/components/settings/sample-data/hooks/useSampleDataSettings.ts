@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { db } from "@/lib/db";
-import { DataCounts } from "../types/dataTypes";
+import { DataCounts, DataQuantities } from "@/components/data/types/dataTypes";
 
 export function useSampleDataSettings() {
   const [isClearing, setIsClearing] = useState(false);
   const [isPopulating, setIsPopulating] = useState(false);
-  const [quantities, setQuantities] = useState({
+  const [quantities, setQuantities] = useState<DataQuantities>({
     projects: 5,
     fortune30: 5,
     internalPartners: 20,
