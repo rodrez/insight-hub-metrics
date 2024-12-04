@@ -11,7 +11,7 @@ export class BaseIndexedDBService {
   private initPromise: Promise<void> | null = null;
 
   constructor() {
-    this.connectionService = new DatabaseConnectionService();
+    this.connectionService = new DatabaseConnectionService('projectManagementDB', 1);
     this.transactionService = new DatabaseTransactionService(null);
   }
 
@@ -45,7 +45,8 @@ export class BaseIndexedDBService {
         },
         {
           maxRetries: 3,
-          initialDelay: 1000,
+          delayMs: 1000,
+          backoff: 1.5,
           onRetry: (attempt, error) => {
             console.warn(`Retry attempt ${attempt} for database initialization:`, error);
             toast({
@@ -80,7 +81,8 @@ export class BaseIndexedDBService {
       operation,
       {
         maxRetries: 3,
-        initialDelay: 1000,
+        delayMs: 1000,
+        backoff: 1.5,
         onRetry: (attempt, error) => {
           console.warn(`Retry attempt ${attempt} for ${operationName}:`, error);
           toast({

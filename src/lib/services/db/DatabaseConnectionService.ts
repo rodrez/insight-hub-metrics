@@ -7,7 +7,7 @@ export class DatabaseConnectionService {
   private db: IDBDatabase | null = null;
   private connectionPromise: Promise<void> | null = null;
 
-  constructor(dbName: string, version: number) {
+  constructor(dbName: string = 'projectManagementDB', version: number = 1) {
     this.dbName = dbName;
     this.version = version;
   }
@@ -23,6 +23,7 @@ export class DatabaseConnectionService {
 
   private async initializeDatabase(): Promise<void> {
     try {
+      console.log('Starting database initialization in DatabaseConnectionService');
       const initializer = new DatabaseInitializer(this.dbName, this.version);
       this.db = await initializer.initWithRetry();
       

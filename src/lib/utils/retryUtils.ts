@@ -1,9 +1,21 @@
+interface RetryOptions {
+  maxRetries?: number;
+  delayMs?: number;
+  backoff?: number;
+  onRetry?: (attempt: number, error: Error) => void;
+}
+
 export async function withRetry<T>(
   action: () => Promise<T>,
-  maxRetries: number = 3,
-  delayMs: number = 1000,
-  backoff: number = 1.5
+  options: RetryOptions = {}
 ): Promise<T> {
+  const {
+    maxRetries = 3,
+    delayMs = 1000,
+    backoff = 1.5,
+    onRetry
+  } = options;
+
   let lastError: Error | null = null;
   let currentDelay = delayMs;
 
@@ -11,16 +23,20 @@ export async function withRetry<T>(
     try {
       return await action();
     } catch (error) {
-      lastError = error as Error;
+      lastError = error instanceof Error ? error : new Error('Unknown error');
       console.error(`Attempt ${attempt} failed:`, error);
       
       if (attempt === maxRetries) {
         break;
       }
 
+      if (onRetry) {
+        onRetry(attempt, lastError);
+      }
+
       console.info(`Waiting ${currentDelay}ms before retry...`);
       await new Promise(resolve => setTimeout(resolve, currentDelay));
-      currentDelay *= backoff; // Increase delay for next attempt
+      currentDelay *= backoff;
     }
   }
 
