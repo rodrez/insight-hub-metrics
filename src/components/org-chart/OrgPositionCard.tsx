@@ -8,6 +8,7 @@ import { OrgPositionHeader } from "./card/OrgPositionHeader";
 import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { RelationshipsContainer } from "./card/RelationshipsContainer";
+import { useRelationshipUpdates } from "./hooks/useRelationshipUpdates";
 
 interface OrgPositionCardProps {
   title: string;
@@ -19,6 +20,7 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const memberInfo = getRatMemberInfo(name);
   const navigate = useNavigate();
+  const { handleSave } = useRelationshipUpdates();
 
   console.log('Rendering OrgPositionCard for:', name);
   console.log('Member Info:', memberInfo);
@@ -59,16 +61,20 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
     return <Card className={`${width} p-6 animate-pulse`}>Loading...</Card>;
   }
 
+  if (!relationships) {
+    return <Card className={`${width} p-6`}>No relationships found</Card>;
+  }
+
   console.log('Rendering relationships for:', name, relationships);
 
   const position: OrgPosition = {
     id: name,
     title: title,
-    projects: relationships?.projects?.map(p => p.id) || [],
-    fortune30Partners: relationships?.fortune30Partners?.map(p => p.id) || [],
-    smePartners: relationships?.smePartners?.map(p => p.id) || [],
-    spis: relationships?.spis?.map(s => s.id) || [],
-    sitreps: relationships?.sitreps?.map(s => s.id) || []
+    projects: relationships.projects?.map(p => p.id) || [],
+    fortune30Partners: relationships.fortune30Partners?.map(p => p.id) || [],
+    smePartners: relationships.smePartners?.map(p => p.id) || [],
+    spis: relationships.spis?.map(s => s.id) || [],
+    sitreps: relationships.sitreps?.map(s => s.id) || []
   };
 
   return (
@@ -81,11 +87,11 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
       />
 
       <RelationshipsContainer
-        fortune30Partners={relationships?.fortune30Partners || []}
-        smePartners={relationships?.smePartners || []}
-        projects={relationships?.projects || []}
-        spis={relationships?.spis || []}
-        sitreps={relationships?.sitreps || []}
+        fortune30Partners={relationships.fortune30Partners || []}
+        smePartners={relationships.smePartners || []}
+        projects={relationships.projects || []}
+        spis={relationships.spis || []}
+        sitreps={relationships.sitreps || []}
         onItemClick={handleItemClick}
       />
 
@@ -95,13 +101,14 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
         position={position}
         onSave={async (updatedPosition) => {
           console.log('Saving updated position:', updatedPosition);
+          await handleSave(name, updatedPosition);
           setIsDialogOpen(false);
         }}
-        allProjects={[]}
-        allFortune30Partners={[]}
-        allSMEPartners={[]}
-        allSPIs={[]}
-        allSitReps={[]}
+        allProjects={relationships.projects || []}
+        allFortune30Partners={relationships.fortune30Partners || []}
+        allSMEPartners={relationships.smePartners || []}
+        allSPIs={relationships.spis || []}
+        allSitReps={relationships.sitreps || []}
       />
     </Card>
   );
