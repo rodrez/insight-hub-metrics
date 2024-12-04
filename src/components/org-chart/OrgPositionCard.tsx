@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { db } from "@/lib/db";
 import { RelationshipsContainer } from "./card/RelationshipsContainer";
 import { useRelationshipUpdates } from "./hooks/useRelationshipUpdates";
+import { toast } from "@/components/ui/use-toast";
 
 interface OrgPositionCardProps {
   title: string;
@@ -22,17 +23,25 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
   const navigate = useNavigate();
   const { handleSave } = useRelationshipUpdates();
 
-  console.log('Rendering OrgPositionCard for:', name);
-  console.log('Member Info:', memberInfo);
-
-  const { data: relationships, isLoading } = useQuery({
+  const { data: relationships, isLoading, error } = useQuery({
     queryKey: ['rat-member-relationships', name],
     queryFn: async () => {
       console.log('Fetching relationships for:', name);
-      const data = await getRatMemberRelationships(name, db);
-      console.log('Fetched relationships:', data);
-      return data;
-    }
+      try {
+        const data = await getRatMemberRelationships(name, db);
+        console.log('Successfully fetched relationships for', name, ':', data);
+        return data;
+      } catch (error) {
+        console.error('Error fetching relationships:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch relationships",
+          variant: "destructive",
+        });
+        throw error;
+      }
+    },
+    retry: 1
   });
 
   const handleItemClick = (type: string, id: string) => {
@@ -57,15 +66,24 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
   };
 
   if (isLoading) {
-    console.log('Loading relationships for:', name);
     return <Card className={`${width} p-6 animate-pulse`}>Loading...</Card>;
   }
 
-  if (!relationships) {
-    return <Card className={`${width} p-6`}>No relationships found</Card>;
+  if (error) {
+    return (
+      <Card className={`${width} p-6 text-destructive`}>
+        Error loading relationships
+      </Card>
+    );
   }
 
-  console.log('Rendering relationships for:', name, relationships);
+  if (!relationships) {
+    return (
+      <Card className={`${width} p-6`}>
+        <p className="text-sm text-muted-foreground">No relationships found for {name}</p>
+      </Card>
+    );
+  }
 
   const position: OrgPosition = {
     id: name,
