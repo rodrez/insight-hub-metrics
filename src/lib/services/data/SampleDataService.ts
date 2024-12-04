@@ -1,62 +1,34 @@
-import { generateFortune30Partners } from './generators/fortune30Generator';
-import { generateInternalPartners } from './generators/internalPartnersGenerator';
-import { generateSMEPartners } from './generators/smePartnersGenerator';
-import { generateProjects } from './generators/projectGenerator';
 import { DataQuantities } from '@/lib/types/data';
-import { errorHandler } from '../error/ErrorHandlingService';
-import { validateCollaborator } from './utils/dataGenerationUtils';
-import { getRandomRatMember, getAllRatMembers } from './utils/ratMemberUtils';
-import { DEPARTMENTS } from '@/lib/constants';
+import { SampleDataCoordinator } from './SampleDataCoordinator';
+import { errorHandler } from './error/ErrorHandlingService';
 
 export class SampleDataService {
-  async generateSampleData(quantities: DataQuantities) {
+  private coordinator: SampleDataCoordinator;
+
+  constructor() {
+    this.coordinator = new SampleDataCoordinator();
+  }
+
+  async generateSampleData(quantities: Partial<DataQuantities> = {}): Promise<void> {
     try {
-      console.log('Starting sample data generation with quantities:', quantities);
-      
-      // Get all RAT members upfront
-      const ratMembers = getAllRatMembers();
-      console.log('Available RAT members:', ratMembers);
+      // Only generate data if quantities are explicitly provided
+      if (Object.keys(quantities).length === 0) {
+        console.log('No quantities provided, skipping sample data generation');
+        return;
+      }
 
-      // Generate partners with explicit RAT member assignment
-      const fortune30Partners = generateFortune30Partners().filter(validateCollaborator)
-        .map(partner => ({
-          ...partner,
-          ratMember: getRandomRatMember()
-        }));
-
-      const internalPartners = generateInternalPartners().filter(validateCollaborator)
-        .map(partner => ({
-          ...partner,
-          ratMember: getRandomRatMember()
-        }));
-
-      const smePartners = generateSMEPartners().filter(validateCollaborator)
-        .map(partner => ({
-          ...partner,
-          ratMember: getRandomRatMember()
-        }));
-
-      // Generate projects with explicit RAT member assignment
-      const projects = generateProjects([...DEPARTMENTS], quantities.projects)
-        .map(project => ({
-          ...project,
-          ratMember: getRandomRatMember()
-        }));
-
-      // Log generated data for verification
-      console.log('Generated Fortune 30 partners:', fortune30Partners.length);
-      console.log('Generated internal partners:', internalPartners.length);
-      console.log('Generated SME partners:', smePartners.length);
-      console.log('Generated projects:', projects.length);
-
-      return {
-        fortune30Partners: fortune30Partners.slice(0, quantities.fortune30),
-        internalPartners: internalPartners.slice(0, quantities.internalPartners),
-        smePartners: smePartners.slice(0, quantities.smePartners),
-        projects: projects.slice(0, quantities.projects)
+      const validatedQuantities = {
+        projects: quantities.projects ?? 10,
+        spis: quantities.spis ?? 10,
+        objectives: quantities.objectives ?? 5,
+        sitreps: quantities.sitreps ?? 10,
+        fortune30: quantities.fortune30 ?? 6,
+        internalPartners: quantities.internalPartners ?? 20,
+        smePartners: quantities.smePartners ?? 10
       };
+
+      await this.coordinator.generateData(validatedQuantities);
     } catch (error) {
-      console.error('Error generating sample data:', error);
       errorHandler.handleError(error, {
         type: 'database',
         title: 'Sample Data Generation Failed',

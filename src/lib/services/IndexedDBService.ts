@@ -45,15 +45,56 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
   }
 
   public async init(): Promise<void> {
-    await this.initManager.initializeService('IndexedDB', async () => {
-      await super.init();
-      const db = this.getDatabase();
+    if (this.initPromise) {
+      return this.initPromise;
+    }
+
+    this.initPromise = this.initializeDatabase();
+    return this.initPromise;
+  }
+
+  private async initializeDatabase(): Promise<void> {
+    try {
+      await withRetry(
+        async () => {
+          console.log('Initializing base IndexedDB service...');
+          await this.connectionService.init();
+          this.database = this.connectionService.getDatabase();
+          
+          if (!this.database) {
+            throw new DatabaseError('Database initialization failed - database is null');
+          }
+          
+          this.transactionService = new DatabaseTransactionService(this.database);
+          console.log('Database connection established');
+        },
+        {
+          maxRetries: 3,
+          initialDelay: 1000,
+          onRetry: (attempt, error) => {
+            console.warn(`Retry attempt ${attempt} for database initialization:`, error);
+            toast({
+              title: "Database Connection Retry",
+              description: `Retrying connection (attempt ${attempt}/3)...`,
+            });
+          }
+        }
+      );
       
-      this.projectService.setDatabase(db);
-      this.collaboratorService.setDatabase(db);
-      this.sitRepService.setDatabase(db);
-      this.spiService.setDatabase(db);
-    });
+      toast({
+        title: "Database Ready",
+        description: "Database connection established and ready for use",
+      });
+    } catch (error) {
+      console.error('Error initializing base service:', error);
+      toast({
+        title: "Database Error",
+        description: "Failed to initialize database after multiple retries. Please refresh the page.",
+        variant: "destructive",
+      });
+      this.initPromise = null;
+      throw error;
+    }
   }
 
   // Project methods
