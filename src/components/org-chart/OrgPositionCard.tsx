@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { OrgPositionHeader } from "./card/OrgPositionHeader";
 import { RelationshipSection } from "./card/RelationshipSection";
 import { useOrgPositionData } from "./hooks/useOrgPositionData";
+import { db } from "@/lib/db";
 
 interface OrgPositionCardProps {
   title: string;
