@@ -1,22 +1,17 @@
-import { DataService } from './DataService';
-import { Project, Collaborator, Team } from '../types';
-import { SitRep } from '../types/sitrep';
-import { SPI } from '../types/spi';
-import { Objective } from '../types/objective';
-import { DataQuantities } from '../types/data';
 import { ProjectService } from './db/ProjectService';
 import { CollaboratorService } from './db/CollaboratorService';
 import { SitRepService } from './db/SitRepService';
 import { SPIService } from './db/SPIService';
-import { BaseIndexedDBService } from './db/base/BaseIndexedDBService';
 import { SampleDataService } from './data/SampleDataService';
 import { ServiceInitializationManager } from './db/initialization/ServiceInitializationManager';
 import { DataExportService } from './db/operations/DataExportService';
 import { DatabaseClearingService } from './db/operations/DatabaseClearingService';
-import { DatabaseTransactionService } from './DatabaseTransactionService';
+import { DatabaseTransactionService } from './db/transactions/DatabaseTransactionService';
+import { DatabaseMethods } from './db/methods/DatabaseMethods';
 import { DatabaseError } from '../utils/errorHandling';
 import { withRetry } from '../utils/retryUtils';
 import { toast } from "@/components/ui/use-toast";
+import { DataService } from './DataService';
 
 export class IndexedDBService implements DataService {
   private static instance: IndexedDBService | null = null;
@@ -28,6 +23,7 @@ export class IndexedDBService implements DataService {
   private dataExportService: DataExportService;
   private databaseClearingService: DatabaseClearingService;
   private initManager: ServiceInitializationManager;
+  private dbMethods: DatabaseMethods;
   protected database: IDBDatabase | null = null;
   private initPromise: Promise<void> | null = null;
 
@@ -40,6 +36,12 @@ export class IndexedDBService implements DataService {
     this.initManager = ServiceInitializationManager.getInstance();
     this.dataExportService = new DataExportService(this);
     this.databaseClearingService = new DatabaseClearingService(this.getDatabase(), this.initManager);
+    this.dbMethods = new DatabaseMethods(
+      this.projectService,
+      this.collaboratorService,
+      this.sitRepService,
+      this.spiService
+    );
   }
 
   public static getInstance(): IndexedDBService {
@@ -100,43 +102,37 @@ export class IndexedDBService implements DataService {
     }
   }
 
-  // Project methods
-  getAllProjects = () => this.projectService.getAllProjects();
-  getProject = (id: string) => this.projectService.getProject(id);
-  addProject = (project: Project) => this.projectService.addProject(project);
-  updateProject = (id: string, updates: Partial<Project>) => this.projectService.updateProject(id, updates);
-
-  // Collaborator methods
-  getAllCollaborators = () => this.collaboratorService.getAllCollaborators();
-  getCollaborator = (id: string) => this.collaboratorService.getCollaborator(id);
-  addCollaborator = (collaborator: Collaborator) => this.collaboratorService.addCollaborator(collaborator);
-  updateCollaborator = (id: string, updates: Partial<Collaborator>) => this.collaboratorService.updateCollaborator(id, updates);
-
-  // SitRep methods
-  getAllSitReps = () => this.sitRepService.getAllSitReps();
-  addSitRep = (sitrep: SitRep) => this.sitRepService.addSitRep(sitrep);
-  updateSitRep = (id: string, updates: Partial<SitRep>) => this.sitRepService.updateSitRep(id, updates);
-
-  // SPI methods
-  getAllSPIs = () => this.spiService.getAllSPIs();
-  getSPI = (id: string) => this.spiService.getSPI(id);
-  addSPI = (spi: SPI) => this.spiService.addSPI(spi);
-  updateSPI = (id: string, updates: Partial<SPI>) => this.spiService.updateSPI(id, updates);
-  deleteSPI = (id: string) => this.spiService.deleteSPI(id);
-
-  // Objective methods
-  getAllObjectives = () => this.spiService.getAllObjectives();
-  addObjective = (objective: Objective) => this.spiService.addObjective(objective);
-  updateObjective = (id: string, updates: Partial<Objective>) => this.spiService.updateObjective(id, updates);
-  deleteObjective = (id: string) => this.spiService.deleteObjective(id);
-
-  // Initiative methods
-  getAllInitiatives = () => this.spiService.getAllInitiatives();
-  updateInitiative = (id: string, initiative: any) => this.spiService.updateInitiative(id, initiative);
-  deleteInitiative = (id: string) => this.spiService.deleteInitiative(id);
+  // Delegate all database methods to dbMethods
+  getAllProjects = this.dbMethods.getAllProjects;
+  getProject = this.dbMethods.getProject;
+  addProject = this.dbMethods.addProject;
+  updateProject = this.dbMethods.updateProject;
+  getAllCollaborators = this.dbMethods.getAllCollaborators;
+  getCollaborator = this.dbMethods.getCollaborator;
+  addCollaborator = this.dbMethods.addCollaborator;
+  updateCollaborator = this.dbMethods.updateCollaborator;
+  getAllSitReps = this.dbMethods.getAllSitReps;
+  addSitRep = this.dbMethods.addSitRep;
+  updateSitRep = this.dbMethods.updateSitRep;
+  getAllSPIs = this.dbMethods.getAllSPIs;
+  getSPI = this.dbMethods.getSPI;
+  addSPI = this.dbMethods.addSPI;
+  updateSPI = this.dbMethods.updateSPI;
+  deleteSPI = this.dbMethods.deleteSPI;
+  getAllObjectives = this.dbMethods.getAllObjectives;
+  addObjective = this.dbMethods.addObjective;
+  updateObjective = this.dbMethods.updateObjective;
+  deleteObjective = this.dbMethods.deleteObjective;
+  getAllInitiatives = this.dbMethods.getAllInitiatives;
+  updateInitiative = this.dbMethods.updateInitiative;
+  deleteInitiative = this.dbMethods.deleteInitiative;
+  getAllSMEPartners = this.dbMethods.getAllSMEPartners;
+  getSMEPartner = this.dbMethods.getSMEPartner;
+  addSMEPartner = this.dbMethods.addSMEPartner;
+  updateSMEPartner = this.dbMethods.updateSMEPartner;
 
   // Team methods
-  async getAllTeams(): Promise<Team[]> {
+  async getAllTeams() {
     const db = this.getDatabase();
     if (!db) throw new Error('Database not initialized');
     
@@ -149,12 +145,6 @@ export class IndexedDBService implements DataService {
       request.onerror = () => reject(new Error('Failed to fetch teams'));
     });
   }
-
-  // SME Partner methods
-  getAllSMEPartners = () => this.collaboratorService.getAllSMEPartners();
-  getSMEPartner = (id: string) => this.collaboratorService.getSMEPartner(id);
-  addSMEPartner = (partner: Collaborator) => this.collaboratorService.addSMEPartner(partner);
-  updateSMEPartner = (id: string, updates: Partial<Collaborator>) => this.collaboratorService.updateSMEPartner(id, updates);
 
   // Data operations
   exportData = async () => {
@@ -181,7 +171,7 @@ export class IndexedDBService implements DataService {
   
   clear = () => this.databaseClearingService.clearDatabase();
 
-  async populateSampleData(quantities: DataQuantities): Promise<void> {
+  async populateSampleData(quantities: any): Promise<void> {
     try {
       await this.clear();
       await this.sampleDataService.generateSampleData(quantities);
