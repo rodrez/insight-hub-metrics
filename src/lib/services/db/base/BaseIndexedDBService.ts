@@ -1,6 +1,8 @@
 import { DatabaseConnectionService } from '../DatabaseConnectionService';
 import { DatabaseTransactionService } from '../DatabaseTransactionService';
 import { toast } from "@/components/ui/use-toast";
+import { withRetry } from '@/lib/utils/retryUtils';
+import { DatabaseError } from '@/lib/utils/errorHandling';
 
 export class BaseIndexedDBService {
   protected connectionService: DatabaseConnectionService;
@@ -28,16 +30,31 @@ export class BaseIndexedDBService {
 
   private async initializeDatabase(): Promise<void> {
     try {
-      console.log('Initializing base IndexedDB service...');
-      await this.connectionService.init();
-      this.database = this.connectionService.getDatabase();
-      
-      if (!this.database) {
-        throw new Error('Database initialization failed - database is null');
-      }
-      
-      this.transactionService = new DatabaseTransactionService(this.database);
-      console.log('Database connection established');
+      await withRetry(
+        async () => {
+          console.log('Initializing base IndexedDB service...');
+          await this.connectionService.init();
+          this.database = this.connectionService.getDatabase();
+          
+          if (!this.database) {
+            throw new DatabaseError('Database initialization failed - database is null');
+          }
+          
+          this.transactionService = new DatabaseTransactionService(this.database);
+          console.log('Database connection established');
+        },
+        {
+          maxRetries: 3,
+          initialDelay: 1000,
+          onRetry: (attempt, error) => {
+            console.warn(`Retry attempt ${attempt} for database initialization:`, error);
+            toast({
+              title: "Database Connection Retry",
+              description: `Retrying connection (attempt ${attempt}/3)...`,
+            });
+          }
+        }
+      );
       
       toast({
         title: "Database Ready",
@@ -47,12 +64,32 @@ export class BaseIndexedDBService {
       console.error('Error initializing base service:', error);
       toast({
         title: "Database Error",
-        description: "Failed to initialize database. Please refresh the page.",
+        description: "Failed to initialize database after multiple retries. Please refresh the page.",
         variant: "destructive",
       });
       this.initPromise = null;
       throw error;
     }
+  }
+
+  protected async executeWithRetry<T>(
+    operation: () => Promise<T>,
+    operationName: string
+  ): Promise<T> {
+    return withRetry(
+      operation,
+      {
+        maxRetries: 3,
+        initialDelay: 1000,
+        onRetry: (attempt, error) => {
+          console.warn(`Retry attempt ${attempt} for ${operationName}:`, error);
+          toast({
+            title: "Operation Retry",
+            description: `Retrying ${operationName} (attempt ${attempt}/3)...`,
+          });
+        }
+      }
+    );
   }
 
   public setDatabase(db: IDBDatabase | null): void {
