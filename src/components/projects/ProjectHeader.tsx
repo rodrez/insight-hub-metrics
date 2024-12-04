@@ -16,7 +16,14 @@ export const ProjectHeader = memo(({ project, isEditing, onUpdate }: ProjectHead
   useEffect(() => {
     const savedColors = localStorage.getItem('projectStatusColors');
     if (savedColors) {
-      setStatusColors(JSON.parse(savedColors));
+      const colors = JSON.parse(savedColors);
+      // Convert array format to object format
+      const colorMap = colors.reduce((acc: Record<string, string>, curr: any) => {
+        acc[curr.id] = curr.color;
+        return acc;
+      }, {});
+      console.log('Loaded status colors:', colorMap);
+      setStatusColors(colorMap);
     }
   }, []);
 
@@ -49,10 +56,20 @@ export const ProjectHeader = memo(({ project, isEditing, onUpdate }: ProjectHead
   };
 
   const getStatusColor = (status: string) => {
-    if (status === 'active' && statusColors['active']) {
-      return { backgroundColor: statusColors['active'], color: 'white' };
+    console.log('Current status:', status);
+    console.log('Current statusColors:', statusColors);
+    const color = statusColors[status];
+    if (color) {
+      return { backgroundColor: color, color: 'white' };
     }
-    return undefined;
+    // Provide default colors if none are set
+    const defaultColors: Record<string, string> = {
+      active: '#10B981',
+      completed: '#3B82F6',
+      delayed: '#F59E0B',
+      'action-needed': '#991B1B'
+    };
+    return { backgroundColor: defaultColors[status] || '#666666', color: 'white' };
   };
 
   if (!isEditing) {
