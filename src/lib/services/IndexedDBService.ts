@@ -7,6 +7,7 @@ import { Objective } from '../types/objective';
 import { SitRep } from '../types/sitrep';
 import { DataService } from './DataService';
 import { DataQuantities } from '../types/data';
+import { toast } from "@/components/ui/use-toast";
 
 export class IndexedDBService implements DataService {
   private static instance: IndexedDBService | null = null;
@@ -28,7 +29,28 @@ export class IndexedDBService implements DataService {
   }
 
   async init(): Promise<void> {
-    await this.stateManager.ensureInitialized();
+    console.log('IndexedDBService: Starting initialization');
+    try {
+      // First, close any existing connections
+      const currentDb = this.stateManager.getDatabase();
+      if (currentDb) {
+        console.log('Closing existing database connection');
+        currentDb.close();
+        this.stateManager.setDatabase(null);
+      }
+
+      // Ensure initialization
+      await this.stateManager.ensureInitialized();
+      console.log('IndexedDBService: Initialization completed successfully');
+    } catch (error) {
+      console.error('IndexedDBService: Initialization failed:', error);
+      toast({
+        title: "Database Error",
+        description: "Failed to initialize database service",
+        variant: "destructive",
+      });
+      throw error;
+    }
   }
 
   async clear(): Promise<void> {
