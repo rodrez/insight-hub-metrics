@@ -68,7 +68,7 @@ export function useDataPopulation() {
       console.log('Sample data population completed successfully');
       toast({
         title: "Success",
-        description: "Sample data populated successfully",
+        description: `Successfully generated ${data.projects.length} projects, ${data.spis.length} SPIs, ${data.objectives.length} objectives, and ${data.sitreps.length} sitreps`,
       });
     } catch (error) {
       console.error('Error in populateSampleData:', error);

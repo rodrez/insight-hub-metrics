@@ -13,7 +13,7 @@ export const generateSampleData = async (internalPartners: Collaborator[], quant
     const departments = [...DEPARTMENTS];
     
     // Generate exactly the requested number of projects
-    const { projects } = generateProjectData(departments, defaultTechDomains, internalPartners);
+    const { projects } = generateProjectData(departments, defaultTechDomains, internalPartners, quantities.projects);
     console.log(`Generated ${projects.length} projects`);
     
     if (projects.length < quantities.projects) {
