@@ -1,15 +1,36 @@
 import { DatabaseError } from '../../utils/errorHandling';
 import { TransactionQueueManager } from './TransactionQueueManager';
+import { DatabaseEventEmitter } from './events/DatabaseEventEmitter';
+import { toast } from "@/components/ui/use-toast";
 
 export class DatabaseTransactionService {
   private db: IDBDatabase | null;
   private transactionQueue: TransactionQueueManager;
+  private eventEmitter: DatabaseEventEmitter;
   private readonly TRANSACTION_TIMEOUT = 30000;
+  private isReady: boolean = false;
 
   constructor(db: IDBDatabase | null) {
     this.db = db;
     this.transactionQueue = TransactionQueueManager.getInstance();
-    this.transactionQueue.setInitialized(!!db);
+    this.eventEmitter = DatabaseEventEmitter.getInstance();
+    
+    // Listen for database events
+    this.eventEmitter.on('ready', () => {
+      console.log('Transaction service: Database ready');
+      this.isReady = true;
+      this.transactionQueue.processQueue();
+    });
+
+    this.eventEmitter.on('error', () => {
+      this.isReady = false;
+      this.transactionQueue.clearQueue();
+    });
+
+    this.eventEmitter.on('cleanup', () => {
+      this.isReady = false;
+      this.transactionQueue.clearQueue();
+    });
   }
 
   async performTransaction<T>(
@@ -17,8 +38,26 @@ export class DatabaseTransactionService {
     mode: IDBTransactionMode,
     operation: (store: IDBObjectStore) => IDBRequest<T>
   ): Promise<T> {
+    if (!this.isReady) {
+      console.log('Database not ready, queueing transaction');
+      return new Promise((resolve, reject) => {
+        this.transactionQueue.enqueueTransaction(
+          async () => this.executeTransaction(storeName, mode, operation),
+          1
+        ).then(resolve).catch(reject);
+      });
+    }
+
+    return this.executeTransaction(storeName, mode, operation);
+  }
+
+  private async executeTransaction<T>(
+    storeName: string,
+    mode: IDBTransactionMode,
+    operation: (store: IDBObjectStore) => IDBRequest<T>
+  ): Promise<T> {
     if (!this.db) {
-      console.error('Database not initialized in performTransaction');
+      console.error('Database not initialized in executeTransaction');
       throw new DatabaseError('Database not initialized');
     }
 
@@ -32,31 +71,23 @@ export class DatabaseTransactionService {
         }
       }, this.TRANSACTION_TIMEOUT);
 
-      const transaction = this.db!.transaction(storeName, mode);
-      const store = transaction.objectStore(storeName);
-
-      transaction.oncomplete = () => {
-        isCompleted = true;
-        clearTimeout(timeoutId);
-        console.log(`Transaction completed on store: ${storeName}`);
-      };
-
-      transaction.onerror = (event) => {
-        isCompleted = true;
-        clearTimeout(timeoutId);
-        console.error(`Transaction error on ${storeName}:`, transaction.error);
-        reject(new DatabaseError(transaction.error?.message || `Transaction error on ${storeName}`));
-      };
-
-      transaction.onabort = () => {
-        isCompleted = true;
-        clearTimeout(timeoutId);
-        console.error(`Transaction aborted on ${storeName}`);
-        reject(new DatabaseError(`Transaction aborted on ${storeName}`));
-      };
-
       try {
-        console.log(`Executing operation on store: ${storeName}`);
+        const transaction = this.db!.transaction(storeName, mode);
+        const store = transaction.objectStore(storeName);
+
+        transaction.oncomplete = () => {
+          isCompleted = true;
+          clearTimeout(timeoutId);
+          console.log(`Transaction completed on store: ${storeName}`);
+        };
+
+        transaction.onerror = (event) => {
+          isCompleted = true;
+          clearTimeout(timeoutId);
+          console.error(`Transaction error on ${storeName}:`, transaction.error);
+          reject(new DatabaseError(transaction.error?.message || `Transaction error on ${storeName}`));
+        };
+
         const request = operation(store);
         
         request.onsuccess = () => {
@@ -77,32 +108,11 @@ export class DatabaseTransactionService {
     });
   }
 
-  async enqueueOperation<T>(
-    storeName: string,
-    mode: IDBTransactionMode,
-    operation: (store: IDBObjectStore) => IDBRequest<T>,
-    priority: number = 1
-  ): Promise<T> {
-    console.log(`Enqueueing operation for store: ${storeName}`);
-    return new Promise((resolve, reject) => {
-      this.transactionQueue.enqueueTransaction(
-        async () => {
-          try {
-            const result = await this.performTransaction(storeName, mode, operation);
-            resolve(result);
-          } catch (error) {
-            console.error(`Error in queued operation for ${storeName}:`, error);
-            reject(error);
-          }
-        },
-        priority
-      );
-    });
-  }
-
   setDatabase(db: IDBDatabase | null) {
-    console.log('Setting database in DatabaseTransactionService');
     this.db = db;
-    this.transactionQueue.setInitialized(!!db);
+    this.isReady = !!db;
+    if (db) {
+      this.eventEmitter.emit('ready');
+    }
   }
 }

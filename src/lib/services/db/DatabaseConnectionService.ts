@@ -2,6 +2,8 @@ import { DatabaseError } from '../../utils/errorHandling';
 import { connectionManager } from './connectionManager';
 import { DatabaseInitializer } from './initialization/DatabaseInitializer';
 import { DatabaseCleanup } from './cleanup/DatabaseCleanup';
+import { DatabaseEventEmitter } from './events/DatabaseEventEmitter';
+import { toast } from "@/components/ui/use-toast";
 
 export class DatabaseConnectionService {
   private db: IDBDatabase | null = null;
@@ -9,14 +11,34 @@ export class DatabaseConnectionService {
   private initializationPromise: Promise<void> | null = null;
   private databaseInitializer: DatabaseInitializer;
   private databaseCleanup: DatabaseCleanup;
+  private eventEmitter: DatabaseEventEmitter;
 
   constructor() {
     this.databaseInitializer = new DatabaseInitializer();
     this.databaseCleanup = new DatabaseCleanup(this.db);
+    this.eventEmitter = DatabaseEventEmitter.getInstance();
     
     if (typeof window !== 'undefined') {
       window.addEventListener('unload', () => this.cleanup());
     }
+
+    // Listen for initialization events
+    this.eventEmitter.on('ready', () => {
+      console.log('Database is ready');
+      toast({
+        title: "Database Ready",
+        description: "Database connection established successfully",
+      });
+    });
+
+    this.eventEmitter.on('error', (error) => {
+      console.error('Database error:', error);
+      toast({
+        title: "Database Error",
+        description: error?.message || "An error occurred with the database",
+        variant: "destructive",
+      });
+    });
   }
 
   async init(): Promise<void> {
@@ -30,6 +52,7 @@ export class DatabaseConnectionService {
       return;
     }
 
+    this.eventEmitter.emit('initializing');
     this.initializationPromise = this.initializeDatabase();
 
     try {
@@ -47,10 +70,12 @@ export class DatabaseConnectionService {
       connectionManager.addConnection(this.db);
       this.databaseCleanup = new DatabaseCleanup(this.db);
       this.databaseCleanup.startCleanupInterval();
+      this.eventEmitter.emit('ready');
       console.log('Database initialization completed successfully');
     } catch (error) {
       this.initialized = false;
       this.db = null;
+      this.eventEmitter.emit('error', error);
       throw error;
     }
   }
@@ -69,6 +94,7 @@ export class DatabaseConnectionService {
   }
 
   async cleanup(): Promise<void> {
+    this.eventEmitter.emit('cleanup');
     await this.databaseCleanup.cleanup();
     this.db = null;
     this.initialized = false;
