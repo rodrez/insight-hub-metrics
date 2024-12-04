@@ -1,65 +1,22 @@
-import { toast } from "@/components/ui/use-toast";
 import { connectionManager } from './connectionManager';
 import { DatabaseCleaner } from './databaseCleaner';
+import { toast } from "@/components/ui/use-toast";
 import { DatabaseError } from '../../utils/errorHandling';
 import { DB_CONFIG } from './stores';
-import { TransactionQueueManager } from './TransactionQueueManager';
 
 export class DatabaseClearingService {
-  private db: IDBDatabase | null;
-  private transactionQueue: TransactionQueueManager;
-
-  constructor(db: IDBDatabase | null) {
-    this.db = db;
-    this.transactionQueue = TransactionQueueManager.getInstance();
-  }
-
-  private async validateConnection(): Promise<boolean> {
-    if (!this.db) {
-      console.log('No database connection found');
-      return false;
-    }
-
-    try {
-      const transaction = this.db.transaction(['projects'], 'readonly');
-      const store = transaction.objectStore('projects');
-      await new Promise((resolve, reject) => {
-        const request = store.count();
-        request.onsuccess = () => resolve(true);
-        request.onerror = () => reject(false);
-      });
-      console.log('Database connection validated successfully');
-      return true;
-    } catch (error) {
-      console.error('Database connection validation failed:', error);
-      return false;
-    }
-  }
+  constructor(private db: IDBDatabase | null) {}
 
   async clearDatabase(): Promise<void> {
-    try {
-      console.log('Starting database clearing process...');
-      
-      const isConnected = await this.validateConnection();
-      if (!isConnected) {
-        console.log('Attempting to establish new database connection...');
-        const request = indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
-        
-        this.db = await new Promise((resolve, reject) => {
-          request.onerror = () => {
-            console.error('Failed to establish database connection');
-            reject(new DatabaseError('Failed to initialize database'));
-          };
-          request.onsuccess = () => {
-            console.log('New database connection established');
-            resolve(request.result);
-          };
-        });
-      }
+    if (!this.db) {
+      throw new DatabaseError('Database not initialized');
+    }
 
-      console.log('Closing existing connections...');
+    try {
+      // Close existing connections first
       connectionManager.closeAllConnections();
       
+      // Get all store names from DB_CONFIG.stores
       const storeNames = Object.values(DB_CONFIG.stores);
       
       if (storeNames.length === 0) {
@@ -67,16 +24,13 @@ export class DatabaseClearingService {
         return;
       }
 
-      console.log('Clearing stores sequentially...');
+      // Clear stores sequentially to avoid transaction conflicts
       for (const storeName of storeNames) {
         await this.clearStore(storeName);
       }
 
-      console.log('Cleaning up database...');
+      // Delete and recreate the database
       await DatabaseCleaner.clearDatabase();
-      
-      // Clear the transaction queue after successful database clearing
-      this.transactionQueue.clearQueue();
       
       toast({
         title: "Success",
@@ -85,7 +39,7 @@ export class DatabaseClearingService {
       
       console.log('Database cleared successfully');
     } catch (error) {
-      console.error('Error during database clearing:', error);
+      console.error('Error clearing database:', error);
       toast({
         title: "Error",
         description: "Failed to clear database",
@@ -97,38 +51,33 @@ export class DatabaseClearingService {
 
   private clearStore(storeName: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (!this.db) {
-        console.error('Database not initialized during store clearing');
-        reject(new DatabaseError('Database not initialized'));
-        return;
-      }
+      try {
+        const transaction = this.db!.transaction(storeName, 'readwrite');
+        const store = transaction.objectStore(storeName);
 
-      this.transactionQueue.enqueueTransaction(async () => {
-        try {
-          console.log(`Clearing store: ${storeName}`);
-          const transaction = this.db!.transaction(storeName, 'readwrite');
-          const store = transaction.objectStore(storeName);
+        const request = store.clear();
 
-          await new Promise<void>((resolveStore, rejectStore) => {
-            const request = store.clear();
-
-            request.onsuccess = () => {
-              console.log(`Store ${storeName} cleared successfully`);
-              resolveStore();
-            };
-
-            request.onerror = () => {
-              console.error(`Error clearing store ${storeName}:`, request.error);
-              rejectStore(new DatabaseError(`Failed to clear store ${storeName}`));
-            };
-          });
-
+        request.onsuccess = () => {
+          console.log(`Store ${storeName} cleared successfully`);
           resolve();
-        } catch (error) {
-          console.error(`Error accessing store ${storeName}:`, error);
-          reject(new DatabaseError(`Error accessing store ${storeName}`));
-        }
-      }, 2); // Higher priority for clearing operations
+        };
+
+        request.onerror = () => {
+          console.error(`Error clearing store ${storeName}:`, request.error);
+          reject(new DatabaseError(`Failed to clear store ${storeName}`));
+        };
+
+        transaction.oncomplete = () => {
+          resolve();
+        };
+
+        transaction.onerror = () => {
+          reject(new DatabaseError(`Transaction error clearing store ${storeName}`));
+        };
+      } catch (error) {
+        console.error(`Error accessing store ${storeName}:`, error);
+        reject(new DatabaseError(`Error accessing store ${storeName}`));
+      }
     });
   }
 }

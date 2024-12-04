@@ -11,30 +11,22 @@ export function useDataInitialization() {
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
-    console.log('Starting database initialization effect...');
     initializeDB();
   }, []);
 
   const initializeDB = async () => {
-    console.log('Initializing database with retry mechanism...');
     const initStep: LoadingStep = {
       name: "Database Initialization",
       action: async () => {
         try {
-          console.log('Attempting database initialization...');
+          console.log('Starting database initialization...');
           await db.init();
-          console.log('Database initialization completed successfully');
+          console.log('Database initialization completed');
           setIsInitialized(true);
-          
           if (retryCount > 0) {
             toast({
               title: "Success",
-              description: `Database initialized successfully after ${retryCount} retries`,
-            });
-          } else {
-            toast({
-              title: "Success",
-              description: "Database initialized successfully",
+              description: "Database initialized successfully after retry",
             });
           }
           return true;
@@ -42,22 +34,18 @@ export function useDataInitialization() {
           console.error('Database initialization error:', error);
           
           if (retryCount < MAX_RETRIES) {
-            const nextRetryCount = retryCount + 1;
-            setRetryCount(nextRetryCount);
-            console.log(`Retrying initialization (attempt ${nextRetryCount}/${MAX_RETRIES})`);
-            
+            setRetryCount(prev => prev + 1);
             toast({
               title: "Retrying",
-              description: `Database initialization failed, retrying (${nextRetryCount}/${MAX_RETRIES})`,
+              description: `Database initialization failed, retrying (${retryCount + 1}/${MAX_RETRIES})`,
             });
-            
             await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
             return false;
           }
           
           toast({
             title: "Error",
-            description: `Failed to initialize database after ${MAX_RETRIES} attempts`,
+            description: "Failed to initialize database after multiple attempts",
             variant: "destructive",
           });
           return false;

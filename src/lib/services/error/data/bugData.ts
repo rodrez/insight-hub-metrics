@@ -12,103 +12,103 @@ export interface Bug {
 
 export const initialBugs: Bug[] = [
   {
-    id: "BUG-011",
-    title: "Database Operation Queue Overflow",
-    description: "Potential memory issues with unbounded operation queue in DatabaseStateMachine",
+    id: "BUG-001",
+    title: "Memory Management in Database Operations",
+    description: "Potential memory leaks in database transaction handling due to uncleaned listeners and connections",
     severity: "critical",
     status: "active",
-    location: "src/lib/services/db/state/DatabaseStateMachine.ts",
-    impact: "System stability and memory management issues under heavy load",
-    suggestedFix: "Implement queue size limits and overflow handling mechanisms"
+    location: "src/lib/services/db/base/BaseDBService.ts",
+    impact: "Application performance degradation and memory issues over time",
+    suggestedFix: "Implement proper cleanup of database connections, transaction listeners, and implement connection pooling"
   },
   {
-    id: "BUG-012",
-    title: "Race Condition in Database Initialization",
-    description: "Multiple initialization attempts can occur simultaneously",
-    severity: "critical",
-    status: "active",
-    location: "src/lib/services/db/DatabaseConnectionService.ts",
-    impact: "Database connection instability and potential data corruption",
-    suggestedFix: "Implement proper initialization locks and synchronization"
-  },
-  {
-    id: "BUG-013",
-    title: "Incomplete Error Recovery in Transaction Service",
-    description: "Transaction rollbacks not properly handled in all error cases",
+    id: "BUG-002",
+    title: "Error Recovery Enhancement",
+    description: "Insufficient error recovery mechanisms in database operations",
     severity: "high",
     status: "active",
-    location: "src/lib/services/db/DatabaseTransactionService.ts",
-    impact: "Potential data inconsistency during failed transactions",
-    suggestedFix: "Implement comprehensive transaction rollback mechanism"
+    location: "src/lib/services/db/base/BaseDBService.ts",
+    impact: "No automatic recovery from temporary failures",
+    suggestedFix: "Implement comprehensive retry logic with exponential backoff and circuit breaker pattern"
   },
   {
-    id: "BUG-014",
-    title: "Settings Component Size",
-    description: "DepartmentSettings.tsx exceeds recommended component size",
-    severity: "medium",
-    status: "active",
-    location: "src/components/settings/DepartmentSettings.tsx",
-    impact: "Reduced maintainability and potential performance issues",
-    suggestedFix: "Split into smaller sub-components and custom hooks"
-  },
-  {
-    id: "BUG-015",
-    title: "Database Event Memory Leak",
-    description: "Event listeners in DatabaseEventEmitter not properly cleaned up",
-    severity: "medium",
-    status: "active",
-    location: "src/lib/services/db/events/DatabaseEventEmitter.ts",
-    impact: "Memory leaks in long-running applications",
-    suggestedFix: "Implement proper event listener cleanup mechanisms"
-  },
-  {
-    id: "BUG-016",
-    title: "Retry Logic Enhancement",
-    description: "Database operation retries use fixed delay instead of exponential backoff",
-    severity: "medium",
-    status: "active",
-    location: "src/lib/services/db/DatabaseTransactionService.ts",
-    impact: "Suboptimal handling of temporary failures",
-    suggestedFix: "Implement exponential backoff strategy for retries"
-  },
-  {
-    id: "BUG-017",
-    title: "State Machine Error Handling",
-    description: "Incomplete error state recovery in DatabaseStateMachine",
-    severity: "medium",
-    status: "active",
-    location: "src/lib/services/db/state/DatabaseStateMachine.ts",
-    impact: "System can get stuck in error state",
-    suggestedFix: "Implement proper error state recovery mechanisms"
-  },
-  {
-    id: "BUG-018",
-    title: "Wiki Component Optimization",
-    description: "Wiki.tsx component has performance issues with large content",
-    severity: "low",
-    status: "active",
-    location: "src/pages/Wiki.tsx",
-    impact: "Slower rendering with large wiki content",
-    suggestedFix: "Implement virtualization for large content sections"
-  },
-  {
-    id: "BUG-019",
-    title: "Toast Notification Overlap",
-    description: "Multiple database operation toasts can overlap and become unreadable",
-    severity: "low",
-    status: "active",
-    location: "src/lib/services/db/state/DatabaseStateMachine.ts",
-    impact: "Poor user experience with error notifications",
-    suggestedFix: "Implement toast grouping and limiting mechanism"
-  },
-  {
-    id: "BUG-020",
-    title: "Code Documentation Updates",
-    description: "Missing documentation for new database state management system",
-    severity: "low",
+    id: "BUG-003",
+    title: "Type Safety in Database Layer",
+    description: "Incomplete TypeScript types in database services and operations",
+    severity: "high",
     status: "active",
     location: "src/lib/services/db/*",
-    impact: "Difficulty in maintaining and understanding new state management",
-    suggestedFix: "Add comprehensive documentation for state management system"
+    impact: "Potential runtime errors and reduced code reliability",
+    suggestedFix: "Add comprehensive TypeScript types, interfaces, and proper type guards"
+  },
+  {
+    id: "BUG-004",
+    title: "Loading State Management",
+    description: "Inconsistent loading state handling across components",
+    severity: "medium",
+    status: "active",
+    location: "Multiple components",
+    impact: "Poor user feedback during async operations",
+    suggestedFix: "Implement consistent loading states with skeleton loaders and loading indicators"
+  },
+  {
+    id: "BUG-005",
+    title: "Component Size Optimization",
+    description: "Several components exceed recommended size and complexity",
+    severity: "medium",
+    status: "active",
+    location: "src/pages/Wiki.tsx, src/components/projects/ProjectDetails.tsx",
+    impact: "Reduced maintainability and potential performance issues",
+    suggestedFix: "Split large components into smaller, focused subcomponents and custom hooks"
+  },
+  {
+    id: "BUG-006",
+    title: "Data Validation Enhancement",
+    description: "Inconsistent data validation patterns in form submissions",
+    severity: "medium",
+    status: "active",
+    location: "src/components/wiki/components/*, src/components/projects/*",
+    impact: "Potential data integrity issues and inconsistent user experience",
+    suggestedFix: "Standardize validation using zod schemas and implement consistent error handling"
+  },
+  {
+    id: "BUG-007",
+    title: "React Query Optimization",
+    description: "Suboptimal query invalidation and caching strategies",
+    severity: "medium",
+    status: "active",
+    location: "src/components/data/hooks/useDataPopulation.ts",
+    impact: "Unnecessary refetches and potential stale data",
+    suggestedFix: "Implement optimistic updates and proper query invalidation strategies"
+  },
+  {
+    id: "BUG-008",
+    title: "Accessibility Improvements",
+    description: "Missing ARIA attributes and keyboard navigation in interactive components",
+    severity: "medium",
+    status: "active",
+    location: "src/components/wiki/*, src/components/projects/*",
+    impact: "Poor accessibility for users with disabilities",
+    suggestedFix: "Add proper ARIA labels, roles, and keyboard navigation support"
+  },
+  {
+    id: "BUG-009",
+    title: "State Management Refactor",
+    description: "Local state management could be optimized using context or global state",
+    severity: "low",
+    status: "active",
+    location: "src/components/settings/*, src/components/wiki/*",
+    impact: "Complex prop drilling and potential state inconsistencies",
+    suggestedFix: "Implement React Context or global state management for shared state"
+  },
+  {
+    id: "BUG-010",
+    title: "Code Documentation",
+    description: "Insufficient documentation in complex business logic components",
+    severity: "low",
+    status: "active",
+    location: "src/lib/services/*, src/components/data/*",
+    impact: "Reduced maintainability and harder onboarding for new developers",
+    suggestedFix: "Add comprehensive JSDoc comments and improve inline documentation"
   }
 ];

@@ -1,94 +1,92 @@
-import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DataQuantityForm } from "./actions/DataQuantityForm";
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { toast } from "@/components/ui/use-toast";
+import { DatabaseActionButtons } from "./actions/DatabaseActionButtons";
+import { useDatabaseActions } from "./hooks/useDatabaseActions";
+import { DataQuantities } from "./types/dataTypes";
+import { memo, useMemo } from "react";
 
 interface DatabaseActionsProps {
   isInitialized: boolean;
   isClearing: boolean;
   isPopulating: boolean;
   onClear: () => Promise<void>;
-  onPopulate: (quantities: any) => Promise<void>;
+  onPopulate: (quantities: DataQuantities) => Promise<void>;
 }
 
-export function DatabaseActions({
+const DatabaseActionsComponent = ({
   isInitialized,
   isClearing,
   isPopulating,
   onClear,
   onPopulate,
-}: DatabaseActionsProps) {
-  const [showQuantityForm, setShowQuantityForm] = useState(false);
+}: DatabaseActionsProps) => {
+  const {
+    error,
+    showQuantityForm,
+    setShowQuantityForm,
+    handleClear,
+    handlePopulate
+  } = useDatabaseActions(onClear, onPopulate);
 
-  const handleClear = async () => {
-    try {
-      console.log('Starting database clear operation...');
-      await onClear();
-      console.log('Database clear operation completed successfully');
-      toast({
-        title: "Success",
-        description: "Database cleared successfully",
-      });
-    } catch (error) {
-      console.error('Database clear operation failed:', error);
-      toast({
-        title: "Error",
-        description: "Failed to clear database. Please try again.",
-        variant: "destructive",
-      });
+  // Memoize the initialization alert to prevent unnecessary re-renders
+  const initializationAlert = useMemo(() => {
+    if (!isInitialized) {
+      return (
+        <Alert>
+          <AlertDescription>
+            Database is not initialized. Please wait...
+          </AlertDescription>
+        </Alert>
+      );
     }
-  };
+    return null;
+  }, [isInitialized]);
 
-  const handlePopulate = async (quantities: any) => {
-    try {
-      console.log('Starting database population with quantities:', quantities);
-      await onPopulate(quantities);
-      setShowQuantityForm(false);
-      console.log('Database population completed successfully');
-      toast({
-        title: "Success",
-        description: "Database populated successfully",
-      });
-    } catch (error) {
-      console.error('Database population failed:', error);
-      toast({
-        title: "Error",
-        description: "Failed to populate database. Please try again.",
-        variant: "destructive",
-      });
-      setShowQuantityForm(false);
+  // Memoize the error alert
+  const errorAlert = useMemo(() => {
+    if (error) {
+      return (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      );
     }
-  };
+    return null;
+  }, [error]);
+
+  // Memoize the form component to prevent unnecessary re-renders
+  const quantityForm = useMemo(() => {
+    if (showQuantityForm) {
+      return (
+        <DataQuantityForm
+          onSubmit={handlePopulate}
+          onCancel={() => setShowQuantityForm(false)}
+          isLoading={isPopulating}
+        />
+      );
+    }
+    return null;
+  }, [showQuantityForm, handlePopulate, setShowQuantityForm, isPopulating]);
+
+  if (!isInitialized) {
+    return initializationAlert;
+  }
 
   return (
-    <div className="flex gap-4">
-      <Button
-        variant="destructive"
-        onClick={handleClear}
-        disabled={!isInitialized || isClearing || isPopulating}
-      >
-        Clear Database
-      </Button>
-      <Button
-        onClick={() => setShowQuantityForm(true)}
-        disabled={!isInitialized || isClearing || isPopulating}
-      >
-        Generate Sample Data
-      </Button>
+    <div className="space-y-4">
+      {errorAlert}
 
-      <Dialog open={showQuantityForm} onOpenChange={setShowQuantityForm}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Generate Sample Data</DialogTitle>
-          </DialogHeader>
-          <DataQuantityForm
-            onSubmit={handlePopulate}
-            onCancel={() => setShowQuantityForm(false)}
-            isLoading={isPopulating}
-          />
-        </DialogContent>
-      </Dialog>
+      <DatabaseActionButtons
+        isClearing={isClearing}
+        isPopulating={isPopulating}
+        onClear={handleClear}
+        onShowQuantityForm={() => setShowQuantityForm(true)}
+      />
+
+      {quantityForm}
     </div>
   );
-}
+};
+
+// Memoize the entire component to prevent unnecessary re-renders
+export const DatabaseActions = memo(DatabaseActionsComponent);

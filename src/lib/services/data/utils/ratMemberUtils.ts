@@ -68,36 +68,29 @@ export const getRatMemberRelationships = async (name: string, db: any) => {
   console.log('Getting relationships for RAT member:', name);
 
   try {
-    // Fetch all data first
-    const [allCollaborators, allSMEPartners, allProjects, allSPIs, allSitReps] = await Promise.all([
-      db.getAllCollaborators(),
-      db.getAllSMEPartners(),
-      db.getAllProjects(),
-      db.getAllSPIs(),
-      db.getAllSitReps()
+    // Only fetch records where ratMember field matches exactly
+    const [fortune30Partners, smePartners, projects, spis, sitreps] = await Promise.all([
+      db.getAllCollaborators().then(partners => {
+        console.log(`Fortune 30 partners for ${name}:`, partners);
+        return partners.filter((p: any) => p.ratMember === name && p.type === 'fortune30');
+      }).catch(() => []),
+      db.getAllSMEPartners().then(partners => {
+        console.log(`SME partners for ${name}:`, partners);
+        return partners.filter((p: any) => p.ratMember === name);
+      }).catch(() => []),
+      db.getAllProjects().then(projs => {
+        console.log(`Projects for ${name}:`, projs);
+        return projs.filter((p: any) => p.ratMember === name);
+      }).catch(() => []),
+      db.getAllSPIs().then(spiList => {
+        console.log(`SPIs for ${name}:`, spiList);
+        return spiList.filter((s: any) => s.ratMember === name);
+      }).catch(() => []),
+      db.getAllSitReps().then(sitreps => {
+        console.log(`SitReps for ${name}:`, sitreps);
+        return sitreps.filter((s: any) => s.ratMember === name);
+      }).catch(() => [])
     ]);
-
-    // Filter Fortune 30 partners
-    const fortune30Partners = allCollaborators.filter((p: any) => 
-      p.ratMember === name && p.type === 'fortune30'
-    );
-    console.log(`Fortune 30 partners for ${name}:`, fortune30Partners);
-
-    // Filter SME partners
-    const smePartners = allSMEPartners.filter((p: any) => p.ratMember === name);
-    console.log(`SME partners for ${name}:`, smePartners);
-
-    // Filter projects
-    const projects = allProjects.filter((p: any) => p.ratMember === name);
-    console.log(`Projects for ${name}:`, projects);
-
-    // Filter SPIs
-    const spis = allSPIs.filter((s: any) => s.ratMember === name);
-    console.log(`SPIs for ${name}:`, spis);
-
-    // Filter SitReps
-    const sitreps = allSitReps.filter((s: any) => s.ratMember === name);
-    console.log(`SitReps for ${name}:`, sitreps);
 
     const relationships = {
       fortune30Partners,

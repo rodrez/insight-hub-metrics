@@ -6,7 +6,6 @@ interface ErrorOptions {
   type?: ErrorType;
   title?: string;
   action?: () => void;
-  context?: Record<string, any>;
 }
 
 class ErrorHandlingService {
@@ -17,33 +16,11 @@ class ErrorHandlingService {
     return String(error);
   }
 
-  private logErrorDetails(error: unknown, options: ErrorOptions) {
-    const errorDetails = {
-      type: options.type || 'general',
-      message: this.formatErrorMessage(error),
-      stack: error instanceof Error ? error.stack : undefined,
-      context: options.context || {},
-      timestamp: new Date().toISOString()
-    };
-
-    console.error('Detailed error information:', errorDetails);
-    
-    // Log to browser console in a formatted way
-    console.groupCollapsed(`Error: ${errorDetails.message}`);
-    console.log('Type:', errorDetails.type);
-    console.log('Context:', errorDetails.context);
-    console.log('Timestamp:', errorDetails.timestamp);
-    if (errorDetails.stack) {
-      console.log('Stack trace:', errorDetails.stack);
-    }
-    console.groupEnd();
-  }
-
   handleError(error: unknown, options: ErrorOptions = {}) {
     const message = this.formatErrorMessage(error);
     const title = options.title || this.getDefaultTitle(options.type);
 
-    this.logErrorDetails(error, options);
+    console.error(`[${options.type || 'general'}] Error:`, error);
 
     toast({
       title,
