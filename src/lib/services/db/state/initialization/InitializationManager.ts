@@ -7,6 +7,11 @@ export class InitializationManager {
   private initializeReject: ((error: Error) => void) | null = null;
 
   constructor() {
+    console.log('Creating new InitializationManager');
+    this.resetPromise();
+  }
+
+  private resetPromise(): void {
     this.initializationPromise = new Promise((resolve, reject) => {
       this.initializeResolve = resolve;
       this.initializeReject = reject;
@@ -14,10 +19,13 @@ export class InitializationManager {
   }
 
   public async waitForInitialization(): Promise<void> {
+    console.log('Waiting for initialization to complete');
     return this.initializationPromise!;
   }
 
   public handleStateChange(newState: DatabaseState): void {
+    console.log(`InitializationManager handling state change: ${newState}`);
+    
     if (newState === 'ready' && this.initializeResolve) {
       console.log('Database is ready, resolving initialization promise');
       this.initializeResolve();
@@ -26,20 +34,18 @@ export class InitializationManager {
         description: "Database is now ready for operations",
       });
     } else if (newState === 'error' && this.initializeReject) {
-      console.log('Database entered error state, rejecting initialization promise');
+      console.error('Database initialization failed');
       this.initializeReject(new Error('Database initialization failed'));
       toast({
         title: "Database Error",
-        description: "An error occurred with the database",
+        description: "Failed to initialize database",
         variant: "destructive",
       });
     }
   }
 
   public reset(): void {
-    this.initializationPromise = new Promise((resolve, reject) => {
-      this.initializeResolve = resolve;
-      this.initializeReject = reject;
-    });
+    console.log('Resetting initialization manager');
+    this.resetPromise();
   }
 }

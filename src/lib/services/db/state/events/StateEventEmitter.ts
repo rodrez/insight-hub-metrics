@@ -15,6 +15,12 @@ export class StateEventEmitter {
   public setState(newState: DatabaseState): void {
     console.log(`Database state transitioning from ${this.currentState} to ${newState}`);
     this.currentState = newState;
-    this.stateListeners.forEach(listener => listener(newState));
+    this.stateListeners.forEach(listener => {
+      try {
+        listener(newState);
+      } catch (error) {
+        console.error('Error in state listener:', error);
+      }
+    });
   }
 }
