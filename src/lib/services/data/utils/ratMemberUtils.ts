@@ -103,22 +103,37 @@ export const getRatMemberRelationships = async (name: string, db: any) => {
     return null;
   }
 
-  const fortune30Partners = await db.getAllCollaborators();
-  const smePartners = await db.getAllSMEPartners();
-  const projects = await db.getAllProjects();
-  const spis = await db.getAllSPIs();
-  const sitreps = await db.getAllSitReps();
+  try {
+    // Wait for all promises to resolve
+    const [fortune30Partners, smePartners, projects, spis, sitreps] = await Promise.all([
+      db.getAllCollaborators().catch(() => []),
+      db.getAllSMEPartners().catch(() => []),
+      db.getAllProjects().catch(() => []),
+      db.getAllSPIs().catch(() => []),
+      db.getAllSitReps().catch(() => [])
+    ]);
 
-  const relationships = {
-    fortune30Partners: fortune30Partners.filter(p => p.ratMember === name),
-    smePartners: smePartners.filter(p => p.ratMember === name),
-    projects: projects.filter(p => p.ratMember === name),
-    spis: spis.filter(s => s.ratMember === name),
-    sitreps: sitreps.filter(s => s.ratMember === name)
-  };
+    const relationships = {
+      fortune30Partners: fortune30Partners.filter((p: any) => p.ratMember === name) || [],
+      smePartners: smePartners.filter((p: any) => p.ratMember === name) || [],
+      projects: projects.filter((p: any) => p.ratMember === name) || [],
+      spis: spis.filter((s: any) => s.ratMember === name) || [],
+      sitreps: sitreps.filter((s: any) => s.ratMember === name) || []
+    };
 
-  console.log('Found relationships:', relationships);
-  return relationships;
+    console.log('Found relationships:', relationships);
+    return relationships;
+  } catch (error) {
+    console.error('Error fetching relationships:', error);
+    // Return empty arrays instead of null to prevent UI errors
+    return {
+      fortune30Partners: [],
+      smePartners: [],
+      projects: [],
+      spis: [],
+      sitreps: []
+    };
+  }
 };
 
 export const getRatMemberRole = (name: string): string | undefined => {

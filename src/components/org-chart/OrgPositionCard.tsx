@@ -38,10 +38,25 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
           description: "Failed to fetch relationships",
           variant: "destructive",
         });
-        throw error;
+        // Return empty arrays instead of throwing
+        return {
+          fortune30Partners: [],
+          smePartners: [],
+          projects: [],
+          spis: [],
+          sitreps: []
+        };
       }
     },
-    retry: 1
+    retry: 1,
+    // Initialize with empty arrays
+    initialData: {
+      fortune30Partners: [],
+      smePartners: [],
+      projects: [],
+      spis: [],
+      sitreps: []
+    }
   });
 
   const handleItemClick = (type: string, id: string) => {
@@ -70,17 +85,10 @@ export function OrgPositionCard({ title, name, width = "w-96" }: OrgPositionCard
   }
 
   if (error) {
-    return (
-      <Card className={`${width} p-6 text-destructive`}>
-        Error loading relationships
-      </Card>
-    );
-  }
-
-  if (!relationships) {
+    console.error('Error in OrgPositionCard:', error);
     return (
       <Card className={`${width} p-6`}>
-        <p className="text-sm text-muted-foreground">No relationships found for {name}</p>
+        <p className="text-sm text-muted-foreground">Unable to load relationships. Please try again later.</p>
       </Card>
     );
   }
