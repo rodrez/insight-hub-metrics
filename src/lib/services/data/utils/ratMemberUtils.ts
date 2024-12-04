@@ -104,38 +104,68 @@ export const getRatMemberRelationships = async (name: string, db: any) => {
   }
 
   try {
-    const [fortune30Partners, smePartners, projects, spis, sitreps] = await Promise.all([
-      db.getAllCollaborators().then(partners => {
-        console.log(`Fortune 30 partners for ${name}:`, partners);
-        return partners;
-      }).catch(() => []),
-      db.getAllSMEPartners().then(partners => {
-        console.log(`SME partners for ${name}:`, partners);
-        return partners;
-      }).catch(() => []),
-      db.getAllProjects().then(projs => {
-        console.log(`Projects for ${name}:`, projs);
-        return projs;
-      }).catch(() => []),
-      db.getAllSPIs().then(spiList => {
-        console.log(`SPIs for ${name}:`, spiList);
-        return spiList;
-      }).catch(() => []),
-      db.getAllSitReps().then(sitreps => {
-        console.log(`SitReps for ${name}:`, sitreps);
-        return sitreps;
-      }).catch(() => [])
+    const [allFortune30Partners, allSMEPartners, allProjects, allSPIs, allSitReps] = await Promise.all([
+      db.getAllCollaborators(),
+      db.getAllSMEPartners(),
+      db.getAllProjects(),
+      db.getAllSPIs(),
+      db.getAllSitReps()
     ]);
 
+    console.log(`Raw data for ${name}:`, {
+      fortune30: allFortune30Partners.length,
+      sme: allSMEPartners.length,
+      projects: allProjects.length,
+      spis: allSPIs.length,
+      sitreps: allSitReps.length
+    });
+
+    // Filter Fortune 30 partners
+    const fortune30Partners = allFortune30Partners.filter((p: any) => 
+      p.type === 'fortune30' && 
+      (p.ratMember === name || p.name === memberInfo.fortune30Partner)
+    );
+
+    // Filter SME partners
+    const smePartners = allSMEPartners.filter((p: any) => 
+      p.type === 'sme' && 
+      (p.ratMember === name || memberInfo.smePartners.includes(p.name))
+    );
+
+    // Filter projects
+    const projects = allProjects.filter((p: any) => 
+      p.ratMember === name || 
+      p.workstreams?.some((w: any) => w.ratMember === name)
+    );
+
+    // Filter SPIs
+    const spis = allSPIs.filter((s: any) => 
+      s.ratMember === name || 
+      memberInfo.spis.includes(s.id)
+    );
+
+    // Filter SitReps
+    const sitreps = allSitReps.filter((s: any) => 
+      s.ratMember === name || 
+      memberInfo.sitreps.includes(s.id)
+    );
+
     const relationships = {
-      fortune30Partners: fortune30Partners.filter((p: any) => p.ratMember === name) || [],
-      smePartners: smePartners.filter((p: any) => p.ratMember === name) || [],
-      projects: projects.filter((p: any) => p.ratMember === name) || [],
-      spis: spis.filter((s: any) => s.ratMember === name) || [],
-      sitreps: sitreps.filter((s: any) => s.ratMember === name) || []
+      fortune30Partners,
+      smePartners,
+      projects,
+      spis,
+      sitreps
     };
 
-    console.log('Found relationships for ${name}:', relationships);
+    console.log(`Filtered relationships for ${name}:`, {
+      fortune30: relationships.fortune30Partners.length,
+      sme: relationships.smePartners.length,
+      projects: relationships.projects.length,
+      spis: relationships.spis.length,
+      sitreps: relationships.sitreps.length
+    });
+
     return relationships;
   } catch (error) {
     console.error('Error fetching relationships:', error);
