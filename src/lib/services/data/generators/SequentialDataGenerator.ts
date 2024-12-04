@@ -14,37 +14,46 @@ import { DEPARTMENTS } from "@/lib/constants";
 
 export class SequentialDataGenerator {
   static async generateData(quantities: DataQuantities) {
+    console.log('Starting sequential data generation with quantities:', quantities);
+    
     return TransactionManager.executeInTransaction(
       async () => {
         // Step 1: Generate and validate internal partners
-        console.log('Generating internal partners...');
+        console.log('Starting internal partners generation...');
         const internalPartners = await this.generateAndValidateInternalPartners(quantities.internalPartners);
+        console.log('Internal partners generated:', internalPartners.length);
         
         // Step 2: Generate and validate Fortune 30 partners
-        console.log('Generating Fortune 30 partners...');
+        console.log('Starting Fortune 30 partners generation...');
         const fortune30Partners = await this.generateAndValidateFortune30Partners(quantities.fortune30);
+        console.log('Fortune 30 partners generated:', fortune30Partners.length);
         
         // Step 3: Generate and validate SME partners
-        console.log('Generating SME partners...');
+        console.log('Starting SME partners generation...');
         const smePartners = await this.generateAndValidateSMEPartners(quantities.smePartners);
+        console.log('SME partners generated:', smePartners.length);
         
         // Step 4: Generate and validate projects
-        console.log('Generating projects...');
+        console.log('Starting projects generation...');
         const projects = await this.generateAndValidateProjects(quantities.projects);
+        console.log('Projects generated:', projects.length);
         
         // Step 5: Generate and validate SPIs
-        console.log('Generating SPIs...');
+        console.log('Starting SPIs generation...');
         const spis = await this.generateAndValidateSPIs(quantities.spis, projects);
+        console.log('SPIs generated:', spis.length);
         
         // Step 6: Generate and validate objectives
-        console.log('Generating objectives...');
+        console.log('Starting objectives generation...');
         const objectives = await this.generateAndValidateObjectives(quantities.objectives);
+        console.log('Objectives generated:', objectives.length);
         
         // Step 7: Generate and validate sitreps
-        console.log('Generating sitreps...');
+        console.log('Starting sitreps generation...');
         const sitreps = await this.generateAndValidateSitReps(quantities.sitreps, spis);
+        console.log('Sitreps generated:', sitreps.length);
 
-        return {
+        const result = {
           internalPartners,
           fortune30Partners,
           smePartners,
@@ -53,6 +62,18 @@ export class SequentialDataGenerator {
           objectives,
           sitreps
         };
+
+        console.log('Final generation results:', {
+          internalPartners: result.internalPartners.length,
+          fortune30Partners: result.fortune30Partners.length,
+          smePartners: result.smePartners.length,
+          projects: result.projects.length,
+          spis: result.spis.length,
+          objectives: result.objectives.length,
+          sitreps: result.sitreps.length
+        });
+
+        return result;
       },
       async () => {
         // Rollback action: clear all data
@@ -62,21 +83,28 @@ export class SequentialDataGenerator {
   }
 
   private static async generateAndValidateInternalPartners(quantity: number) {
-    const partners = await generateInternalPartners();
-    const selectedPartners = partners.slice(0, quantity);
-    
-    if (!DataIntegrityChecker.validateInternalPartners(selectedPartners)) {
-      throw new Error('Internal partners validation failed');
-    }
+    try {
+      const partners = await generateInternalPartners();
+      const selectedPartners = partners.slice(0, quantity);
+      
+      if (!DataIntegrityChecker.validateInternalPartners(selectedPartners)) {
+        console.error('Internal partners validation failed');
+        throw new Error('Internal partners validation failed');
+      }
 
-    for (const partner of selectedPartners) {
-      await db.addCollaborator(partner);
-      TransactionManager.addRollbackAction(async () => {
-        await db.deleteCollaborator(partner.id);
-      });
-    }
+      for (const partner of selectedPartners) {
+        await db.addCollaborator(partner);
+        console.log('Added internal partner:', partner.id);
+        TransactionManager.addRollbackAction(async () => {
+          await db.deleteCollaborator(partner.id);
+        });
+      }
 
-    return selectedPartners;
+      return selectedPartners;
+    } catch (error) {
+      console.error('Error generating internal partners:', error);
+      throw error;
+    }
   }
 
   private static async generateAndValidateFortune30Partners(quantity: number) {
