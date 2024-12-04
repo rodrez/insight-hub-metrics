@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Collaborator } from '@/lib/types';
 import { DEPARTMENTS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import { PartnerHeader } from "./PartnerHeader";
 import { PartnerContact } from "./PartnerContact";
 import { PartnerProjects } from "./PartnerProjects";
