@@ -33,6 +33,7 @@ export class DataGenerationService {
     try {
       console.log('Starting sequential data generation with quantities:', quantities);
       await db.init();
+      console.log('Database initialized successfully');
       
       // Clear existing data
       await this.clearAllData();
@@ -41,84 +42,99 @@ export class DataGenerationService {
 
       // Convert readonly array to mutable array
       const departments: Department[] = [...DEPARTMENTS];
+      console.log('Departments loaded:', departments.length);
 
       // Step 1: Generate and save Fortune 30 partners
-      console.log('Generating Fortune 30 partners...');
+      console.log('Starting Fortune 30 partners generation...');
       const fortune30Partners = generateFortune30Partners().slice(0, quantities.fortune30);
+      console.log(`Generated ${fortune30Partners.length} Fortune 30 partners`);
+      
       for (const partner of fortune30Partners) {
+        console.log(`Adding Fortune 30 partner: ${partner.name}`);
         if (!validateCollaborator(partner)) {
           throw new Error(`Invalid Fortune 30 partner data: ${partner.name}`);
         }
         await db.addCollaborator(partner);
-        console.log(`Added Fortune 30 partner: ${partner.name}`);
       }
       this.showProgress("Fortune 30 Partners", fortune30Partners.length);
 
       // Step 2: Generate and save internal partners
-      console.log('Generating internal partners...');
+      console.log('Starting internal partners generation...');
       const internalPartners = await generateInternalPartners();
       const selectedInternalPartners = internalPartners.slice(0, quantities.internalPartners);
+      console.log(`Generated ${selectedInternalPartners.length} internal partners`);
+      
       for (const partner of selectedInternalPartners) {
+        console.log(`Adding internal partner: ${partner.name}`);
         if (!validateCollaborator(partner)) {
           throw new Error(`Invalid internal partner data: ${partner.name}`);
         }
         await db.addCollaborator(partner);
-        console.log(`Added internal partner: ${partner.name}`);
       }
       this.showProgress("Internal Partners", selectedInternalPartners.length);
 
       // Step 3: Generate and save SME partners
-      console.log('Generating SME partners...');
+      console.log('Starting SME partners generation...');
       const smePartners = generateSMEPartners().slice(0, quantities.smePartners);
+      console.log(`Generated ${smePartners.length} SME partners`);
+      
       for (const partner of smePartners) {
+        console.log(`Adding SME partner: ${partner.name}`);
         if (!validateCollaborator(partner)) {
           throw new Error(`Invalid SME partner data: ${partner.name}`);
         }
         await db.addSMEPartner(partner);
-        console.log(`Added SME partner: ${partner.name}`);
       }
       this.showProgress("SME Partners", smePartners.length);
 
       // Step 4: Generate and save projects
-      console.log('Generating projects...');
+      console.log('Starting projects generation...');
       const projects = generateProjects(departments, quantities.projects);
       const projectIds: string[] = [];
+      console.log(`Generated ${projects.length} projects`);
+      
       for (const project of projects) {
+        console.log(`Adding project: ${project.name}`);
         if (!validateProject(project)) {
           throw new Error(`Invalid project data: ${project.name}`);
         }
         await db.addProject(project);
         projectIds.push(project.id);
-        console.log(`Added project: ${project.name}`);
       }
       this.showProgress("Projects", projects.length);
 
       // Step 5: Generate and save SPIs using project IDs
-      console.log('Generating SPIs...');
+      console.log('Starting SPIs generation...');
       const spis = generateSampleSPIs(projectIds, quantities.spis);
       const spiIds: string[] = [];
+      console.log(`Generated ${spis.length} SPIs`);
+      
       for (const spi of spis) {
+        console.log(`Adding SPI: ${spi.name}`);
         await db.addSPI(spi);
         spiIds.push(spi.id);
-        console.log(`Added SPI: ${spi.name}`);
       }
       this.showProgress("SPIs", spis.length);
 
       // Step 6: Generate and save objectives
-      console.log('Generating objectives...');
+      console.log('Starting objectives generation...');
       const objectives = generateSampleObjectives(quantities.objectives);
+      console.log(`Generated ${objectives.length} objectives`);
+      
       for (const objective of objectives) {
+        console.log(`Adding objective: ${objective.title}`);
         await db.addObjective(objective);
-        console.log(`Added objective: ${objective.title}`);
       }
       this.showProgress("Objectives", objectives.length);
 
       // Step 7: Generate and save sitreps using SPI IDs
-      console.log('Generating sitreps...');
+      console.log('Starting sitreps generation...');
       const sitreps = generateSampleSitReps(spis, quantities.sitreps);
+      console.log(`Generated ${sitreps.length} sitreps`);
+      
       for (const sitrep of sitreps) {
+        console.log(`Adding sitrep: ${sitrep.title}`);
         await db.addSitRep(sitrep);
-        console.log(`Added sitrep: ${sitrep.title}`);
       }
       this.showProgress("SitReps", sitreps.length);
 
