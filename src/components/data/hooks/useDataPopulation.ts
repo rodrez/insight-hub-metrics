@@ -41,21 +41,25 @@ export function useDataPopulation() {
       console.log('Generated data:', data);
       
       // Add data to database in sequence
+      console.log('Adding projects to database...');
       for (const project of data.projects) {
         await db.addProject(project);
       }
       setProgress(60);
       
+      console.log('Adding SPIs to database...');
       for (const spi of data.spis) {
         await db.addSPI(spi);
       }
       setProgress(70);
       
+      console.log('Adding objectives to database...');
       for (const objective of data.objectives) {
         await db.addObjective(objective);
       }
       setProgress(80);
       
+      console.log('Adding sitreps to database...');
       for (const sitrep of data.sitreps) {
         await db.addSitRep(sitrep);
       }
@@ -82,6 +86,9 @@ export function useDataPopulation() {
     } finally {
       setIsPopulating(false);
       setProgress(0);
+      // Force one final refresh to ensure UI is up to date
+      queryClient.invalidateQueries();
+      queryClient.refetchQueries({ queryKey: ['data-counts'] });
     }
   };
 
