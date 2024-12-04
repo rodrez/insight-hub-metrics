@@ -13,104 +13,103 @@ export interface Bug {
 export const initialBugs: Bug[] = [
   {
     id: "BUG-001",
-    title: "Type Mismatch in Sample Data Service",
-    description: "Type error between Collaborator[] and number in sample data generation",
-    severity: "critical",
+    title: "OrgChart Component Size",
+    description: "OrgPositionCard component exceeds recommended size limits and needs further componentization",
+    severity: "medium",
     status: "active",
-    location: "src/lib/services/SampleDataService.ts",
-    impact: "Prevents successful data population and affects application stability",
-    stepsToReproduce: "1. Navigate to Settings\n2. Attempt to populate sample data",
-    suggestedFix: "Update type definitions and ensure proper handling of Collaborator arrays vs numeric quantities"
+    location: "src/components/org-chart/OrgPositionCard.tsx",
+    impact: "Reduces maintainability and makes testing more difficult",
+    suggestedFix: "Split into smaller, focused components for relationship management and data display"
   },
   {
     id: "BUG-002",
-    title: "Large Component File Sizes",
-    description: "Several components exceed recommended file size limits",
-    severity: "medium",
+    title: "Query Cache Management",
+    description: "Inefficient cache invalidation in relationship updates",
+    severity: "high",
     status: "active",
-    location: "src/components/settings/DepartmentSettings.tsx, src/pages/Wiki.tsx",
-    impact: "Reduces code maintainability and may affect performance",
-    suggestedFix: "Refactor large components into smaller, focused components and move logic to custom hooks"
+    location: "src/components/org-chart/hooks/useRelationshipUpdates.ts",
+    impact: "May cause stale data display and inconsistent UI updates",
+    suggestedFix: "Implement proper cache invalidation strategies and optimistic updates"
   },
   {
     id: "BUG-003",
-    title: "Database Operations Error Handling",
-    description: "Insufficient error handling in database operations",
-    severity: "high",
-    status: "active",
-    location: "src/components/data/operations/DatabaseOperations.ts",
-    impact: "Poor error feedback and potential data inconsistencies",
-    suggestedFix: "Implement comprehensive error handling with specific error types and user-friendly messages"
-  },
-  {
-    id: "BUG-004",
-    title: "Memory Management in Data Population",
-    description: "Large dataset population may cause memory issues",
-    severity: "high",
-    status: "active",
-    location: "src/lib/services/IndexedDBService.ts",
-    impact: "Potential browser crashes with large datasets",
-    stepsToReproduce: "1. Attempt to populate database with maximum quantity values",
-    suggestedFix: "Implement batch processing with memory usage monitoring"
-  },
-  {
-    id: "BUG-005",
-    title: "Progress Tracking Enhancement",
-    description: "Limited feedback during long-running operations",
-    severity: "medium",
-    status: "active",
-    location: "src/components/data/DatabaseActions.tsx",
-    impact: "Users lack clear progress indication during data operations",
-    suggestedFix: "Add detailed progress tracking and status updates for long-running operations"
-  },
-  {
-    id: "BUG-006",
-    title: "Data Validation Coverage",
-    description: "Incomplete data validation in sample data generation",
-    severity: "high",
-    status: "active",
-    location: "src/lib/services/data/generators/projectGenerator.ts",
-    impact: "Risk of invalid data states in generated content",
-    suggestedFix: "Implement comprehensive validation checks for all generated data"
-  },
-  {
-    id: "BUG-007",
-    title: "React Query Configuration",
-    description: "Suboptimal React Query cache settings",
-    severity: "medium",
-    status: "active",
-    location: "src/lib/services/IndexedDBService.ts",
-    impact: "Inefficient data caching and potential stale data issues",
-    suggestedFix: "Optimize React Query cache configuration and implement proper invalidation strategies"
-  },
-  {
-    id: "BUG-008",
-    title: "Database Schema Version Management",
-    description: "Lack of robust database versioning system",
-    severity: "high",
-    status: "active",
-    location: "src/lib/services/db/base/BaseDBService.ts",
-    impact: "Potential issues during database schema updates",
-    suggestedFix: "Implement comprehensive database schema versioning and migration system"
-  },
-  {
-    id: "BUG-009",
-    title: "Performance Optimization Needed",
-    description: "Render optimization opportunities in large lists",
-    severity: "medium",
-    status: "active",
-    location: "src/components/projects/ProjectList.tsx",
-    impact: "Potential performance issues with large datasets",
-    suggestedFix: "Implement virtualization for large lists and optimize render performance"
-  },
-  {
-    id: "BUG-010",
-    title: "Accessibility Improvements",
-    description: "Missing ARIA labels and keyboard navigation",
+    title: "Loading States Handling",
+    description: "Incomplete loading state management across components",
     severity: "medium",
     status: "active",
     location: "Multiple components",
-    impact: "Reduced accessibility for users with disabilities",
-    suggestedFix: "Add proper ARIA labels and implement complete keyboard navigation support"
+    impact: "Poor user experience during data loading and updates",
+    suggestedFix: "Add consistent loading states and skeleton loaders"
+  },
+  {
+    id: "BUG-004",
+    title: "Error Boundary Implementation",
+    description: "Missing error boundaries for graceful error handling",
+    severity: "high",
+    status: "active",
+    location: "src/components/layout",
+    impact: "Application may crash entirely on component errors",
+    stepsToReproduce: "Trigger an error in any component without error boundary",
+    suggestedFix: "Implement error boundaries with fallback UI for major component trees"
+  },
+  {
+    id: "BUG-005",
+    title: "Form Validation Enhancement",
+    description: "Inconsistent form validation across the application",
+    severity: "medium",
+    status: "active",
+    location: "src/components/data/actions/DataQuantityForm.tsx",
+    impact: "Users can submit invalid data in some forms",
+    suggestedFix: "Implement consistent form validation using react-hook-form and zod"
+  },
+  {
+    id: "BUG-006",
+    title: "Performance Optimization",
+    description: "Large component re-renders in relationship management",
+    severity: "high",
+    status: "active",
+    location: "src/components/org-chart/RelationshipDisplay.tsx",
+    impact: "Performance degradation with many relationships",
+    suggestedFix: "Implement React.memo and useMemo for expensive computations"
+  },
+  {
+    id: "BUG-007",
+    title: "Accessibility Improvements",
+    description: "Missing ARIA attributes in interactive elements",
+    severity: "medium",
+    status: "active",
+    location: "src/components/org-chart/RelationshipSelectionDialog.tsx",
+    impact: "Reduced accessibility for screen readers",
+    suggestedFix: "Add proper ARIA labels and roles to all interactive elements"
+  },
+  {
+    id: "BUG-008",
+    title: "Mobile Responsiveness",
+    description: "Layout issues on mobile devices in org chart view",
+    severity: "high",
+    status: "active",
+    location: "src/components/org-chart/OrgPositionCard.tsx",
+    impact: "Poor user experience on mobile devices",
+    suggestedFix: "Implement responsive design patterns and mobile-first approach"
+  },
+  {
+    id: "BUG-009",
+    title: "Database Transaction Error Handling",
+    description: "Insufficient error handling in database operations",
+    severity: "critical",
+    status: "active",
+    location: "src/lib/services/db/base/BaseDBService.ts",
+    impact: "Silent failures in database operations",
+    suggestedFix: "Implement comprehensive error handling and user feedback"
+  },
+  {
+    id: "BUG-010",
+    title: "Type Safety Improvements",
+    description: "Missing or incomplete TypeScript types in relationship management",
+    severity: "medium",
+    status: "active",
+    location: "src/components/org-chart/types.ts",
+    impact: "Potential runtime errors and reduced code reliability",
+    suggestedFix: "Add comprehensive TypeScript types and interfaces"
   }
 ];
