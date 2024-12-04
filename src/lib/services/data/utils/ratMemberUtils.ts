@@ -9,7 +9,7 @@ type RatMemberInfo = {
   sitreps: string[];
 };
 
-const RAT_MEMBERS: Record<string, RatMemberInfo> = {
+export const RAT_MEMBERS: Record<string, RatMemberInfo> = {
   "Sarah Johnson": {
     name: "Sarah Johnson",
     expertise: "Retail Operations",
@@ -104,7 +104,6 @@ export const getRatMemberRelationships = async (name: string, db: any) => {
   }
 
   try {
-    // Wait for all promises to resolve
     const [fortune30Partners, smePartners, projects, spis, sitreps] = await Promise.all([
       db.getAllCollaborators().then(partners => {
         console.log(`Fortune 30 partners for ${name}:`, partners);
@@ -140,7 +139,6 @@ export const getRatMemberRelationships = async (name: string, db: any) => {
     return relationships;
   } catch (error) {
     console.error('Error fetching relationships:', error);
-    // Return empty arrays instead of null to prevent UI errors
     return {
       fortune30Partners: [],
       smePartners: [],
