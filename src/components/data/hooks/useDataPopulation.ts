@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { db } from "@/lib/db";
-import { LoadingStep, executeWithRetry } from "@/lib/utils/loadingRetry";
+import { LoadingStep } from "@/lib/utils/loadingRetry";
 import { useQueryClient } from "@tanstack/react-query";
 import { DatabaseError } from "@/lib/utils/errorHandling";
 import { DatabaseOperations } from "../operations/DatabaseOperations";
@@ -61,14 +61,15 @@ export function useDataPopulation() {
       }
       setProgress(90);
       
-      // Invalidate queries to refresh data
+      // Force immediate data refresh
       await queryClient.invalidateQueries();
+      await queryClient.refetchQueries({ queryKey: ['data-counts'] });
       setProgress(100);
       
       console.log('Sample data population completed successfully');
       toast({
         title: "Success",
-        description: `Successfully generated ${data.projects.length} projects, ${data.spis.length} SPIs, ${data.objectives.length} objectives, and ${data.sitreps.length} sitreps`,
+        description: `Generated ${data.projects.length} projects, ${data.spis.length} SPIs, ${data.objectives.length} objectives, and ${data.sitreps.length} sitreps`,
       });
     } catch (error) {
       console.error('Error in populateSampleData:', error);
