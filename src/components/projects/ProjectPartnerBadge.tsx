@@ -57,7 +57,8 @@ export function ProjectPartnerBadge({ partner, departmentColor }: ProjectPartner
               backgroundColor: badgeColor,
               color: '#FFFFFF',
               fontWeight: 500,
-              border: 'none'
+              border: 'none',
+              textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
             }}
             className="flex items-center gap-1 hover:opacity-90 transition-opacity shadow-md"
           >
