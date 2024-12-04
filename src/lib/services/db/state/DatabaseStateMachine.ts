@@ -7,6 +7,8 @@ interface QueuedOperation {
   resolve: (value: any) => void;
   reject: (error: any) => void;
   retryCount: number;
+  timestamp: number;
+  priority: number;
 }
 
 export class DatabaseStateMachine {
@@ -19,11 +21,17 @@ export class DatabaseStateMachine {
   private initializeReject: ((error: Error) => void) | null = null;
   private readonly MAX_RETRIES = 3;
   private readonly RETRY_DELAY = 1000;
+  private isProcessingQueue = false;
 
   private constructor() {
     this.initializationPromise = new Promise((resolve, reject) => {
       this.initializeResolve = resolve;
       this.initializeReject = reject;
+    });
+    
+    // Add logging for state changes
+    this.addStateListener((state) => {
+      console.log(`Database state changed to: ${state}`);
     });
   }
 
@@ -49,6 +57,7 @@ export class DatabaseStateMachine {
     if (this.currentState === 'error') {
       return Promise.reject(new Error('Database is in error state'));
     }
+    console.log('Waiting for database initialization...');
     return this.initializationPromise!;
   }
 
@@ -58,9 +67,11 @@ export class DatabaseStateMachine {
     this.stateListeners.forEach(listener => listener(newState));
     
     if (newState === 'ready' && this.initializeResolve) {
+      console.log('Database is ready, resolving initialization promise');
       this.initializeResolve();
       this.processQueue();
     } else if (newState === 'error' && this.initializeReject) {
+      console.log('Database entered error state, rejecting initialization promise');
       this.initializeReject(new Error('Database initialization failed'));
     }
 
@@ -82,8 +93,13 @@ export class DatabaseStateMachine {
     }
   }
 
-  public async queueOperation<T>(operation: () => Promise<T>): Promise<T> {
-    if (this.currentState === 'ready') {
+  public async queueOperation<T>(
+    operation: () => Promise<T>, 
+    priority: number = 1
+  ): Promise<T> {
+    console.log(`Queueing operation with priority ${priority}, current state: ${this.currentState}`);
+    
+    if (this.currentState === 'ready' && !this.isProcessingQueue) {
       try {
         return await operation();
       } catch (error) {
@@ -97,13 +113,19 @@ export class DatabaseStateMachine {
         operation: async () => operation(),
         resolve,
         reject,
-        retryCount: 0
+        retryCount: 0,
+        timestamp: Date.now(),
+        priority
       };
       
-      console.log('Queueing operation, current state:', this.currentState);
       this.operationQueue.push(queuedOperation);
+      // Sort queue by priority (higher first) and then by timestamp (older first)
+      this.operationQueue.sort((a, b) => 
+        b.priority - a.priority || a.timestamp - b.timestamp
+      );
       
       if (this.currentState === 'uninitialized') {
+        console.log('Database uninitialized, triggering initialization');
         this.initialize().catch(error => {
           console.error('Initialization failed:', error);
           reject(error);
@@ -113,6 +135,11 @@ export class DatabaseStateMachine {
   }
 
   private async processQueue(): Promise<void> {
+    if (this.isProcessingQueue || this.operationQueue.length === 0) {
+      return;
+    }
+
+    this.isProcessingQueue = true;
     console.log(`Processing operation queue (${this.operationQueue.length} operations)`);
     
     while (this.operationQueue.length > 0 && this.currentState === 'ready') {
@@ -120,6 +147,7 @@ export class DatabaseStateMachine {
       if (!operation) continue;
 
       try {
+        console.log(`Executing queued operation (attempt ${operation.retryCount + 1})`);
         const result = await operation.operation();
         operation.resolve(result);
         console.log('Operation completed successfully');
@@ -129,6 +157,8 @@ export class DatabaseStateMachine {
         if (operation.retryCount < this.MAX_RETRIES) {
           operation.retryCount++;
           console.log(`Retrying operation (attempt ${operation.retryCount}/${this.MAX_RETRIES})`);
+          // Re-queue with same priority but updated timestamp
+          operation.timestamp = Date.now();
           this.operationQueue.unshift(operation);
           await new Promise(resolve => setTimeout(resolve, this.RETRY_DELAY * operation.retryCount));
           toast({
@@ -136,6 +166,7 @@ export class DatabaseStateMachine {
             description: `Attempt ${operation.retryCount} of ${this.MAX_RETRIES}`,
           });
         } else {
+          console.error('Operation failed after maximum retries');
           operation.reject(error);
           toast({
             title: "Operation Failed",
@@ -145,6 +176,8 @@ export class DatabaseStateMachine {
         }
       }
     }
+
+    this.isProcessingQueue = false;
   }
 
   public async initialize(): Promise<void> {
@@ -170,22 +203,29 @@ export class DatabaseStateMachine {
   }
 
   private async initializeDatabase(): Promise<void> {
-    // Simulate database initialization with a delay
+    // Add initialization delay for testing
+    console.log('Starting database initialization...');
     await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log('Database initialization completed');
   }
 
   public markAsError(error: Error): void {
     console.error('Database error occurred:', error);
     this.setState('error');
-    this.operationQueue.forEach(operation => {
-      operation.reject(new Error('Database entered error state'));
-    });
-    this.operationQueue = [];
+    // Reject all queued operations
+    while (this.operationQueue.length > 0) {
+      const operation = this.operationQueue.shift();
+      if (operation) {
+        operation.reject(new Error('Database entered error state'));
+      }
+    }
   }
 
   public reset(): void {
+    console.log('Resetting database state machine');
     this.setState('uninitialized');
     this.operationQueue = [];
+    this.isProcessingQueue = false;
     this.initializationPromise = new Promise((resolve, reject) => {
       this.initializeResolve = resolve;
       this.initializeReject = reject;

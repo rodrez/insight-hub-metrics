@@ -9,8 +9,6 @@ import { toast } from "@/components/ui/use-toast";
 export class DatabaseConnectionService {
   private db: IDBDatabase | null = null;
   private initialized: boolean = false;
-  private initializationPromise: Promise<void> | null = null;
-  private initializationLock: boolean = false;
   private databaseInitializer: DatabaseInitializer;
   private databaseCleanup: DatabaseCleanup;
   private eventEmitter: DatabaseEventEmitter;
@@ -28,7 +26,7 @@ export class DatabaseConnectionService {
 
     // Listen for state changes
     this.stateMachine.addStateListener((state) => {
-      console.log('Database state changed:', state);
+      console.log('Database connection state changed:', state);
       if (state === 'ready') {
         this.initialized = true;
       } else if (state === 'error') {
@@ -38,23 +36,9 @@ export class DatabaseConnectionService {
   }
 
   async init(): Promise<void> {
-    // If initialization is already in progress, return the existing promise
-    if (this.initializationPromise) {
-      console.log('Initialization already in progress, returning existing promise');
-      return this.initializationPromise;
-    }
-
-    // If already initialized, return immediately
-    if (this.initialized && this.db) {
-      console.log('Database already initialized');
-      return Promise.resolve();
-    }
-
-    // Create a new initialization promise
-    this.initializationPromise = this.stateMachine.queueOperation(async () => {
-      // Double-check initialization status after acquiring lock
+    return this.stateMachine.queueOperation(async () => {
       if (this.initialized && this.db) {
-        console.log('Database initialized after lock acquisition');
+        console.log('Database already initialized');
         return;
       }
 
@@ -73,13 +57,8 @@ export class DatabaseConnectionService {
         this.db = null;
         this.eventEmitter.emit('error', error);
         throw error;
-      } finally {
-        // Clear the initialization promise to allow future initialization attempts if needed
-        this.initializationPromise = null;
       }
-    });
-
-    return this.initializationPromise;
+    }, 2); // Higher priority for initialization
   }
 
   private async cleanupExistingConnections(): Promise<void> {
@@ -100,7 +79,6 @@ export class DatabaseConnectionService {
     await this.databaseCleanup.cleanup();
     this.db = null;
     this.initialized = false;
-    this.initializationPromise = null;
     this.stateMachine.reset();
   }
 
