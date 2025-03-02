@@ -88,7 +88,7 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
 
   // Initiative methods
   getAllInitiatives = () => this.spiService.getAllInitiatives();
-  updateInitiative = (id: string, initiative: any) => this.spiService.updateInitiative(id, initiative);
+  updateInitiative = (id: string, initiative: Record<string, unknown>) => this.spiService.updateInitiative(id, initiative);
   deleteInitiative = (id: string) => this.spiService.deleteInitiative(id);
 
   // Team methods
@@ -135,14 +135,18 @@ export class IndexedDBService extends BaseIndexedDBService implements DataServic
     }
   };
   
-  clear = () => this.databaseClearingService.clearDatabase();
+  async clear(): Promise<void> {
+    // Ensure database is initialized first
+    if (!this.getDatabase()) {
+      await this.init();
+    }
+    // Now get the updated instance of DatabaseClearingService with the initialized database
+    const clearingService = new DatabaseClearingService(this.getDatabase(), this.initManager);
+    return clearingService.clearDatabase();
+  }
 
   async populateSampleData(quantities: DataQuantities): Promise<void> {
-    try {
-      await this.clear();
-      await this.sampleDataService.generateSampleData(quantities);
-    } catch (error) {
-      throw error;
-    }
+    await this.clear();
+    await this.sampleDataService.generateSampleData(quantities);
   }
 }

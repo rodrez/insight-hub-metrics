@@ -26,18 +26,23 @@ export function useDataPopulation() {
         name: "Sample Data Population",
         action: async () => {
           try {
+            // Ensure database is fully initialized before proceeding
+            console.log('Ensuring database is initialized...');
             await db.init();
-            console.log('Database initialized, generating sample data...');
+            console.log('Database initialization confirmed, generating sample data...');
             
             const data = await sampleDataService.generateSampleData(quantities);
             console.log('Sample data generated:', data);
 
             // Add data to database in sequence with progress updates
-            const totalSteps = 4;
+            const totalSteps = 7;
             let currentStep = 0;
 
+            // Clear existing data first - the clear method now handles initialization check
+            console.log('Clearing existing data...');
+            await db.clear();
+
             // Add Fortune 30 partners
-            await db.clear(); // Clear existing data first
             console.log('Adding Fortune 30 partners...');
             for (const partner of data.fortune30Partners) {
               await db.addCollaborator(partner);
@@ -62,9 +67,39 @@ export function useDataPopulation() {
             setProgress((currentStep / totalSteps) * 100);
 
             // Add projects
-            console.log('Adding projects...', data.projects);
+            console.log('Adding projects...');
             for (const project of data.projects) {
               await db.addProject(project);
+            }
+            currentStep++;
+            setProgress((currentStep / totalSteps) * 100);
+            
+            // Add SPIs
+            console.log('Adding SPIs...');
+            if (data.spis && data.spis.length > 0) {
+              for (const spi of data.spis) {
+                await db.addSPI(spi);
+              }
+            }
+            currentStep++;
+            setProgress((currentStep / totalSteps) * 100);
+            
+            // Add objectives
+            console.log('Adding objectives...');
+            if (data.objectives && data.objectives.length > 0) {
+              for (const objective of data.objectives) {
+                await db.addObjective(objective);
+              }
+            }
+            currentStep++;
+            setProgress((currentStep / totalSteps) * 100);
+            
+            // Add SitReps
+            console.log('Adding SitReps...');
+            if (data.sitreps && data.sitreps.length > 0) {
+              for (const sitrep of data.sitreps) {
+                await db.addSitRep(sitrep);
+              }
             }
             currentStep++;
             setProgress((currentStep / totalSteps) * 100);

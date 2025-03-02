@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { db } from "@/lib/db";
 import { toast } from "@/components/ui/use-toast";
-import { DatabaseClearingService } from "@/lib/services/db/DatabaseClearingService";
 
 export function useDataClearing() {
   const [isClearing, setIsClearing] = useState(false);
@@ -9,15 +8,8 @@ export function useDataClearing() {
   const clearDatabase = async () => {
     setIsClearing(true);
     try {
-      // Initialize database first
-      await db.init();
-      
-      // Create a new instance of DatabaseClearingService with the initialized db
-      const clearingService = new DatabaseClearingService((db as any).getDatabase());
-      await clearingService.clearDatabase();
-      
-      // Reinitialize after clearing
-      await db.init();
+      // Use the updated clear method which handles initialization internally
+      await db.clear();
       
       toast({
         title: "Success",
